@@ -39,7 +39,7 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=public-sans:400,500,600,700" rel="stylesheet" />
 
-        @vite(['resources/js/central/app.ts', "resources/js/pages/central/{$page['component']}.vue", 'resources/css/central/app.css'], 'build-central')
+        @vite(['resources/js/central/app.ts', "resources/js/central/pages/{$page['component']}.vue", 'resources/css/central/app.css'], 'build-central')
         @inertiaHead
     </head>
     <body class="font-sans antialiased">
