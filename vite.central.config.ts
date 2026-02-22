@@ -44,7 +44,7 @@ export default defineConfig({
             ui: {
                 colors: {
                     primary: 'amber',
-                    neutral: 'zink'
+                    neutral: 'zinc'
                 }
             },
             autoImport: {
@@ -66,7 +66,7 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            '@': path.resolve(__dirname, './resources/js/central'),
+            '@': path.resolve(__dirname, './resources/js'),
         },
     },
 });

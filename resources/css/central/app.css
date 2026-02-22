@@ -6,7 +6,7 @@
 
 /* 2. Your existing theme overrides */
 @theme static {
-    --font-sans: 'Public Sans', sans-serif;
+    --font-sans: 'Rubik', sans-serif;
 }
 
 .dark {

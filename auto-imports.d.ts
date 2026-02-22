@@ -351,9 +351,6 @@ declare global {
   export type { UseInitialsReturn } from './resources/js/composables/useInitials'
   import('./resources/js/composables/useInitials')
   // @ts-ignore
-  export type { UseTwoFactorAuthReturn } from './resources/js/composables/useTwoFactorAuth'
-  import('./resources/js/composables/useTwoFactorAuth')
-  // @ts-ignore
   export type { ShortcutConfig, ShortcutsConfig, ShortcutsOptions } from './node_modules/.pnpm/@nuxt+ui@4.4.0_@inertiajs+vue3@2.3.15_vue@3.5.28_typescript@5.9.3___@tiptap+extensions@_5eee9b2c541115b038d28e1f4318f55d/node_modules/@nuxt/ui/dist/runtime/composables/defineShortcuts.d'
   import('./node_modules/.pnpm/@nuxt+ui@4.4.0_@inertiajs+vue3@2.3.15_vue@3.5.28_typescript@5.9.3___@tiptap+extensions@_5eee9b2c541115b038d28e1f4318f55d/node_modules/@nuxt/ui/dist/runtime/composables/defineShortcuts.d')
   // @ts-ignore
@@ -682,7 +679,6 @@ declare module 'vue' {
     readonly useToast: UnwrapRef<typeof import('./node_modules/.pnpm/@nuxt+ui@4.4.0_@inertiajs+vue3@2.3.15_vue@3.5.28_typescript@5.9.3___@tiptap+extensions@_5eee9b2c541115b038d28e1f4318f55d/node_modules/@nuxt/ui/dist/runtime/composables/useToast.js')['useToast']>
     readonly useToggle: UnwrapRef<typeof import('@vueuse/core')['useToggle']>
     readonly useTransition: UnwrapRef<typeof import('@vueuse/core')['useTransition']>
-    readonly useTwoFactorAuth: UnwrapRef<typeof import('./resources/js/composables/useTwoFactorAuth')['useTwoFactorAuth']>
     readonly useUrlSearchParams: UnwrapRef<typeof import('@vueuse/core')['useUrlSearchParams']>
     readonly useUserMedia: UnwrapRef<typeof import('@vueuse/core')['useUserMedia']>
     readonly useVModel: UnwrapRef<typeof import('@vueuse/core')['useVModel']>
