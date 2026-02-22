@@ -13,7 +13,7 @@ createInertiaApp({
     resolve: (name) =>
         resolvePageComponent(
             `./pages/${name}.vue`,
-            import.meta.glob<DefineComponent>('./pages/**/*.vue') // Only finds pages in resources/js/central/pages
+            import.meta.glob<DefineComponent>('./pages/**/*.vue'), // Only finds pages in resources/js/central/pages
         ),
     setup({ el, App, props, plugin }) {
         createApp({ render: () => h(App, props) })

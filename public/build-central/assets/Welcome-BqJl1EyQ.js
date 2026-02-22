@@ -1,0 +1,1 @@
+import{c as n,o as s}from"./app-DDS5gnOV.js";/* empty css            */const _=(t,e)=>{const c=t.__vccOpts||t;for(const[o,r]of e)c[o]=r;return c},a={},f={class:"text-primary"};function l(t,e){return s(),n("h1",f,"Hey - CENTRAL")}const i=_(a,[["render",l]]);export{i as default};

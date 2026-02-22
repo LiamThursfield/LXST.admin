@@ -9,7 +9,7 @@
     ]
   },
   "resources/js/tenant/app.ts": {
-    "file": "assets/app-DMKJ6C5c.js",
+    "file": "assets/app-CNsC8d0M.js",
     "name": "app",
     "src": "resources/js/tenant/app.ts",
     "isEntry": true,
@@ -21,7 +21,7 @@
     ]
   },
   "resources/js/tenant/pages/Welcome.vue": {
-    "file": "assets/Welcome-CXW3Qm4A.js",
+    "file": "assets/Welcome-Dy4Omu9_.js",
     "name": "Welcome",
     "src": "resources/js/tenant/pages/Welcome.vue",
     "isDynamicEntry": true,

@@ -1,5 +1,5 @@
-@import "tailwindcss" theme(static);
-@import "@nuxt/ui";
+@import 'tailwindcss' theme(static);
+@import '@nuxt/ui';
 
 @source "../../js/components/**/*.vue";
 @source "../../js/tenant/**/*.vue";

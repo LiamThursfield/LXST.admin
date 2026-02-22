@@ -1,0 +1,1 @@
+import{c as n,o as s}from"./app-CNsC8d0M.js";/* empty css            */const a=(t,e)=>{const c=t.__vccOpts||t;for(const[o,r]of e)c[o]=r;return c},_={},f={class:"text-primary"};function l(t,e){return s(),n("h1",f,"Hey - Tenant")}const i=a(_,[["render",l]]);export{i as default};
