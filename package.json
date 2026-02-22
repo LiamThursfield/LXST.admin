@@ -3,9 +3,12 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
-        "build:ssr": "vite build && vite build --ssr",
-        "dev": "vite",
+        "dev": "concurrently -p \"[{name}]\" -n \"Central,Tenant\" -c \"bgBlue,bgMagenta\" \"pnpm dev:central\" \"pnpm dev:tenant\"",
+        "dev:central": "vite --config vite.central.config.ts",
+        "dev:tenant": "vite --config vite.tenant.config.ts",
+        "build": "pnpm build:central && pnpm build:tenant",
+        "build:central": "vite build --config vite.central.config.ts",
+        "build:tenant": "vite build --config vite.tenant.config.ts",
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix"
@@ -24,6 +27,7 @@
         "eslint-plugin-import": "^2.32.0",
         "eslint-plugin-vue": "^9.32.0",
         "prettier": "^3.4.2",
+        "prettier-plugin-organize-imports": "^4.3.0",
         "prettier-plugin-tailwindcss": "^0.6.11",
         "typescript": "^5.2.2",
         "typescript-eslint": "^8.23.0",
@@ -32,6 +36,8 @@
     },
     "dependencies": {
         "@inertiajs/vue3": "^2.3.7",
+        "@nuxt/ui": "^4.4.0",
+        "@unovis/vue": "^1.6.4",
         "@vueuse/core": "^12.8.2",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",

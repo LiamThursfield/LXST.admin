@@ -7,14 +7,11 @@ use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
-    /**
-     * The root template that's loaded on the first page visit.
-     *
-     * @see https://inertiajs.com/server-side-setup#root-template
-     *
-     * @var string
-     */
-    protected $rootView = 'app';
+    public function rootView(Request $request): string
+    {
+        // If a tenant is identified, use the tenant blade, otherwise central
+        return tenant() ? 'tenant' : 'central';
+    }
 
     /**
      * Determines the current asset version.

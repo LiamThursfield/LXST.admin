@@ -37,9 +37,9 @@
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+        <link href="https://fonts.bunny.net/css?family=public-sans:400,500,600,700" rel="stylesheet" />
 
-        @vite(['resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
+        @vite(['resources/js/tenant/app.ts', "resources/js/pages/tenant/{$page['component']}.vue", 'resources/css/tenant/app.css'], 'build-tenant')
         @inertiaHead
     </head>
     <body class="font-sans antialiased">
