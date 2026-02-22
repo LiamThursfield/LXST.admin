@@ -1,10 +1,10 @@
+import path from 'path';
 import { wayfinder } from '@laravel/vite-plugin-wayfinder';
+import ui from '@nuxt/ui/vite';
 import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
-import ui from '@nuxt/ui/vite';
-import path from 'path';
 
 export default defineConfig({
     cacheDir: 'node_modules/.vite-tenant',
