@@ -1,0 +1,14 @@
+@import "tailwindcss" theme(static);
+@import "@nuxt/ui";
+
+@source "../../js/components/**/*.vue";
+@source "../../js/central/**/*.vue";
+
+/* 2. Your existing theme overrides */
+@theme static {
+    --font-sans: 'Public Sans', sans-serif;
+}
+
+.dark {
+    --ui-primary: var(--ui-color-primary-500);
+}
