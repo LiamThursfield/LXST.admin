@@ -1,6 +1,21 @@
 {
+  "_Input-DZOHhl4r.js": {
+    "file": "assets/Input-DZOHhl4r.js",
+    "name": "Input",
+    "imports": [
+      "_index-CkxSzi5z.js",
+      "resources/js/tenant/app.ts"
+    ]
+  },
+  "_index-CkxSzi5z.js": {
+    "file": "assets/index-CkxSzi5z.js",
+    "name": "index",
+    "imports": [
+      "resources/js/tenant/app.ts"
+    ]
+  },
   "resources/css/tenant/app.css": {
-    "file": "assets/app-Bzpydl1V.css",
+    "file": "assets/app-CA_tIzL3.css",
     "src": "resources/css/tenant/app.css",
     "isEntry": true,
     "name": "app",
@@ -9,19 +24,24 @@
     ]
   },
   "resources/js/tenant/app.ts": {
-    "file": "assets/app-BTc4nMes.js",
+    "file": "assets/app-D58-mC89.js",
     "name": "app",
     "src": "resources/js/tenant/app.ts",
     "isEntry": true,
     "dynamicImports": [
-      "resources/js/tenant/pages/Welcome.vue"
+      "resources/js/tenant/pages/Welcome.vue",
+      "resources/js/tenant/pages/auth/ForgotPassword.vue",
+      "resources/js/tenant/pages/auth/Login.vue",
+      "resources/js/tenant/pages/auth/Register.vue",
+      "resources/js/tenant/pages/auth/ResetPassword.vue",
+      "resources/js/tenant/pages/auth/VerifyEmail.vue"
     ],
     "css": [
-      "assets/app-Bzpydl1V.css"
+      "assets/app-CA_tIzL3.css"
     ]
   },
   "resources/js/tenant/pages/Welcome.vue": {
-    "file": "assets/Welcome-B5duqlta.js",
+    "file": "assets/Welcome-DqGInUh6.js",
     "name": "Welcome",
     "src": "resources/js/tenant/pages/Welcome.vue",
     "isDynamicEntry": true,
@@ -29,7 +49,76 @@
       "resources/js/tenant/app.ts"
     ],
     "css": [
-      "assets/app-Bzpydl1V.css"
+      "assets/app-CA_tIzL3.css"
+    ]
+  },
+  "resources/js/tenant/pages/auth/ForgotPassword.vue": {
+    "file": "assets/ForgotPassword-glKezDsl.js",
+    "name": "ForgotPassword",
+    "src": "resources/js/tenant/pages/auth/ForgotPassword.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "_index-CkxSzi5z.js",
+      "_Input-DZOHhl4r.js",
+      "resources/js/tenant/app.ts"
+    ],
+    "css": [
+      "assets/app-CA_tIzL3.css"
+    ]
+  },
+  "resources/js/tenant/pages/auth/Login.vue": {
+    "file": "assets/Login-CiXnlQKI.js",
+    "name": "Login",
+    "src": "resources/js/tenant/pages/auth/Login.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "_index-CkxSzi5z.js",
+      "resources/js/tenant/app.ts",
+      "_Input-DZOHhl4r.js"
+    ],
+    "css": [
+      "assets/app-CA_tIzL3.css"
+    ]
+  },
+  "resources/js/tenant/pages/auth/Register.vue": {
+    "file": "assets/Register-BKO4Q-0r.js",
+    "name": "Register",
+    "src": "resources/js/tenant/pages/auth/Register.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "_index-CkxSzi5z.js",
+      "_Input-DZOHhl4r.js",
+      "resources/js/tenant/app.ts"
+    ],
+    "css": [
+      "assets/app-CA_tIzL3.css"
+    ]
+  },
+  "resources/js/tenant/pages/auth/ResetPassword.vue": {
+    "file": "assets/ResetPassword-CBihZhZW.js",
+    "name": "ResetPassword",
+    "src": "resources/js/tenant/pages/auth/ResetPassword.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "_index-CkxSzi5z.js",
+      "_Input-DZOHhl4r.js",
+      "resources/js/tenant/app.ts"
+    ],
+    "css": [
+      "assets/app-CA_tIzL3.css"
+    ]
+  },
+  "resources/js/tenant/pages/auth/VerifyEmail.vue": {
+    "file": "assets/VerifyEmail-DA7N8BRc.js",
+    "name": "VerifyEmail",
+    "src": "resources/js/tenant/pages/auth/VerifyEmail.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "_index-CkxSzi5z.js",
+      "resources/js/tenant/app.ts"
+    ],
+    "css": [
+      "assets/app-CA_tIzL3.css"
     ]
   }
 }

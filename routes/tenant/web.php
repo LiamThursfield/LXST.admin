@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use Stancl\Tenancy\Middleware;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,10 +13,16 @@ use Stancl\Tenancy\Middleware;
 |
 */
 
-Route::middleware([
-    Middleware\ScopeSessions::class,
-])->group(function () {
-    Route::get('/', function () {
-        return \Inertia\Inertia::render('Welcome');
-    });
+require base_path('vendor/laravel/fortify/routes/routes.php');
+
+Route::get('/', function () {
+    return redirect('login');
 });
+
+Route::middleware(['auth'])
+    ->name('admin.')
+    ->group(function () {
+        Route::get('/dashboard', function () {
+            return 'dashboard';
+        });
+    });

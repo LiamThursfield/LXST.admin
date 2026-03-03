@@ -47,8 +47,17 @@ export default defineConfig({
             },
             ui: {
                 colors: {
-                    primary: 'green',
-                    neutral: 'neutral'
+                    primary: 'amber',
+                    neutral: 'zinc'
+                },
+                input: {
+                    variants: {
+                        size: {
+                            md: {
+                                base: 'px-2.5 py-1.5 text-base gap-1.5',
+                            }
+                        }
+                    }
                 }
             },
             autoImport: {

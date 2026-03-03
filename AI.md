@@ -13,9 +13,11 @@ The application uses two distinct frontend builds and routing domains:
 1. **Central App**: For administrative management of tenants.
    - Configured via `vite.central.config.ts`.
    - Responsible for provisioning, billing, and platform analytics.
+   - **Inertia Views**: Handled via `central.blade.php`. Rendering `Inertia::render('auth/Login')` will map automatically to `resources/js/central/pages/auth/Login.vue`.
 2. **Tenant App**: The end-user application containing modular features (CMS, CRM).
    - Configured via `vite.tenant.config.ts`.
    - APIs: Includes public-facing API endpoints for detached tenant websites to consume CMS data and submit forms.
+   - **Inertia Views**: Handled via the tenant's blade file context. Rendering `Inertia::render('auth/Login')` will map automatically to `resources/js/tenant/pages/auth/Login.vue`. Do **not** prefix paths manually.
 
 ## Rules & Conventions
 

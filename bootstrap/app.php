@@ -8,6 +8,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromUnwantedDomains;
+use Stancl\Tenancy\Middleware\ScopeSessions;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -26,8 +27,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 InitializeTenancyByDomain::class,
                 PreventAccessFromUnwantedDomains::class,
             ])->group(function () {
-                Route::middleware('web')
-                    ->group(base_path('routes/tenant/web.php'));
+                Route::middleware([
+                    'web',
+                    ScopeSessions::class,
+                ])->group(base_path('routes/tenant/web.php'));
 
                 Route::middleware('api')
                     ->prefix('api')
