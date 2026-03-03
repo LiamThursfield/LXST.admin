@@ -1,6 +1,6 @@
 {
   "resources/css/central/app.css": {
-    "file": "assets/app-DStMK37V.css",
+    "file": "assets/app-CA_tIzL3.css",
     "src": "resources/css/central/app.css",
     "isEntry": true,
     "name": "app",
@@ -9,7 +9,7 @@
     ]
   },
   "resources/js/central/app.ts": {
-    "file": "assets/app-cYloU3Vh.js",
+    "file": "assets/app-Cma9syI_.js",
     "name": "app",
     "src": "resources/js/central/app.ts",
     "isEntry": true,
@@ -17,11 +17,11 @@
       "resources/js/central/pages/Welcome.vue"
     ],
     "css": [
-      "assets/app-DStMK37V.css"
+      "assets/app-CA_tIzL3.css"
     ]
   },
   "resources/js/central/pages/Welcome.vue": {
-    "file": "assets/Welcome-QQrYi9tD.js",
+    "file": "assets/Welcome-DrFSSHj9.js",
     "name": "Welcome",
     "src": "resources/js/central/pages/Welcome.vue",
     "isDynamicEntry": true,
@@ -29,7 +29,7 @@
       "resources/js/central/app.ts"
     ],
     "css": [
-      "assets/app-DStMK37V.css"
+      "assets/app-CA_tIzL3.css"
     ]
   }
 }
