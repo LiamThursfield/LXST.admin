@@ -12,11 +12,18 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     TextLink: typeof import('./resources/js/components/TextLink.vue')['default']
+    UApp: typeof import('./node_modules/.pnpm/@nuxt+ui@4.4.0_@inertiajs+vue3@2.3.15_vue@3.5.28_typescript@5.9.3___@tiptap+extensions@_5eee9b2c541115b038d28e1f4318f55d/node_modules/@nuxt/ui/dist/runtime/components/App.vue')['default']
     UButton: typeof import('./node_modules/.pnpm/@nuxt+ui@4.4.0_@inertiajs+vue3@2.3.15_vue@3.5.28_typescript@5.9.3___@tiptap+extensions@_5eee9b2c541115b038d28e1f4318f55d/node_modules/@nuxt/ui/dist/runtime/components/Button.vue')['default']
     UCheckbox: typeof import('./node_modules/.pnpm/@nuxt+ui@4.4.0_@inertiajs+vue3@2.3.15_vue@3.5.28_typescript@5.9.3___@tiptap+extensions@_5eee9b2c541115b038d28e1f4318f55d/node_modules/@nuxt/ui/dist/runtime/components/Checkbox.vue')['default']
+    UColorModeButton: typeof import('./node_modules/.pnpm/@nuxt+ui@4.4.0_@inertiajs+vue3@2.3.15_vue@3.5.28_typescript@5.9.3___@tiptap+extensions@_5eee9b2c541115b038d28e1f4318f55d/node_modules/@nuxt/ui/dist/runtime/components/color-mode/ColorModeButton.vue')['default']
+    UFooter: typeof import('./node_modules/.pnpm/@nuxt+ui@4.4.0_@inertiajs+vue3@2.3.15_vue@3.5.28_typescript@5.9.3___@tiptap+extensions@_5eee9b2c541115b038d28e1f4318f55d/node_modules/@nuxt/ui/dist/runtime/components/Footer.vue')['default']
     UFormField: typeof import('./node_modules/.pnpm/@nuxt+ui@4.4.0_@inertiajs+vue3@2.3.15_vue@3.5.28_typescript@5.9.3___@tiptap+extensions@_5eee9b2c541115b038d28e1f4318f55d/node_modules/@nuxt/ui/dist/runtime/components/FormField.vue')['default']
+    UHeader: typeof import('./node_modules/.pnpm/@nuxt+ui@4.4.0_@inertiajs+vue3@2.3.15_vue@3.5.28_typescript@5.9.3___@tiptap+extensions@_5eee9b2c541115b038d28e1f4318f55d/node_modules/@nuxt/ui/dist/runtime/components/Header.vue')['default']
     UIcon: typeof import('./node_modules/.pnpm/@nuxt+ui@4.4.0_@inertiajs+vue3@2.3.15_vue@3.5.28_typescript@5.9.3___@tiptap+extensions@_5eee9b2c541115b038d28e1f4318f55d/node_modules/@nuxt/ui/dist/runtime/vue/components/Icon.vue')['default']
     UInput: typeof import('./node_modules/.pnpm/@nuxt+ui@4.4.0_@inertiajs+vue3@2.3.15_vue@3.5.28_typescript@5.9.3___@tiptap+extensions@_5eee9b2c541115b038d28e1f4318f55d/node_modules/@nuxt/ui/dist/runtime/components/Input.vue')['default']
+    UMain: typeof import('./node_modules/.pnpm/@nuxt+ui@4.4.0_@inertiajs+vue3@2.3.15_vue@3.5.28_typescript@5.9.3___@tiptap+extensions@_5eee9b2c541115b038d28e1f4318f55d/node_modules/@nuxt/ui/dist/runtime/components/Main.vue')['default']
     UPageCard: typeof import('./node_modules/.pnpm/@nuxt+ui@4.4.0_@inertiajs+vue3@2.3.15_vue@3.5.28_typescript@5.9.3___@tiptap+extensions@_5eee9b2c541115b038d28e1f4318f55d/node_modules/@nuxt/ui/dist/runtime/components/PageCard.vue')['default']
+    UPageHero: typeof import('./node_modules/.pnpm/@nuxt+ui@4.4.0_@inertiajs+vue3@2.3.15_vue@3.5.28_typescript@5.9.3___@tiptap+extensions@_5eee9b2c541115b038d28e1f4318f55d/node_modules/@nuxt/ui/dist/runtime/components/PageHero.vue')['default']
+    USeparator: typeof import('./node_modules/.pnpm/@nuxt+ui@4.4.0_@inertiajs+vue3@2.3.15_vue@3.5.28_typescript@5.9.3___@tiptap+extensions@_5eee9b2c541115b038d28e1f4318f55d/node_modules/@nuxt/ui/dist/runtime/components/Separator.vue')['default']
   }
 }
