@@ -16,7 +16,7 @@ defineProps<{
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" class="fill-current -mt-px text-primary">
                 <path fill-opacity="1" d="M0,64L120,69.3C240,75,480,85,720,85.3C960,85,1200,75,1320,69.3L1440,64L1440,0L1320,0C1200,0,960,0,720,0C480,0,240,0,120,0L0,0Z"></path></svg>
         </div>
-        <UPageCard :variant="variant ?? 'outline'" class=" dark w-full max-w-md">
+        <UPageCard :variant="variant ?? 'outline'" class="w-full max-w-md">
             <div class="flex flex-col gap-8">
                 <div class="flex flex-col items-center gap-4">
                     <div class="flex flex-col items-center gap-2 font-medium">
