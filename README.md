@@ -78,3 +78,13 @@ pnpm run build
 Or individually:
 - `pnpm run build:central`
 - `pnpm run build:tenant`
+
+
+## Acknowledgments / Credits
+This project was built with inspiration and code from several open-source repositories:
+
+- [laravel-nuxt-ui-starter-kit (unofficial)](https://github.com/jkque/laravel-nuxt-ui-starter-kit/) - Used to help get the auth/dashboard setup
+- [dashboard-vue](https://github.com/nuxt-ui-templates/dashboard-vue) - Used to help  get the auth/dashboard setup
+
+## License
+This project is open-sourced software licensed under the MIT license.

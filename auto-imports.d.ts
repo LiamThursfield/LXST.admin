@@ -152,6 +152,7 @@ declare global {
   const useAsyncQueue: typeof import('@vueuse/core').useAsyncQueue
   const useAsyncState: typeof import('@vueuse/core').useAsyncState
   const useAttrs: typeof import('vue').useAttrs
+  const useAuth: typeof import('./resources/js/composables/useAuth').useAuth
   const useAvatarGroup: typeof import('./node_modules/.pnpm/@nuxt+ui@4.4.0_@inertiajs+vue3@2.3.15_vue@3.5.28_typescript@5.9.3___@tiptap+extensions@_5eee9b2c541115b038d28e1f4318f55d/node_modules/@nuxt/ui/dist/runtime/composables/useAvatarGroup.js').useAvatarGroup
   const useBase64: typeof import('@vueuse/core').useBase64
   const useBattery: typeof import('@vueuse/core').useBattery
@@ -176,6 +177,7 @@ declare global {
   const useCurrentUrl: typeof import('./resources/js/composables/useCurrentUrl').useCurrentUrl
   const useCycleList: typeof import('@vueuse/core').useCycleList
   const useDark: typeof import('@vueuse/core').useDark
+  const useDashboard: typeof import('./resources/js/composables/useDashboard').useDashboard
   const useDateFormat: typeof import('@vueuse/core').useDateFormat
   const useDebounce: typeof import('@vueuse/core').useDebounce
   const useDebounceFn: typeof import('@vueuse/core').useDebounceFn
@@ -527,6 +529,7 @@ declare module 'vue' {
     readonly useAsyncQueue: UnwrapRef<typeof import('@vueuse/core')['useAsyncQueue']>
     readonly useAsyncState: UnwrapRef<typeof import('@vueuse/core')['useAsyncState']>
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
+    readonly useAuth: UnwrapRef<typeof import('./resources/js/composables/useAuth')['useAuth']>
     readonly useAvatarGroup: UnwrapRef<typeof import('./node_modules/.pnpm/@nuxt+ui@4.4.0_@inertiajs+vue3@2.3.15_vue@3.5.28_typescript@5.9.3___@tiptap+extensions@_5eee9b2c541115b038d28e1f4318f55d/node_modules/@nuxt/ui/dist/runtime/composables/useAvatarGroup.js')['useAvatarGroup']>
     readonly useBase64: UnwrapRef<typeof import('@vueuse/core')['useBase64']>
     readonly useBattery: UnwrapRef<typeof import('@vueuse/core')['useBattery']>
@@ -551,6 +554,7 @@ declare module 'vue' {
     readonly useCurrentUrl: UnwrapRef<typeof import('./resources/js/composables/useCurrentUrl')['useCurrentUrl']>
     readonly useCycleList: UnwrapRef<typeof import('@vueuse/core')['useCycleList']>
     readonly useDark: UnwrapRef<typeof import('@vueuse/core')['useDark']>
+    readonly useDashboard: UnwrapRef<typeof import('./resources/js/composables/useDashboard')['useDashboard']>
     readonly useDateFormat: UnwrapRef<typeof import('@vueuse/core')['useDateFormat']>
     readonly useDebounce: UnwrapRef<typeof import('@vueuse/core')['useDebounce']>
     readonly useDebounceFn: UnwrapRef<typeof import('@vueuse/core')['useDebounceFn']>

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Tenant\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,7 +23,5 @@ Route::get('/', function () {
 Route::middleware(['auth'])
     ->name('admin.')
     ->group(function () {
-        Route::get('/dashboard', function () {
-            return 'dashboard';
-        });
+        Route::get('/dashboard', DashboardController::class);
     });
