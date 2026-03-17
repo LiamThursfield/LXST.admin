@@ -4,11 +4,20 @@
 @source "../../js/components/**/*.vue";
 @source "../../js/central/**/*.vue";
 
-/* 2. Your existing theme overrides */
 @theme static {
     --font-sans: 'Rubik', sans-serif;
 }
 
-.dark {
-    --ui-primary: var(--ui-color-primary-500);
+@layer base {
+    a, button, [role="button"], input[type="button"], input[type="submit"], input[type="reset"] {
+        cursor: pointer;
+    }
+
+    button:disabled, input:disabled, a[disabled] {
+        cursor: default;
+    }
+
+    .dark {
+        --ui-primary: var(--ui-color-primary-500);
+    }
 }
