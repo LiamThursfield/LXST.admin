@@ -9,11 +9,18 @@
 }
 
 @layer base {
-    a, button, [role="button"], input[type="button"], input[type="submit"], input[type="reset"] {
+    a,
+    button,
+    [role='button'],
+    input[type='button'],
+    input[type='submit'],
+    input[type='reset'] {
         cursor: pointer;
     }
 
-    button:disabled, input:disabled, a[disabled] {
+    button:disabled,
+    input:disabled,
+    a[disabled] {
         cursor: default;
     }
 
