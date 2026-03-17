@@ -1,8 +1,4 @@
 <script setup lang="ts">
-import Layout from '@/layouts/AdminLayout.vue';
-
-defineOptions({ layout: Layout });
-
 const { isNotificationsSlideoverOpen } = useDashboard();
 </script>
 
