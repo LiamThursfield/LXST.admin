@@ -1,19 +1,25 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/vue-starter-kit",
+    "name": "liamthursfield/lxst.admin",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "A multi-tenant laravel application for managing websites with many capabilities.",
     "keywords": [
         "laravel",
-        "framework"
+        "framework",
+        "multi-tenant",
+        "inertia",
+        "vuejs",
+        "tailwindcss",
+        "nuxtui",
+        "shadcn"
     ],
     "license": "MIT",
     "require": {
         "php": "^8.2",
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/fortify": "^1.30",
-        "laravel/framework": "^12.0",
-        "laravel/tinker": "^2.10.1",
+        "laravel/framework": "^13.0",
+        "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.9",
         "stancl/tenancy": "dev-master"
     },
