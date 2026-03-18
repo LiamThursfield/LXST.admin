@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Stancl\JobPipeline\JobPipeline;
 use Stancl\Tenancy\Actions\CloneRoutesAsTenant;
+use Stancl\Tenancy\Bootstrappers\RootUrlBootstrapper;
 use Stancl\Tenancy\Events;
 use Stancl\Tenancy\Jobs;
 use Stancl\Tenancy\Listeners;
@@ -161,7 +163,7 @@ class TenancyServiceProvider extends ServiceProvider
      * Set \Stancl\Tenancy\Bootstrappers\RootUrlBootstrapper::$rootUrlOverride here
      * to override the root URL used in CLI while in tenant context.
      *
-     * @see \Stancl\Tenancy\Bootstrappers\RootUrlBootstrapper
+     * @see RootUrlBootstrapper
      */
     protected function overrideUrlInTenantContext(): void
     {
@@ -262,7 +264,7 @@ class TenancyServiceProvider extends ServiceProvider
 
         foreach (array_reverse($tenancyMiddleware) as $middleware) {
             /** @phpstan-ignore-next-line  */
-            $this->app[\Illuminate\Contracts\Http\Kernel::class]->prependToMiddlewarePriority($middleware);
+            $this->app[Kernel::class]->prependToMiddlewarePriority($middleware);
         }
     }
 }
