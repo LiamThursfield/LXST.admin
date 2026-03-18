@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Settings\PasswordController;
+use App\Http\Controllers\Settings\ProfileController;
+use App\Http\Controllers\Settings\SecurityController;
 use App\Http\Controllers\Tenant\DashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,4 +27,17 @@ Route::middleware(['auth'])
     ->name('admin.')
     ->group(function () {
         Route::get('/dashboard', DashboardController::class);
+
+        Route::name('settings.')->group(function () {
+            Route::get('/settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+            Route::patch('/settings/profile', [ProfileController::class, 'update'])->name('profile.update');
+            Route::delete('/settings/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+            Route::get('settings/security', [SecurityController::class, 'edit'])->name('security.edit');
+
+            Route::put('/settings/password', [PasswordController::class, 'update'])
+                ->middleware('throttle:6,1')
+                ->name('password.update');
+        });
+
     });

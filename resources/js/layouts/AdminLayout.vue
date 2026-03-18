@@ -49,20 +49,6 @@ const links = [
                 },
             },
             {
-                label: 'Members',
-                to: '/settings/members',
-                onSelect: () => {
-                    open.value = false;
-                },
-            },
-            {
-                label: 'Notifications',
-                to: '/settings/notifications',
-                onSelect: () => {
-                    open.value = false;
-                },
-            },
-            {
                 label: 'Security',
                 to: '/settings/security',
                 onSelect: () => {
