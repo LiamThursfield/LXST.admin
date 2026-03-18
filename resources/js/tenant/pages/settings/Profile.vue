@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { Head } from '@inertiajs/vue3';
 import type { FormSubmitEvent } from '@nuxt/ui';
 import * as z from 'zod';
@@ -55,74 +55,73 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
             @submit="onSubmit"
         >
             <UPageCard
-                title="Profile"
-                description="These informations will be displayed publicly."
-                variant="naked"
-                orientation="horizontal"
                 class="mb-4"
+                description="These informations will be displayed publicly."
+                orientation="horizontal"
+                title="Profile"
+                variant="naked"
             >
                 <UButton
+                    class="w-fit lg:ms-auto"
+                    color="neutral"
                     form="settings"
                     label="Save changes"
-                    color="neutral"
                     type="submit"
-                    class="w-fit lg:ms-auto"
                 />
             </UPageCard>
 
             <UPageCard variant="subtle">
                 <UFormField
-                    name="name"
-                    label="Name"
-                    description="Will appear on receipts, invoices, and other communication."
-                    required
                     class="flex items-start justify-between gap-4 max-sm:flex-col"
+                    description="Will appear on receipts, invoices, and other communication."
+                    label="Name"
+                    name="name"
+                    required
                 >
                     <UInput v-model="profile.name" autocomplete="off" />
                 </UFormField>
                 <USeparator />
                 <UFormField
-                    name="email"
-                    label="Email"
-                    required
                     class="flex items-start justify-between gap-4 max-sm:flex-col"
+                    label="Email"
+                    name="email"
+                    required
                 >
                     <template #description>
                         <p class="text-muted">
                             Used to sign in, for email receipts and product
                             updates.
                         </p>
-                        <div
-                            v-if="
-                                mustVerifyEmail && !auth.user.email_verified_at
-                            "
-                        >
-                            <p class="text-muted">
-                                Your email address is unverified.
-                                <TextLink
-                                    :href="send()"
-                                    as="button"
-                                    class="text-primary text-sm font-medium"
-                                >
-                                    Click here to resend the verification email.
-                                </TextLink>
-                            </p>
-
-                            <div
-                                v-if="status === 'verification-link-sent'"
-                                class="mt-2 text-sm font-medium text-green-600"
-                            >
-                                A new verification link has been sent to your
-                                email address.
-                            </div>
-                        </div>
                     </template>
                     <UInput
                         v-model="profile.email"
-                        type="email"
                         autocomplete="off"
+                        type="email"
                     />
                 </UFormField>
+                <div
+                    v-if="mustVerifyEmail && !auth.user.email_verified_at"
+                    class="flex flex-col"
+                >
+                    <p class="text-muted">
+                        Your email address is unverified. <br />
+                        <TextLink
+                            :href="send()"
+                            as="button"
+                            class="text-primary text-sm font-medium"
+                        >
+                            Click here to resend the verification email.
+                        </TextLink>
+                    </p>
+
+                    <div
+                        v-if="status === 'verification-link-sent'"
+                        class="mt-2 text-sm font-medium text-green-600"
+                    >
+                        A new verification link has been sent to your email
+                        address.
+                    </div>
+                </div>
             </UPageCard>
         </UForm>
     </SettingsSubLayout>

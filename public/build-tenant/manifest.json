@@ -1,43 +1,43 @@
 {
-  "_AuthLayout.vue_vue_type_script_setup_true_lang-CyOo46uo.js": {
-    "file": "assets/AuthLayout.vue_vue_type_script_setup_true_lang-CyOo46uo.js",
+  "_AuthLayout.vue_vue_type_script_setup_true_lang-CKS8P2wA.js": {
+    "file": "assets/AuthLayout.vue_vue_type_script_setup_true_lang-CKS8P2wA.js",
     "name": "AuthLayout.vue_vue_type_script_setup_true_lang",
     "imports": [
-      "_PageCard-Z2fZP-sB.js",
+      "_PageCard-BRROfriW.js",
       "resources/js/tenant/app.ts"
     ]
   },
-  "_DashboardSidebarCollapse-CnZkT4WP.js": {
-    "file": "assets/DashboardSidebarCollapse-CnZkT4WP.js",
+  "_DashboardSidebarCollapse-CuqIGftQ.js": {
+    "file": "assets/DashboardSidebarCollapse-CuqIGftQ.js",
     "name": "DashboardSidebarCollapse",
     "imports": [
       "resources/js/tenant/app.ts"
     ]
   },
-  "_FormField-D5-wJQHd.js": {
-    "file": "assets/FormField-D5-wJQHd.js",
+  "_FormField-87s78RzI.js": {
+    "file": "assets/FormField-87s78RzI.js",
     "name": "FormField",
     "imports": [
       "resources/js/tenant/app.ts"
     ]
   },
-  "_PageCard-Z2fZP-sB.js": {
-    "file": "assets/PageCard-Z2fZP-sB.js",
+  "_PageCard-BRROfriW.js": {
+    "file": "assets/PageCard-BRROfriW.js",
     "name": "PageCard",
     "imports": [
       "resources/js/tenant/app.ts"
     ]
   },
-  "_SettingsSubLayout.vue_vue_type_script_setup_true_lang-BgL9Ce94.js": {
-    "file": "assets/SettingsSubLayout.vue_vue_type_script_setup_true_lang-BgL9Ce94.js",
+  "_SettingsSubLayout.vue_vue_type_script_setup_true_lang-DsFRGOZl.js": {
+    "file": "assets/SettingsSubLayout.vue_vue_type_script_setup_true_lang-DsFRGOZl.js",
     "name": "SettingsSubLayout.vue_vue_type_script_setup_true_lang",
     "imports": [
-      "_DashboardSidebarCollapse-CnZkT4WP.js",
+      "_DashboardSidebarCollapse-CuqIGftQ.js",
       "resources/js/tenant/app.ts"
     ]
   },
-  "_TextLink.vue_vue_type_script_setup_true_lang-M3bAGxE_.js": {
-    "file": "assets/TextLink.vue_vue_type_script_setup_true_lang-M3bAGxE_.js",
+  "_TextLink.vue_vue_type_script_setup_true_lang-CyuqCGLt.js": {
+    "file": "assets/TextLink.vue_vue_type_script_setup_true_lang-CyuqCGLt.js",
     "name": "TextLink.vue_vue_type_script_setup_true_lang",
     "imports": [
       "resources/js/tenant/app.ts"
@@ -53,7 +53,7 @@
     ]
   },
   "resources/js/tenant/app.ts": {
-    "file": "assets/app-VrXpvxpB.js",
+    "file": "assets/app-C0bSlcN9.js",
     "name": "app",
     "src": "resources/js/tenant/app.ts",
     "isEntry": true,
@@ -72,12 +72,12 @@
     ]
   },
   "resources/js/tenant/pages/Dashboard.vue": {
-    "file": "assets/Dashboard-CcupyWpA.js",
+    "file": "assets/Dashboard-DwwCEgQE.js",
     "name": "Dashboard",
     "src": "resources/js/tenant/pages/Dashboard.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_DashboardSidebarCollapse-CnZkT4WP.js",
+      "_DashboardSidebarCollapse-CuqIGftQ.js",
       "resources/js/tenant/app.ts"
     ],
     "css": [
@@ -85,112 +85,112 @@
     ]
   },
   "resources/js/tenant/pages/auth/ForgotPassword.vue": {
-    "file": "assets/ForgotPassword-DueMcV-q.js",
+    "file": "assets/ForgotPassword-g5Wnhesj.js",
     "name": "ForgotPassword",
     "src": "resources/js/tenant/pages/auth/ForgotPassword.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_TextLink.vue_vue_type_script_setup_true_lang-M3bAGxE_.js",
+      "_TextLink.vue_vue_type_script_setup_true_lang-CyuqCGLt.js",
       "resources/js/tenant/app.ts",
-      "_FormField-D5-wJQHd.js",
-      "_AuthLayout.vue_vue_type_script_setup_true_lang-CyOo46uo.js",
-      "_PageCard-Z2fZP-sB.js"
+      "_FormField-87s78RzI.js",
+      "_AuthLayout.vue_vue_type_script_setup_true_lang-CKS8P2wA.js",
+      "_PageCard-BRROfriW.js"
     ],
     "css": [
       "assets/app-DTMgIPiG.css"
     ]
   },
   "resources/js/tenant/pages/auth/Login.vue": {
-    "file": "assets/Login-CCL5BRuF.js",
+    "file": "assets/Login-B-1hCsBv.js",
     "name": "Login",
     "src": "resources/js/tenant/pages/auth/Login.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/tenant/app.ts",
-      "_FormField-D5-wJQHd.js",
-      "_TextLink.vue_vue_type_script_setup_true_lang-M3bAGxE_.js",
-      "_AuthLayout.vue_vue_type_script_setup_true_lang-CyOo46uo.js",
-      "_PageCard-Z2fZP-sB.js"
+      "_FormField-87s78RzI.js",
+      "_TextLink.vue_vue_type_script_setup_true_lang-CyuqCGLt.js",
+      "_AuthLayout.vue_vue_type_script_setup_true_lang-CKS8P2wA.js",
+      "_PageCard-BRROfriW.js"
     ],
     "css": [
       "assets/app-DTMgIPiG.css"
     ]
   },
   "resources/js/tenant/pages/auth/Register.vue": {
-    "file": "assets/Register-DlitTQft.js",
+    "file": "assets/Register-B-snjLCX.js",
     "name": "Register",
     "src": "resources/js/tenant/pages/auth/Register.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_TextLink.vue_vue_type_script_setup_true_lang-M3bAGxE_.js",
+      "_TextLink.vue_vue_type_script_setup_true_lang-CyuqCGLt.js",
       "resources/js/tenant/app.ts",
-      "_FormField-D5-wJQHd.js",
-      "_AuthLayout.vue_vue_type_script_setup_true_lang-CyOo46uo.js",
-      "_PageCard-Z2fZP-sB.js"
+      "_FormField-87s78RzI.js",
+      "_AuthLayout.vue_vue_type_script_setup_true_lang-CKS8P2wA.js",
+      "_PageCard-BRROfriW.js"
     ],
     "css": [
       "assets/app-DTMgIPiG.css"
     ]
   },
   "resources/js/tenant/pages/auth/ResetPassword.vue": {
-    "file": "assets/ResetPassword-GOuF_xh2.js",
+    "file": "assets/ResetPassword-CZGLQS9M.js",
     "name": "ResetPassword",
     "src": "resources/js/tenant/pages/auth/ResetPassword.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_TextLink.vue_vue_type_script_setup_true_lang-M3bAGxE_.js",
+      "_TextLink.vue_vue_type_script_setup_true_lang-CyuqCGLt.js",
       "resources/js/tenant/app.ts",
-      "_FormField-D5-wJQHd.js",
-      "_AuthLayout.vue_vue_type_script_setup_true_lang-CyOo46uo.js",
-      "_PageCard-Z2fZP-sB.js"
+      "_FormField-87s78RzI.js",
+      "_AuthLayout.vue_vue_type_script_setup_true_lang-CKS8P2wA.js",
+      "_PageCard-BRROfriW.js"
     ],
     "css": [
       "assets/app-DTMgIPiG.css"
     ]
   },
   "resources/js/tenant/pages/auth/VerifyEmail.vue": {
-    "file": "assets/VerifyEmail-CUNxQ6hu.js",
+    "file": "assets/VerifyEmail-oJVqrijG.js",
     "name": "VerifyEmail",
     "src": "resources/js/tenant/pages/auth/VerifyEmail.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_TextLink.vue_vue_type_script_setup_true_lang-M3bAGxE_.js",
+      "_TextLink.vue_vue_type_script_setup_true_lang-CyuqCGLt.js",
       "resources/js/tenant/app.ts",
-      "_AuthLayout.vue_vue_type_script_setup_true_lang-CyOo46uo.js",
-      "_PageCard-Z2fZP-sB.js"
+      "_AuthLayout.vue_vue_type_script_setup_true_lang-CKS8P2wA.js",
+      "_PageCard-BRROfriW.js"
     ],
     "css": [
       "assets/app-DTMgIPiG.css"
     ]
   },
   "resources/js/tenant/pages/settings/Profile.vue": {
-    "file": "assets/Profile-DTtM_Iu1.js",
+    "file": "assets/Profile-V5YjTskq.js",
     "name": "Profile",
     "src": "resources/js/tenant/pages/settings/Profile.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/tenant/app.ts",
-      "_TextLink.vue_vue_type_script_setup_true_lang-M3bAGxE_.js",
-      "_FormField-D5-wJQHd.js",
-      "_PageCard-Z2fZP-sB.js",
-      "_SettingsSubLayout.vue_vue_type_script_setup_true_lang-BgL9Ce94.js",
-      "_DashboardSidebarCollapse-CnZkT4WP.js"
+      "_TextLink.vue_vue_type_script_setup_true_lang-CyuqCGLt.js",
+      "_FormField-87s78RzI.js",
+      "_PageCard-BRROfriW.js",
+      "_SettingsSubLayout.vue_vue_type_script_setup_true_lang-DsFRGOZl.js",
+      "_DashboardSidebarCollapse-CuqIGftQ.js"
     ],
     "css": [
       "assets/app-DTMgIPiG.css"
     ]
   },
   "resources/js/tenant/pages/settings/Security.vue": {
-    "file": "assets/Security-BCLwktOo.js",
+    "file": "assets/Security-DSTL4eRy.js",
     "name": "Security",
     "src": "resources/js/tenant/pages/settings/Security.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/tenant/app.ts",
-      "_FormField-D5-wJQHd.js",
-      "_PageCard-Z2fZP-sB.js",
-      "_SettingsSubLayout.vue_vue_type_script_setup_true_lang-BgL9Ce94.js",
-      "_DashboardSidebarCollapse-CnZkT4WP.js"
+      "_FormField-87s78RzI.js",
+      "_PageCard-BRROfriW.js",
+      "_SettingsSubLayout.vue_vue_type_script_setup_true_lang-DsFRGOZl.js",
+      "_DashboardSidebarCollapse-CuqIGftQ.js"
     ],
     "css": [
       "assets/app-DTMgIPiG.css"
