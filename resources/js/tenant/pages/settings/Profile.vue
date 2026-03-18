@@ -56,7 +56,7 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
         >
             <UPageCard
                 class="mb-4"
-                description="These informations will be displayed publicly."
+                description="This information will be displayed publicly."
                 orientation="horizontal"
                 title="Profile"
                 variant="naked"
