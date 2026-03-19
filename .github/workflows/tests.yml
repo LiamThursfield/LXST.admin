@@ -46,7 +46,7 @@ jobs:
         run: pnpm install
 
       - name: Copy Environment File
-        run: cp .env.example .env
+        run: cp .env.tests .env
 
       - name: Generate Application Key
         run: php artisan key:generate
