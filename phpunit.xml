@@ -11,6 +11,12 @@
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
         </testsuite>
+        <testsuite name="TenantUnit">
+            <directory>tests/Tenant/Unit</directory>
+        </testsuite>
+        <testsuite name="TenantFeature">
+            <directory>tests/Tenant/Feature</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>
@@ -22,7 +28,7 @@
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>
-        <env name="CACHE_STORE" value="array"/>
+        <env name="CACHE_STORE" value="redis"/>
         <env name="DB_DATABASE" value="testing"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
