@@ -12,6 +12,7 @@ defineProps<{
 
 const colorMode = useColorMode();
 const auth = useAuth();
+const { isNotificationsSlideoverOpen } = useDashboard();
 const { getInitials } = useInitials();
 
 const user = computed(() => ({
@@ -31,16 +32,19 @@ const items = computed<DropdownMenuItem[][]>(() => [
     ],
     [
         {
+            label: 'Notifications',
+            icon: 'i-lucide-bell',
+            onSelect(e: Event) {
+                e.preventDefault();
+
+                isNotificationsSlideoverOpen.value = true;
+            },
+        },
+    ],
+    [
+        {
             label: 'Profile',
             icon: 'i-lucide-user',
-        },
-        {
-            label: 'Billing',
-            icon: 'i-lucide-credit-card',
-        },
-        {
-            label: 'Settings',
-            icon: 'i-lucide-settings',
             to: '/settings/profile',
         },
     ],

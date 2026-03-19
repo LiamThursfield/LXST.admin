@@ -2,7 +2,6 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui';
 
-const { url } = usePage();
 const toast = useToast();
 
 const open = ref(false);
@@ -17,25 +16,7 @@ const links = [
         },
     },
     {
-        label: 'Inbox',
-        icon: 'i-lucide-inbox',
-        to: '/inbox',
-        badge: '4',
-        onSelect: () => {
-            open.value = false;
-        },
-    },
-    {
-        label: 'Customers',
-        icon: 'i-lucide-users',
-        to: '/customers',
-        onSelect: () => {
-            open.value = false;
-        },
-    },
-    {
         label: 'Settings',
-        to: '#',
         icon: 'i-lucide-settings',
         defaultOpen: true,
         type: 'trigger',
@@ -64,19 +45,6 @@ const groups = computed(() => [
         id: 'links',
         label: 'Go to',
         items: links.flat(),
-    },
-    {
-        id: 'code',
-        label: 'Code',
-        items: [
-            {
-                id: 'source',
-                label: 'View page source',
-                icon: 'simple-icons:github',
-                to: `https://github.com/LiamThursfield/LXST.admin${url === '/' ? '/index' : url}.vue`,
-                target: '_blank',
-            },
-        ],
     },
 ]);
 
