@@ -1,7 +1,9 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TenantTestCase;
 use Tests\TestCase;
+use Tests\Traits\RefreshDatabaseWithTenantTrait;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +19,14 @@ use Tests\TestCase;
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature');
+
+// Taken//adapted from previous work by https://github.com/sdsmith1981
+pest()->extend(TenantTestCase::class)
+    ->use(RefreshDatabaseWithTenantTrait::class)
+    ->beforeEach(function (): void {
+        $this->withoutVite();
+        Http::preventStrayRequests();
+    })->in('Tenant/Feature');
 
 /*
 |--------------------------------------------------------------------------

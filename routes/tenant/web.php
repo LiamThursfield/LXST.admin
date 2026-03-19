@@ -21,7 +21,7 @@ require base_path('vendor/laravel/fortify/routes/routes.php');
 
 Route::get('/', function () {
     return redirect('login');
-});
+})->name('home');
 
 Route::middleware(['auth'])
     ->name('admin.')
