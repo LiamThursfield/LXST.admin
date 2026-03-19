@@ -63,6 +63,7 @@ To run both concurrently:
 ```bash
 pnpm run dev
 ```
+**Note: There is a [known issue](/issues/3) where running both like this will apply the styling/vite config from the run/edited vite config file**
 
 To run them individually:
 - **Central App**: `pnpm run dev:central`
@@ -85,6 +86,9 @@ This project was built with inspiration and code from several open-source reposi
 
 - [laravel-nuxt-ui-starter-kit (unofficial)](https://github.com/jkque/laravel-nuxt-ui-starter-kit/) - Used to help get the auth/dashboard setup
 - [dashboard-vue](https://github.com/nuxt-ui-templates/dashboard-vue) - Used to help  get the auth/dashboard setup
+
+And GitHub collaborators:
+- [sdsmith19810(https://github.com/sdsmith1981) - Used/adapted their testing code to get pest tests running efficiently with tenancy
 
 ## License
 This project is open-sourced software licensed under the MIT license.
