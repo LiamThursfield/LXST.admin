@@ -5,14 +5,10 @@ on:
     branches:
       - develop
       - main
-      - master
-      - workos
   pull_request:
     branches:
       - develop
       - main
-      - master
-      - workos
 
 jobs:
   ci:
@@ -20,6 +16,29 @@ jobs:
     strategy:
       matrix:
         php-version: ['8.4', '8.5']
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: laravel
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
 
     steps:
       - name: Checkout code
@@ -29,6 +48,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
+          extensions: pdo_mysql, redis
           tools: composer:v2
           coverage: xdebug
 
@@ -37,11 +57,17 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install Node Dependencies
-        run: npm i
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false # We'll run install manually after composer
 
       - name: Install Dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Install Node Dependencies
+        run: pnpm install
 
       - name: Copy Environment File
         run: cp .env.tests .env
@@ -50,7 +76,7 @@ jobs:
         run: php artisan key:generate
 
       - name: Build Assets
-        run: npm run build
+        run: pnpm run build
 
       - name: Tests
         run: ./vendor/bin/pest

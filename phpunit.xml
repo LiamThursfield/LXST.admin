@@ -29,6 +29,7 @@
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="redis"/>
+        <!-- Typically mysql isn't used for tests, but this is necessary for improved tenancy testing performance -->
         <env name="DB_CONNECTION" value="mysql"/>
         <env name="DB_DATABASE" value="testing"/>
         <env name="MAIL_MAILER" value="array"/>
