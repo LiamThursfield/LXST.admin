@@ -63,7 +63,7 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
             >
                 <UButton
                     class="w-fit lg:ms-auto"
-                    color="neutral"
+                    color="primary"
                     form="settings"
                     label="Save changes"
                     type="submit"
