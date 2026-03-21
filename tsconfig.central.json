@@ -1,0 +1,15 @@
+{
+    "extends": "./tsconfig.json",
+    "include": [
+        "resources/js/central/**/*",
+        "resources/js/components/**/*",
+        "resources/js/composables/**/*",
+        "resources/js/layouts/**/*",
+        "resources/js/sublayouts/**/*",
+        "resources/js/lib/**/*",
+        "resources/js/types/**/*",
+        "vite.central.config.ts",
+        "components.central.d.ts",
+        "auto-imports.central.d.ts"
+    ]
+}

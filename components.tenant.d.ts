@@ -38,6 +38,5 @@ declare module 'vue' {
     USeparator: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@2.3.18_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@_d36553e044cd4e9fcf2fce510f4fe22f/node_modules/@nuxt/ui/dist/runtime/components/Separator.vue')['default']
     UserMenu: typeof import('./resources/js/components/UserMenu.vue')['default']
     USlideover: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@2.3.18_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@_d36553e044cd4e9fcf2fce510f4fe22f/node_modules/@nuxt/ui/dist/runtime/components/Slideover.vue')['default']
-    UTooltip: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@2.3.18_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@_d36553e044cd4e9fcf2fce510f4fe22f/node_modules/@nuxt/ui/dist/runtime/components/Tooltip.vue')['default']
   }
 }

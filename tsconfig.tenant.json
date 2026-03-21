@@ -1,0 +1,18 @@
+{
+    "extends": "./tsconfig.json",
+    "include": [
+        "resources/js/tenant/**/*",
+        "resources/js/actions/**/*",
+        "resources/js/routes/**/*",
+        "resources/js/wayfinder/**/*",
+        "resources/js/components/**/*",
+        "resources/js/composables/**/*",
+        "resources/js/layouts/**/*",
+        "resources/js/sublayouts/**/*",
+        "resources/js/lib/**/*",
+        "resources/js/types/**/*",
+        "vite.tenant.config.ts",
+        "components.tenant.d.ts",
+        "auto-imports.tenant.d.ts"
+    ]
+}

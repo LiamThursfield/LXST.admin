@@ -40,6 +40,7 @@ export default defineConfig({
         ui({
             inertia: true,
             components: {
+                dts: 'components.tenant.d.ts',
                 dirs: [
                     'resources/js/components',
                     'resources/js/tenant/components'
@@ -61,6 +62,7 @@ export default defineConfig({
                 }
             },
             autoImport: {
+                dts: 'auto-imports.tenant.d.ts',
                 vueTemplate: true,
                 dirs: [
                     "resources/js/composables",

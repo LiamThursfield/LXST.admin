@@ -308,7 +308,6 @@ declare global {
   const useToast: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@2.3.18_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@_d36553e044cd4e9fcf2fce510f4fe22f/node_modules/@nuxt/ui/dist/runtime/composables/useToast.js').useToast
   const useToggle: typeof import('@vueuse/core').useToggle
   const useTransition: typeof import('@vueuse/core').useTransition
-  const useTwoFactorAuth: typeof import('./resources/js/composables/useTwoFactorAuth').useTwoFactorAuth
   const useUrlSearchParams: typeof import('@vueuse/core').useUrlSearchParams
   const useUserMedia: typeof import('@vueuse/core').useUserMedia
   const useVModel: typeof import('@vueuse/core').useVModel
