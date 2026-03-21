@@ -4,7 +4,7 @@ Welcome to the LXST.admin platform, a robust multitenant application built for m
 
 ## Tech Stack
 - **Backend**: [Laravel](https://laravel.com/)
-- **Multitenancy**: [Tenancy for Laravel v4](https://v4.tenancyforlaravel.com/i)
+- **Multitenancy**: [Tenancy for Laravel v4](https://v4.tenancyforlaravel.com/)
 - **Frontend**: [Vue 3](https://vuejs.org/) + [Inertia.js v2](https://inertiajs.com/) (using strictly **TypeScript**)
 - **UI Library**: [Nuxt UI (Vue/Inertia adaptation)](https://ui.nuxt.com/)
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
@@ -89,6 +89,16 @@ This project was built with inspiration and code from several open-source reposi
 
 And GitHub collaborators:
 - [sdsmith19810(https://github.com/sdsmith1981) - Used/adapted their testing code to get pest tests running efficiently with tenancy
+
+## Screenshots
+
+### Tenant
+
+Login Page
+![Tenant - Login Page](.github/assets/screenshots/tenant-auth-login-optimized.png)
+
+Admin - Settings Page
+![Tenant - Admin - Settings Page](.github/assets/screenshots/tenant-admin-settings-security-optimized.png)
 
 ## License
 This project is open-sourced software licensed under the MIT license.
