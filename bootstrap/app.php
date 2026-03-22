@@ -19,7 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 Route::middleware('web')
                     ->domain($domain)
                     ->as('central.')
-                    ->group(base_path('routes/web.php'));
+                    ->group(base_path('routes/central/web.php'));
             }
 
             Route::middleware([
