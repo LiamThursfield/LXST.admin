@@ -6,7 +6,7 @@ if (! function_exists('is_tenant_scope')) {
      */
     function is_tenant_scope(): bool
     {
-        return tenancy() != null;
+        return tenant() != null;
     }
 }
 
@@ -16,6 +16,6 @@ if (! function_exists('is_central_scope')) {
      */
     function is_central_scope(): bool
     {
-        return tenancy() == null;
+        return tenant() == null;
     }
 }
