@@ -20,7 +20,8 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
         'email',
         'password',
     ];
@@ -49,5 +50,20 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * @var list<string>
+     */
+    protected $appends = [
+        'name',
+    ];
+
+    /**
+     * Helper to return first + last name.
+     */
+    public function getNameAttribute(): string
+    {
+        return $this->first_name.' '.$this->last_name;
     }
 }

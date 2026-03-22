@@ -41,12 +41,31 @@ defineProps<{
             class="flex flex-col gap-6"
         >
             <div class="grid gap-6">
-                <UFormField name="name" :error="errors.email" label="Name">
+                <UFormField
+                    name="first_name"
+                    :error="errors.first_name"
+                    label="First Name"
+                >
                     <UInput
                         type="text"
                         class="w-full"
-                        autocomplete="name"
-                        placeholder="Full Name"
+                        autocomplete="first_name"
+                        placeholder="First Name"
+                        autofocus
+                        required
+                    />
+                </UFormField>
+
+                <UFormField
+                    name="last_name"
+                    :error="errors.last_name"
+                    label="Last Name"
+                >
+                    <UInput
+                        type="text"
+                        class="w-full"
+                        autocomplete="last_name"
+                        placeholder="Last Name"
                         autofocus
                         required
                     />

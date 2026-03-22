@@ -12,7 +12,8 @@ defineProps<{
 }>();
 
 const profileSchema = z.object({
-    name: z.string().min(2, 'Too short'),
+    first_name: z.string().min(1, 'Too short').max(50, 'Too long'),
+    last_name: z.string().min(1, 'Too short').max(50, 'Too long'),
     email: z.email(),
 });
 
@@ -20,24 +21,27 @@ type ProfileSchema = z.output<typeof profileSchema>;
 const auth = useAuth();
 
 const profile = reactive<Partial<ProfileSchema>>({
-    name: auth.value.user.name,
+    first_name: auth.value.user.first_name,
+    last_name: auth.value.user.last_name,
     email: auth.value.user.email,
 });
 
 const form = useForm<Partial<ProfileSchema>>({
-    name: '',
+    first_name: '',
+    last_name: '',
     email: '',
 });
 
 const toast = useToast();
 async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
-    form.name = event.data.name;
+    form.first_name = event.data.first_name;
+    form.last_name = event.data.last_name;
     form.email = event.data.email;
     form.submit(update());
 
     toast.add({
         title: 'Success',
-        description: 'Your settings have been updated.',
+        description: 'Your profile has been updated.',
         icon: 'i-lucide-check',
         color: 'success',
     });
@@ -73,14 +77,24 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
             <UPageCard variant="subtle">
                 <UFormField
                     class="flex items-start justify-between gap-4 max-sm:flex-col"
-                    description="Will appear on receipts, invoices, and other communication."
-                    label="Name"
-                    name="name"
+                    label="First Name"
+                    name="first_name"
                     required
                 >
-                    <UInput v-model="profile.name" autocomplete="off" />
+                    <UInput v-model="profile.first_name" autocomplete="off" />
                 </UFormField>
+
+                <UFormField
+                    class="flex items-start justify-between gap-4 max-sm:flex-col"
+                    label="Last Name"
+                    name="last_name"
+                    required
+                >
+                    <UInput v-model="profile.last_name" autocomplete="off" />
+                </UFormField>
+
                 <USeparator />
+
                 <UFormField
                     class="flex items-start justify-between gap-4 max-sm:flex-col"
                     label="Email"
