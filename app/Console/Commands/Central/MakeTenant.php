@@ -54,9 +54,11 @@ class MakeTenant extends Command
     {
         try {
             $tenant->domains()->create(['domain' => $domain]);
+
             return true;
         } catch (DomainOccupiedByOtherTenantException) {
             $this->error('Domain is already occupied.');
+
             return false;
         }
     }
