@@ -1,4 +1,11 @@
 {
+  "_Button-BhWXdiAR.js": {
+    "file": "assets/Button-BhWXdiAR.js",
+    "name": "Button",
+    "imports": [
+      "resources/js/central/app.ts"
+    ]
+  },
   "resources/css/central/app.css": {
     "file": "assets/app-BgD1XLb1.css",
     "src": "resources/css/central/app.css",
@@ -9,23 +16,38 @@
     ]
   },
   "resources/js/central/app.ts": {
-    "file": "assets/app-wDGgB3Q6.js",
+    "file": "assets/app-Dh-trqKP.js",
     "name": "app",
     "src": "resources/js/central/app.ts",
     "isEntry": true,
     "dynamicImports": [
-      "resources/js/central/pages/Welcome.vue"
+      "resources/js/central/pages/Welcome.vue",
+      "resources/js/central/pages/auth/Login.vue"
     ],
     "css": [
       "assets/app-BgD1XLb1.css"
     ]
   },
   "resources/js/central/pages/Welcome.vue": {
-    "file": "assets/Welcome-CXwpnE9K.js",
+    "file": "assets/Welcome-sGMsMnwE.js",
     "name": "Welcome",
     "src": "resources/js/central/pages/Welcome.vue",
     "isDynamicEntry": true,
     "imports": [
+      "_Button-BhWXdiAR.js",
+      "resources/js/central/app.ts"
+    ],
+    "css": [
+      "assets/app-BgD1XLb1.css"
+    ]
+  },
+  "resources/js/central/pages/auth/Login.vue": {
+    "file": "assets/Login-BLrHgrrL.js",
+    "name": "Login",
+    "src": "resources/js/central/pages/auth/Login.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "_Button-BhWXdiAR.js",
       "resources/js/central/app.ts"
     ],
     "css": [
