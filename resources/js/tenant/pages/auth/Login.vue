@@ -92,13 +92,9 @@ defineProps<{
                 >
             </div>
 
-            <div class="text-muted text-center text-sm">
+            <div v-if="canRegister" class="text-muted text-center text-sm">
                 Don't have an account?
-                <TextLink
-                    v-if="canRegister"
-                    :href="register()"
-                    :tabindex="5"
-                    class="text-primary"
+                <TextLink :href="register()" :tabindex="5" class="text-primary"
                     >Sign up</TextLink
                 >
             </div>
