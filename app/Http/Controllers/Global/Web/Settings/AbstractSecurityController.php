@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Settings;
+namespace App\Http\Controllers\Global\Web\Settings;
 
 use App\Http\Controllers\Controller;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class SecurityController extends Controller
+abstract class AbstractSecurityController extends Controller
 {
     /**
      * Show the user's security settings page.

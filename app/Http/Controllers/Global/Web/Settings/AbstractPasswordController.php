@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Settings;
+namespace App\Http\Controllers\Global\Web\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\PasswordUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 
-class PasswordController extends Controller
+abstract class AbstractPasswordController extends Controller
 {
     /**
      * Update the user's password.
