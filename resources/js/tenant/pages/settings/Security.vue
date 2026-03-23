@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
-import PasswordController from '@/actions/App/Http/Controllers/Settings/PasswordController';
+import ProfileController from '@/actions/App/Http/Controllers/Tenant/Web/Settings/ProfileController';
 import SettingsSubLayout from '@/sublayouts/admin/SettingsSubLayout.vue';
+import PasswordController from '../../../actions/App/Http/Controllers/Tenant/Web/Settings/PasswordController';
 
 const toast = useToast();
 
@@ -84,7 +85,7 @@ function handleSuccess() {
             class="from-error/10 to-default bg-gradient-to-tl from-5%"
         >
             <template #footer>
-                <DeleteAccount />
+                <DeleteAccount :controller="ProfileController" />
             </template>
         </UPageCard>
     </SettingsSubLayout>

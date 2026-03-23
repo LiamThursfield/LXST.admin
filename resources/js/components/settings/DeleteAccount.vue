@@ -1,6 +1,13 @@
 <script lang="ts" setup>
 import { Form } from '@inertiajs/vue3';
-import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
+
+defineProps<{
+    controller: {
+        destroy: {
+            form: () => any;
+        };
+    };
+}>();
 
 const open = ref(false);
 const passwordInput = useTemplateRef('passwordInput');
@@ -22,7 +29,7 @@ const passwordInput = useTemplateRef('passwordInput');
                 }"
                 class="space-y-6"
                 reset-on-success
-                v-bind="ProfileController.destroy.form()"
+                v-bind="controller.destroy.form()"
                 @error="() => passwordInput?.inputRef?.focus()"
             >
                 <UFormField :error="errors.password" name="password">

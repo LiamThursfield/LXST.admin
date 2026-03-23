@@ -6,7 +6,7 @@
         "dev": "concurrently -p \"[{name}]\" -n \"Central,Tenant\" -c \"bgBlue,bgMagenta\" \"pnpm dev:central\" \"pnpm dev:tenant\"",
         "dev:central": "vite --config vite.central.config.ts",
         "dev:tenant": "vite --config vite.tenant.config.ts",
-        "build": "pnpm build:central && pnpm build:tenant",
+        "build": "pnpm build:tenant && pnpm build:central",
         "build:central": "vite build --config vite.central.config.ts",
         "build:tenant": "vite build --config vite.tenant.config.ts",
         "format": "prettier --write resources/",

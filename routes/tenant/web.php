@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Settings\PasswordController;
-use App\Http\Controllers\Settings\ProfileController;
-use App\Http\Controllers\Settings\SecurityController;
-use App\Http\Controllers\Tenant\DashboardController;
+use App\Http\Controllers\Tenant\Web\DashboardController;
+use App\Http\Controllers\Tenant\Web\Settings\PasswordController;
+use App\Http\Controllers\Tenant\Web\Settings\ProfileController;
+use App\Http\Controllers\Tenant\Web\Settings\SecurityController;
 use Illuminate\Support\Facades\Route;
 
 /*
