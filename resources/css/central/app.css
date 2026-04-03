@@ -5,7 +5,7 @@
 @source "../../js/central/**/*.vue";
 
 @theme static {
-    --font-sans: 'Rubik', sans-serif;
+    --font-sans: 'Onest', sans-serif;
 }
 
 @layer base {
