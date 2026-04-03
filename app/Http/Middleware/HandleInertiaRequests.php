@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\AppContext;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -32,9 +33,14 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $context = tenant() ? AppContext::Tenant : AppContext::Central;
+
         return [
             ...parent::share($request),
-            'name' => config('app.name'),
+            'app' => [
+                'name' => config('app.name'),
+                'context' => $context,
+            ],
             'auth' => [
                 'user' => $request->user(),
             ],
