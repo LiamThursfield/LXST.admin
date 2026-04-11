@@ -7,7 +7,7 @@ import { register } from '@/routes';
 import { request } from '@/routes/password';
 
 defineOptions({
-    layout: (h, page: VNode) => {
+    layout: (h: any, page: VNode) => {
         return h(
             AuthLayout,
             {
@@ -24,6 +24,8 @@ defineProps<{
     canRegister?: boolean;
     status?: string;
 }>();
+
+const inputEmail = ref('');
 </script>
 
 <template>
@@ -56,6 +58,7 @@ defineProps<{
                         placeholder="email@example.com"
                         autofocus
                         required
+                        v-model="inputEmail"
                     />
                 </UFormField>
 

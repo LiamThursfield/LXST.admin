@@ -6,7 +6,7 @@ import AuthLayout from '@/layouts/AuthLayout.vue';
 import { logout } from '@/routes';
 
 defineOptions({
-    layout: (h, page: VNode) => {
+    layout: (h: any, page: VNode) => {
         return h(
             AuthLayout,
             {

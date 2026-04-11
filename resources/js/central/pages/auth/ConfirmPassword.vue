@@ -5,7 +5,7 @@ import ConfirmablePasswordController from '@/actions/App/Http/Controllers/Centra
 import AuthLayout from '@/layouts/AuthLayout.vue';
 
 defineOptions({
-    layout: (h, page: VNode) => {
+    layout: (h: any, page: VNode) => {
         return h(
             AuthLayout,
             {

@@ -6,7 +6,7 @@ import AuthLayout from '@/layouts/AuthLayout.vue';
 import { login } from '@/routes';
 
 defineOptions({
-    layout: (h, page: VNode) => {
+    layout: (h: any, page: VNode) => {
         return h(
             AuthLayout,
             {
@@ -66,7 +66,6 @@ defineProps<{
                         class="w-full"
                         autocomplete="last_name"
                         placeholder="Last Name"
-                        autofocus
                         required
                     />
                 </UFormField>
@@ -81,7 +80,6 @@ defineProps<{
                         class="w-full"
                         autocomplete="email"
                         placeholder="email@example.com"
-                        autofocus
                         required
                     />
                 </UFormField>
