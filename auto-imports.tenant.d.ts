@@ -52,6 +52,7 @@ declare global {
   const getCurrentScope: typeof import('vue').getCurrentScope
   const getCurrentWatcher: typeof import('vue').getCurrentWatcher
   const getInitials: typeof import('./resources/js/composables/useInitials').getInitials
+  const getMenu: typeof import('./resources/js/composables/usePageMenus').getMenu
   const h: typeof import('vue').h
   const ignorableWatch: typeof import('@vueuse/core').ignorableWatch
   const initializeTheme: typeof import('./resources/js/composables/useAppearance').initializeTheme
@@ -250,6 +251,7 @@ declare global {
   const useOverlay: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@2.3.18_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@_d36553e044cd4e9fcf2fce510f4fe22f/node_modules/@nuxt/ui/dist/runtime/composables/useOverlay.js').useOverlay
   const usePage: typeof import('@inertiajs/vue3').usePage
   const usePageLeave: typeof import('@vueuse/core').usePageLeave
+  const usePageMenus: typeof import('./resources/js/composables/usePageMenus').usePageMenus
   const useParallax: typeof import('@vueuse/core').useParallax
   const useParentElement: typeof import('@vueuse/core').useParentElement
   const usePerformanceObserver: typeof import('@vueuse/core').usePerformanceObserver
@@ -433,6 +435,7 @@ declare module 'vue' {
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
     readonly getCurrentWatcher: UnwrapRef<typeof import('vue')['getCurrentWatcher']>
     readonly getInitials: UnwrapRef<typeof import('./resources/js/composables/useInitials')['getInitials']>
+    readonly getMenu: UnwrapRef<typeof import('./resources/js/composables/usePageMenus')['getMenu']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly ignorableWatch: UnwrapRef<typeof import('@vueuse/core')['ignorableWatch']>
     readonly initializeTheme: UnwrapRef<typeof import('./resources/js/composables/useAppearance')['initializeTheme']>
@@ -631,6 +634,7 @@ declare module 'vue' {
     readonly useOverlay: UnwrapRef<typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@2.3.18_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@_d36553e044cd4e9fcf2fce510f4fe22f/node_modules/@nuxt/ui/dist/runtime/composables/useOverlay.js')['useOverlay']>
     readonly usePage: UnwrapRef<typeof import('@inertiajs/vue3')['usePage']>
     readonly usePageLeave: UnwrapRef<typeof import('@vueuse/core')['usePageLeave']>
+    readonly usePageMenus: UnwrapRef<typeof import('./resources/js/composables/usePageMenus')['usePageMenus']>
     readonly useParallax: UnwrapRef<typeof import('@vueuse/core')['useParallax']>
     readonly useParentElement: UnwrapRef<typeof import('@vueuse/core')['useParentElement']>
     readonly usePerformanceObserver: UnwrapRef<typeof import('@vueuse/core')['usePerformanceObserver']>

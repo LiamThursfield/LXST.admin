@@ -3,11 +3,17 @@
 namespace App\Http\Middleware;
 
 use App\Enums\AppContext;
+use App\Services\Navigation\Constants\CentralMenu;
+use App\Services\Navigation\Constants\TenantMenu;
+use App\Services\Navigation\Exceptions\MenuKeyDoesNotExistException;
+use App\Services\Navigation\NavigationRegistry;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
+    public function __construct(protected NavigationRegistry $navigationRegistry) {}
+
     public function rootView(Request $request): string
     {
         // If a tenant is identified, use the tenant blade, otherwise central
@@ -30,16 +36,23 @@ class HandleInertiaRequests extends Middleware
      * @see https://inertiajs.com/shared-data
      *
      * @return array<string, mixed>
+     *
+     * @throws MenuKeyDoesNotExistException
      */
     public function share(Request $request): array
     {
         $context = tenant() ? AppContext::Tenant : AppContext::Central;
+
+        $mainMenuKey = $context == AppContext::Tenant ? TenantMenu::MENU_MAIN : CentralMenu::MENU_MAIN;
 
         return [
             ...parent::share($request),
             'app' => [
                 'name' => config('app.name'),
                 'context' => $context,
+            ],
+            'menus' => [
+                'main' => $this->navigationRegistry->resolveForUser($mainMenuKey, $request->user()),
             ],
             'auth' => [
                 'user' => $request->user(),

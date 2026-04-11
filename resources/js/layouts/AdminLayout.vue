@@ -1,52 +1,22 @@
-<!-- This is adapted from: This is taken from: https://github.com/jkque/laravel-nuxt-ui-starter-kit/ -->
-<script setup lang="ts">
-import type { NavigationMenuItem } from '@nuxt/ui';
+<!-- This is adapted from: https://github.com/jkque/laravel-nuxt-ui-starter-kit/ -->
+<script lang="ts" setup>
+import { usePageMenus } from '@/composables/usePageMenus';
 
 const toast = useToast();
 
 const open = ref(false);
 
-const links = [
-    {
-        label: 'Home',
-        icon: 'i-lucide-house',
-        to: '/dashboard',
-        onSelect: () => {
-            open.value = false;
-        },
-    },
-    {
-        label: 'Settings',
-        icon: 'i-lucide-settings',
-        defaultOpen: true,
-        type: 'trigger',
-        children: [
-            {
-                label: 'Profile',
-                to: '/settings/profile',
-                exact: true,
-                onSelect: () => {
-                    open.value = false;
-                },
-            },
-            {
-                label: 'Security',
-                to: '/settings/security',
-                onSelect: () => {
-                    open.value = false;
-                },
-            },
-        ],
-    },
-] satisfies NavigationMenuItem[];
+const mainMenu = usePageMenus().main;
 
-const groups = computed(() => [
+// This is used for the DashboardSearch
+// By default, we'll just add the main menu
+const dashboardSearchGroups = computed(() => [
     {
         id: 'links',
         label: 'Go to',
-        items: links.flat(),
+        items: mainMenu.value.flat(),
     },
-]);
+]) as any;
 
 const cookie = useStorage('cookie-consent', 'pending');
 if (cookie.value !== 'accepted') {
@@ -76,14 +46,14 @@ if (cookie.value !== 'accepted') {
 <template>
     <Suspense>
         <UApp>
-            <UDashboardGroup unit="rem" storage="local">
+            <UDashboardGroup storage="local" unit="rem">
                 <UDashboardSidebar
                     id="default"
                     v-model:open="open"
+                    :ui="{ footer: 'lg:border-t lg:border-default' }"
+                    class="bg-elevated/25"
                     collapsible
                     resizable
-                    class="bg-elevated/25"
-                    :ui="{ footer: 'lg:border-t lg:border-default' }"
                 >
                     <template #header="{ collapsed }">
                         <div
@@ -110,10 +80,10 @@ if (cookie.value !== 'accepted') {
 
                         <UNavigationMenu
                             :collapsed="collapsed"
-                            :items="links"
+                            :items="mainMenu"
                             orientation="vertical"
-                            tooltip
                             popover
+                            tooltip
                         />
                     </template>
 
@@ -122,7 +92,7 @@ if (cookie.value !== 'accepted') {
                     </template>
                 </UDashboardSidebar>
 
-                <UDashboardSearch :groups="groups" />
+                <UDashboardSearch :groups="dashboardSearchGroups" />
 
                 <slot />
 

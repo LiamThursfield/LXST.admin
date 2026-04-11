@@ -16,13 +16,14 @@
     "license": "MIT",
     "require": {
         "php": "^8.4",
+        "ext-pdo": "*",
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/fortify": "^1.30",
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.9",
-        "stancl/tenancy": "dev-master",
-        "ext-pdo": "*"
+        "spatie/laravel-data": "*",
+        "stancl/tenancy": "dev-master"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
