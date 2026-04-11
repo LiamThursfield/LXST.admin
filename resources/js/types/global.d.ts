@@ -1,5 +1,6 @@
 import type { App } from '@/types/app';
 import type { Auth } from '@/types/auth';
+import type NavigationMenu from '@/types/navigation';
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
@@ -17,8 +18,11 @@ declare module 'vite/client' {
 declare module '@inertiajs/core' {
     export interface InertiaConfig {
         sharedPageProps: {
-            app: App,
+            app: App;
             auth: Auth;
+            menus: {
+                [key: string]: NavigationMenu;
+            };
             sidebarOpen: boolean;
             [key: string]: unknown;
         };
