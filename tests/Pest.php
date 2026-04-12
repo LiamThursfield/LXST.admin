@@ -18,7 +18,7 @@ use Tests\Traits\RefreshDatabaseWithTenantTrait;
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
-    ->in('Feature');
+    ->in('Feature', 'Unit');
 
 // Taken//adapted from previous work by https://github.com/sdsmith1981
 pest()->extend(TenantTestCase::class)
