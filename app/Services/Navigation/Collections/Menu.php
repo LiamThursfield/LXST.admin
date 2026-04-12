@@ -93,8 +93,10 @@ class Menu
             ->map(function (MenuSection $menuSection) use ($user) {
                 return $menuSection->resolveForUser($user);
             })
-            // remove any empty sections
-            ->filter()
+            ->filter(function (Collection $section) {
+                // remove any empty sections
+                return $section->isNotEmpty();
+            })
             ->values();
     }
 
