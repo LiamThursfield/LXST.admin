@@ -12,6 +12,8 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
+use function Laravel\Prompts\select;
+
 class ShowNavigationMenu extends Command
 {
     /**
@@ -19,7 +21,7 @@ class ShowNavigationMenu extends Command
      *
      * @var string
      */
-    protected $signature = 'navigation:show-menu {menu} {user?}';
+    protected $signature = 'navigation:show-menu {menu?} {user?}';
 
     /**
      * The console command description.
@@ -33,7 +35,11 @@ class ShowNavigationMenu extends Command
      */
     public function handle(NavigationRegistry $registry): int
     {
-        $menuKey = $this->argument('menu');
+        $menuKey = $this->getMenuKey($registry);
+        if ($menuKey === null) {
+            return static::FAILURE;
+        }
+
         $userId = $this->argument('user');
 
         $user = null;
@@ -76,10 +82,39 @@ class ShowNavigationMenu extends Command
         return static::SUCCESS;
     }
 
+    /**
+     * Returns the key of the menu to show
+     * - grabbed from the argument if set
+     * - or via a select prompt if not
+     */
+    protected function getMenuKey(NavigationRegistry $registry): ?string
+    {
+        $menuKey = $this->argument('menu');
+
+        if (! $menuKey) {
+            $registeredKeys = $registry->registeredMenuKeys();
+            if ($registeredKeys->isEmpty()) {
+                $this->error('No menus are registered.');
+
+                return null;
+            }
+
+            $menuKey = select(
+                label: 'Which menu would you like to view?',
+                options: $registeredKeys->toArray()
+            );
+        }
+
+        return $menuKey;
+    }
+
+    /**
+     * Render an individual item to the console
+     */
     protected function renderItem(MenuItem|MenuChildItem $item, string $prefix, bool $isLast): void
     {
         $connector = $isLast ? '└── ' : '├── ';
-        $this->line($prefix.$connector.$this->itemLabel($item));
+        $this->line($prefix.$connector.$this->itemRowText($item));
 
         $newPrefix = $prefix.($isLast ? '    ' : '│   ');
 
@@ -94,7 +129,10 @@ class ShowNavigationMenu extends Command
         }
     }
 
-    protected function itemLabel(MenuItem|MenuChildItem $item): string
+    /**
+     * Return the text that should be shown for the given item
+     */
+    protected function itemRowText(MenuItem|MenuChildItem $item): string
     {
         $labelParts = [
             '['.Str::padLeft($item->sortOrder, 3, '0').']',
