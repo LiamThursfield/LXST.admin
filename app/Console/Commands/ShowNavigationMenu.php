@@ -89,7 +89,7 @@ class ShowNavigationMenu extends Command
      */
     protected function getMenuKey(NavigationRegistry $registry): ?string
     {
-        $menuKey = $this->argument('menu');
+        $menuKey = (string) $this->argument('menu');
 
         if (! $menuKey) {
             $registeredKeys = $registry->registeredMenuKeys();
@@ -99,7 +99,7 @@ class ShowNavigationMenu extends Command
                 return null;
             }
 
-            $menuKey = select(
+            $menuKey = (string) select(
                 label: 'Which menu would you like to view?',
                 options: $registeredKeys->toArray()
             );
@@ -135,7 +135,7 @@ class ShowNavigationMenu extends Command
     protected function itemRowText(MenuItem|MenuChildItem $item): string
     {
         $labelParts = [
-            '['.Str::padLeft($item->sortOrder, 3, '0').']',
+            '['.Str::padLeft((string) $item->sortOrder, 3, '0').']',
         ];
 
         $labelParts[] = $item->label != null ? $item->label : $item->key;
