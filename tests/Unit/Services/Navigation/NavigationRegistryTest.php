@@ -62,3 +62,19 @@ describe('resolveForUser', function () {
         expect($resolved)->toBe($expectedCollection);
     });
 });
+
+describe('registeredMenuKeys', function () {
+    it('returns an empty collection when no menus are registered', function () {
+        expect($this->registry->registeredMenuKeys()->isEmpty())->toBeTrue();
+    });
+
+    it('returns a sorted collection of registered menu keys', function () {
+        $this->registry->addMenu(new Menu, 'zebra');
+        $this->registry->addMenu(new Menu, 'alpha');
+        $this->registry->addMenu(new Menu, 'main');
+
+        $keys = $this->registry->registeredMenuKeys();
+
+        expect($keys->toArray())->toBe(['alpha', 'main', 'zebra']);
+    });
+});

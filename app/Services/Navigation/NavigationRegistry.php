@@ -111,6 +111,16 @@ class NavigationRegistry
     }
 
     /**
+     * Returns the keys of any registered menus
+     *
+     * @return Collection<int, string>
+     */
+    public function registeredMenuKeys(): Collection
+    {
+        return $this->menus->keys()->sort()->values();
+    }
+
+    /**
      * Returns the Menu with the given key, if it exists
      *
      * @throws MenuKeyDoesNotExistException
