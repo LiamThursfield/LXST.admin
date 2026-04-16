@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use App\Jobs\SeedRolesAndPermissions;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
@@ -50,6 +50,7 @@ class TenancyServiceProvider extends ServiceProvider
                 JobPipeline::make([
                     Jobs\CreateDatabase::class,
                     Jobs\MigrateDatabase::class,
+                    SeedRolesAndPermissions::class,
                     // Jobs\SeedDatabase::class,
                     // Jobs\CreateStorageSymlinks::class,
 
