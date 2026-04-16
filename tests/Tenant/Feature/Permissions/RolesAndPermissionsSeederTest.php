@@ -36,9 +36,9 @@ it('assigns default permissions to roles', function () {
 
     $viewerRole = Role::findByName(RoleEnum::Viewer->value);
 
-    // Viewer should have view permissions but not manage permissions
-    expect($viewerRole->hasPermissionTo(CorePermission::ViewPermissions->value))->toBeTrue();
-    expect($viewerRole->hasPermissionTo(CorePermission::ViewUsers->value))->toBeTrue();
+    // Viewer should have no permissions
+    expect($viewerRole->hasPermissionTo(CorePermission::ViewPermissions->value))->toBeFalse();
+    expect($viewerRole->hasPermissionTo(CorePermission::ViewUsers->value))->toBeFalse();
     expect($viewerRole->hasPermissionTo(CorePermission::ManagePermissions->value))->toBeFalse();
     expect($viewerRole->hasPermissionTo(CorePermission::ManageUsers->value))->toBeFalse();
 });
