@@ -23,6 +23,7 @@
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.9",
         "spatie/laravel-data": "*",
+        "spatie/laravel-permission": "^7.3",
         "stancl/tenancy": "dev-master"
     },
     "require-dev": {
