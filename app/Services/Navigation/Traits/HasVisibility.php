@@ -2,6 +2,7 @@
 
 namespace App\Services\Navigation\Traits;
 
+use BackedEnum;
 use Closure;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Gate;
@@ -16,7 +17,13 @@ trait HasVisibility
      */
     public function gate(mixed $gate): static
     {
-        $this->gate = $gate;
+        // If the gate is an enum, extract the value
+        // this is typically the case for Permission enums e.g. CorePermission
+        if ($gate instanceof BackedEnum) {
+            $this->gate = $gate->value;
+        } else {
+            $this->gate = $gate;
+        }
 
         return $this;
     }

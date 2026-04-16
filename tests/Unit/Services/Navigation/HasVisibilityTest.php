@@ -1,5 +1,7 @@
 <?php
 
+namespace Tests\Unit\Services\Navigation;
+
 use App\Models\User;
 use App\Services\Navigation\Data\MenuItem;
 
@@ -31,4 +33,17 @@ it('evaluates a closure for visibility passing the user', function () {
     // Now test a failing closure
     $item->gate(fn ($user) => $user->id === 10);
     expect($item->isVisible($user))->toBeFalse();
+});
+
+it('extracts the value from a backed enum gate', function () {
+    enum TestVisibilityGate: string
+    {
+        case Admin = 'admin';
+    }
+
+    $item = new MenuItem(key: 'admin', sortOrder: 1);
+
+    $item->gate(TestVisibilityGate::Admin);
+
+    expect($item->getGate())->toBe('admin');
 });
