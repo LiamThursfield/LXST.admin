@@ -107,8 +107,12 @@ class MenuSection
 
             return [$menuItem->key => $menuItem->resolveForUser($user)];
         })->filter(function (?MenuItem $menuItem) {
+            if ($menuItem == null) {
+                return false;
+            }
+
             // We should never filter out visible labels or items with routes
-            if ($menuItem == null || $menuItem->isLabel() || $menuItem->hasLink()) {
+            if ($menuItem->isLabel() || $menuItem->hasLink()) {
                 return true;
             }
 
