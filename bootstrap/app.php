@@ -20,6 +20,14 @@ return Application::configure(basePath: dirname(__DIR__))
                     ->domain($domain)
                     ->as('central.')
                     ->group(base_path('routes/central/web.php'));
+
+                Route::middleware([
+                    'web',
+                    'auth',
+                ])->prefix('admin')
+                    ->domain($domain)
+                    ->as('central.admin.')
+                    ->group(base_path('routes/central/admin.php'));
             }
 
             Route::middleware([
@@ -32,6 +40,14 @@ return Application::configure(basePath: dirname(__DIR__))
                     ScopeSessions::class,
                 ])->group(base_path('routes/tenant/web.php'));
 
+                Route::middleware([
+                    'web',
+                    ScopeSessions::class,
+                    'auth',
+                ])->prefix('admin')
+                    ->as('admin.')
+                    ->group(base_path('routes/tenant/admin.php'));
+
                 Route::middleware('api')
                     ->prefix('api')
                     ->as('api.')
@@ -41,6 +57,8 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->redirectUsersTo('/admin');
+
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
         $middleware->web(append: [

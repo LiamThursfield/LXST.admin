@@ -32,7 +32,7 @@ describe('transform (toArray)', function () {
         );
 
         $transformed = $item->toArray();
-        expect($transformed['to'])->toBe('/dashboard');
+        expect($transformed['to'])->toBe(route('admin.dashboard', [], false));
     });
 
     it('does not transform the `to` property when it is not a valid route name', function () {
