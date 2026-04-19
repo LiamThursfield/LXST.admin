@@ -52,6 +52,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         type: MenuItemType::LINK,
                         to: 'admin.dashboard',
                         icon: 'i-lucide-house',
+                        exact: true,
                     ),
                 ]),
                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
