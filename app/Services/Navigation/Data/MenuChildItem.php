@@ -38,6 +38,7 @@ class MenuChildItem extends Data
         public ?string $to = null,
         public ?string $icon = null,
         public ?string $description = null,
+        public ?bool $exact = null,
         #[DataCollectionOf(MenuChildItem::class)]
         #[WithTransformer(SortCollectionTransformer::class, sortBy: 'sortOrder')]
         public ?Collection $children = null,

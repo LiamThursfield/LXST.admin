@@ -67,7 +67,7 @@ if (cookie.value !== 'accepted') {
                             <div
                                 class="bg-elevated text-primary flex h-8 w-8 items-center justify-center rounded font-bold"
                             >
-                                L
+                                .a
                             </div>
                         </div>
                     </template>

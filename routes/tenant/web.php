@@ -2,10 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Tenant\Web\DashboardController;
-use App\Http\Controllers\Tenant\Web\Settings\PasswordController;
-use App\Http\Controllers\Tenant\Web\Settings\ProfileController;
-use App\Http\Controllers\Tenant\Web\Settings\SecurityController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,22 +18,3 @@ require base_path('vendor/laravel/fortify/routes/routes.php');
 Route::get('/', function () {
     return redirect('login');
 })->name('home');
-
-Route::middleware(['auth'])
-    ->name('admin.')
-    ->group(function () {
-        Route::get('/dashboard', DashboardController::class)->name('dashboard');
-
-        Route::name('settings.')->group(function () {
-            Route::get('/settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-            Route::patch('/settings/profile', [ProfileController::class, 'update'])->name('profile.update');
-            Route::delete('/settings/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-            Route::get('settings/security', [SecurityController::class, 'edit'])->name('security.edit');
-
-            Route::put('/settings/password', [PasswordController::class, 'update'])
-                ->middleware('throttle:6,1')
-                ->name('password.update');
-        });
-
-    });
