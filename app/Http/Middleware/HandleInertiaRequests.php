@@ -6,13 +6,13 @@ use App\Enums\AppContext;
 use App\Services\Navigation\Constants\CentralMenu;
 use App\Services\Navigation\Constants\TenantMenu;
 use App\Services\Navigation\Exceptions\MenuKeyDoesNotExistException;
-use App\Services\Navigation\NavigationRegistry;
+use App\Services\Navigation\NavigationService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
-    public function __construct(protected NavigationRegistry $navigationRegistry) {}
+    public function __construct(protected NavigationService $navigationService) {}
 
     public function rootView(Request $request): string
     {
@@ -52,7 +52,7 @@ class HandleInertiaRequests extends Middleware
                 'context' => $context,
             ],
             'menus' => [
-                'main' => $this->navigationRegistry->resolveForUser($mainMenuKey, $request->user()),
+                'main' => $this->navigationService->resolveMenuForUser($mainMenuKey, $request->user()),
             ],
             'auth' => [
                 'user' => $request->user(),

@@ -3,10 +3,10 @@
 namespace App\Services\Navigation;
 
 use App\Services\Navigation\Registrars\MenuRegistrar;
-use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
 
-class NavigationServiceProvider extends ServiceProvider
+class NavigationServiceProvider extends ServiceProvider implements DeferrableProvider
 {
     /**
      * Register services.
@@ -16,24 +16,26 @@ class NavigationServiceProvider extends ServiceProvider
         $this->app->singleton(NavigationRegistry::class, function ($app) {
             return new NavigationRegistry;
         });
+
+        $this->app->singleton(NavigationService::class, function ($app) {
+            /** @var array<class-string<MenuRegistrar>> $registrars */
+            $registrars = config('navigation.registrars', []);
+
+            return new NavigationService(
+                $app->make(NavigationRegistry::class),
+                $registrars
+            );
+        });
     }
 
     /**
-     * Bootstrap services.
-     *
-     * @throws BindingResolutionException
+     * @return string[]
      */
-    public function boot(): void
+    public function provides(): array
     {
-        $registry = $this->app->make(NavigationRegistry::class);
-
-        // Load all the defined registrar class strings
-        /** @var array<class-string<MenuRegistrar>> $registrars */
-        $registrars = config('navigation.registrars', []);
-
-        // Then load them and trigger their register method
-        foreach ($registrars as $registrar) {
-            ($this->app->make($registrar))->register($registry);
-        }
+        return [
+            NavigationRegistry::class,
+            NavigationService::class,
+        ];
     }
 }
