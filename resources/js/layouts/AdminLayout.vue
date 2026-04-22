@@ -65,9 +65,13 @@ if (cookie.value !== 'accepted') {
                         </div>
                         <div v-else class="mx-auto select-none text-lg">
                             <div
-                                class="bg-elevated text-primary flex h-8 w-8 items-center justify-center rounded font-bold"
+                                class="flex h-8 w-8 items-center justify-center rounded-lg bg-black p-1 font-normal text-white"
                             >
-                                .a
+                                <div
+                                    class="border-primary flex h-full w-full items-center justify-center rounded-lg border"
+                                >
+                                    .a
+                                </div>
                             </div>
                         </div>
                     </template>
