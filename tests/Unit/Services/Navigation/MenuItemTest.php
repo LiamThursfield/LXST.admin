@@ -2,6 +2,7 @@
 
 use App\Services\Navigation\Data\MenuItem;
 use App\Services\Navigation\Enums\MenuItemType;
+use Illuminate\Routing\Route;
 
 describe('transform (toArray)', function () {
     it('does not transform the `key` property when it does not contain a dot', function () {
@@ -57,6 +58,32 @@ describe('transform (toArray)', function () {
         expect($transformed['to'])->toBe('https://example.com');
     });
 
+    it('correctly transforms the `activePatterns` property and evaluates to false when no route matches', function () {
+        $item = new MenuItem(
+            key: 'key',
+            sortOrder: 1,
+            activePatterns: ['admin.dashboard'],
+        );
+
+        $transformed = $item->toArray();
+        expect($transformed['defaultOpen'])->toBeFalse();
+    });
+
+    it('correctly transforms the `activePatterns` property to `defaultOpen` and evaluates to true when a route matches', function () {
+        $route = new Route('GET', 'admin/dashboard', ['as' => 'admin.dashboard']);
+        $route->bind(request());
+        request()->setRouteResolver(fn () => $route);
+
+        $item = new MenuItem(
+            key: 'key',
+            sortOrder: 1,
+            activePatterns: ['admin.dashboard'],
+        );
+
+        $transformed = $item->toArray();
+        expect($transformed['defaultOpen'])->toBeTrue();
+    });
+
     it('sorts the child items based on their sortOrder', function () {
         $item = new MenuItem(
             key: 'key',
@@ -76,7 +103,7 @@ describe('transform (toArray)', function () {
     });
 });
 
-describe('}isLabel', function () {
+describe('isLabel', function () {
     it('returns true when the type is set to label', function () {
         $item = new MenuItem(key: 'key', sortOrder: 1, type: MenuItemType::LABEL);
         expect($item->isLabel())->toBeTrue();

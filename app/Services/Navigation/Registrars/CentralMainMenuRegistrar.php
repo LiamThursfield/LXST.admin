@@ -88,6 +88,7 @@ class CentralMainMenuRegistrar implements MenuRegistrar
                         label: 'Settings',
                         type: MenuItemType::LINK,
                         icon: 'i-lucide-settings',
+                        activePatterns: ['central.admin.settings.*'],
                         children: Collection::wrap([
                             new MenuChildItem(
                                 key: 'profile',
