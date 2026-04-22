@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui';
 
+// TODO: This should be dynamically generated based on the available settings pages
 const links = [
     {
         label: 'Profile',
         icon: 'i-lucide-user',
-        to: '/settings/profile',
+        to: '/admin/settings/profile',
         exact: true,
     },
     {
         label: 'Security',
         icon: 'i-lucide-shield',
-        to: '/settings/security',
+        to: '/admin/settings/security',
     },
 ] satisfies NavigationMenuItem[];
 </script>
