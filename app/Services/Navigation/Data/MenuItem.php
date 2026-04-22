@@ -2,6 +2,7 @@
 
 namespace App\Services\Navigation\Data;
 
+use App\Data\Transformers\ActiveRoutePatternsTransformer;
 use App\Data\Transformers\RouteTransformer;
 use App\Data\Transformers\SortCollectionTransformer;
 use App\Data\Transformers\StringReplaceTransformer;
@@ -11,6 +12,7 @@ use App\Services\Navigation\Traits\HasVisibility;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
+use Spatie\LaravelData\Attributes\MapOutputName;
 use Spatie\LaravelData\Attributes\WithTransformer;
 use Spatie\LaravelData\Data;
 
@@ -26,6 +28,7 @@ class MenuItem extends Data
     use HasVisibility;
 
     /**
+     * @param  string[]|null  $activePatterns
      * @param  Collection<int, MenuChildItem>|null  $children
      */
     public function __construct(
@@ -42,6 +45,11 @@ class MenuItem extends Data
         public ?string $icon = null,
         public ?string $description = null,
         public ?bool $exact = null,
+        // We map to defaultOpen as that is what Nuxt UI expects for open state of nested menu items,
+        // but we transform from activePatterns as that is more intuitive to work with
+        #[MapOutputName('defaultOpen')]
+        #[WithTransformer(ActiveRoutePatternsTransformer::class)]
+        public ?array $activePatterns = null,
         #[DataCollectionOf(MenuChildItem::class)]
         #[WithTransformer(SortCollectionTransformer::class, sortBy: 'sortOrder')]
         public ?Collection $children = null,

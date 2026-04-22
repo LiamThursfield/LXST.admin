@@ -87,6 +87,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         label: 'Settings',
                         type: MenuItemType::LINK,
                         icon: 'i-lucide-settings',
+                        activePatterns: ['admin.settings.*'],
                         children: Collection::wrap([
                             new MenuChildItem(
                                 key: 'profile',
