@@ -24,6 +24,7 @@
         "laravel/wayfinder": "^0.1.9",
         "spatie/laravel-data": "*",
         "spatie/laravel-permission": "^7.3",
+        "spatie/laravel-query-builder": "^7.2",
         "stancl/tenancy": "dev-master"
     },
     "require-dev": {
