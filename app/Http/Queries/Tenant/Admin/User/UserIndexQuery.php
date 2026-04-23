@@ -18,7 +18,8 @@ class UserIndexQuery
     {
         return QueryBuilder::for(User::class, $request)
             ->allowedFilters(
-                'name',
+                'first_name',
+                'last_name',
                 'email',
                 AllowedFilter::custom('role', new AnyRoleFilter),
             )->with(['roles'])
