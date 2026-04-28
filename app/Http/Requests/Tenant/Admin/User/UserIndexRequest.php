@@ -24,10 +24,11 @@ class UserIndexRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name' => ['nullable', Rule::string()],
-            'last_name' => ['nullable', Rule::string()],
-            'email' => ['nullable', Rule::string()],
-            'role' => ['nullable', 'array'],
+            'filter' => ['nullable', 'array'],
+            'filter.first_name' => ['nullable', Rule::string()],
+            'filter.last_name' => ['nullable', Rule::string()],
+            'filter.email' => ['nullable', Rule::string()],
+            'filter.role' => ['nullable', 'array'],
         ];
     }
 }

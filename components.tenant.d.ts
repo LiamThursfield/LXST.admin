@@ -16,6 +16,7 @@ declare module 'vue' {
     TextLink: typeof import('./resources/js/components/TextLink.vue')['default']
     UApp: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@2.3.18_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@_d36553e044cd4e9fcf2fce510f4fe22f/node_modules/@nuxt/ui/dist/runtime/components/App.vue')['default']
     UAvatar: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@2.3.18_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@_d36553e044cd4e9fcf2fce510f4fe22f/node_modules/@nuxt/ui/dist/runtime/components/Avatar.vue')['default']
+    UBadge: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@2.3.18_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@_d36553e044cd4e9fcf2fce510f4fe22f/node_modules/@nuxt/ui/dist/runtime/components/Badge.vue')['default']
     UButton: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@2.3.18_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@_d36553e044cd4e9fcf2fce510f4fe22f/node_modules/@nuxt/ui/dist/runtime/components/Button.vue')['default']
     UCheckbox: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@2.3.18_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@_d36553e044cd4e9fcf2fce510f4fe22f/node_modules/@nuxt/ui/dist/runtime/components/Checkbox.vue')['default']
     UChip: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@2.3.18_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@_d36553e044cd4e9fcf2fce510f4fe22f/node_modules/@nuxt/ui/dist/runtime/components/Chip.vue')['default']
@@ -35,8 +36,11 @@ declare module 'vue' {
     UModal: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@2.3.18_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@_d36553e044cd4e9fcf2fce510f4fe22f/node_modules/@nuxt/ui/dist/runtime/components/Modal.vue')['default']
     UNavigationMenu: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@2.3.18_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@_d36553e044cd4e9fcf2fce510f4fe22f/node_modules/@nuxt/ui/dist/runtime/components/NavigationMenu.vue')['default']
     UPageCard: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@2.3.18_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@_d36553e044cd4e9fcf2fce510f4fe22f/node_modules/@nuxt/ui/dist/runtime/components/PageCard.vue')['default']
+    UPagination: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@2.3.18_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@_d36553e044cd4e9fcf2fce510f4fe22f/node_modules/@nuxt/ui/dist/runtime/components/Pagination.vue')['default']
+    USelect: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@2.3.18_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@_d36553e044cd4e9fcf2fce510f4fe22f/node_modules/@nuxt/ui/dist/runtime/components/Select.vue')['default']
     USeparator: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@2.3.18_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@_d36553e044cd4e9fcf2fce510f4fe22f/node_modules/@nuxt/ui/dist/runtime/components/Separator.vue')['default']
     UserMenu: typeof import('./resources/js/components/UserMenu.vue')['default']
     USlideover: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@2.3.18_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@_d36553e044cd4e9fcf2fce510f4fe22f/node_modules/@nuxt/ui/dist/runtime/components/Slideover.vue')['default']
+    UTable: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@2.3.18_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@_d36553e044cd4e9fcf2fce510f4fe22f/node_modules/@nuxt/ui/dist/runtime/components/Table.vue')['default']
   }
 }
