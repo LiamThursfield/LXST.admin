@@ -26,7 +26,7 @@ pest()->extend(TenantTestCase::class)
     ->beforeEach(function (): void {
         $this->withoutVite();
         Http::preventStrayRequests();
-    })->in('Tenant/Feature');
+    })->in('Tenant/Feature', 'Tenant/Unit');
 
 /*
 |--------------------------------------------------------------------------
