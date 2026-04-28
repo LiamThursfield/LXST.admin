@@ -18,7 +18,7 @@ const links = [
 </script>
 
 <template>
-    <UDashboardPanel id="settings" :ui="{ body: 'lg:py-12' }">
+    <UDashboardPanel>
         <template #header>
             <UDashboardNavbar title="Settings">
                 <template #leading>
