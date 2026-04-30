@@ -22,12 +22,14 @@ class UserIndexQuery
                 'last_name',
                 'email',
                 AllowedFilter::custom('role', new AnyRoleFilter),
+            )
+            ->defaultSort(
+                'email'
             )->allowedSorts(
                 'first_name',
                 'last_name',
                 'email',
             )->with(['roles'])
-            ->defaultSort('email')
             ->paginate($request->input('per_page', 15));
     }
 }
