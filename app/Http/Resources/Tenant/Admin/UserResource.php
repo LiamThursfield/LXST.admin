@@ -28,7 +28,7 @@ class UserResource extends JsonResource
 
             $actions[] = Action::make('Delete', route('admin.users.destroy', $user))
                 ->icon('i-lucide-trash')
-                ->method('delete')
+                ->method('DELETE')
                 ->requireConfirmation("Are you sure you want to delete user $user->email?");
         }
 
