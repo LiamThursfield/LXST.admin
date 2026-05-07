@@ -29,6 +29,7 @@ class UserController extends Controller
                 ['accessorKey' => 'last_name', 'header' => 'Last Name'],
                 ['accessorKey' => 'email', 'header' => 'Email'],
                 ['accessorKey' => 'roles', 'header' => 'Roles'],
+                ['accessorKey' => 'actions', 'header' => ''],
             ],
             'users' => UserResource::collection($query->handle($request)),
             'roles' => Role::asSelectItems(),
