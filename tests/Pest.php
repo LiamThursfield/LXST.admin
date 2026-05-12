@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TenantTestCase;
 use Tests\TestCase;
+use Tests\Traits\CreatesUserWithPermissionsTrait;
 use Tests\Traits\RefreshDatabaseWithTenantTrait;
 
 /*
@@ -22,8 +23,10 @@ pest()->extend(TestCase::class)
 
 // Taken//adapted from previous work by https://github.com/sdsmith1981
 pest()->extend(TenantTestCase::class)
-    ->use(RefreshDatabaseWithTenantTrait::class)
-    ->beforeEach(function (): void {
+    ->use(
+        RefreshDatabaseWithTenantTrait::class,
+        CreatesUserWithPermissionsTrait::class
+    )->beforeEach(function (): void {
         $this->withoutVite();
         Http::preventStrayRequests();
     })->in('Tenant/Feature', 'Tenant/Unit');

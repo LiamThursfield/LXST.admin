@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\User;
-use Database\Seeders\RolesAndPermissionsSeeder;
+use App\Services\Authorisation\Enums\CorePermission;
 use Inertia\Testing\AssertableInertia as Assert;
 
 test('guests are redirected to the login page when trying to access user index', function () {
@@ -10,8 +10,17 @@ test('guests are redirected to the login page when trying to access user index',
     $response->assertRedirect(route('login'));
 });
 
-test('authenticated users can visit the user index', function () {
-    $user = User::factory()->create();
+test('authenticated users cannot visit the user index if they do not have the required permission', function () {
+    $user = $this->createUserWithPermissions([]);
+    $this->actingAs($user);
+
+    $response = $this->get(route('admin.users.index'));
+
+    $response->assertForbidden();
+});
+
+test('authenticated users can visit the user index if they have the required permission', function () {
+    $user = $this->createUserWithPermissions([CorePermission::ViewUsers]);
     $this->actingAs($user);
 
     $response = $this->get(route('admin.users.index'));
@@ -25,7 +34,7 @@ test('authenticated users can visit the user index', function () {
 });
 
 test('user index can be filtered by first name', function () {
-    $user = User::factory()->create();
+    $user = $this->createUserWithPermissions([CorePermission::ViewUsers]);
     $this->actingAs($user);
 
     User::factory()->create(['first_name' => 'John', 'last_name' => 'Doe']);
@@ -43,7 +52,7 @@ test('user index can be filtered by first name', function () {
 });
 
 test('user index can be filtered by last name', function () {
-    $user = User::factory()->create();
+    $user = $this->createUserWithPermissions([CorePermission::ViewUsers]);
     $this->actingAs($user);
 
     User::factory()->create(['first_name' => 'John', 'last_name' => 'Smith']);
@@ -61,7 +70,7 @@ test('user index can be filtered by last name', function () {
 });
 
 test('user index can be filtered by email', function () {
-    $user = User::factory()->create();
+    $user = $this->createUserWithPermissions([CorePermission::ViewUsers]);
     $this->actingAs($user);
 
     User::factory()->create(['first_name' => 'John', 'last_name' => 'Smith', 'email' => 'john@example.com']);
@@ -79,9 +88,7 @@ test('user index can be filtered by email', function () {
 });
 
 test('user index can be filtered by role', function () {
-    $this->seed(RolesAndPermissionsSeeder::class);
-
-    $user = User::factory()->create();
+    $user = $this->createUserWithPermissions([CorePermission::ViewUsers]);
     $this->actingAs($user);
 
     $admin = User::factory()->create(['first_name' => 'Admin']);
