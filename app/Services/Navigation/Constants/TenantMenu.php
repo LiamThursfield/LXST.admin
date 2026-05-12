@@ -15,6 +15,8 @@ namespace App\Services\Navigation\Constants;
  * The current - core - tenant menu is as follows (this does not include the child items in each section):
  * Main Menu
  * ├── Dashboard
+ * ├── Admin
+ * │   └── Users
  * └── Account
  *     └── Settings
  */
@@ -24,7 +26,23 @@ class TenantMenu
 
     public const string MENU_MAIN_SECTION_DASHBOARD = 'dashboard';
 
+    public const string MENU_MAIN_SECTION_ADMIN = 'admin';
+
+    public const string MENU_MAIN_SECTION_ADMIN_LABEL = 'admin-label';
+
+    public const string MENU_MAIN_SECTION_ADMIN_ITEM_USERS = 'users';
+
+    public const string MENU_MAIN_SECTION_ADMIN_ITEM_USERS_VIEW = 'view';
+
+    public const string MENU_MAIN_SECTION_ADMIN_ITEM_USERS_CREATE = 'create';
+
     public const string MENU_MAIN_SECTION_ACCOUNT = 'account';
 
+    public const string MENU_MAIN_SECTION_ACCOUNT_LABEL = 'account-label';
+
     public const string MENU_MAIN_SECTION_ACCOUNT_ITEM_SETTINGS = 'settings';
+
+    public const string MENU_MAIN_SECTION_ACCOUNT_ITEM_SETTINGS_PROFILE = 'profile';
+
+    public const string MENU_MAIN_SECTION_ACCOUNT_ITEM_SETTINGS_SECURITY = 'security';
 }

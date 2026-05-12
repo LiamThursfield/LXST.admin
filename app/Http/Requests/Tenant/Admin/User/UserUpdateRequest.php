@@ -7,14 +7,14 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UserIndexRequest extends FormRequest
+class UserUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return $this->user()?->can(CorePermission::ViewUsers) ?? false;
+        return $this->user()?->can(CorePermission::ManageUsers) ?? false;
     }
 
     /**
@@ -25,11 +25,17 @@ class UserIndexRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'filter' => ['nullable', 'array'],
-            'filter.first_name' => ['nullable', Rule::string()],
-            'filter.last_name' => ['nullable', Rule::string()],
-            'filter.email' => ['nullable', Rule::string()],
-            'filter.role' => ['nullable', 'array'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique('users')->ignore($this->route('user')),
+            ],
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['string'],
         ];
     }
 }

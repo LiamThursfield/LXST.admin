@@ -53,13 +53,22 @@ return [
                 'sortOrder' => 0,
                 'dashboard' => ['sortOrder' => 0],
             ],
+            TenantMenu::MENU_MAIN_SECTION_ADMIN => [
+                'sortOrder' => 90,
+                TenantMenu::MENU_MAIN_SECTION_ADMIN_LABEL => ['sortOrder' => 0],
+                TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_USERS => [
+                    'sortOrder' => 10,
+                    TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_USERS_VIEW => ['sortOrder' => 0],
+                    TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_USERS_CREATE => ['sortOrder' => 1],
+                ],
+            ],
             TenantMenu::MENU_MAIN_SECTION_ACCOUNT => [
                 'sortOrder' => 100,
-                'account-label' => ['sortOrder' => 0],
+                TenantMenu::MENU_MAIN_SECTION_ACCOUNT_LABEL => ['sortOrder' => 0],
                 TenantMenu::MENU_MAIN_SECTION_ACCOUNT_ITEM_SETTINGS => [
                     'sortOrder' => 1,
-                    'profile' => ['sortOrder' => 0],
-                    'security' => ['sortOrder' => 1],
+                    TenantMenu::MENU_MAIN_SECTION_ACCOUNT_ITEM_SETTINGS_PROFILE => ['sortOrder' => 0],
+                    TenantMenu::MENU_MAIN_SECTION_ACCOUNT_ITEM_SETTINGS_SECURITY => ['sortOrder' => 1],
                 ],
             ],
         ],

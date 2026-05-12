@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { index } from '@/actions/App/Http/Controllers/Tenant/Admin/UserController';
+import RowActions from '@/components/RowActions.vue';
 
 const props = defineProps<{
     filter?: {
@@ -19,6 +20,7 @@ const props = defineProps<{
             last_name: string;
             email: string;
             roles?: string[];
+            actions?: any[];
         }>;
         meta: {
             current_page: number;
@@ -160,6 +162,13 @@ watch(searchFilter, () => search(), { deep: true });
                             </UBadge>
                         </div>
                         <span v-else class="text-gray-400">-</span>
+                    </template>
+
+                    <template #actions-cell="{ row }">
+                        <RowActions
+                            v-if="row.original.actions"
+                            :actions="row.original.actions"
+                        />
                     </template>
                 </UTable>
 
