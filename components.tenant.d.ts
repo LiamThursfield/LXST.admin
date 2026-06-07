@@ -13,6 +13,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     DeleteAccount: typeof import('./resources/js/components/settings/DeleteAccount.vue')['default']
     NotificationsSlideover: typeof import('./resources/js/components/NotificationsSlideover.vue')['default']
+    RowActions: typeof import('./resources/js/components/RowActions.vue')['default']
     TextLink: typeof import('./resources/js/components/TextLink.vue')['default']
     UApp: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@2.3.18_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@_d36553e044cd4e9fcf2fce510f4fe22f/node_modules/@nuxt/ui/dist/runtime/components/App.vue')['default']
     UAvatar: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@2.3.18_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@_d36553e044cd4e9fcf2fce510f4fe22f/node_modules/@nuxt/ui/dist/runtime/components/Avatar.vue')['default']
