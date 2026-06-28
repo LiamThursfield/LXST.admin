@@ -2,6 +2,7 @@
 import type { Method } from '@inertiajs/core';
 import { router } from '@inertiajs/vue3';
 import type { DropdownMenuItem } from '@nuxt/ui';
+import { useBreakpoints, breakpointsTailwind } from '@vueuse/core';
 import { computed, ref } from 'vue';
 
 interface Action {
@@ -13,35 +14,58 @@ interface Action {
     confirmationMessage?: string;
 }
 
-const props = defineProps<{
-    actions: Action[];
-}>();
+const props = withDefaults(
+    defineProps<{
+        actions: Action[];
+        maxVisible?: number;
+    }>(),
+    {
+        maxVisible: 3,
+    },
+);
+
+const breakpoints = useBreakpoints(breakpointsTailwind);
+const isScreenGteMd = breakpoints.greaterOrEqual('md');
 
 const confirmModalOpen = ref(false);
 const activeAction = ref<Action | null>(null);
 
-const items = computed<DropdownMenuItem[][]>(() => [
-    props.actions.map((action) => ({
+// We should show {maxVisible} actions on md & larger screens
+const visibleActions = computed(() =>
+    isScreenGteMd.value ? props.actions.slice(0, props.maxVisible) : [],
+);
+
+// All other items (or all items on screens less than md) should be in
+// the overflow dropdown menu
+const overflowActions = computed(() =>
+    isScreenGteMd.value ? props.actions.slice(props.maxVisible) : props.actions,
+);
+
+const overflowItems = computed<DropdownMenuItem[][]>(() => [
+    overflowActions.value.map((action) => ({
         label: action.label,
         icon: action.icon,
         onSelect(e: Event) {
             e.preventDefault();
-
-            if (action.requireConfirmation) {
-                activeAction.value = action;
-                confirmModalOpen.value = true;
-                return;
-            }
-
-            executeAction(action);
+            handleActionClick(action);
         },
     })),
 ]);
 
+function handleActionClick(action: Action) {
+    if (action.requireConfirmation) {
+        activeAction.value = action;
+        confirmModalOpen.value = true;
+        return;
+    }
+
+    executeAction(action);
+}
+
 function executeAction(action: Action | null) {
     if (!action) return;
 
-    if (action.method === 'GET' || action.method === 'get') {
+    if (action.method.toLowerCase() === 'get') {
         router.visit(action.url);
     } else {
         router.visit(action.url, { method: action.method });
@@ -55,18 +79,36 @@ function handleConfirm() {
 </script>
 
 <template>
-    <div>
-        <UDropdownMenu
-            v-if="actions && actions.length"
-            :items="items"
-            :content="{ align: 'end' }"
+    <div class="flex items-center gap-1">
+        <UTooltip
+            v-for="action in visibleActions"
+            :key="action.label"
+            :text="action.label"
         >
             <UButton
                 color="neutral"
                 variant="ghost"
-                icon="i-lucide-more-horizontal"
                 square
+                :icon="action.icon"
+                size="sm"
+                @click="handleActionClick(action)"
             />
+        </UTooltip>
+
+        <UDropdownMenu
+            v-if="overflowActions.length"
+            :items="overflowItems"
+            :content="{ align: 'end' }"
+        >
+            <UTooltip text="More actions">
+                <UButton
+                    color="neutral"
+                    variant="ghost"
+                    icon="i-lucide-more-horizontal"
+                    size="sm"
+                    square
+                />
+            </UTooltip>
         </UDropdownMenu>
 
         <UModal
