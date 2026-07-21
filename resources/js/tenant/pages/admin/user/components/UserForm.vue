@@ -2,19 +2,29 @@
 import { useForm } from '@inertiajs/vue3';
 import { reactive } from 'vue';
 import * as z from 'zod';
-import { update } from '@/actions/App/Http/Controllers/Tenant/Admin/UserController';
+import {
+    store,
+    update,
+} from '@/actions/App/Http/Controllers/Tenant/Admin/UserController';
 
-const props = defineProps<{
-    user: {
-        id: number;
-        first_name: string;
-        last_name: string;
-        email: string;
-        roles?: string[];
-    };
-    roles: Array<{ label: string; value: string }>;
-    readonly: boolean;
-}>();
+const props = withDefaults(
+    defineProps<{
+        user?: {
+            id: number;
+            first_name: string;
+            last_name: string;
+            email: string;
+            roles?: string[];
+        };
+        roles: Array<{ label: string; value: string }>;
+        readonly?: boolean;
+        create?: boolean;
+    }>(),
+    {
+        readonly: false,
+        create: false,
+    },
+);
 
 const schema = z.object({
     first_name: z.string().min(1, 'First name is required').max(255),
@@ -26,10 +36,10 @@ const schema = z.object({
 type Schema = z.output<typeof schema>;
 
 const state = reactive<Partial<Schema>>({
-    first_name: props.user.first_name,
-    last_name: props.user.last_name,
-    email: props.user.email,
-    roles: props.user.roles || [],
+    first_name: props.user?.first_name ?? '',
+    last_name: props.user?.last_name ?? '',
+    email: props.user?.email ?? '',
+    roles: props.user?.roles ?? [],
 });
 
 const form = useForm<Partial<Schema>>({
@@ -47,7 +57,14 @@ async function onSubmit() {
     form.email = state.email;
     form.roles = state.roles || [];
 
-    form.submit(update({ user: props.user.id.toString() }));
+    // If we are creating a user, call the store endpoint
+    if (props.create) {
+        form.submit(store());
+        return;
+    }
+
+    // Otherwise, update the correct user
+    form.submit(update({ user: props.user!.id.toString() }));
 }
 </script>
 
@@ -97,11 +114,16 @@ async function onSubmit() {
             </div>
         </UPageCard>
 
+        <p v-if="create" class="text-muted text-sm">
+            A password setup email will be sent to the user so they can set
+            their own password.
+        </p>
+
         <div v-if="!readonly" class="flex justify-end gap-2">
             <UButton
                 :loading="form.processing"
                 color="primary"
-                label="Save Changes"
+                :label="create ? 'Create User' : 'Save Changes'"
                 type="submit"
             />
         </div>
