@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Queries\Tenant\Admin\User\UserIndexQuery;
 use App\Http\Requests\Tenant\Admin\User\UserIndexRequest;
+use App\Http\Requests\Tenant\Admin\User\UserStoreRequest;
 use App\Http\Requests\Tenant\Admin\User\UserUpdateRequest;
 use App\Http\Resources\Tenant\Admin\UserResource;
 use App\Models\User;
@@ -12,6 +13,8 @@ use App\Services\Authorisation\Enums\CorePermission;
 use App\Services\Authorisation\Enums\Role;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -39,6 +42,32 @@ class UserController extends Controller
             'users' => UserResource::collection($query->handle($request)),
             'roles' => Role::asSelectItems(),
         ]);
+    }
+
+    public function create(): Response
+    {
+        Gate::authorize(CorePermission::ManageUsers);
+
+        return Inertia::render('admin/user/Create', [
+            'roles' => Role::asSelectItems(),
+        ]);
+    }
+
+    public function store(UserStoreRequest $request): RedirectResponse
+    {
+        $user = User::create([
+            ...$request->only('first_name', 'last_name', 'email'),
+            'password' => Str::password(),
+        ]);
+
+        if ($request->has('roles')) {
+            $user->syncRoles($request->validated('roles', []));
+        }
+
+        Password::sendResetLink(['email' => $user->email]);
+
+        return redirect()->route('admin.users.index')
+            ->with('success', 'User created. A password setup email has been sent to '.$user->email.'.');
     }
 
     public function show(User $user): Response

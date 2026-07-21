@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { index } from '@/actions/App/Http/Controllers/Tenant/Admin/UserController';
+import { Link } from '@inertiajs/vue3';
+import {
+    create,
+    index,
+} from '@/actions/App/Http/Controllers/Tenant/Admin/UserController';
 import RowActions from '@/components/RowActions.vue';
 
 const props = defineProps<{
@@ -103,7 +107,7 @@ watch(searchFilter, () => search(), { deep: true });
                 </template>
 
                 <template #right>
-                    <UButton color="primary">
+                    <UButton :as="Link" :href="create.url()" color="primary">
                         <UIcon name="i-lucide-plus" />
                         New user
                     </UButton>
