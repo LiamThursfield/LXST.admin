@@ -18,6 +18,7 @@ use App\Http\Resources\Tenant\Admin\Tracker\TaskDefinitionResource;
 use App\Models\Tracker\Category;
 use App\Models\Tracker\TaskDefinition;
 use App\Models\User;
+use App\Services\Tracker\TaskDefinitionUpdater;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
@@ -26,6 +27,8 @@ use Inertia\Response;
 
 class TaskDefinitionController extends Controller
 {
+    public function __construct(protected TaskDefinitionUpdater $updater) {}
+
     public function index(TaskDefinitionIndexRequest $request, TaskDefinitionIndexQuery $query): Response
     {
         return Inertia::render('admin/tracker/task/Index', [
@@ -87,9 +90,11 @@ class TaskDefinitionController extends Controller
         ]);
     }
 
-    public function update(TaskDefinitionUpdateRequest $request, TaskDefinition $task): RedirectResponse
-    {
-        $task->update($this->attributesFromRequest($request));
+    public function update(
+        TaskDefinitionUpdateRequest $request,
+        TaskDefinition $task,
+    ): RedirectResponse {
+        $this->updater->update($task, $this->attributesFromRequest($request));
 
         return redirect()->route('admin.tracker.tasks.index')
             ->with('success', 'Task updated successfully.');

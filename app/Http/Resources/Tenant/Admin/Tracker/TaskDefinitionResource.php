@@ -55,6 +55,7 @@ class TaskDefinitionResource extends JsonResource
 
         return $this->appendActions($request, [
             'id' => $definition->id,
+            'lineage_id' => $definition->lineageKey(),
             'title' => $definition->title,
             'description' => $definition->description,
             'category_id' => $definition->category_id,

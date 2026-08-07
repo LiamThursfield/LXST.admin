@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * @property int $id
  * @property int $user_id
+ * @property int|null $lineage_id
  * @property int|null $category_id
  * @property string $title
  * @property string|null $description
@@ -55,6 +56,7 @@ class TaskDefinition extends Model
      */
     protected $fillable = [
         'user_id',
+        'lineage_id',
         'category_id',
         'title',
         'description',
@@ -127,5 +129,29 @@ class TaskDefinition extends Model
     public function scopeOwnedBy(Builder $query, User $user): Builder
     {
         return $query->where('user_id', $user->id);
+    }
+
+    /**
+     * The lineage key that groups all versions of this task. The root uses its
+     * own id; successors carry the root's id in lineage_id.
+     */
+    public function lineageKey(): int
+    {
+        return $this->lineage_id ?? $this->id;
+    }
+
+    /**
+     * Scope to every version sharing the given definition's lineage.
+     *
+     * @param  Builder<TaskDefinition>  $query
+     * @return Builder<TaskDefinition>
+     */
+    public function scopeInLineage(Builder $query, TaskDefinition $definition): Builder
+    {
+        $key = $definition->lineageKey();
+
+        return $query->where(function (Builder $query) use ($key) {
+            $query->where('lineage_id', $key)->orWhere('id', $key);
+        });
     }
 }

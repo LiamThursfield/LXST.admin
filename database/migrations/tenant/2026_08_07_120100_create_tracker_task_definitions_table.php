@@ -16,6 +16,12 @@ return new class extends Migration
             $table->id();
             // Personal data: owned by a user and removed with them.
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+
+            // Links a definition to the first version in its lineage. Null on the
+            // lineage root (its own id is the lineage key); set on every successor
+            // created when a semantic edit supersedes an earlier version.
+            $table->foreignId('lineage_id')->nullable()->constrained('tracker_task_definitions')->nullOnDelete();
+
             // Optional category; if the category is removed the task becomes uncategorised.
             $table->foreignId('category_id')->nullable()->constrained('tracker_categories')->nullOnDelete();
 
