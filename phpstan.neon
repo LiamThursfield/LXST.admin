@@ -10,9 +10,14 @@ parameters:
     # Level 10 is the highest level
     level: 8
 
-#    ignoreErrors:
-#        - '#PHPDoc tag @var#'
-#
+    ignoreErrors:
+        # HasLabels::label() probes for an optional getCustomLabel() via
+        # method_exists(); no enum implements it yet, so PHPStan flags it as
+        # impossible in every using-enum context. Suppress across all contexts.
+        -
+            identifier: function.impossibleType
+            path: app/Enums/Traits/HasLabels.php
+
     excludePaths:
         # Third party provider, so ignore
         #- app/Providers/TenancyServiceProvider.php

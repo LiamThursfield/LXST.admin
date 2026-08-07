@@ -62,6 +62,14 @@ return [
                     TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_USERS_CREATE => ['sortOrder' => 1],
                 ],
             ],
+            TenantMenu::MENU_MAIN_SECTION_TRACKER => [
+                'sortOrder' => 95,
+                TenantMenu::MENU_MAIN_SECTION_TRACKER_LABEL => ['sortOrder' => 0],
+                TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES => [
+                    'sortOrder' => 10,
+                    TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES_VIEW => ['sortOrder' => 0],
+                ],
+            ],
             TenantMenu::MENU_MAIN_SECTION_ACCOUNT => [
                 'sortOrder' => 100,
                 TenantMenu::MENU_MAIN_SECTION_ACCOUNT_LABEL => ['sortOrder' => 0],

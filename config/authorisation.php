@@ -1,7 +1,7 @@
 <?php
 
 use App\Services\Authorisation\Registrars\CoreAuthorisationRegistrar;
- use App\Services\Authorisation\Registrars\TrackerAuthorisationRegistrar;
+use App\Services\Authorisation\Registrars\TrackerAuthorisationRegistrar;
 
 return [
     /*

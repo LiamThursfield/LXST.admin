@@ -6,6 +6,7 @@ use App\Http\Controllers\Tenant\Admin\DashboardController;
 use App\Http\Controllers\Tenant\Admin\Settings\PasswordController;
 use App\Http\Controllers\Tenant\Admin\Settings\ProfileController;
 use App\Http\Controllers\Tenant\Admin\Settings\SecurityController;
+use App\Http\Controllers\Tenant\Admin\Tracker\CategoryController;
 use App\Http\Controllers\Tenant\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', DashboardController::class)->name('dashboard');
 
 Route::resource('users', UserController::class);
+
+Route::name('tracker.')->prefix('tracker')->group(function () {
+    Route::resource('categories', CategoryController::class);
+});
 
 Route::name('settings.')->group(function () {
     Route::get('/settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');

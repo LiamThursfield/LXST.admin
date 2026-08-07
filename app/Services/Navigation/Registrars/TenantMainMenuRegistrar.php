@@ -3,6 +3,7 @@
 namespace App\Services\Navigation\Registrars;
 
 use App\Services\Authorisation\Enums\CorePermission;
+use App\Services\Authorisation\Enums\TrackerPermission;
 use App\Services\Navigation\Collections\Menu;
 use App\Services\Navigation\Collections\MenuSection;
 use App\Services\Navigation\Constants\TenantMenu;
@@ -31,6 +32,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
 
         $this->registerDashboardSection($registry);
         $this->registerAdminSection($registry);
+        $this->registerTrackerSection($registry);
         $this->registerAccountSection($registry);
     }
 
@@ -104,6 +106,49 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                             //                                label: 'Create User',
                             //                                to: 'admin.users.create',
                             //                            )->gate(CorePermission::ManageUsers),
+                        ]),
+                    ),
+                ]),
+                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
+            ),
+            $sectionKey,
+            $this->menuKey
+        );
+    }
+
+    /**
+     * Register the Tracker section of the tenant Main Menu
+     *
+     * @throws DuplicateMenuSectionKeyException
+     * @throws MenuKeyDoesNotExistException
+     */
+    protected function registerTrackerSection(NavigationRegistry $registry): void
+    {
+        $sectionKey = TenantMenu::MENU_MAIN_SECTION_TRACKER;
+
+        $registry->addSectionToMenu(
+            new MenuSection(
+                menuItems: Collection::wrap([
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_TRACKER_LABEL,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_LABEL]),
+                        label: 'Tracker',
+                        type: MenuItemType::LABEL,
+                    ),
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES]),
+                        label: 'Categories',
+                        type: MenuItemType::LINK,
+                        icon: 'i-lucide-tag',
+                        activePatterns: ['admin.tracker.categories.*'],
+                        children: Collection::wrap([
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES_VIEW,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES_VIEW]),
+                                label: 'View Categories',
+                                to: 'admin.tracker.categories.index',
+                            )->gate(TrackerPermission::ViewCategories),
                         ]),
                     ),
                 ]),

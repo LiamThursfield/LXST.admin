@@ -42,6 +42,7 @@ declare module 'vue' {
     USeparator: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@3.6.1_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@3_7aac20b583bf824a84ea87864ae3c89b/node_modules/@nuxt/ui/dist/runtime/components/Separator.vue')['default']
     UserMenu: typeof import('./resources/js/components/UserMenu.vue')['default']
     USlideover: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@3.6.1_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@3_7aac20b583bf824a84ea87864ae3c89b/node_modules/@nuxt/ui/dist/runtime/components/Slideover.vue')['default']
+    USwitch: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@3.6.1_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@3_7aac20b583bf824a84ea87864ae3c89b/node_modules/@nuxt/ui/dist/runtime/components/Switch.vue')['default']
     UTable: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@3.6.1_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@3_7aac20b583bf824a84ea87864ae3c89b/node_modules/@nuxt/ui/dist/runtime/components/Table.vue')['default']
     UTooltip: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@3.6.1_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@3_7aac20b583bf824a84ea87864ae3c89b/node_modules/@nuxt/ui/dist/runtime/components/Tooltip.vue')['default']
   }
