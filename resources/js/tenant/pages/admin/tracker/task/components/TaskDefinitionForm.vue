@@ -127,7 +127,7 @@ async function onSubmit() {
         return;
     }
 
-    form.submit(update({ task: props.task!.id.toString() }));
+    form.submit(update({ task: props.task!.id }));
 }
 </script>
 
