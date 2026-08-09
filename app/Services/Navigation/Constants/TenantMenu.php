@@ -19,7 +19,8 @@ namespace App\Services\Navigation\Constants;
  * │   └── Users
  * ├── Tracker
  * │   ├── Tasks
- * │   └── Categories
+ * │   ├── Categories
+ * │   └── Holidays
  * └── Account
  *     └── Settings
  */
@@ -50,6 +51,10 @@ class TenantMenu
     public const string MENU_MAIN_SECTION_TRACKER_ITEM_TASKS = 'tasks';
 
     public const string MENU_MAIN_SECTION_TRACKER_ITEM_TASKS_VIEW = 'view';
+
+    public const string MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS = 'holidays';
+
+    public const string MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS_VIEW = 'view';
 
     public const string MENU_MAIN_SECTION_ACCOUNT = 'account';
 

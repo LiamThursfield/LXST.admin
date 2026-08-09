@@ -167,6 +167,22 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                             )->gate(TrackerPermission::ViewCategories),
                         ]),
                     ),
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS]),
+                        label: 'Holidays',
+                        type: MenuItemType::LINK,
+                        icon: 'i-lucide-palmtree',
+                        activePatterns: ['admin.tracker.holidays.*'],
+                        children: Collection::wrap([
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS_VIEW,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS_VIEW]),
+                                label: 'View Holidays',
+                                to: 'admin.tracker.holidays.index',
+                            )->gate(TrackerPermission::ManageHolidays),
+                        ]),
+                    ),
                 ]),
                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
             ),

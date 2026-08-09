@@ -7,6 +7,7 @@ use App\Http\Controllers\Tenant\Admin\Settings\PasswordController;
 use App\Http\Controllers\Tenant\Admin\Settings\ProfileController;
 use App\Http\Controllers\Tenant\Admin\Settings\SecurityController;
 use App\Http\Controllers\Tenant\Admin\Tracker\CategoryController;
+use App\Http\Controllers\Tenant\Admin\Tracker\HolidayController;
 use App\Http\Controllers\Tenant\Admin\Tracker\TaskDefinitionController;
 use App\Http\Controllers\Tenant\Admin\UserController;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +28,7 @@ Route::resource('users', UserController::class);
 Route::name('tracker.')->prefix('tracker')->group(function () {
     Route::resource('categories', CategoryController::class);
     Route::resource('tasks', TaskDefinitionController::class);
+    Route::resource('holidays', HolidayController::class);
 });
 
 Route::name('settings.')->group(function () {

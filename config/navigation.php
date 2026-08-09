@@ -73,6 +73,10 @@ return [
                     'sortOrder' => 20,
                     TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES_VIEW => ['sortOrder' => 0],
                 ],
+                TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS => [
+                    'sortOrder' => 30,
+                    TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS_VIEW => ['sortOrder' => 0],
+                ],
             ],
             TenantMenu::MENU_MAIN_SECTION_ACCOUNT => [
                 'sortOrder' => 100,
