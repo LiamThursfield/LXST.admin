@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Tenant\Admin\Crm\ContactController;
+use App\Http\Controllers\Tenant\Admin\Crm\ContactSpamController;
 use App\Http\Controllers\Tenant\Admin\Crm\OrganisationUnitController;
 use App\Http\Controllers\Tenant\Admin\DashboardController;
 use App\Http\Controllers\Tenant\Admin\Settings\PasswordController;
@@ -30,6 +32,13 @@ Route::get('/', DashboardController::class)->name('dashboard');
 Route::resource('users', UserController::class);
 
 Route::name('crm.')->prefix('crm')->middleware('tenant.module:crm')->group(function () {
+    Route::patch('contacts/{contact}/restore', [ContactController::class, 'restore'])
+        ->withTrashed()
+        ->name('contacts.restore');
+    Route::post('contacts/{contact}/spam', [ContactSpamController::class, 'store'])->name('contacts.spam.store');
+    Route::delete('contacts/{contact}/spam', [ContactSpamController::class, 'destroy'])->name('contacts.spam.destroy');
+    Route::resource('contacts', ContactController::class);
+
     Route::resource('organisation-units', OrganisationUnitController::class);
 });
 

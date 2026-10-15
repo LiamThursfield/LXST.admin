@@ -90,6 +90,22 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         type: MenuItemType::LABEL,
                     ),
                     new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_CONTACTS,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_CONTACTS]),
+                        label: 'navigation.contacts',
+                        type: MenuItemType::LINK,
+                        icon: 'i-lucide-contact',
+                        activePatterns: ['admin.crm.contacts.*'],
+                        children: Collection::wrap([
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_CONTACTS_VIEW,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_CONTACTS, TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_CONTACTS_VIEW]),
+                                label: 'navigation.view_contacts',
+                                to: 'admin.crm.contacts.index',
+                            )->gate(CrmPermission::ViewContacts),
+                        ]),
+                    ),
+                    new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS]),
                         label: 'navigation.organisation_units',
