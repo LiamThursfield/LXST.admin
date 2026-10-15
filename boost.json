@@ -8,13 +8,22 @@
     "herd_mcp": false,
     "mcp": true,
     "nightwatch_mcp": false,
+    "packages": [
+        "spatie/laravel-permission",
+        "spatie/laravel-query-builder",
+        "fruitcake/laravel-debugbar"
+    ],
     "sail": false,
     "skills": [
+        "infer-conventions",
         "fortify-development",
         "laravel-best-practices",
+        "testing-best-practices",
         "wayfinder-development",
-        "pest-testing",
         "inertia-vue-development",
-        "tailwindcss-development"
+        "tailwindcss-development",
+        "laravel-permission-development",
+        "laravel-query-builder",
+        "debug-using-debugbar"
     ]
 }
