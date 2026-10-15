@@ -134,6 +134,19 @@ test('a holiday never erases a met occurrence', function () {
     expect($occurrence->status)->toBe(TaskOccurrenceStatus::Met);
 });
 
+test('a holiday does not credit an empty window as met', function () {
+    // An empty "max social media" would be Met on a normal day.
+    $occurrence = evaluateScenario('max-sum', [], EVALUATION_CLOSED_DAY, ['counts_during_holiday' => false], ['is_holiday' => true]);
+
+    expect($occurrence->status)->toBe(TaskOccurrenceStatus::Skipped);
+});
+
+test('a holiday keeps a met max when something was logged', function () {
+    $occurrence = evaluateScenario('max-sum', [600], EVALUATION_CLOSED_DAY, ['counts_during_holiday' => false], ['is_holiday' => true]);
+
+    expect($occurrence->status)->toBe(TaskOccurrenceStatus::Met);
+});
+
 test('a holiday is ignored when the task counts during holidays', function () {
     $occurrence = evaluateScenario('min-sum', [], EVALUATION_CLOSED_DAY, ['counts_during_holiday' => true], ['is_holiday' => true]);
 

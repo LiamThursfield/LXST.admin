@@ -29,7 +29,8 @@ use Illuminate\Database\Eloquent\Collection;
  * "wake by 06:30" (Last) with nothing logged is Missed.
  *
  * Holidays excuse failure but never erase success: a holiday-skipped
- * occurrence is Skipped unless it evaluates to Met.
+ * occurrence is Skipped unless it evaluates to Met from logged entries. An
+ * empty window on a holiday is always Skipped, even where empty would be Met.
  */
 class OccurrenceEvaluator
 {
@@ -126,9 +127,11 @@ class OccurrenceEvaluator
             ? TaskOccurrenceStatus::Pending
             : $this->judge($definition, $value, $this->isClosed($occurrence, $today));
 
-        if ($occurrence->is_holiday
-            && ! $definition->counts_during_holiday
-            && $result !== TaskOccurrenceStatus::Met) {
+        $excused = $occurrence->is_holiday && ! $definition->counts_during_holiday;
+
+        // A holiday keeps a Met only if something was actually logged, so an
+        // empty additive window (e.g. no social media) is not credited as success.
+        if ($excused && ($result !== TaskOccurrenceStatus::Met || $value === null)) {
             return TaskOccurrenceStatus::Skipped;
         }
 
