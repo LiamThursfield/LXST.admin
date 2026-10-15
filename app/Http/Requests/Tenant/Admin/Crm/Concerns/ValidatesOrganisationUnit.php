@@ -86,7 +86,7 @@ trait ValidatesOrganisationUnit
     {
         return function (string $attribute, mixed $value, Closure $fail) use ($organisationUnit): void {
             $type = $this->type();
-            $parent = OrganisationUnit::query()->find($value);
+            $parent = is_numeric($value) ? OrganisationUnit::query()->find((int) $value) : null;
 
             if ($type === null || $parent === null) {
                 return;
@@ -116,8 +116,13 @@ trait ValidatesOrganisationUnit
     {
         $attributes = $this->safe()->except('address');
 
-        $attributes['socials'] = collect($attributes['socials'] ?? [])->filter()->toArray() ?: null;
-        $attributes['notification_emails'] = array_values(array_filter($attributes['notification_emails'] ?? [])) ?: null;
+        /** @var array<string, string|null> $socials */
+        $socials = $attributes['socials'] ?? [];
+        /** @var list<string|null> $notificationEmails */
+        $notificationEmails = $attributes['notification_emails'] ?? [];
+
+        $attributes['socials'] = array_filter($socials) ?: null;
+        $attributes['notification_emails'] = array_values(array_filter($notificationEmails)) ?: null;
 
         return $attributes;
     }
