@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,6 +27,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'last_name',
         'email',
         'password',
+        'timezone',
     ];
 
     /**
@@ -66,5 +69,55 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getNameAttribute(): string
     {
         return $this->first_name.' '.$this->last_name;
+    }
+
+    /**
+     * The user's IANA timezone, falling back to the app timezone when unset.
+     */
+    public function localTimezone(): string
+    {
+        $timezone = $this->getAttribute('timezone');
+
+        return is_string($timezone) && $timezone !== '' ? $timezone : (string) config('app.timezone');
+    }
+
+    /**
+     * The current instant on the user's wall clock.
+     */
+    public function localNow(): CarbonImmutable
+    {
+        return CarbonImmutable::now($this->localTimezone());
+    }
+
+    /**
+     * The user's current calendar day.
+     *
+     * @see self::localDate()
+     */
+    public function localToday(): CarbonImmutable
+    {
+        return $this->localDate(CarbonImmutable::now());
+    }
+
+    /**
+     * The calendar day an instant falls on for this user, as midnight in the
+     * app timezone. Calendar days (period_start, active_from, ...) are stored
+     * as timezone-less dates, so this keeps comparisons against them exact.
+     */
+    public function localDate(CarbonInterface $instant): CarbonImmutable
+    {
+        $day = CarbonImmutable::instance($instant)->setTimezone($this->localTimezone())->toDateString();
+
+        return CarbonImmutable::parse($day, (string) config('app.timezone'))->startOfDay();
+    }
+
+    /**
+     * Interpret a wall-clock date/time the user entered as local time,
+     * returning the instant in the app timezone (UTC) for storage.
+     */
+    public function parseLocal(string $wallTime): CarbonImmutable
+    {
+        return CarbonImmutable::parse($wallTime, $this->localTimezone())
+            ->setTimezone((string) config('app.timezone'));
     }
 }

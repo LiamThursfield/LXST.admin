@@ -6,6 +6,7 @@ import {
     store,
     update,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Tracker/HolidayController';
+import { todayIn, userTimezone } from '@/lib/timezone';
 
 const props = withDefaults(
     defineProps<{
@@ -24,7 +25,8 @@ const props = withDefaults(
     },
 );
 
-const today = new Date().toISOString().slice(0, 10);
+// The user's local calendar day, matching the server's notion of today.
+const today = todayIn(userTimezone(useAuth().value.user));
 
 const schema = z.object({
     label: z.string().max(120).nullable(),

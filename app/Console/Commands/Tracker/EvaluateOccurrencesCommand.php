@@ -4,7 +4,6 @@ namespace App\Console\Commands\Tracker;
 
 use App\Models\Tenant;
 use App\Services\Tracker\OccurrenceEvaluator;
-use Carbon\CarbonImmutable;
 use Illuminate\Console\Command;
 
 class EvaluateOccurrencesCommand extends Command
@@ -29,15 +28,14 @@ class EvaluateOccurrencesCommand extends Command
      */
     public function handle(OccurrenceEvaluator $evaluator): int
     {
-        $today = CarbonImmutable::today();
         $tenantId = $this->option('tenant');
 
         if ($tenantId) {
-            $this->evaluateForTenant(Tenant::findOrFail($tenantId), $evaluator, $today);
+            $this->evaluateForTenant(Tenant::findOrFail($tenantId), $evaluator);
         } else {
-            Tenant::all()->each(function ($tenant) use ($evaluator, $today): void {
+            Tenant::all()->each(function ($tenant) use ($evaluator): void {
                 /** @var Tenant $tenant - required for phpstan */
-                $this->evaluateForTenant($tenant, $evaluator, $today);
+                $this->evaluateForTenant($tenant, $evaluator);
             });
         }
 
@@ -47,12 +45,13 @@ class EvaluateOccurrencesCommand extends Command
     }
 
     /**
-     * Finalise due occurrences within a single tenant's context.
+     * Finalise due occurrences within a single tenant's context. Each
+     * occurrence closes at its owner's local midnight.
      */
-    protected function evaluateForTenant(Tenant $tenant, OccurrenceEvaluator $evaluator, CarbonImmutable $today): void
+    protected function evaluateForTenant(Tenant $tenant, OccurrenceEvaluator $evaluator): void
     {
-        $tenant->run(function () use ($tenant, $evaluator, $today): void {
-            $evaluated = $evaluator->evaluateDueForTenant($today);
+        $tenant->run(function () use ($tenant, $evaluator): void {
+            $evaluated = $evaluator->evaluateDueForTenant();
 
             $this->info("Evaluated {$evaluated} occurrences for tenant: {$tenant->getTenantKey()}");
         });

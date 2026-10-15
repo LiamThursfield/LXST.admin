@@ -2,6 +2,7 @@
 import { Head } from '@inertiajs/vue3';
 import type { FormSubmitEvent } from '@nuxt/ui';
 import * as z from 'zod';
+import { timezoneOptions, userTimezone } from '@/lib/timezone';
 import { update } from '@/routes/admin/settings/profile';
 import { send } from '@/routes/verification';
 import SettingsSubLayout from '@/sublayouts/admin/SettingsSubLayout.vue';
@@ -15,6 +16,7 @@ const profileSchema = z.object({
     first_name: z.string().min(1, 'Too short').max(50, 'Too long'),
     last_name: z.string().min(1, 'Too short').max(50, 'Too long'),
     email: z.email(),
+    timezone: z.string().min(1, 'Timezone is required'),
 });
 
 type ProfileSchema = z.output<typeof profileSchema>;
@@ -24,12 +26,16 @@ const profile = reactive<Partial<ProfileSchema>>({
     first_name: auth.value.user.first_name,
     last_name: auth.value.user.last_name,
     email: auth.value.user.email,
+    timezone: userTimezone(auth.value.user),
 });
+
+const timezones = timezoneOptions(profile.timezone);
 
 const form = useForm<Partial<ProfileSchema>>({
     first_name: '',
     last_name: '',
     email: '',
+    timezone: '',
 });
 
 const toast = useToast();
@@ -37,6 +43,7 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
     form.first_name = event.data.first_name;
     form.last_name = event.data.last_name;
     form.email = event.data.email;
+    form.timezone = event.data.timezone;
     form.submit(update());
 
     toast.add({
@@ -136,6 +143,26 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
                         address.
                     </div>
                 </div>
+
+                <USeparator />
+
+                <UFormField
+                    class="flex items-start justify-between gap-4 max-sm:flex-col"
+                    label="Timezone"
+                    name="timezone"
+                    required
+                >
+                    <template #description>
+                        <p class="text-muted">
+                            Decides when your tracker days start and end.
+                        </p>
+                    </template>
+                    <USelectMenu
+                        v-model="profile.timezone"
+                        :items="timezones"
+                        class="w-64"
+                    />
+                </UFormField>
             </UPageCard>
         </UForm>
     </SettingsSubLayout>

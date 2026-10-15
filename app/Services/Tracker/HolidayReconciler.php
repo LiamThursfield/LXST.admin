@@ -5,6 +5,7 @@ namespace App\Services\Tracker;
 use App\Models\Tracker\Holiday;
 use App\Models\Tracker\TaskOccurrence;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
@@ -28,14 +29,15 @@ class HolidayReconciler
         $holidays = Holiday::query()->where('user_id', $user->id)->get();
 
         $changed = 0;
+        $today = $user->localToday();
 
         TaskOccurrence::query()
             ->where('user_id', $user->id)
             ->with('taskDefinition')
-            ->chunkById(200, function (Collection $occurrences) use ($holidays, &$changed): void {
+            ->chunkById(200, function (Collection $occurrences) use ($holidays, $today, &$changed): void {
                 /** @var Collection<int, TaskOccurrence> $occurrences */
                 foreach ($occurrences as $occurrence) {
-                    if ($this->reconcile($occurrence, $holidays)) {
+                    if ($this->reconcile($occurrence, $holidays, $today)) {
                         $changed++;
                     }
                 }
@@ -49,7 +51,7 @@ class HolidayReconciler
      *
      * @param  Collection<int, Holiday>  $holidays
      */
-    private function reconcile(TaskOccurrence $occurrence, Collection $holidays): bool
+    private function reconcile(TaskOccurrence $occurrence, Collection $holidays, CarbonImmutable $today): bool
     {
         // A soft-deleted definition leaves orphan occurrences we should not touch.
         if ($occurrence->taskDefinition === null) {
@@ -61,7 +63,7 @@ class HolidayReconciler
 
         $occurrence->is_holiday = $this->isCovered($occurrence, $holidays);
 
-        $this->evaluator->evaluate($occurrence);
+        $this->evaluator->evaluate($occurrence, $today);
 
         return $holidayBefore !== $occurrence->is_holiday
             || $statusBefore !== $occurrence->status;

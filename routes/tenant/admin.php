@@ -6,6 +6,7 @@ use App\Http\Controllers\Tenant\Admin\DashboardController;
 use App\Http\Controllers\Tenant\Admin\Settings\PasswordController;
 use App\Http\Controllers\Tenant\Admin\Settings\ProfileController;
 use App\Http\Controllers\Tenant\Admin\Settings\SecurityController;
+use App\Http\Controllers\Tenant\Admin\Settings\TimezoneController;
 use App\Http\Controllers\Tenant\Admin\Tracker\CategoryController;
 use App\Http\Controllers\Tenant\Admin\Tracker\HolidayController;
 use App\Http\Controllers\Tenant\Admin\Tracker\TaskDefinitionController;
@@ -42,6 +43,7 @@ Route::name('settings.')->group(function () {
     Route::get('/settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/settings/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/settings/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::patch('/settings/timezone', TimezoneController::class)->name('timezone.update');
 
     Route::get('settings/security', [SecurityController::class, 'edit'])->name('security.edit');
 

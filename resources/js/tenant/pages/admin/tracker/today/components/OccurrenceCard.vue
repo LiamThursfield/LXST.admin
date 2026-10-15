@@ -5,6 +5,7 @@ import {
     destroy,
     store,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Tracker/TaskEntryController';
+import { userTimezone } from '@/lib/timezone';
 import {
     formatTimeOfDay,
     formatValue,
@@ -73,7 +74,7 @@ const form = useForm({
 
 function log(value: number) {
     form.value = value;
-    // Today logs "now"; a past day is backfilled at midday.
+    // Today logs "now"; a past day is backfilled at midday, local time.
     form.occurred_at = props.isToday ? null : `${props.date} 12:00`;
 
     form.submit(store({ task: definition.value.id }), {
@@ -112,10 +113,14 @@ function undoDone() {
     }
 }
 
+const auth = useAuth();
+
+/** Entries are stored in UTC; show them on the user's own clock. */
 function entryTime(occurredAt: string): string {
     return new Date(occurredAt).toLocaleTimeString(undefined, {
         hour: '2-digit',
         minute: '2-digit',
+        timeZone: userTimezone(auth.value.user),
     });
 }
 

@@ -78,19 +78,23 @@ class OccurrenceGenerator
     }
 
     /**
-     * Generate occurrences for every active definition in the current tenant.
-     * Returns the total number of occurrences created.
+     * Generate occurrences for every active definition in the current tenant,
+     * up to each owner's local today plus $daysAhead (or up to $upTo for
+     * everyone when given). Returns the total number of occurrences created.
      */
-    public function generateForTenant(CarbonImmutable $upTo): int
+    public function generateForTenant(?CarbonImmutable $upTo = null, int $daysAhead = 0): int
     {
         $count = 0;
 
         TaskDefinition::query()
             ->where('status', TaskDefinitionStatus::Active->value)
-            ->chunkById(100, function (Collection $definitions) use (&$count, $upTo): void {
+            ->with('user')
+            ->chunkById(100, function (Collection $definitions) use (&$count, $upTo, $daysAhead): void {
                 /** @var Collection<int, TaskDefinition> $definitions */
                 foreach ($definitions as $definition) {
-                    $count += $this->generateForDefinition($definition, $upTo);
+                    $horizon = $upTo ?? $definition->user->localToday()->addDays($daysAhead);
+
+                    $count += $this->generateForDefinition($definition, $horizon);
                 }
             });
 

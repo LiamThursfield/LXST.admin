@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Admin\Tracker\TaskEntryStoreRequest;
 use App\Models\Tracker\TaskDefinition;
 use App\Models\Tracker\TaskEntry;
+use App\Models\User;
 use App\Services\Tracker\EntryRecorder;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
@@ -17,8 +18,12 @@ class TaskEntryController extends Controller
 
     public function store(TaskEntryStoreRequest $request, TaskDefinition $task): RedirectResponse
     {
+        /** @var User $user */
+        $user = $request->user();
+
+        // A submitted time is the user's local wall time; stored as UTC.
         $occurredAt = $request->filled('occurred_at')
-            ? CarbonImmutable::parse($request->string('occurred_at')->value())
+            ? $user->parseLocal($request->string('occurred_at')->value())
             : CarbonImmutable::now();
 
         $this->recorder->record(

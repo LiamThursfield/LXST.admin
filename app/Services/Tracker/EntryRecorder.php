@@ -5,6 +5,7 @@ namespace App\Services\Tracker;
 use App\Models\Tracker\TaskDefinition;
 use App\Models\Tracker\TaskEntry;
 use App\Models\Tracker\TaskOccurrence;
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -25,11 +26,18 @@ class EntryRecorder
      * Log a value (in the definition's display unit) at the given moment.
      * For non-stepped definitions the new entry replaces any existing one.
      *
+     * The occurrence is chosen from the owner's local calendar day and bound
+     * by foreign key, so it never moves if the owner later changes timezone.
+     *
      * @throws ValidationException when the task is not scheduled for that date
      */
     public function record(TaskDefinition $definition, float $displayValue, CarbonImmutable $occurredAt, ?string $label = null): TaskEntry
     {
-        $occurrence = $this->generator->ensureOccurrence($definition, $occurredAt);
+        /** @var User $owner */
+        $owner = $definition->user;
+        $occurredAt = $occurredAt->setTimezone((string) config('app.timezone'));
+
+        $occurrence = $this->generator->ensureOccurrence($definition, $owner->localDate($occurredAt));
 
         if ($occurrence === null) {
             throw ValidationException::withMessages([

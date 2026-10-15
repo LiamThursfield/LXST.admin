@@ -6,6 +6,8 @@ export type User = {
     email: string;
     avatar?: string;
     email_verified_at: string | null;
+    /** IANA timezone (tenant users only); null until set. */
+    timezone?: string | null;
     created_at: string;
     updated_at: string;
     [key: string]: unknown;

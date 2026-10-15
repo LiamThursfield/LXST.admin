@@ -4,7 +4,6 @@ namespace App\Console\Commands\Tracker;
 
 use App\Models\Tenant;
 use App\Services\Tracker\OccurrenceGenerator;
-use Carbon\CarbonImmutable;
 use Illuminate\Console\Command;
 
 class GenerateOccurrencesCommand extends Command
@@ -30,15 +29,15 @@ class GenerateOccurrencesCommand extends Command
      */
     public function handle(OccurrenceGenerator $generator): int
     {
-        $upTo = CarbonImmutable::today()->addDays((int) $this->option('days-ahead'));
+        $daysAhead = (int) $this->option('days-ahead');
         $tenantId = $this->option('tenant');
 
         if ($tenantId) {
-            $this->generateForTenant(Tenant::findOrFail($tenantId), $generator, $upTo);
+            $this->generateForTenant(Tenant::findOrFail($tenantId), $generator, $daysAhead);
         } else {
-            Tenant::all()->each(function ($tenant) use ($generator, $upTo): void {
+            Tenant::all()->each(function ($tenant) use ($generator, $daysAhead): void {
                 /** @var Tenant $tenant - required for phpstan */
-                $this->generateForTenant($tenant, $generator, $upTo);
+                $this->generateForTenant($tenant, $generator, $daysAhead);
             });
         }
 
@@ -48,12 +47,13 @@ class GenerateOccurrencesCommand extends Command
     }
 
     /**
-     * Generate occurrences within a single tenant's context.
+     * Generate occurrences within a single tenant's context, up to each
+     * owner's local today plus the days ahead.
      */
-    protected function generateForTenant(Tenant $tenant, OccurrenceGenerator $generator, CarbonImmutable $upTo): void
+    protected function generateForTenant(Tenant $tenant, OccurrenceGenerator $generator, int $daysAhead): void
     {
-        $tenant->run(function () use ($tenant, $generator, $upTo): void {
-            $created = $generator->generateForTenant($upTo);
+        $tenant->run(function () use ($tenant, $generator, $daysAhead): void {
+            $created = $generator->generateForTenant(daysAhead: $daysAhead);
 
             $this->info("Generated {$created} occurrences for tenant: {$tenant->getTenantKey()}");
         });

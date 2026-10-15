@@ -6,6 +6,7 @@ import {
     store,
     update,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Tracker/TaskDefinitionController';
+import { todayIn, userTimezone } from '@/lib/timezone';
 import { daysOfWeek, monthsOfYear } from '@/lib/tracker';
 import type { SelectItem, TaskDefinitionData } from '@/types';
 
@@ -50,7 +51,8 @@ const schema = z.object({
 
 type Schema = z.output<typeof schema>;
 
-const today = new Date().toISOString().slice(0, 10);
+// The user's local calendar day, matching the server's notion of today.
+const today = todayIn(userTimezone(useAuth().value.user));
 
 const state = reactive<Schema>({
     title: props.task?.title ?? '',

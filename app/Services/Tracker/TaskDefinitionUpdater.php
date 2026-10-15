@@ -6,7 +6,6 @@ use App\Data\Tracker\TaskSchedule;
 use App\Enums\Tracker\TaskDefinitionStatus;
 use App\Models\Tracker\TaskDefinition;
 use BackedEnum;
-use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -82,14 +81,14 @@ class TaskDefinitionUpdater
 
     /**
      * Archive the old version end-dated today and create a linked new version
-     * starting today with the edited attributes.
+     * starting today (the owner's local day) with the edited attributes.
      *
      * @param  array<string, mixed>  $attributes
      */
     private function supersede(TaskDefinition $old, array $attributes): TaskDefinition
     {
         return DB::transaction(function () use ($old, $attributes): TaskDefinition {
-            $today = CarbonImmutable::today();
+            $today = $old->user->localToday();
 
             $new = TaskDefinition::create([
                 ...$attributes,

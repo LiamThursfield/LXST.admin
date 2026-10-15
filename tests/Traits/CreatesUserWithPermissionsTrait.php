@@ -16,7 +16,7 @@ trait CreatesUserWithPermissionsTrait
      * @param  array<string>  $permissions
      * @param  array<mixed>  $userAttributes
      */
-    protected function createUserWithPermissions(
+    public function createUserWithPermissions(
         array $permissions,
         array $userAttributes = []
     ): User {

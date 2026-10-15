@@ -41,6 +41,7 @@ class OccurrenceEvaluator
 
     /**
      * Recompute and persist the occurrence's value, status and completion time.
+     * $today defaults to the owner's local calendar day.
      */
     public function evaluate(TaskOccurrence $occurrence, ?CarbonImmutable $today = null): TaskOccurrence
     {
@@ -50,7 +51,7 @@ class OccurrenceEvaluator
             return $occurrence;
         }
 
-        $today = ($today ?? CarbonImmutable::today())->startOfDay();
+        $today = ($today ?? $this->ownerToday($occurrence))->startOfDay();
 
         /** @var Collection<int, TaskEntry> $entries */
         $entries = $occurrence->entries()->orderBy('occurred_at')->orderBy('id')->get();
@@ -71,22 +72,33 @@ class OccurrenceEvaluator
 
     /**
      * Finalise every Pending / OnTrack occurrence in the current tenant whose
-     * window has closed before $today. Returns the number evaluated.
+     * window has closed. A window closes at the owner's local midnight, so by
+     * default each occurrence is judged against its owner's local today;
+     * passing $today applies one day to everyone. Returns the number evaluated.
      */
-    public function evaluateDueForTenant(CarbonImmutable $today): int
+    public function evaluateDueForTenant(?CarbonImmutable $today = null): int
     {
-        $today = $today->startOfDay();
+        $today = $today?->startOfDay();
+        // No timezone is more than a day ahead of UTC, so this safely narrows
+        // the candidates before the per-owner check.
+        $latestToday = $today ?? CarbonImmutable::today()->addDay();
         $count = 0;
 
         TaskOccurrence::query()
             ->whereIn('status', [TaskOccurrenceStatus::Pending->value, TaskOccurrenceStatus::OnTrack->value])
             ->whereNotNull('period_end')
-            ->whereDate('period_end', '<', $today)
-            ->with('taskDefinition')
+            ->whereDate('period_end', '<', $latestToday)
+            ->with(['taskDefinition', 'user'])
             ->chunkById(200, function (Collection $occurrences) use ($today, &$count): void {
                 /** @var Collection<int, TaskOccurrence> $occurrences */
                 foreach ($occurrences as $occurrence) {
-                    $this->evaluate($occurrence, $today);
+                    $occurrenceToday = $today ?? $this->ownerToday($occurrence);
+
+                    if (! $this->isClosed($occurrence, $occurrenceToday)) {
+                        continue;
+                    }
+
+                    $this->evaluate($occurrence, $occurrenceToday);
                     $count++;
                 }
             });
@@ -186,6 +198,14 @@ class OccurrenceEvaluator
     private function isClosed(TaskOccurrence $occurrence, CarbonImmutable $today): bool
     {
         return $occurrence->period_end !== null && $occurrence->period_end->lessThan($today);
+    }
+
+    /**
+     * The occurrence owner's local calendar day.
+     */
+    private function ownerToday(TaskOccurrence $occurrence): CarbonImmutable
+    {
+        return $occurrence->user->localToday();
     }
 
     /**

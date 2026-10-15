@@ -2,6 +2,7 @@
 import { Head, router } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import TodayController from '@/actions/App/Http/Controllers/Tenant/Admin/Tracker/TodayController';
+import { addDays } from '@/lib/timezone';
 import type { TaskOccurrenceData } from '@/types';
 import OccurrenceCard from './components/OccurrenceCard.vue';
 
@@ -50,10 +51,7 @@ function goTo(date: string) {
 }
 
 function shift(days: number) {
-    const day = new Date(`${props.date}T12:00:00`);
-    day.setDate(day.getDate() + days);
-
-    goTo(day.toISOString().slice(0, 10));
+    goTo(addDays(props.date, days));
 }
 </script>
 

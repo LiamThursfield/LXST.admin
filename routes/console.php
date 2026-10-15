@@ -9,5 +9,6 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // Tracker: create today's occurrences, then close out any whose period has ended.
-Schedule::command('tracker:generate-occurrences')->dailyAt('00:05')->withoutOverlapping();
-Schedule::command('tracker:evaluate-occurrences')->dailyAt('00:15')->withoutOverlapping();
+// Hourly so each user's local midnight is processed promptly (both are idempotent).
+Schedule::command('tracker:generate-occurrences')->hourlyAt(5)->withoutOverlapping();
+Schedule::command('tracker:evaluate-occurrences')->hourlyAt(15)->withoutOverlapping();
