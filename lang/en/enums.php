@@ -17,6 +17,18 @@
 */
 
 return [
+    'form_field_type' => [
+        'text' => 'Text',
+        'textarea' => 'Text area',
+        'number' => 'Number',
+        'email' => 'Email',
+        'hidden' => 'Hidden',
+        'crm_email' => 'Contact: email',
+        'crm_title' => 'Contact: title',
+        'crm_first_name' => 'Contact: first name',
+        'crm_last_name' => 'Contact: last name',
+        'crm_telephone' => 'Contact: telephone',
+    ],
     'organisation_unit_type' => [
         'company' => 'Company',
         'location' => 'Location',

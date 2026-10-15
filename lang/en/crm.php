@@ -105,6 +105,86 @@ return [
         ],
     ],
 
+    'forms' => [
+        'columns' => [
+            'name' => 'Name',
+            'slug' => 'Slug',
+            'fields' => 'Fields',
+        ],
+        'fields' => [
+            'name' => 'Name',
+            'slug' => 'Slug',
+            'slug_help' => 'Websites use this to load the form. Leave blank to generate it from the name.',
+            'email_recipients' => 'Notification emails',
+            'email_recipients_help' => 'Who is emailed when the form is submitted.',
+            'email_recipient_placeholder' => 'name@example.com',
+            'add_email_recipient' => 'Add email',
+            'remove_email_recipient' => 'Remove email',
+            'submit_button_text' => 'Submit button text',
+            'submit_button_text_placeholder' => 'Submit',
+            'success_message' => 'Success message',
+            'success_message_help' => 'Shown after the form is submitted, unless it redirects.',
+            'redirect_url' => 'Redirect URL',
+            'redirect_url_help' => 'Optional page to send people to after submitting.',
+        ],
+        'marketing' => [
+            'title' => 'Marketing consent',
+            'description' => 'Which marketing opt-ins the form asks for. Answers update the contact.',
+            'marketing_email' => 'Email',
+            'marketing_sms' => 'SMS',
+            'marketing_telephone' => 'Telephone',
+        ],
+        'sections' => [
+            'details' => 'Details',
+            'after_submit' => 'After submitting',
+        ],
+        'builder' => [
+            'title' => 'Fields',
+            'description' => 'Drag fields to reorder them. Contact fields fill in the submitting contact\'s details.',
+            'empty' => 'No fields yet.',
+            'add' => 'Add field',
+            'remove' => 'Remove field',
+            'drag' => 'Drag to reorder',
+            'untitled' => 'Untitled field',
+            'type' => 'Type',
+            'name' => 'Label',
+            'slug' => 'Key',
+            'slug_help' => 'The name the answer is stored under. Leave blank to generate it from the label.',
+            'is_required' => 'Required',
+            'max_length' => 'Max length',
+            'rows' => 'Rows',
+            'min' => 'Minimum',
+            'max' => 'Maximum',
+        ],
+        'index' => [
+            'title' => 'Forms',
+            'create' => 'New form',
+        ],
+        'create' => [
+            'title' => 'Create Form',
+            'submit' => 'Create Form',
+        ],
+        'edit' => [
+            'title' => 'Edit Form: :name',
+        ],
+        'show' => [
+            'title' => 'Form: :name',
+        ],
+        'validation' => [
+            'name_required' => 'Name is required',
+            'field_name_required' => 'Label is required',
+            'duplicate_field_slug' => 'Each field needs its own key.',
+            'duplicate_contact_field' => 'Only one ":type" field can be added.',
+            'max_below_min' => 'The maximum cannot be below the minimum.',
+        ],
+        'confirm_delete' => 'Are you sure you want to delete form :name?',
+        'flash' => [
+            'created' => 'Form created successfully.',
+            'updated' => 'Form updated successfully.',
+            'deleted' => 'Form deleted successfully.',
+        ],
+    ],
+
     'organisation_units' => [
         'columns' => [
             'name' => 'Name',

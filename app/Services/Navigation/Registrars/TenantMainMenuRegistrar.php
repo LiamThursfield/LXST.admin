@@ -106,6 +106,22 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         ]),
                     ),
                     new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_FORMS,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_FORMS]),
+                        label: 'navigation.forms',
+                        type: MenuItemType::LINK,
+                        icon: 'i-lucide-clipboard-list',
+                        activePatterns: ['admin.crm.forms.*'],
+                        children: Collection::wrap([
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_FORMS_VIEW,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_FORMS, TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_FORMS_VIEW]),
+                                label: 'navigation.view_forms',
+                                to: 'admin.crm.forms.index',
+                            )->gate(CrmPermission::ViewForms),
+                        ]),
+                    ),
+                    new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS]),
                         label: 'navigation.organisation_units',

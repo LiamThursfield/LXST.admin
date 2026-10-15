@@ -2,15 +2,18 @@
 
 namespace Database\Seeders;
 
+use App\Data\Crm\FormFieldSettings;
+use App\Enums\Crm\FormFieldType;
 use App\Enums\Crm\SocialMedia;
 use App\Models\Crm\Address;
 use App\Models\Crm\Contact;
+use App\Models\Crm\Form;
 use App\Models\Crm\OrganisationUnit;
 use Illuminate\Database\Seeder;
 
 /**
  * Seeds example CRM data: a company with two locations, each with a couple of departments,
- * and a handful of contacts (one marked as spam).
+ * a handful of contacts (one marked as spam) and an example contact form.
  *
  * Run within a tenant, e.g. `php artisan tenants:seed --class=CrmSeeder`.
  * Safe to re-run: each kind of data is only seeded when none exists yet.
@@ -21,6 +24,39 @@ class CrmSeeder extends Seeder
     {
         $this->seedOrganisationUnits();
         $this->seedContacts();
+        $this->seedForms();
+    }
+
+    protected function seedForms(): void
+    {
+        if (Form::query()->exists()) {
+            return;
+        }
+
+        $form = Form::factory()->withMarketing()->create([
+            'name' => 'Contact us',
+            'submit_button_text' => 'Send message',
+            'success_message' => 'Thanks for getting in touch, we will reply soon.',
+        ]);
+
+        $fields = [
+            [FormFieldType::ContactFirstName, 'First name', 'first_name', true, null],
+            [FormFieldType::ContactLastName, 'Last name', 'last_name', true, null],
+            [FormFieldType::ContactEmail, 'Email', 'email', true, null],
+            [FormFieldType::ContactTelephone, 'Phone', 'phone', false, null],
+            [FormFieldType::Textarea, 'Message', 'message', true, new FormFieldSettings(max_length: 2000, rows: 5)],
+        ];
+
+        foreach ($fields as $order => [$type, $name, $slug, $required, $settings]) {
+            $form->fields()->create([
+                'type' => $type,
+                'name' => $name,
+                'slug' => $slug,
+                'is_required' => $required,
+                'order' => $order,
+                'settings' => $settings,
+            ]);
+        }
     }
 
     protected function seedContacts(): void

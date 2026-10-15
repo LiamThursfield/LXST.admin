@@ -55,7 +55,8 @@ trait ValidatesOrganisationUnit
             'socials.*' => ['nullable', 'string', 'max:255'],
 
             'notification_emails' => ['nullable', 'array'],
-            'notification_emails.*' => ['email', 'max:255'],
+            // Blank rows are allowed, and dropped when saving
+            'notification_emails.*' => ['nullable', 'email', 'max:255'],
 
             'address' => ['nullable', 'array'],
             ...($this->input('address') === null ? [] : $this->addressRules('address')),

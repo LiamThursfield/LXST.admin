@@ -18,7 +18,7 @@ function validOrganisationUnitData(array $overrides = []): array
         'telephone' => '0161 000 0000',
         'mobile_phone' => '',
         'socials' => ['linkedin' => 'https://www.linkedin.com/company/acme', 'facebook' => ''],
-        'notification_emails' => ['sales@acme.test'],
+        'notification_emails' => ['sales@acme.test', ''],
         'address' => [
             'postcode' => 'M1 1AA',
             'line_1' => '1 High Street',

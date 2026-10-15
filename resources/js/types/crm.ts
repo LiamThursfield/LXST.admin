@@ -60,3 +60,38 @@ export type ContactData = {
     addresses?: Array<AddressData & { id: number }>;
     actions?: any[];
 };
+
+export type FormFieldSettingKey = 'max_length' | 'rows' | 'min' | 'max';
+
+export type FormFieldTypeOption = {
+    value: string;
+    label: string;
+    isContactField: boolean;
+    settingKeys: FormFieldSettingKey[];
+};
+
+export type FormFieldData = {
+    id: number | null;
+    type: string;
+    type_label?: string;
+    name: string;
+    slug: string;
+    is_required: boolean;
+    settings: Partial<Record<FormFieldSettingKey, number | null>>;
+};
+
+export type CrmFormData = {
+    id: number;
+    name: string;
+    slug: string;
+    email_recipients: string[];
+    marketing_email: boolean;
+    marketing_sms: boolean;
+    marketing_telephone: boolean;
+    submit_button_text: string | null;
+    redirect_url: string | null;
+    success_message: string | null;
+    fields_count?: number;
+    fields?: FormFieldData[];
+    actions?: any[];
+};
