@@ -6,6 +6,12 @@ use App\Http\Controllers\Tenant\Admin\DashboardController;
 use App\Http\Controllers\Tenant\Admin\Settings\PasswordController;
 use App\Http\Controllers\Tenant\Admin\Settings\ProfileController;
 use App\Http\Controllers\Tenant\Admin\Settings\SecurityController;
+use App\Http\Controllers\Tenant\Admin\Settings\TimezoneController;
+use App\Http\Controllers\Tenant\Admin\Tracker\CategoryController;
+use App\Http\Controllers\Tenant\Admin\Tracker\HolidayController;
+use App\Http\Controllers\Tenant\Admin\Tracker\TaskDefinitionController;
+use App\Http\Controllers\Tenant\Admin\Tracker\TaskEntryController;
+use App\Http\Controllers\Tenant\Admin\Tracker\TodayController;
 use App\Http\Controllers\Tenant\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -22,10 +28,22 @@ Route::get('/', DashboardController::class)->name('dashboard');
 
 Route::resource('users', UserController::class);
 
+Route::name('tracker.')->prefix('tracker')->group(function () {
+    Route::get('today', TodayController::class)->name('today');
+
+    Route::resource('categories', CategoryController::class);
+    Route::resource('tasks', TaskDefinitionController::class);
+    Route::resource('holidays', HolidayController::class);
+
+    Route::post('tasks/{task}/entries', [TaskEntryController::class, 'store'])->name('tasks.entries.store');
+    Route::delete('entries/{entry}', [TaskEntryController::class, 'destroy'])->name('entries.destroy');
+});
+
 Route::name('settings.')->group(function () {
     Route::get('/settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/settings/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/settings/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::patch('/settings/timezone', TimezoneController::class)->name('timezone.update');
 
     Route::get('settings/security', [SecurityController::class, 'edit'])->name('security.edit');
 

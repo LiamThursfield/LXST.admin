@@ -38,5 +38,7 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <!-- Ensures that Inertia SSR is disabled during tests, as it can cause issues when dev server is running -->
+        <env name="INERTIA_SSR_ENABLED" value="false"/>
     </php>
 </phpunit>

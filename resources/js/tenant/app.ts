@@ -6,6 +6,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
+import { syncBrowserTimezone } from '@/lib/timezone';
 
 const appName = import.meta.env.VITE_APP_NAME || 'LXST.admin';
 
@@ -28,6 +29,8 @@ createInertiaApp({
             .use(plugin)
             .use(ui) // This applies the Nuxt UI theme defined i vite.tenant.config.ts
             .mount(el);
+
+        syncBrowserTimezone();
     },
     progress: {
         color: '#4B5563',

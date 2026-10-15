@@ -1,6 +1,7 @@
 <?php
 
 use App\Services\Authorisation\Registrars\CoreAuthorisationRegistrar;
+use App\Services\Authorisation\Registrars\TrackerAuthorisationRegistrar;
 
 return [
     /*
@@ -16,5 +17,6 @@ return [
     */
     'registrars' => [
         CoreAuthorisationRegistrar::class,
+        TrackerAuthorisationRegistrar::class,
     ],
 ];

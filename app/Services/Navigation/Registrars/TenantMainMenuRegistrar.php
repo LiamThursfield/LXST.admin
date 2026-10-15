@@ -3,6 +3,7 @@
 namespace App\Services\Navigation\Registrars;
 
 use App\Services\Authorisation\Enums\CorePermission;
+use App\Services\Authorisation\Enums\TrackerPermission;
 use App\Services\Navigation\Collections\Menu;
 use App\Services\Navigation\Collections\MenuSection;
 use App\Services\Navigation\Constants\TenantMenu;
@@ -31,6 +32,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
 
         $this->registerDashboardSection($registry);
         $this->registerAdminSection($registry);
+        $this->registerTrackerSection($registry);
         $this->registerAccountSection($registry);
     }
 
@@ -104,6 +106,90 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                             //                                label: 'Create User',
                             //                                to: 'admin.users.create',
                             //                            )->gate(CorePermission::ManageUsers),
+                        ]),
+                    ),
+                ]),
+                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
+            ),
+            $sectionKey,
+            $this->menuKey
+        );
+    }
+
+    /**
+     * Register the Tracker section of the tenant Main Menu
+     *
+     * @throws DuplicateMenuSectionKeyException
+     * @throws MenuKeyDoesNotExistException
+     */
+    protected function registerTrackerSection(NavigationRegistry $registry): void
+    {
+        $sectionKey = TenantMenu::MENU_MAIN_SECTION_TRACKER;
+
+        $registry->addSectionToMenu(
+            new MenuSection(
+                menuItems: Collection::wrap([
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_TRACKER_LABEL,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_LABEL]),
+                        label: 'Tracker',
+                        type: MenuItemType::LABEL,
+                    ),
+                    (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TODAY,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TODAY]),
+                        label: 'Today',
+                        type: MenuItemType::LINK,
+                        to: 'admin.tracker.today',
+                        icon: 'i-lucide-calendar-check',
+                        exact: true,
+                    ))->gate(TrackerPermission::ViewTasks),
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS]),
+                        label: 'Tasks',
+                        type: MenuItemType::LINK,
+                        icon: 'i-lucide-list-checks',
+                        activePatterns: ['admin.tracker.tasks.*'],
+                        children: Collection::wrap([
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS_VIEW,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS_VIEW]),
+                                label: 'View Tasks',
+                                to: 'admin.tracker.tasks.index',
+                            )->gate(TrackerPermission::ViewTasks),
+                        ]),
+                    ),
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES]),
+                        label: 'Categories',
+                        type: MenuItemType::LINK,
+                        icon: 'i-lucide-tag',
+                        activePatterns: ['admin.tracker.categories.*'],
+                        children: Collection::wrap([
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES_VIEW,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES_VIEW]),
+                                label: 'View Categories',
+                                to: 'admin.tracker.categories.index',
+                            )->gate(TrackerPermission::ViewCategories),
+                        ]),
+                    ),
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS]),
+                        label: 'Holidays',
+                        type: MenuItemType::LINK,
+                        icon: 'i-lucide-palmtree',
+                        activePatterns: ['admin.tracker.holidays.*'],
+                        children: Collection::wrap([
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS_VIEW,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS_VIEW]),
+                                label: 'View Holidays',
+                                to: 'admin.tracker.holidays.index',
+                            )->gate(TrackerPermission::ManageHolidays),
                         ]),
                     ),
                 ]),

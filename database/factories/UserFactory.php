@@ -48,6 +48,16 @@ class UserFactory extends Factory
     }
 
     /**
+     * Indicate that the user lives in the given IANA timezone (tenant users only).
+     */
+    public function inTimezone(string $timezone): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'timezone' => $timezone,
+        ]);
+    }
+
+    /**
      * Indicate that the model has two-factor authentication configured.
      */
     public function withTwoFactor(): static

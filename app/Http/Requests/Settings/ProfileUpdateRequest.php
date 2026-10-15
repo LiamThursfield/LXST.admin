@@ -17,6 +17,13 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return $this->profileRules($this->user()?->id);
+        $rules = $this->profileRules($this->user()?->id);
+
+        // Only tenant users have a timezone (it drives tracker day logic).
+        if (tenant() !== null) {
+            $rules['timezone'] = ['sometimes', 'required', 'string', 'timezone'];
+        }
+
+        return $rules;
     }
 }
