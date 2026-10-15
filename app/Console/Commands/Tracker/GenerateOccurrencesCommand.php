@@ -31,6 +31,7 @@ class GenerateOccurrencesCommand extends Command
     {
         $daysAhead = (int) $this->option('days-ahead');
         $tenantId = $this->option('tenant');
+        $tenantId = is_string($tenantId) ? $tenantId : null;
 
         if ($tenantId) {
             $this->generateForTenant(Tenant::findOrFail($tenantId), $generator, $daysAhead);

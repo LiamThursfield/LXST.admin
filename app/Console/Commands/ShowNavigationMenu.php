@@ -41,6 +41,7 @@ class ShowNavigationMenu extends Command
         }
 
         $userId = $this->argument('user');
+        $userId = is_string($userId) ? $userId : null;
 
         $user = null;
         if ($userId) {
@@ -89,7 +90,8 @@ class ShowNavigationMenu extends Command
      */
     protected function getMenuKey(NavigationRegistry $registry): ?string
     {
-        $menuKey = (string) $this->argument('menu');
+        $menuKey = $this->argument('menu');
+        $menuKey = is_string($menuKey) ? $menuKey : '';
 
         if (! $menuKey) {
             $registeredKeys = $registry->registeredMenuKeys();

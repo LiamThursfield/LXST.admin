@@ -29,6 +29,7 @@ class EvaluateOccurrencesCommand extends Command
     public function handle(OccurrenceEvaluator $evaluator): int
     {
         $tenantId = $this->option('tenant');
+        $tenantId = is_string($tenantId) ? $tenantId : null;
 
         if ($tenantId) {
             $this->evaluateForTenant(Tenant::findOrFail($tenantId), $evaluator);

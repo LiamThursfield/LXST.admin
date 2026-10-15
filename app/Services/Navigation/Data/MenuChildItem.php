@@ -6,6 +6,7 @@ use App\Data\Transformers\ActiveRoutePatternsTransformer;
 use App\Data\Transformers\RouteTransformer;
 use App\Data\Transformers\SortCollectionTransformer;
 use App\Data\Transformers\StringReplaceTransformer;
+use App\Data\Transformers\TranslateTransformer;
 use App\Services\Navigation\Traits\HasChildren;
 use App\Services\Navigation\Traits\HasVisibility;
 use Illuminate\Support\Collection;
@@ -36,10 +37,12 @@ class MenuChildItem extends Data
         public int $sortOrder,
 
         // Properties for Nuxt UI's NavigationMenuChildItem
+        #[WithTransformer(TranslateTransformer::class)]
         public ?string $label = null,
         #[WithTransformer(RouteTransformer::class)]
         public ?string $to = null,
         public ?string $icon = null,
+        #[WithTransformer(TranslateTransformer::class)]
         public ?string $description = null,
         public ?bool $exact = null,
         // We map to defaultOpen as that is what Nuxt UI expects for open state of nested menu items,

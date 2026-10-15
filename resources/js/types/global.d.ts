@@ -1,5 +1,6 @@
 import type { App } from '@/types/app';
 import type { Auth } from '@/types/auth';
+import type { Translations } from '@/types/localisation';
 import type NavigationMenu from '@/types/navigation';
 
 // Extend ImportMeta interface for Vite...
@@ -20,10 +21,12 @@ declare module '@inertiajs/core' {
         sharedPageProps: {
             app: App;
             auth: Auth;
+            locale: string;
             menus: {
                 [key: string]: NavigationMenu;
             };
             sidebarOpen: boolean;
+            translations: Translations;
             [key: string]: unknown;
         };
     }

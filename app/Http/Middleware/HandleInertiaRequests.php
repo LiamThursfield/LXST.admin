@@ -3,16 +3,21 @@
 namespace App\Http\Middleware;
 
 use App\Enums\AppContext;
+use App\Services\Localisation\FrontendTranslations;
 use App\Services\Navigation\Constants\CentralMenu;
 use App\Services\Navigation\Constants\TenantMenu;
 use App\Services\Navigation\Exceptions\MenuKeyDoesNotExistException;
 use App\Services\Navigation\NavigationService;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
-    public function __construct(protected NavigationService $navigationService) {}
+    public function __construct(
+        protected NavigationService $navigationService,
+        protected FrontendTranslations $frontendTranslations,
+    ) {}
 
     public function rootView(Request $request): string
     {
@@ -45,6 +50,8 @@ class HandleInertiaRequests extends Middleware
 
         $mainMenuKey = $context == AppContext::Tenant ? TenantMenu::MENU_MAIN : CentralMenu::MENU_MAIN;
 
+        $locale = app()->getLocale();
+
         return [
             ...parent::share($request),
             'app' => [
@@ -57,6 +64,10 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'locale' => $locale,
+            // Only sent on the first visit (or when the locale changes), as the strings rarely change
+            'translations' => Inertia::once(fn () => $this->frontendTranslations->forLocale($locale))
+                ->as("translations.{$locale}"),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }
