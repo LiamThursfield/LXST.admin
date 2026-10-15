@@ -174,6 +174,7 @@ return [
             'name_required' => 'Name is required',
             'field_name_required' => 'Label is required',
             'duplicate_field_slug' => 'Each field needs its own key.',
+            'reserved_field_slug' => 'This key is used by the form itself, so choose another.',
             'duplicate_contact_field' => 'Only one ":type" field can be added.',
             'max_below_min' => 'The maximum cannot be below the minimum.',
         ],
@@ -230,6 +231,17 @@ return [
         ],
         'index' => [
             'title' => 'Submissions',
+        ],
+        'mail' => [
+            'subject' => 'New submission: :form',
+            'heading' => 'New :form submission',
+            'intro' => 'The :form form was submitted on :date.',
+            'question' => 'Question',
+            'answer' => 'Answer',
+            'view' => 'View submission',
+        ],
+        'api' => [
+            'submitted' => 'Thank you, your form has been submitted.',
         ],
         'flash' => [
             'marked_spam' => 'Submission marked as spam.',

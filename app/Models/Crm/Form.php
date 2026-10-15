@@ -39,6 +39,17 @@ class Form extends Model
     protected $table = 'crm_forms';
 
     /**
+     * The marketing consent questions a form can ask, each switched on by the matching attribute
+     *
+     * @var list<string>
+     */
+    public const array MARKETING_FIELDS = [
+        'marketing_email',
+        'marketing_sms',
+        'marketing_telephone',
+    ];
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>

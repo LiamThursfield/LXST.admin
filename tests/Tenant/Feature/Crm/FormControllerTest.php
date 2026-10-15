@@ -92,6 +92,16 @@ describe('store', function () {
         $this->post(route('admin.crm.forms.store'), $data)->assertSessionHasErrors('fields.1.slug');
     });
 
+    test('field keys used by the form itself are reserved', function () {
+        foreach (['website_url', 'form_token', 'marketing_email'] as $reserved) {
+            $data = validFormData(['fields' => [
+                ['id' => null, 'type' => 'text', 'name' => 'Field', 'slug' => $reserved, 'is_required' => false, 'settings' => []],
+            ]]);
+
+            $this->post(route('admin.crm.forms.store'), $data)->assertSessionHasErrors('fields.0.slug');
+        }
+    });
+
     test('each contact detail can only be asked for once', function () {
         $data = validFormData(['fields' => [
             ['id' => null, 'type' => 'crm_email', 'name' => 'Email', 'slug' => 'email', 'is_required' => true, 'settings' => []],

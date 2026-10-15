@@ -5,6 +5,7 @@ namespace App\Http\Requests\Tenant\Admin\Crm\Concerns;
 use App\Data\Crm\FormFieldSettings;
 use App\Enums\Crm\FormFieldType;
 use App\Models\Crm\Form;
+use App\Services\Crm\FormSpamCheck;
 use Closure;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -59,7 +60,15 @@ trait ValidatesForm
             'fields.*.id' => ['nullable', 'integer', Rule::exists('crm_form_fields', 'id')->where('form_id', $form->id ?? 0)],
             'fields.*.type' => ['required', Rule::enum(FormFieldType::class)],
             'fields.*.name' => ['required', 'string', 'max:120'],
-            'fields.*.slug' => ['required', 'string', 'max:120', 'alpha_dash', 'distinct'],
+            'fields.*.slug' => [
+                'required',
+                'string',
+                'max:120',
+                'alpha_dash',
+                'distinct',
+                // The marketing consent answers and spam check fields are submitted alongside the answers, so can't be used as keys
+                Rule::notIn([...FormSpamCheck::reservedFields(), 'marketing_email', 'marketing_sms', 'marketing_telephone']),
+            ],
             'fields.*.is_required' => ['boolean'],
             'fields.*.settings' => ['nullable', 'array'],
             'fields.*.settings.max_length' => ['nullable', 'integer', 'min:1', 'max:65535'],
@@ -76,6 +85,7 @@ trait ValidatesForm
     {
         return [
             'fields.*.slug.distinct' => __('crm.forms.validation.duplicate_field_slug'),
+            'fields.*.slug.not_in' => __('crm.forms.validation.reserved_field_slug'),
         ];
     }
 

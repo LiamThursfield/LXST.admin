@@ -61,5 +61,10 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('tenant-api', fn (Request $request): Limit => Limit::perMinute((int) config('api.rate_limit_per_minute'))
             ->by(tenant()?->getTenantKey().'|'.$request->ip())
         );
+
+        // Submitting a CRM form, which is stricter than the rest of the API
+        RateLimiter::for('form-submissions', fn (Request $request): Limit => Limit::perMinute((int) config('api.form_submissions.rate_limit_per_minute'))
+            ->by(tenant()?->getTenantKey().'|'.$request->ip())
+        );
     }
 }
