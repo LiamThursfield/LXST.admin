@@ -69,7 +69,9 @@ class Folder extends Model
      */
     public function lineage(): Collection
     {
-        $lineage = collect([$this]);
+        /** @var Collection<int, Folder> $lineage */
+        $lineage = new Collection;
+        $lineage->push($this);
         $parent = $this->parent;
 
         while ($parent !== null) {

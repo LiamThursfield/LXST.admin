@@ -44,14 +44,13 @@ class FileManagerController extends Controller
      */
     protected function folderTree(Collection $folders, ?int $parentId = null): array
     {
-        return $folders
+        return array_values($folders
             ->where('parent_id', $parentId)
             ->map(fn (Folder $folder) => [
                 'id' => $folder->id,
                 'name' => $folder->name,
                 'children' => $this->folderTree($folders, $folder->id),
             ])
-            ->values()
-            ->all();
+            ->all());
     }
 }
