@@ -28,6 +28,7 @@ class SyncPermissionsCommand extends Command
     public function handle(): int
     {
         $tenantId = $this->option('tenant');
+        $tenantId = is_string($tenantId) ? $tenantId : null;
 
         if ($tenantId) {
             $tenant = Tenant::findOrFail($tenantId);
