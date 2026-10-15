@@ -53,6 +53,14 @@ return [
                 'sortOrder' => 0,
                 'dashboard' => ['sortOrder' => 0],
             ],
+            TenantMenu::MENU_MAIN_SECTION_CRM => [
+                'sortOrder' => 30,
+                TenantMenu::MENU_MAIN_SECTION_CRM_LABEL => ['sortOrder' => 0],
+                TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS => [
+                    'sortOrder' => 10,
+                    TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS_VIEW => ['sortOrder' => 0],
+                ],
+            ],
             TenantMenu::MENU_MAIN_SECTION_ADMIN => [
                 'sortOrder' => 90,
                 TenantMenu::MENU_MAIN_SECTION_ADMIN_LABEL => ['sortOrder' => 0],

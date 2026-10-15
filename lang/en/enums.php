@@ -17,11 +17,26 @@
 */
 
 return [
+    'organisation_unit_type' => [
+        'company' => 'Company',
+        'location' => 'Location',
+        'department' => 'Department',
+    ],
     'role' => [
         'super-admin' => 'Super Admin',
         'admin' => 'Admin',
         'editor' => 'Editor',
         'viewer' => 'Viewer',
+    ],
+    'social_media' => [
+        'facebook' => 'Facebook',
+        'instagram' => 'Instagram',
+        'linkedin' => 'LinkedIn',
+        'snapchat' => 'Snapchat',
+        'tiktok' => 'TikTok',
+        'twitter' => 'Twitter',
+        'whatsapp' => 'WhatsApp',
+        'youtube' => 'YouTube',
     ],
     'task_definition_status' => [
         'active' => 'Active',

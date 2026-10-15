@@ -11,6 +11,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AddressFields: typeof import('./resources/js/tenant/components/crm/AddressFields.vue')['default']
     DeleteAccount: typeof import('./resources/js/components/settings/DeleteAccount.vue')['default']
     NotificationsSlideover: typeof import('./resources/js/components/NotificationsSlideover.vue')['default']
     RowActions: typeof import('./resources/js/components/RowActions.vue')['default']

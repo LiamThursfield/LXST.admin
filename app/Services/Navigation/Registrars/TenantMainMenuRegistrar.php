@@ -4,6 +4,7 @@ namespace App\Services\Navigation\Registrars;
 
 use App\Enums\TenantModule;
 use App\Services\Authorisation\Enums\CorePermission;
+use App\Services\Authorisation\Enums\CrmPermission;
 use App\Services\Authorisation\Enums\TrackerPermission;
 use App\Services\Navigation\Collections\Menu;
 use App\Services\Navigation\Collections\MenuSection;
@@ -32,6 +33,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
         $registry->addMenu(new Menu, $this->menuKey);
 
         $this->registerDashboardSection($registry);
+        $this->registerCrmSection($registry);
         $this->registerAdminSection($registry);
         $this->registerTrackerSection($registry);
         $this->registerAccountSection($registry);
@@ -60,6 +62,50 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         exact: true,
                     ),
                 ]),
+                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
+            ),
+            $sectionKey,
+            $this->menuKey
+        );
+    }
+
+    /**
+     * Register the CRM section of the tenant Main Menu
+     * Every item requires the CRM module, so the whole section is hidden when it is switched off
+     *
+     * @throws DuplicateMenuSectionKeyException
+     * @throws MenuKeyDoesNotExistException
+     */
+    protected function registerCrmSection(NavigationRegistry $registry): void
+    {
+        $sectionKey = TenantMenu::MENU_MAIN_SECTION_CRM;
+
+        $registry->addSectionToMenu(
+            new MenuSection(
+                menuItems: Collection::wrap([
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_CRM_LABEL,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CRM_LABEL]),
+                        label: 'navigation.crm',
+                        type: MenuItemType::LABEL,
+                    ),
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS]),
+                        label: 'navigation.organisation_units',
+                        type: MenuItemType::LINK,
+                        icon: 'i-lucide-building-2',
+                        activePatterns: ['admin.crm.organisation-units.*'],
+                        children: Collection::wrap([
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS_VIEW,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS, TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS_VIEW]),
+                                label: 'navigation.view_organisation_units',
+                                to: 'admin.crm.organisation-units.index',
+                            )->gate(CrmPermission::ViewOrganisationUnits),
+                        ]),
+                    ),
+                ])->each(fn (MenuItem $item) => $item->module(TenantModule::Crm)),
                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
             ),
             $sectionKey,
