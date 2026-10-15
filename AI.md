@@ -31,6 +31,13 @@ The application uses two distinct frontend builds and routing domains:
 - Use the Vue/Inertia version of Nuxt UI for building components.
 - Only utilize Tailwind CSS v4 for utility classes.
 
+### Localisation
+- The app is English only for now, but every UI string must live in `lang/en/*.php` so other languages can be added later. Never hard-code user-facing text in PHP or Vue.
+- Use one file per area (e.g. `common.php`, `navigation.php`, `tracker.php`) and dot notation keys (e.g. `tracker.tasks.title`).
+- PHP: use `__()` / `trans_choice()`. Navigation `MenuItem` / `MenuChildItem` labels and descriptions can be translation keys; they are translated when the menu is resolved.
+- Enums using `HasLabels` read their labels from `lang/en/enums.php`, keyed by the snake case enum name then the value (e.g. `enums.task_definition_status.active`), falling back to a title case version of the value.
+- Vue: every `lang/{locale}/*.php` file is shared once as the `translations` Inertia prop. Use the `useTrans()` composable: `trans('common.actions.save')`, `trans('users.greeting', { name })`, `transChoice('tracker.days', count)`.
+
 ### Code Quality & Static Analysis
 - **PHP**: Use Laravel Pint for formatting and Larastan for static analysis.
 - **Frontend / TypeScript**: The frontend application strictly utilizes TypeScript. Use ESLint for linting and Prettier for code formatting.

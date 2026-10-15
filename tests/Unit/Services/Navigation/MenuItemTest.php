@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\Navigation\Data\MenuChildItem;
 use App\Services\Navigation\Data\MenuItem;
 use App\Services\Navigation\Enums\MenuItemType;
 use Illuminate\Routing\Route;
@@ -136,5 +137,45 @@ describe('hasLink', function () {
     it('returns false if the item link null', function () {
         $item = new MenuItem(key: 'key', sortOrder: 1, to: null);
         expect($item->hasLink())->toBeFalse();
+    });
+});
+
+describe('translation', function () {
+    beforeEach(function () {
+        app('translator')->addLines([
+            'navigation.dashboard' => 'Translated Dashboard',
+            'navigation.dashboard_description' => 'Translated description',
+        ], 'en');
+    });
+
+    it('translates the `label` and `description` properties when they are translation keys', function () {
+        $item = new MenuItem(
+            key: 'key',
+            sortOrder: 1,
+            label: 'navigation.dashboard',
+            description: 'navigation.dashboard_description',
+        );
+
+        $transformed = $item->toArray();
+        expect($transformed['label'])->toBe('Translated Dashboard')
+            ->and($transformed['description'])->toBe('Translated description');
+    });
+
+    it('leaves the `label` property unchanged when it is not a translation key', function () {
+        $item = new MenuItem(key: 'key', sortOrder: 1, label: 'Dashboard');
+
+        expect($item->toArray()['label'])->toBe('Dashboard');
+    });
+
+    it('translates the `label` property of child items', function () {
+        $item = new MenuItem(
+            key: 'key',
+            sortOrder: 1,
+            children: collect([
+                new MenuChildItem(key: 'child', sortOrder: 1, label: 'navigation.dashboard'),
+            ]),
+        );
+
+        expect($item->toArray()['children'][0]['label'])->toBe('Translated Dashboard');
     });
 });

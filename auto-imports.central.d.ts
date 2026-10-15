@@ -13,6 +13,7 @@ declare global {
   const asyncComputed: typeof import('@vueuse/core').asyncComputed
   const autoResetRef: typeof import('@vueuse/core').autoResetRef
   const avatarGroupInjectionKey: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@3.6.1_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@3_7aac20b583bf824a84ea87864ae3c89b/node_modules/@nuxt/ui/dist/runtime/composables/useAvatarGroup.js').avatarGroupInjectionKey
+  const choosePluralForm: typeof import('./resources/js/composables/useTrans').choosePluralForm
   const computed: typeof import('vue').computed
   const computedAsync: typeof import('@vueuse/core').computedAsync
   const computedEager: typeof import('@vueuse/core').computedEager
@@ -109,6 +110,7 @@ declare global {
   const refDefault: typeof import('@vueuse/core').refDefault
   const refThrottled: typeof import('@vueuse/core').refThrottled
   const refWithControl: typeof import('@vueuse/core').refWithControl
+  const replacePlaceholders: typeof import('./resources/js/composables/useTrans').replacePlaceholders
   const resolveComponent: typeof import('vue').resolveComponent
   const resolveRef: typeof import('@vueuse/core').resolveRef
   const resolveUnref: typeof import('@vueuse/core').resolveUnref
@@ -313,6 +315,7 @@ declare global {
   const useToast: typeof import('./node_modules/.pnpm/@nuxt+ui@4.11.3_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/composables/useToast').useToast
   const useToggle: typeof import('@vueuse/core').useToggle
   const useTour: typeof import('./node_modules/.pnpm/@nuxt+ui@4.11.3_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/composables/useTour').useTour
+  const useTrans: typeof import('./resources/js/composables/useTrans').useTrans
   const useTransition: typeof import('@vueuse/core').useTransition
   const useUrlSearchParams: typeof import('@vueuse/core').useUrlSearchParams
   const useUserMedia: typeof import('@vueuse/core').useUserMedia
@@ -359,6 +362,9 @@ declare global {
   // @ts-ignore
   export type { UseInitialsReturn } from './resources/js/composables/useInitials'
   import('./resources/js/composables/useInitials')
+  // @ts-ignore
+  export type { UseTransReturn } from './resources/js/composables/useTrans'
+  import('./resources/js/composables/useTrans')
 }
 
 // for vue template auto import
@@ -370,6 +376,7 @@ declare module 'vue' {
     readonly Head: UnwrapRef<typeof import('@inertiajs/vue3')['Head']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
+    readonly choosePluralForm: UnwrapRef<typeof import('./resources/js/composables/useTrans')['choosePluralForm']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly computedAsync: UnwrapRef<typeof import('@vueuse/core')['computedAsync']>
     readonly computedEager: UnwrapRef<typeof import('@vueuse/core')['computedEager']>
@@ -453,6 +460,7 @@ declare module 'vue' {
     readonly refDefault: UnwrapRef<typeof import('@vueuse/core')['refDefault']>
     readonly refThrottled: UnwrapRef<typeof import('@vueuse/core')['refThrottled']>
     readonly refWithControl: UnwrapRef<typeof import('@vueuse/core')['refWithControl']>
+    readonly replacePlaceholders: UnwrapRef<typeof import('./resources/js/composables/useTrans')['replacePlaceholders']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
     readonly resolveRef: UnwrapRef<typeof import('@vueuse/core')['resolveRef']>
     readonly resolveUnref: UnwrapRef<typeof import('@vueuse/core')['resolveUnref']>
@@ -649,6 +657,7 @@ declare module 'vue' {
     readonly useToast: UnwrapRef<typeof import('./node_modules/.pnpm/@nuxt+ui@4.11.3_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/composables/useToast')['useToast']>
     readonly useToggle: UnwrapRef<typeof import('@vueuse/core')['useToggle']>
     readonly useTour: UnwrapRef<typeof import('./node_modules/.pnpm/@nuxt+ui@4.11.3_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/composables/useTour')['useTour']>
+    readonly useTrans: UnwrapRef<typeof import('./resources/js/composables/useTrans')['useTrans']>
     readonly useTransition: UnwrapRef<typeof import('@vueuse/core')['useTransition']>
     readonly useUrlSearchParams: UnwrapRef<typeof import('@vueuse/core')['useUrlSearchParams']>
     readonly useUserMedia: UnwrapRef<typeof import('@vueuse/core')['useUserMedia']>
