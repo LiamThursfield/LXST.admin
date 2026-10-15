@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Traits;
 
+use App\Enums\TenantModule;
 use App\Models\Tenant;
 use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -80,6 +81,7 @@ trait RefreshDatabaseWithTenantTrait
                 $t = Tenant::query()->create([
                     'id' => $tenantId,
                     'name' => 'Test Tenant',
+                    'modules' => TenantModule::cases(),
                 ]);
             } catch (Exception $exception) {
                 // If creation failed (e.g. database already exists), find the existing tenant

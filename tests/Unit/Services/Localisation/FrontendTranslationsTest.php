@@ -10,8 +10,8 @@ describe('forLocale', function () {
             ->and($translations['common']['actions']['save'])->toBe('Save');
     });
 
-    it('leaves out groups that have no lines', function () {
-        expect(app(FrontendTranslations::class)->forLocale('en'))->not->toHaveKey('enums');
+    it('includes enum labels from the enums group', function () {
+        expect(app(FrontendTranslations::class)->forLocale('en')['enums']['tenant_module']['cms'])->toBe('CMS');
     });
 
     it('returns an empty array for a locale without a lang directory', function () {

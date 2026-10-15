@@ -17,5 +17,9 @@
 */
 
 return [
-    //
+    'tenant_module' => [
+        'cms' => 'CMS',
+        'crm' => 'CRM',
+        'tracker' => 'Tracker',
+    ],
 ];
