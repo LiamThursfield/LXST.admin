@@ -64,6 +64,10 @@ return [
                     'sortOrder' => 20,
                     TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_FORMS_VIEW => ['sortOrder' => 0],
                 ],
+                TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_SUBMISSIONS => [
+                    'sortOrder' => 25,
+                    TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_SUBMISSIONS_VIEW => ['sortOrder' => 0],
+                ],
                 TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS => [
                     'sortOrder' => 30,
                     TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS_VIEW => ['sortOrder' => 0],

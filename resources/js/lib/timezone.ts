@@ -61,3 +61,14 @@ export function syncBrowserTimezone(): void {
         );
     });
 }
+
+/**
+ * Formats an ISO timestamp as a date and time on the given timezone's clock, e.g. "15 Oct 2026, 14:05".
+ */
+export function formatDateTime(iso: string, timezone: string): string {
+    return new Date(iso).toLocaleString(undefined, {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+        timeZone: timezone,
+    });
+}

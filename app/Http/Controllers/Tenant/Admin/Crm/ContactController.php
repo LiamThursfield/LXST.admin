@@ -8,7 +8,9 @@ use App\Http\Requests\Tenant\Admin\Crm\ContactIndexRequest;
 use App\Http\Requests\Tenant\Admin\Crm\ContactStoreRequest;
 use App\Http\Requests\Tenant\Admin\Crm\ContactUpdateRequest;
 use App\Http\Resources\Tenant\Admin\Crm\ContactResource;
+use App\Http\Resources\Tenant\Admin\Crm\FormSubmissionResource;
 use App\Models\Crm\Contact;
+use App\Models\Crm\FormSubmission;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -64,8 +66,17 @@ class ContactController extends Controller
     {
         Gate::authorize('view', $contact);
 
+        $canViewSubmissions = request()->user()?->can('viewAny', FormSubmission::class) ?? false;
+
         return Inertia::render('admin/crm/contact/Show', [
             'contact' => new ContactResource($contact->load('addresses')),
+            // The contact's latest submissions, for users who can see submissions
+            'submissions' => $canViewSubmissions
+                ? FormSubmissionResource::collection(
+                    $contact->formSubmissions()->with('form', 'contact')->latest('submitted_at')->take(10)->get()
+                )
+                : null,
+            'submissionsCount' => $canViewSubmissions ? $contact->formSubmissions()->count() : null,
         ]);
     }
 

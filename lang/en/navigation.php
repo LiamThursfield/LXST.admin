@@ -17,6 +17,8 @@ return [
     'view_contacts' => 'View Contacts',
     'forms' => 'Forms',
     'view_forms' => 'View Forms',
+    'form_submissions' => 'Submissions',
+    'view_form_submissions' => 'View Submissions',
     'organisation_units' => 'Organisation Units',
     'view_organisation_units' => 'View Organisation Units',
 

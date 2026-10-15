@@ -6,6 +6,7 @@ use Database\Factories\Crm\ContactFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -29,6 +30,7 @@ use Illuminate\Support\Collection;
  * @property-read string $name
  * @property-read string $name_with_title
  * @property-read Collection<int, Address> $addresses
+ * @property-read Collection<int, FormSubmission> $formSubmissions
  */
 class Contact extends Model
 {
@@ -71,6 +73,16 @@ class Contact extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        // A contact's submissions follow the contact's spam status
+        static::updated(function (Contact $contact) {
+            if ($contact->wasChanged('is_spam')) {
+                $contact->formSubmissions()->update(['is_spam' => $contact->is_spam]);
+            }
+        });
+    }
+
     /**
      * The first and last name
      *
@@ -89,6 +101,14 @@ class Contact extends Model
     protected function nameWithTitle(): Attribute
     {
         return Attribute::get(fn (): string => trim(($this->title ?? '').' '.$this->name));
+    }
+
+    /**
+     * @return HasMany<FormSubmission, $this>
+     */
+    public function formSubmissions(): HasMany
+    {
+        return $this->hasMany(FormSubmission::class);
     }
 
     /**

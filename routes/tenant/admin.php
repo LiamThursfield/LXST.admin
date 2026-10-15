@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Http\Controllers\Tenant\Admin\Crm\ContactController;
 use App\Http\Controllers\Tenant\Admin\Crm\ContactSpamController;
 use App\Http\Controllers\Tenant\Admin\Crm\FormController;
+use App\Http\Controllers\Tenant\Admin\Crm\FormSubmissionController;
+use App\Http\Controllers\Tenant\Admin\Crm\FormSubmissionSpamController;
 use App\Http\Controllers\Tenant\Admin\Crm\OrganisationUnitController;
 use App\Http\Controllers\Tenant\Admin\DashboardController;
 use App\Http\Controllers\Tenant\Admin\Settings\PasswordController;
@@ -40,6 +42,9 @@ Route::name('crm.')->prefix('crm')->middleware('tenant.module:crm')->group(funct
     Route::delete('contacts/{contact}/spam', [ContactSpamController::class, 'destroy'])->name('contacts.spam.destroy');
     Route::resource('contacts', ContactController::class);
     Route::resource('forms', FormController::class);
+    Route::post('form-submissions/{form_submission}/spam', [FormSubmissionSpamController::class, 'store'])->name('form-submissions.spam.store');
+    Route::delete('form-submissions/{form_submission}/spam', [FormSubmissionSpamController::class, 'destroy'])->name('form-submissions.spam.destroy');
+    Route::resource('form-submissions', FormSubmissionController::class)->only(['index', 'show']);
 
     Route::resource('organisation-units', OrganisationUnitController::class);
 });
