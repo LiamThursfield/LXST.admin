@@ -37,7 +37,9 @@ return [
 
         'database' => [
             'driver' => 'database',
-            'connection' => env('DB_QUEUE_CONNECTION'),
+            // Always the central connection: the jobs table only exists there, and tenancy swaps the
+            // default connection to the tenant's database when jobs are dispatched from a tenant request
+            'connection' => env('DB_QUEUE_CONNECTION', env('DB_CONNECTION')),
             'table' => env('DB_QUEUE_TABLE', 'jobs'),
             'queue' => env('DB_QUEUE', 'default'),
             'retry_after' => (int) env('DB_QUEUE_RETRY_AFTER', 90),
