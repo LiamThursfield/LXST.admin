@@ -13,6 +13,8 @@ return [
     'dashboard' => 'Dashboard',
 
     'crm' => 'CRM',
+    'contacts' => 'Contacts',
+    'view_contacts' => 'View Contacts',
     'organisation_units' => 'Organisation Units',
     'view_organisation_units' => 'View Organisation Units',
 

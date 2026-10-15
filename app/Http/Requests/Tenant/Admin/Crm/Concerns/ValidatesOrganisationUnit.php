@@ -4,21 +4,20 @@ namespace App\Http\Requests\Tenant\Admin\Crm\Concerns;
 
 use App\Enums\Crm\OrganisationUnitType;
 use App\Enums\Crm\SocialMedia;
-use App\Models\Crm\Address;
 use App\Models\Crm\OrganisationUnit;
 use Closure;
 use Illuminate\Validation\Rule;
 
 trait ValidatesOrganisationUnit
 {
+    use ValidatesAddresses;
+
     /**
      * Treat an address with every field blank as "no address", so the form can always send the address fields
      */
     protected function prepareForValidation(): void
     {
-        $address = $this->input('address');
-
-        if (is_array($address) && collect(Address::FIELDS)->every(fn (string $field) => blank($address[$field] ?? null))) {
+        if ($this->isBlankAddress($this->input('address'))) {
             $this->merge(['address' => null]);
         }
     }
@@ -59,13 +58,7 @@ trait ValidatesOrganisationUnit
             'notification_emails.*' => ['email', 'max:255'],
 
             'address' => ['nullable', 'array'],
-            'address.postcode' => ['required_with:address', 'string', 'max:10'],
-            'address.line_1' => ['required_with:address', 'string', 'max:255'],
-            'address.line_2' => ['nullable', 'string', 'max:255'],
-            'address.line_3' => ['nullable', 'string', 'max:255'],
-            'address.town_city' => ['nullable', 'string', 'max:255'],
-            'address.county' => ['nullable', 'string', 'max:255'],
-            'address.country' => ['nullable', 'string', 'max:255'],
+            ...($this->input('address') === null ? [] : $this->addressRules('address')),
         ];
     }
 
@@ -148,6 +141,6 @@ trait ValidatesOrganisationUnit
         /** @var array<string, mixed>|null $address */
         $address = $this->validated('address');
 
-        return $address === null ? null : collect($address)->only(Address::FIELDS)->toArray();
+        return $address === null ? null : $this->addressFields($address);
     }
 }

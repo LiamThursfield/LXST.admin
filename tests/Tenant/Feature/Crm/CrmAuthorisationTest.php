@@ -18,11 +18,15 @@ it('lets admins and editors manage the CRM, and viewers only view it', function 
     $this->seed(RolesAndPermissionsSeeder::class);
 
     foreach ([RoleEnum::Admin, RoleEnum::Editor] as $role) {
-        expect(Role::findByName($role->value)->hasPermissionTo(CrmPermission::ManageOrganisationUnits->value))->toBeTrue();
+        foreach (CrmPermission::cases() as $permission) {
+            expect(Role::findByName($role->value)->hasPermissionTo($permission->value))->toBeTrue();
+        }
     }
 
     $viewer = Role::findByName(RoleEnum::Viewer->value);
 
-    expect($viewer->hasPermissionTo(CrmPermission::ViewOrganisationUnits->value))->toBeTrue()
+    expect($viewer->hasPermissionTo(CrmPermission::ViewContacts->value))->toBeTrue()
+        ->and($viewer->hasPermissionTo(CrmPermission::ViewOrganisationUnits->value))->toBeTrue()
+        ->and($viewer->hasPermissionTo(CrmPermission::ManageContacts->value))->toBeFalse()
         ->and($viewer->hasPermissionTo(CrmPermission::ManageOrganisationUnits->value))->toBeFalse();
 });

@@ -25,6 +25,86 @@ return [
         'country' => 'Country',
     ],
 
+    'contacts' => [
+        'columns' => [
+            'name' => 'Name',
+            'email' => 'Email',
+            'telephone' => 'Telephone',
+            'status' => 'Status',
+        ],
+        'fields' => [
+            'title' => 'Title',
+            'title_placeholder' => 'e.g. Dr',
+            'first_name' => 'First name',
+            'last_name' => 'Last name',
+            'email' => 'Email',
+            'telephone' => 'Telephone',
+            'is_spam' => 'Spam',
+            'is_spam_help' => 'Spam contacts are kept, but treated as not genuine.',
+        ],
+        'marketing' => [
+            'title' => 'Marketing preferences',
+            'description' => 'What the contact has agreed to be contacted about.',
+            'marketing_email' => 'Email',
+            'marketing_sms' => 'SMS',
+            'marketing_telephone' => 'Telephone',
+        ],
+        'addresses' => [
+            'title' => 'Addresses',
+            'empty' => 'No addresses.',
+            'add' => 'Add address',
+            'remove' => 'Remove address',
+        ],
+        'status' => [
+            'genuine' => 'Genuine',
+            'spam' => 'Spam',
+            'deleted' => 'Deleted',
+        ],
+        'filters' => [
+            'search' => 'Search name, email or phone',
+            'spam' => 'Spam',
+            'any' => 'All contacts',
+            'genuine_only' => 'Genuine only',
+            'spam_only' => 'Spam only',
+            'show_deleted' => 'Show deleted',
+        ],
+        'actions' => [
+            'mark_spam' => 'Mark as spam',
+            'not_spam' => 'Not spam',
+            'restore' => 'Restore',
+        ],
+        'index' => [
+            'title' => 'Contacts',
+            'create' => 'New contact',
+        ],
+        'create' => [
+            'title' => 'Create Contact',
+            'submit' => 'Create Contact',
+        ],
+        'edit' => [
+            'title' => 'Edit Contact: :name',
+        ],
+        'show' => [
+            'title' => 'Contact: :name',
+        ],
+        'validation' => [
+            'first_name_required' => 'First name is required',
+            'last_name_required' => 'Last name is required',
+            'email_invalid' => 'Invalid email address',
+            'email_taken' => 'A contact with this email already exists. If it was deleted, restore it from the deleted contacts instead.',
+            'duplicate_address' => 'The same address has been added more than once.',
+        ],
+        'confirm_delete' => 'Are you sure you want to delete contact :email? It can be restored later.',
+        'flash' => [
+            'created' => 'Contact created successfully.',
+            'updated' => 'Contact updated successfully.',
+            'deleted' => 'Contact deleted successfully.',
+            'restored' => 'Contact restored successfully.',
+            'marked_spam' => 'Contact marked as spam.',
+            'marked_not_spam' => 'Contact marked as not spam.',
+        ],
+    ],
+
     'organisation_units' => [
         'columns' => [
             'name' => 'Name',

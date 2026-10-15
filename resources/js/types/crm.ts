@@ -41,3 +41,22 @@ export type OrganisationUnitFormOptions = {
     parentOptions: OrganisationUnitParentOption[];
     socialMedia: SelectItem[];
 };
+
+export type ContactData = {
+    id: number;
+    title: string | null;
+    first_name: string | null;
+    last_name: string | null;
+    name: string;
+    name_with_title: string;
+    email: string;
+    telephone: string | null;
+    is_spam: boolean;
+    marketing_email: boolean;
+    marketing_sms: boolean;
+    marketing_telephone: boolean;
+    created_at: string | null;
+    deleted_at: string | null;
+    addresses?: Array<AddressData & { id: number }>;
+    actions?: any[];
+};
