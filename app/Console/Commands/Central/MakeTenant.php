@@ -2,14 +2,18 @@
 
 namespace App\Console\Commands\Central;
 
+use App\Enums\TenantModule;
 use App\Models\Tenant;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Stancl\Tenancy\Exceptions\DomainOccupiedByOtherTenantException;
 
-#[Signature('central:make:tenant')]
+use function Laravel\Prompts\multiselect;
+
+#[Signature('central:make:tenant {--modules= : Comma separated modules to switch on (cms, crm, tracker). Prompts when omitted}')]
 #[Description('Makes a tenant')]
 class MakeTenant extends Command
 {
@@ -32,8 +36,13 @@ class MakeTenant extends Command
             return;
         }
 
+        $modules = $this->getModules();
+        if ($modules === null) {
+            return;
+        }
+
         $this->info('Creating the tenant database, this may take a while.');
-        $tenant = Tenant::query()->create(['name' => $name]);
+        $tenant = Tenant::query()->create(['name' => $name, 'modules' => $modules]);
 
         $domainCount = 0;
         do {
@@ -47,7 +56,43 @@ class MakeTenant extends Command
             }
         } while ($domain || $domainCount < 1);
 
-        $this->comment('Tenant Created: '.$tenant->id.' with '.$domainCount.' domains.');
+        $moduleList = $modules->isEmpty() ? 'no modules' : 'modules: '.$modules->map(fn (TenantModule $module) => $module->value)->implode(', ');
+        $this->comment('Tenant Created: '.$tenant->id.' with '.$domainCount.' domains and '.$moduleList.'.');
+    }
+
+    /**
+     * Returns the modules to switch on, from the --modules option or a prompt
+     * Returns null (after showing an error) if the option contains an unknown module
+     *
+     * @return Collection<int, TenantModule>|null
+     */
+    protected function getModules(): ?Collection
+    {
+        $option = $this->option('modules');
+
+        if (! is_string($option)) {
+            $selected = multiselect(
+                label: 'Which modules should the tenant have?',
+                options: collect(TenantModule::cases())
+                    ->mapWithKeys(fn (TenantModule $module) => [$module->value => $module->label()])
+                    ->all(),
+                default: array_map(fn (TenantModule $module) => $module->value, TenantModule::cases()),
+            );
+
+            return collect($selected)->map(fn (int|string $value) => TenantModule::from((string) $value));
+        }
+
+        $values = Str::of($option)->explode(',')->map(fn (string $value) => trim($value))->filter();
+        $unknown = $values->reject(fn (string $value) => TenantModule::tryFrom($value) !== null);
+
+        if ($unknown->isNotEmpty()) {
+            $this->error('Unknown module(s): '.$unknown->implode(', ').'. Valid modules: '
+                .implode(', ', array_map(fn (TenantModule $module) => $module->value, TenantModule::cases())).'.');
+
+            return null;
+        }
+
+        return $values->unique()->map(fn (string $value) => TenantModule::from($value))->values();
     }
 
     protected function addDomain(Tenant $tenant, string $domain): bool

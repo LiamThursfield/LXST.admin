@@ -2,6 +2,7 @@
 
 namespace App\Services\Navigation\Registrars;
 
+use App\Enums\TenantModule;
 use App\Services\Authorisation\Enums\CorePermission;
 use App\Services\Authorisation\Enums\TrackerPermission;
 use App\Services\Navigation\Collections\Menu;
@@ -118,6 +119,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
 
     /**
      * Register the Tracker section of the tenant Main Menu
+     * Every item requires the Tracker module, so the whole section is hidden when it is switched off
      *
      * @throws DuplicateMenuSectionKeyException
      * @throws MenuKeyDoesNotExistException
@@ -192,7 +194,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                             )->gate(TrackerPermission::ManageHolidays),
                         ]),
                     ),
-                ]),
+                ])->each(fn (MenuItem $item) => $item->module(TenantModule::Tracker)),
                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
             ),
             $sectionKey,
