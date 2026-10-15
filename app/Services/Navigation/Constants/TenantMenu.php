@@ -15,6 +15,8 @@ namespace App\Services\Navigation\Constants;
  * The current - core - tenant menu is as follows (this does not include the child items in each section):
  * Main Menu
  * ├── Dashboard
+ * ├── CRM
+ * │   └── Organisation Units
  * ├── Admin
  * │   └── Users
  * ├── Tracker
@@ -30,6 +32,14 @@ class TenantMenu
     public const string MENU_MAIN = 'tenant_main';
 
     public const string MENU_MAIN_SECTION_DASHBOARD = 'dashboard';
+
+    public const string MENU_MAIN_SECTION_CRM = 'crm';
+
+    public const string MENU_MAIN_SECTION_CRM_LABEL = 'crm-label';
+
+    public const string MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS = 'organisation-units';
+
+    public const string MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS_VIEW = 'view';
 
     public const string MENU_MAIN_SECTION_ADMIN = 'admin';
 

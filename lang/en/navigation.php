@@ -12,6 +12,10 @@
 return [
     'dashboard' => 'Dashboard',
 
+    'crm' => 'CRM',
+    'organisation_units' => 'Organisation Units',
+    'view_organisation_units' => 'View Organisation Units',
+
     'admin' => 'Admin',
     'users' => 'Users',
     'view_users' => 'View Users',
