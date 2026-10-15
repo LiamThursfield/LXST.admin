@@ -9,6 +9,7 @@ use App\Http\Controllers\Tenant\Admin\Settings\SecurityController;
 use App\Http\Controllers\Tenant\Admin\Tracker\CategoryController;
 use App\Http\Controllers\Tenant\Admin\Tracker\HolidayController;
 use App\Http\Controllers\Tenant\Admin\Tracker\TaskDefinitionController;
+use App\Http\Controllers\Tenant\Admin\Tracker\TaskEntryController;
 use App\Http\Controllers\Tenant\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +30,9 @@ Route::name('tracker.')->prefix('tracker')->group(function () {
     Route::resource('categories', CategoryController::class);
     Route::resource('tasks', TaskDefinitionController::class);
     Route::resource('holidays', HolidayController::class);
+
+    Route::post('tasks/{task}/entries', [TaskEntryController::class, 'store'])->name('tasks.entries.store');
+    Route::delete('entries/{entry}', [TaskEntryController::class, 'destroy'])->name('entries.destroy');
 });
 
 Route::name('settings.')->group(function () {

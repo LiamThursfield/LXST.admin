@@ -4,10 +4,12 @@ use App\Enums\Tracker\TaskDefinitionStatus;
 use App\Enums\Tracker\TaskOccurrenceStatus;
 use App\Models\Tracker\Holiday;
 use App\Models\Tracker\TaskDefinition;
+use App\Models\Tracker\TaskEntry;
 use App\Models\Tracker\TaskOccurrence;
 use App\Models\User;
 use App\Services\Authorisation\Enums\TrackerPermission;
 use App\Services\Tracker\HolidayReconciler;
+use Carbon\CarbonImmutable;
 
 function reconciler(): HolidayReconciler
 {
@@ -29,6 +31,10 @@ function occurrenceOn(TaskDefinition $definition, string $date, TaskOccurrenceSt
 }
 
 beforeEach(function () {
+    // Reconciling re-evaluates occurrences, which depends on "today": pin it so
+    // 2026-08-03 is the current (open) day.
+    $this->travelTo(CarbonImmutable::parse('2026-08-03 12:00'));
+
     $this->user = User::factory()->create();
     $this->task = TaskDefinition::factory()->forUser($this->user)->create([
         'counts_during_holiday' => false,
@@ -71,8 +77,10 @@ test('it reverts a previously skipped occurrence when no holiday covers it', fun
         ->and($occurrence->fresh()->is_holiday)->toBeFalse();
 });
 
-test('it never overwrites an evaluated status but still refreshes the holiday flag', function () {
-    $met = occurrenceOn($this->task, '2026-08-03', TaskOccurrenceStatus::Met);
+test('a holiday never erases a met occurrence but still refreshes the holiday flag', function () {
+    $met = occurrenceOn($this->task, '2026-08-03');
+    // Meets the factory's 2000ml target.
+    TaskEntry::factory()->forOccurrence($met)->create(['value' => 2000]);
 
     Holiday::factory()->forUser($this->user)->create([
         'starts_on' => '2026-08-01',

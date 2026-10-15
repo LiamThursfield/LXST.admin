@@ -44,6 +44,15 @@ class TaskDefinitionPolicy
     }
 
     /**
+     * Whether the user can log progress entries against the given task.
+     */
+    public function logEntry(User $user, TaskDefinition $taskDefinition): bool
+    {
+        return $taskDefinition->user_id === $user->id
+            && $user->can(TrackerPermission::LogEntries);
+    }
+
+    /**
      * Whether the user can delete the given task definition.
      */
     public function delete(User $user, TaskDefinition $taskDefinition): bool

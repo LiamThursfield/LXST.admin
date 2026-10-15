@@ -7,9 +7,11 @@ use App\Models\User;
 use Carbon\CarbonImmutable;
 use Database\Factories\Tracker\TaskOccurrenceFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
@@ -24,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonImmutable|null $completed_at
  * @property-read TaskDefinition|null $taskDefinition
  * @property-read User $user
+ * @property-read Collection<int, TaskEntry> $entries
  */
 class TaskOccurrence extends Model
 {
@@ -74,6 +77,16 @@ class TaskOccurrence extends Model
     public function taskDefinition(): BelongsTo
     {
         return $this->belongsTo(TaskDefinition::class);
+    }
+
+    /**
+     * The entries logged against this occurrence.
+     *
+     * @return HasMany<TaskEntry, $this>
+     */
+    public function entries(): HasMany
+    {
+        return $this->hasMany(TaskEntry::class);
     }
 
     /**

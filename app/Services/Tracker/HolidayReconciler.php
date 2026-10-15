@@ -2,7 +2,6 @@
 
 namespace App\Services\Tracker;
 
-use App\Enums\Tracker\TaskOccurrenceStatus;
 use App\Models\Tracker\Holiday;
 use App\Models\Tracker\TaskOccurrence;
 use App\Models\User;
@@ -12,12 +11,13 @@ use Illuminate\Database\Eloquent\Collection;
  * Re-marks a user's existing occurrences after their holidays change (added,
  * edited or removed), since generation only marks holidays at creation time.
  *
- * To stay safe alongside evaluation, this only toggles the not-yet-evaluated
- * states — an occurrence that evaluation has already settled as Met, Missed or
- * OnTrack keeps its status (only its is_holiday flag is refreshed).
+ * It only refreshes the is_holiday flag; the resulting status is decided by
+ * the OccurrenceEvaluator, so holiday precedence lives in one place.
  */
 class HolidayReconciler
 {
+    public function __construct(private OccurrenceEvaluator $evaluator) {}
+
     /**
      * Reconcile every occurrence owned by the user against their current
      * holidays. Returns the number of occurrences changed.
@@ -56,31 +56,15 @@ class HolidayReconciler
             return false;
         }
 
-        $isHoliday = $this->isCovered($occurrence, $holidays);
-        $shouldSkip = $isHoliday && ! $occurrence->taskDefinition->counts_during_holiday;
+        $holidayBefore = $occurrence->is_holiday;
+        $statusBefore = $occurrence->status;
 
-        $dirty = false;
+        $occurrence->is_holiday = $this->isCovered($occurrence, $holidays);
 
-        if ($occurrence->is_holiday !== $isHoliday) {
-            $occurrence->is_holiday = $isHoliday;
-            $dirty = true;
-        }
+        $this->evaluator->evaluate($occurrence);
 
-        // Only move between Pending and Skipped; never overwrite an evaluated status.
-        if (in_array($occurrence->status, [TaskOccurrenceStatus::Pending, TaskOccurrenceStatus::Skipped], true)) {
-            $target = $shouldSkip ? TaskOccurrenceStatus::Skipped : TaskOccurrenceStatus::Pending;
-
-            if ($occurrence->status !== $target) {
-                $occurrence->status = $target;
-                $dirty = true;
-            }
-        }
-
-        if ($dirty) {
-            $occurrence->save();
-        }
-
-        return $dirty;
+        return $holidayBefore !== $occurrence->is_holiday
+            || $statusBefore !== $occurrence->status;
     }
 
     /**
