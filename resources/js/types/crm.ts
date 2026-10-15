@@ -95,3 +95,32 @@ export type CrmFormData = {
     fields?: FormFieldData[];
     actions?: any[];
 };
+
+export type FormSubmissionAnswerData = {
+    slug: string;
+    label: string;
+    type: string;
+    type_label: string;
+    value: string | number | null;
+};
+
+export type FormSubmissionData = {
+    id: number;
+    is_spam: boolean;
+    submitted_at: string;
+    form: { id: number; name: string; deleted: boolean };
+    contact: {
+        id: number;
+        name: string;
+        email: string;
+        deleted: boolean;
+    } | null;
+    answers: FormSubmissionAnswerData[];
+    marketing: Partial<
+        Record<
+            'marketing_email' | 'marketing_sms' | 'marketing_telephone',
+            boolean
+        >
+    >;
+    actions?: any[];
+};

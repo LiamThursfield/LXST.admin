@@ -23,6 +23,7 @@ class CrmAuthorisationRegistrar implements AuthorisationRegistrar
         $registry->assignPermissionsToRole(Role::Viewer, [
             CrmPermission::ViewContacts,
             CrmPermission::ViewForms,
+            CrmPermission::ViewFormSubmissions,
             CrmPermission::ViewOrganisationUnits,
         ]);
     }

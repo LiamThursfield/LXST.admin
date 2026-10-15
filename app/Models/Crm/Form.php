@@ -27,6 +27,7 @@ use Illuminate\Support\Str;
  * @property Carbon|null $created_at
  * @property-read Collection<int, FormField> $fields
  * @property-read int|null $fields_count
+ * @property-read Collection<int, FormSubmission> $submissions
  */
 class Form extends Model
 {
@@ -96,6 +97,14 @@ class Form extends Model
         }
 
         return $slug;
+    }
+
+    /**
+     * @return HasMany<FormSubmission, $this>
+     */
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(FormSubmission::class);
     }
 
     /**

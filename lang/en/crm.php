@@ -185,6 +185,58 @@ return [
         ],
     ],
 
+    'submissions' => [
+        'columns' => [
+            'submitted_at' => 'Submitted',
+            'form' => 'Form',
+            'contact' => 'Contact',
+            'status' => 'Status',
+        ],
+        'status' => [
+            'genuine' => 'Genuine',
+            'spam' => 'Spam',
+        ],
+        'filters' => [
+            'form' => 'All forms',
+            'any' => 'All submissions',
+            'genuine_only' => 'Genuine only',
+            'spam_only' => 'Spam only',
+            'from' => 'From',
+            'to' => 'To',
+            'contact' => 'Contact: :name',
+            'clear_contact' => 'Show all contacts',
+        ],
+        'show' => [
+            'title' => 'Submission',
+            'details' => 'Details',
+            'answers' => 'Answers',
+            'no_answer' => 'No answer',
+            'no_answers' => 'This submission has no answers.',
+            'marketing' => 'Marketing consent',
+            'marketing_none' => 'This form did not ask for marketing consent.',
+            'consented' => 'Yes',
+            'not_consented' => 'No',
+            'no_contact' => 'No contact',
+            'deleted' => '(deleted)',
+        ],
+        'contact_list' => [
+            'title' => 'Submissions',
+            'empty' => 'This contact has not submitted any forms.',
+            'view_all' => 'View all',
+        ],
+        'actions' => [
+            'mark_spam' => 'Mark as spam',
+            'not_spam' => 'Not spam',
+        ],
+        'index' => [
+            'title' => 'Submissions',
+        ],
+        'flash' => [
+            'marked_spam' => 'Submission marked as spam.',
+            'marked_not_spam' => 'Submission marked as not spam.',
+        ],
+    ],
+
     'organisation_units' => [
         'columns' => [
             'name' => 'Name',

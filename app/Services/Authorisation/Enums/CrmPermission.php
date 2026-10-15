@@ -10,6 +10,9 @@ enum CrmPermission: string
     case ViewForms = 'crm.view-forms';
     case ManageForms = 'crm.manage-forms';
 
+    case ViewFormSubmissions = 'crm.view-form-submissions';
+    case ManageFormSubmissions = 'crm.manage-form-submissions';
+
     case ViewOrganisationUnits = 'crm.view-organisation-units';
     case ManageOrganisationUnits = 'crm.manage-organisation-units';
 }

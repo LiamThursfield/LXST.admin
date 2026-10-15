@@ -8,12 +8,13 @@ use App\Enums\Crm\SocialMedia;
 use App\Models\Crm\Address;
 use App\Models\Crm\Contact;
 use App\Models\Crm\Form;
+use App\Models\Crm\FormSubmission;
 use App\Models\Crm\OrganisationUnit;
 use Illuminate\Database\Seeder;
 
 /**
  * Seeds example CRM data: a company with two locations, each with a couple of departments,
- * a handful of contacts (one marked as spam) and an example contact form.
+ * a handful of contacts (one marked as spam), an example contact form and some submissions of it.
  *
  * Run within a tenant, e.g. `php artisan tenants:seed --class=CrmSeeder`.
  * Safe to re-run: each kind of data is only seeded when none exists yet.
@@ -25,6 +26,28 @@ class CrmSeeder extends Seeder
         $this->seedOrganisationUnits();
         $this->seedContacts();
         $this->seedForms();
+        $this->seedFormSubmissions();
+    }
+
+    protected function seedFormSubmissions(): void
+    {
+        $form = Form::query()->with('fields')->first();
+
+        if ($form === null || FormSubmission::query()->exists()) {
+            return;
+        }
+
+        // A few genuine contacts plus the spam one, so both kinds of submission exist
+        $contacts = Contact::query()->where('is_spam', false)->take(4)->get()
+            ->push(Contact::query()->where('is_spam', true)->first())
+            ->filter();
+
+        $contacts->each(
+            fn (Contact $contact) => FormSubmission::factory()
+                ->answering($form, $contact)
+                ->state(['is_spam' => $contact->is_spam])
+                ->create()
+        );
     }
 
     protected function seedForms(): void

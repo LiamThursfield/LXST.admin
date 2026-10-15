@@ -122,6 +122,22 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         ]),
                     ),
                     new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_SUBMISSIONS,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_SUBMISSIONS]),
+                        label: 'navigation.form_submissions',
+                        type: MenuItemType::LINK,
+                        icon: 'i-lucide-inbox',
+                        activePatterns: ['admin.crm.form-submissions.*'],
+                        children: Collection::wrap([
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_SUBMISSIONS_VIEW,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_SUBMISSIONS, TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_SUBMISSIONS_VIEW]),
+                                label: 'navigation.view_form_submissions',
+                                to: 'admin.crm.form-submissions.index',
+                            )->gate(CrmPermission::ViewFormSubmissions),
+                        ]),
+                    ),
+                    new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS]),
                         label: 'navigation.organisation_units',
