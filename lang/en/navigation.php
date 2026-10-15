@@ -22,6 +22,8 @@ return [
     'organisation_units' => 'Organisation Units',
     'view_organisation_units' => 'View Organisation Units',
 
+    'files' => 'Files',
+
     'admin' => 'Admin',
     'users' => 'Users',
     'view_users' => 'View Users',

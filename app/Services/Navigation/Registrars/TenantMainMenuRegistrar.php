@@ -5,6 +5,7 @@ namespace App\Services\Navigation\Registrars;
 use App\Enums\TenantModule;
 use App\Services\Authorisation\Enums\CorePermission;
 use App\Services\Authorisation\Enums\CrmPermission;
+use App\Services\Authorisation\Enums\FileManagerPermission;
 use App\Services\Authorisation\Enums\TrackerPermission;
 use App\Services\Navigation\Collections\Menu;
 use App\Services\Navigation\Collections\MenuSection;
@@ -34,6 +35,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
 
         $this->registerDashboardSection($registry);
         $this->registerCrmSection($registry);
+        $this->registerFilesSection($registry);
         $this->registerAdminSection($registry);
         $this->registerTrackerSection($registry);
         $this->registerAccountSection($registry);
@@ -154,6 +156,35 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         ]),
                     ),
                 ])->each(fn (MenuItem $item) => $item->module(TenantModule::Crm)),
+                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
+            ),
+            $sectionKey,
+            $this->menuKey
+        );
+    }
+
+    /**
+     * Register the Files section of the tenant Main Menu
+     *
+     * @throws DuplicateMenuSectionKeyException
+     * @throws MenuKeyDoesNotExistException
+     */
+    protected function registerFilesSection(NavigationRegistry $registry): void
+    {
+        $sectionKey = TenantMenu::MENU_MAIN_SECTION_FILES;
+
+        $registry->addSectionToMenu(
+            new MenuSection(
+                menuItems: Collection::wrap([
+                    (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_FILES_ITEM_FILES,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_FILES_ITEM_FILES]),
+                        label: 'navigation.files',
+                        type: MenuItemType::LINK,
+                        to: 'admin.file-manager.index',
+                        icon: 'i-lucide-folder-open',
+                    ))->gate(FileManagerPermission::ViewFiles),
+                ]),
                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
             ),
             $sectionKey,

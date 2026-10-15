@@ -2,6 +2,7 @@
 
 use App\Services\Authorisation\Registrars\CoreAuthorisationRegistrar;
 use App\Services\Authorisation\Registrars\CrmAuthorisationRegistrar;
+use App\Services\Authorisation\Registrars\FileManagerAuthorisationRegistrar;
 use App\Services\Authorisation\Registrars\TrackerAuthorisationRegistrar;
 
 return [
@@ -19,6 +20,7 @@ return [
     'registrars' => [
         CoreAuthorisationRegistrar::class,
         CrmAuthorisationRegistrar::class,
+        FileManagerAuthorisationRegistrar::class,
         TrackerAuthorisationRegistrar::class,
     ],
 ];
