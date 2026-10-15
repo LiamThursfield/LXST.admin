@@ -8,12 +8,22 @@ use App\Services\Navigation\Constants\CentralMenu;
 use App\Services\Navigation\Constants\TenantMenu;
 use App\Services\Navigation\Exceptions\MenuKeyDoesNotExistException;
 use App\Services\Navigation\NavigationService;
+use Closure;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Middleware;
+use Symfony\Component\HttpFoundation\Response;
 
 class HandleInertiaRequests extends Middleware
 {
+    /**
+     * The session flash keys (set by controllers via `->with('success', ...)`) that are
+     * passed to the frontend as Inertia flash data, so they are shown once as toasts.
+     *
+     * @var list<string>
+     */
+    protected array $sessionFlashKeys = ['success', 'error'];
+
     public function __construct(
         protected NavigationService $navigationService,
         protected FrontendTranslations $frontendTranslations,
@@ -23,6 +33,33 @@ class HandleInertiaRequests extends Middleware
     {
         // If a tenant is identified, use the tenant blade, otherwise central
         return tenant() ? 'tenant' : 'central';
+    }
+
+    /**
+     * Handle the incoming request.
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        $this->shareSessionFlash($request);
+
+        return parent::handle($request, $next);
+    }
+
+    /**
+     * Pass any flashed session messages on as Inertia flash data. Unlike shared props, flash
+     * data isn't kept in the browser history, so going back won't show the message again.
+     */
+    protected function shareSessionFlash(Request $request): void
+    {
+        if (! $request->hasSession()) {
+            return;
+        }
+
+        $flash = array_filter($request->session()->only($this->sessionFlashKeys), fn ($value) => filled($value));
+
+        if ($flash) {
+            Inertia::flash($flash);
+        }
     }
 
     /**

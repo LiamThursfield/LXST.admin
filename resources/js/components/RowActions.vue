@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import type { Method } from '@inertiajs/core';
+import type { Errors, Method } from '@inertiajs/core';
 import { router } from '@inertiajs/vue3';
 import type { DropdownMenuItem } from '@nuxt/ui';
 import { useBreakpoints, breakpointsTailwind } from '@vueuse/core';
 import { computed, ref } from 'vue';
 
 const { trans } = useTrans();
+
+const toast = useToast();
 
 interface Action {
     label: string;
@@ -70,8 +72,22 @@ function executeAction(action: Action | null) {
     if (action.method.toLowerCase() === 'get') {
         router.visit(action.url);
     } else {
-        router.visit(action.url, { method: action.method });
+        router.visit(action.url, {
+            method: action.method,
+            // e.g. a delete that is refused with a validation error
+            onError: showErrorToasts,
+        });
     }
+}
+
+function showErrorToasts(errors: Errors) {
+    Object.values(errors).forEach((message) => {
+        toast.add({
+            title: message,
+            icon: 'i-lucide-circle-alert',
+            color: 'error',
+        });
+    });
 }
 
 function handleConfirm() {
