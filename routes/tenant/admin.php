@@ -10,6 +10,7 @@ use App\Http\Controllers\Tenant\Admin\Tracker\CategoryController;
 use App\Http\Controllers\Tenant\Admin\Tracker\HolidayController;
 use App\Http\Controllers\Tenant\Admin\Tracker\TaskDefinitionController;
 use App\Http\Controllers\Tenant\Admin\Tracker\TaskEntryController;
+use App\Http\Controllers\Tenant\Admin\Tracker\TodayController;
 use App\Http\Controllers\Tenant\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +28,8 @@ Route::get('/', DashboardController::class)->name('dashboard');
 Route::resource('users', UserController::class);
 
 Route::name('tracker.')->prefix('tracker')->group(function () {
+    Route::get('today', TodayController::class)->name('today');
+
     Route::resource('categories', CategoryController::class);
     Route::resource('tasks', TaskDefinitionController::class);
     Route::resource('holidays', HolidayController::class);

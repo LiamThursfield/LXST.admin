@@ -135,6 +135,15 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         label: 'Tracker',
                         type: MenuItemType::LABEL,
                     ),
+                    (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TODAY,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TODAY]),
+                        label: 'Today',
+                        type: MenuItemType::LINK,
+                        to: 'admin.tracker.today',
+                        icon: 'i-lucide-calendar-check',
+                        exact: true,
+                    ))->gate(TrackerPermission::ViewTasks),
                     new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS]),

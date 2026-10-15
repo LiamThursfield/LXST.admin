@@ -132,6 +132,38 @@ class TaskDefinition extends Model
     }
 
     /**
+     * Scope to the definitions that apply on the given date: active ones whose
+     * range covers it, plus superseded (archived, end-dated) versions for dates
+     * before they were replaced. A superseded version's active_to is treated as
+     * exclusive so it never shows alongside its successor on the switch-over day.
+     * Paused and manually archived (no end date) definitions are excluded.
+     *
+     * @param  Builder<TaskDefinition>  $query
+     * @return Builder<TaskDefinition>
+     */
+    public function scopeApplicableOn(Builder $query, CarbonImmutable $date): Builder
+    {
+        $day = $date->toDateString();
+
+        return $query
+            ->whereDate('active_from', '<=', $day)
+            ->where(function (Builder $query) use ($day) {
+                $query
+                    ->where(function (Builder $query) use ($day) {
+                        $query->where('status', TaskDefinitionStatus::Active->value)
+                            ->where(function (Builder $query) use ($day) {
+                                $query->whereNull('active_to')->orWhereDate('active_to', '>=', $day);
+                            });
+                    })
+                    ->orWhere(function (Builder $query) use ($day) {
+                        $query->where('status', TaskDefinitionStatus::Archived->value)
+                            ->whereNotNull('active_to')
+                            ->whereDate('active_to', '>', $day);
+                    });
+            });
+    }
+
+    /**
      * The lineage key that groups all versions of this task. The root uses its
      * own id; successors carry the root's id in lineage_id.
      */

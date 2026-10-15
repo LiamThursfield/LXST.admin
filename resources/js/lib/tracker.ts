@@ -1,4 +1,77 @@
-import type { SelectItem } from '@/types';
+import type { SelectItem, TaskOccurrenceStatus } from '@/types';
+
+/** Short display symbols for each backend `TrackerUnit` value. */
+const unitSymbols: Record<string, string> = {
+    kg: 'kg',
+    lb: 'lb',
+    l: 'L',
+    ml: 'ml',
+    minutes: 'min',
+    hours: 'h',
+    kcal: 'kcal',
+    count: '',
+    boolean: '',
+    'time-of-day': '',
+};
+
+export function unitSymbol(unit: string): string {
+    return unitSymbols[unit] ?? unit;
+}
+
+/**
+ * Time-of-day values are stored as seconds since midnight; format as HH:MM.
+ */
+export function formatTimeOfDay(seconds: number): string {
+    const hours = Math.floor(seconds / 3600) % 24;
+    const minutes = Math.floor((seconds % 3600) / 60);
+
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+}
+
+/**
+ * Parse an `HH:MM` input into seconds since midnight.
+ */
+export function parseTimeOfDay(value: string): number {
+    const [hours, minutes] = value.split(':').map(Number);
+
+    return (hours || 0) * 3600 + (minutes || 0) * 60;
+}
+
+/**
+ * Format a display-unit value for its unit, e.g. `1.5 L` or `06:15`.
+ */
+export function formatValue(
+    value: number | null | undefined,
+    unit: string,
+): string {
+    if (value === null || value === undefined) {
+        return '—';
+    }
+
+    if (unit === 'time-of-day') {
+        return formatTimeOfDay(value);
+    }
+
+    const rounded = Number(value.toFixed(2));
+    const symbol = unitSymbol(unit);
+
+    return symbol ? `${rounded} ${symbol}` : `${rounded}`;
+}
+
+/** Badge colour and label for each occurrence status. */
+export const occurrenceStatusBadges: Record<
+    TaskOccurrenceStatus,
+    {
+        label: string;
+        color: 'success' | 'error' | 'info' | 'neutral' | 'warning';
+    }
+> = {
+    met: { label: 'Met', color: 'success' },
+    missed: { label: 'Missed', color: 'error' },
+    'on-track': { label: 'On track', color: 'info' },
+    pending: { label: 'Pending', color: 'neutral' },
+    skipped: { label: 'Skipped', color: 'warning' },
+};
 
 /**
  * Day-of-week options for scheduling.
