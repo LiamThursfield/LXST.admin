@@ -7,6 +7,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+use Illuminate\Http\Request;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromUnwantedDomains;
@@ -75,5 +76,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // The tenant API is called by detached websites, so it always responds with JSON,
+        // even when the request doesn't ask for it (e.g. 404s, 429s and module gating)
+        $exceptions->shouldRenderJsonWhen(
+            fn (Request $request): bool => $request->is('api', 'api/*') || $request->expectsJson()
+        );
     })->create();

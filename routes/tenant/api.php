@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Tenant\Api\V1\PingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -9,10 +10,17 @@ use Illuminate\Support\Facades\Route;
 | Tenant API Routes
 |--------------------------------------------------------------------------
 |
-| Here you can register the tenant api routes for your application.
+| The public, headless API that detached tenant websites call, e.g. to fetch
+| pages or submit forms. The tenant is identified by the request domain.
+|
+| Every route is versioned (/api/v1/...), rate limited by the `tenant-api`
+| limiter, and module routes should use the `tenant.module:{module}` middleware.
 |
 */
 
-Route::get('/', function () {
-    return 'This is your multi-tenant application. The id of the current tenant is '.tenant('id')."\n";
-});
+Route::prefix('v1')
+    ->name('v1.')
+    ->middleware('throttle:tenant-api')
+    ->group(function () {
+        Route::get('/', PingController::class)->name('ping');
+    });
