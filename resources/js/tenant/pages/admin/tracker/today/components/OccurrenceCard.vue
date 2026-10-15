@@ -9,10 +9,12 @@ import { userTimezone } from '@/lib/timezone';
 import {
     formatTimeOfDay,
     formatValue,
-    occurrenceStatusBadges,
+    occurrenceStatusBadge,
     parseTimeOfDay,
 } from '@/lib/tracker';
 import type { TaskOccurrenceData } from '@/types';
+
+const { trans } = useTrans();
 
 const props = defineProps<{
     occurrence: TaskOccurrenceData;
@@ -28,16 +30,15 @@ const isTimeOfDay = computed(() => definition.value.unit === 'time-of-day');
 const isAdditive = computed(() =>
     ['sum', 'count'].includes(definition.value.aggregation),
 );
-const status = computed(() => occurrenceStatusBadges[props.occurrence.status]);
+const status = computed(() => occurrenceStatusBadge(props.occurrence.status));
 
-const periodLabels: Record<string, string> = {
-    weekly: 'This week',
-    monthly: 'This month',
-    yearly: 'This year',
-    lifetime: 'Lifetime',
-    'one-off': 'One-off',
-};
-const periodLabel = computed(() => periodLabels[definition.value.period]);
+/** Periods other than daily are labelled, e.g. "This week". */
+const labelledPeriods = ['weekly', 'monthly', 'yearly', 'lifetime', 'one-off'];
+const periodLabel = computed(() =>
+    labelledPeriods.includes(definition.value.period)
+        ? trans(`tracker.today.periods.${definition.value.period}`)
+        : null,
+);
 
 /** Current value, treating an empty additive window as zero. */
 const currentValue = computed(
@@ -52,11 +53,15 @@ const progress = computed(() => {
 
     switch (definition.value.comparator) {
         case 'min':
-            return `${current} of ${min}`;
+            return trans('tracker.today.progress.min', { current, min });
         case 'max':
-            return `${current} · max ${max}`;
+            return trans('tracker.today.progress.max', { current, max });
         case 'between':
-            return `${current} · target ${min} – ${max}`;
+            return trans('tracker.today.progress.between', {
+                current,
+                min,
+                max,
+            });
         case 'none':
             return current;
         default:
@@ -166,7 +171,7 @@ function entryValue(value: number): string {
                         variant="outline"
                         icon="i-lucide-palmtree"
                     >
-                        Holiday
+                        {{ trans('tracker.today.holiday') }}
                     </UBadge>
                     <UBadge :color="status.color" variant="subtle">
                         {{ status.label }}
@@ -180,7 +185,7 @@ function entryValue(value: number): string {
                         v-if="occurrence.status !== 'met'"
                         :loading="form.processing"
                         icon="i-lucide-check"
-                        label="Mark done"
+                        :label="trans('tracker.today.mark_done')"
                         @click="log(1)"
                     />
                     <UButton
@@ -188,7 +193,7 @@ function entryValue(value: number): string {
                         color="neutral"
                         variant="subtle"
                         icon="i-lucide-undo-2"
-                        label="Undo"
+                        :label="trans('tracker.today.undo')"
                         @click="undoDone"
                     />
                 </div>
@@ -207,14 +212,20 @@ function entryValue(value: number): string {
                         min="0"
                         step="any"
                         :placeholder="
-                            definition.stepped ? 'Add amount' : 'Value'
+                            definition.stepped
+                                ? trans('tracker.today.add_amount')
+                                : trans('tracker.today.value')
                         "
                         class="w-40"
                     />
                     <UButton
                         type="submit"
                         :loading="form.processing"
-                        :label="definition.stepped ? 'Add' : 'Save'"
+                        :label="
+                            definition.stepped
+                                ? trans('tracker.today.add')
+                                : trans('common.actions.save')
+                        "
                     />
                 </form>
 
@@ -250,7 +261,7 @@ function entryValue(value: number): string {
                         variant="ghost"
                         size="xs"
                         icon="i-lucide-x"
-                        aria-label="Remove entry"
+                        :aria-label="trans('tracker.today.remove_entry')"
                         @click="removeEntry(entry.id)"
                     />
                 </li>

@@ -5,13 +5,17 @@ import NewPasswordController from '@/actions/Laravel/Fortify/Http/Controllers/Ne
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { login } from '@/routes';
 
+const { trans } = useTrans();
+
 defineOptions({
     layout: (h: any, page: VNode) => {
         return h(
             AuthLayout,
             {
-                title: 'Reset Password',
-                description: 'Please enter your new password below.',
+                title: useTrans().trans('auth.reset_password.title'),
+                description: useTrans().trans(
+                    'auth.reset_password.description',
+                ),
             },
             () => page,
         );
@@ -28,7 +32,7 @@ const inputEmail = ref(props.email);
 
 <template>
     <div>
-        <Head title="Reset Password" />
+        <Head :title="trans('auth.reset_password.head')" />
 
         <Form
             v-bind="NewPasswordController.store.form()"
@@ -41,7 +45,7 @@ const inputEmail = ref(props.email);
                 <UFormField
                     name="email"
                     :error="errors.email"
-                    label="Email address"
+                    :label="trans('auth.fields.email')"
                 >
                     <UInput
                         type="email"
@@ -55,13 +59,13 @@ const inputEmail = ref(props.email);
                 <UFormField
                     name="password"
                     :error="errors.password"
-                    label="Password"
+                    :label="trans('auth.fields.password')"
                 >
                     <UInput
                         type="password"
                         class="w-full"
                         autocomplete="current-password"
-                        placeholder="Password"
+                        :placeholder="trans('auth.fields.password')"
                         min="8"
                         required
                     />
@@ -70,28 +74,32 @@ const inputEmail = ref(props.email);
                 <UFormField
                     name="password_confirmation"
                     :error="errors.password"
-                    label="Confirm Password"
+                    :label="trans('auth.fields.confirm_password')"
                 >
                     <UInput
                         type="password"
                         class="w-full"
                         autocomplete="confirm-password"
-                        placeholder="Confirm Password"
+                        :placeholder="trans('auth.fields.confirm_password')"
                         min="8"
                         required
                     />
                 </UFormField>
 
-                <UButton :loading="processing" type="submit" block class="mt-4"
-                    >Reset Password</UButton
+                <UButton
+                    :loading="processing"
+                    type="submit"
+                    block
+                    class="mt-4"
+                    >{{ trans('auth.reset_password.submit') }}</UButton
                 >
             </div>
 
             <div class="text-muted text-center text-sm">
-                Or, return to
-                <TextLink :href="login()" :tabindex="5" class="text-primary"
-                    >Log In</TextLink
-                >
+                {{ trans('auth.reset_password.return_to') }}
+                <TextLink :href="login()" :tabindex="5" class="text-primary">{{
+                    trans('auth.reset_password.log_in')
+                }}</TextLink>
             </div>
         </Form>
     </div>

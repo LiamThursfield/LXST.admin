@@ -2,6 +2,8 @@
 import { Head } from '@inertiajs/vue3';
 import CategoryForm from './components/CategoryForm.vue';
 
+const { trans } = useTrans();
+
 defineProps<{
     category: {
         data: {
@@ -19,7 +21,13 @@ defineProps<{
 <template>
     <UDashboardPanel>
         <template #header>
-            <UDashboardNavbar :title="`Category: ${category.data.name}`">
+            <UDashboardNavbar
+                :title="
+                    trans('tracker.categories.show.title', {
+                        name: category.data.name,
+                    })
+                "
+            >
                 <template #leading>
                     <UDashboardSidebarCollapse as="button" :disabled="false" />
                 </template>
@@ -27,7 +35,13 @@ defineProps<{
         </template>
 
         <template #body>
-            <Head :title="`Category: ${category.data.name}`" />
+            <Head
+                :title="
+                    trans('tracker.categories.show.title', {
+                        name: category.data.name,
+                    })
+                "
+            />
             <div class="w-full max-w-4xl">
                 <CategoryForm
                     :category="category.data"

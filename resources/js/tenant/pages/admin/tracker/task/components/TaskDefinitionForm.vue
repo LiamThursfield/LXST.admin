@@ -10,6 +10,8 @@ import { todayIn, userTimezone } from '@/lib/timezone';
 import { daysOfWeek, monthsOfYear } from '@/lib/tracker';
 import type { SelectItem, TaskDefinitionData } from '@/types';
 
+const { trans } = useTrans();
+
 const props = withDefaults(
     defineProps<{
         task?: TaskDefinitionData;
@@ -30,21 +32,36 @@ const props = withDefaults(
 );
 
 const schema = z.object({
-    title: z.string().min(1, 'Title is required').max(120),
+    title: z
+        .string()
+        .min(1, trans('tracker.tasks.validation.title_required'))
+        .max(120),
     description: z.string().max(1000).nullable(),
     category_id: z.number().nullable(),
-    period: z.string().min(1, 'Period is required'),
-    measure: z.string().min(1, 'Measure is required'),
-    unit: z.string().min(1, 'Unit is required'),
-    comparator: z.string().min(1, 'Comparator is required'),
-    aggregation: z.string().min(1, 'Aggregation is required'),
+    period: z
+        .string()
+        .min(1, trans('tracker.tasks.validation.period_required')),
+    measure: z
+        .string()
+        .min(1, trans('tracker.tasks.validation.measure_required')),
+    unit: z.string().min(1, trans('tracker.tasks.validation.unit_required')),
+    comparator: z
+        .string()
+        .min(1, trans('tracker.tasks.validation.comparator_required')),
+    aggregation: z
+        .string()
+        .min(1, trans('tracker.tasks.validation.aggregation_required')),
     target_min: z.number().nullable(),
     target_max: z.number().nullable(),
     stepped: z.boolean(),
     counts_during_holiday: z.boolean(),
-    active_from: z.string().min(1, 'Start date is required'),
+    active_from: z
+        .string()
+        .min(1, trans('tracker.tasks.validation.active_from_required')),
     active_to: z.string().nullable(),
-    status: z.string().min(1, 'Status is required'),
+    status: z
+        .string()
+        .min(1, trans('tracker.tasks.validation.status_required')),
     days_of_week: z.array(z.number()),
     months_of_year: z.array(z.number()),
 });
@@ -139,7 +156,7 @@ async function onSubmit() {
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <UFormField
                     class="md:col-span-2"
-                    label="Title"
+                    :label="trans('tracker.tasks.fields.title')"
                     name="title"
                     required
                 >
@@ -152,7 +169,7 @@ async function onSubmit() {
 
                 <UFormField
                     class="md:col-span-2"
-                    label="Description"
+                    :label="trans('tracker.tasks.fields.description')"
                     name="description"
                 >
                     <UTextarea
@@ -162,7 +179,10 @@ async function onSubmit() {
                     />
                 </UFormField>
 
-                <UFormField label="Category" name="category_id">
+                <UFormField
+                    :label="trans('tracker.tasks.fields.category')"
+                    name="category_id"
+                >
                     <USelect
                         v-model="state.category_id!"
                         :disabled="readonly"
@@ -171,7 +191,11 @@ async function onSubmit() {
                     />
                 </UFormField>
 
-                <UFormField label="Status" name="status" required>
+                <UFormField
+                    :label="trans('tracker.tasks.fields.status')"
+                    name="status"
+                    required
+                >
                     <USelect
                         v-model="state.status"
                         :disabled="readonly"
@@ -182,9 +206,16 @@ async function onSubmit() {
             </div>
         </UPageCard>
 
-        <UPageCard variant="subtle" title="Measurement">
+        <UPageCard
+            variant="subtle"
+            :title="trans('tracker.tasks.sections.measurement')"
+        >
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField label="Measure" name="measure" required>
+                <UFormField
+                    :label="trans('tracker.tasks.fields.measure')"
+                    name="measure"
+                    required
+                >
                     <USelect
                         v-model="state.measure"
                         :disabled="readonly"
@@ -193,7 +224,11 @@ async function onSubmit() {
                     />
                 </UFormField>
 
-                <UFormField label="Unit" name="unit" required>
+                <UFormField
+                    :label="trans('tracker.tasks.fields.unit')"
+                    name="unit"
+                    required
+                >
                     <USelect
                         v-model="state.unit"
                         :disabled="readonly"
@@ -202,7 +237,11 @@ async function onSubmit() {
                     />
                 </UFormField>
 
-                <UFormField label="Comparator" name="comparator" required>
+                <UFormField
+                    :label="trans('tracker.tasks.fields.comparator')"
+                    name="comparator"
+                    required
+                >
                     <USelect
                         v-model="state.comparator"
                         :disabled="readonly"
@@ -211,7 +250,11 @@ async function onSubmit() {
                     />
                 </UFormField>
 
-                <UFormField label="Aggregation" name="aggregation" required>
+                <UFormField
+                    :label="trans('tracker.tasks.fields.aggregation')"
+                    name="aggregation"
+                    required
+                >
                     <USelect
                         v-model="state.aggregation"
                         :disabled="readonly"
@@ -222,7 +265,7 @@ async function onSubmit() {
 
                 <UFormField
                     v-if="showMin"
-                    label="Target (min)"
+                    :label="trans('tracker.tasks.fields.target_min')"
                     name="target_min"
                 >
                     <UInput
@@ -235,7 +278,7 @@ async function onSubmit() {
 
                 <UFormField
                     v-if="showMax"
-                    label="Target (max)"
+                    :label="trans('tracker.tasks.fields.target_max')"
                     name="target_max"
                 >
                     <UInput
@@ -246,12 +289,15 @@ async function onSubmit() {
                     />
                 </UFormField>
 
-                <UFormField label="Stepped entries" name="stepped">
+                <UFormField
+                    :label="trans('tracker.tasks.fields.stepped')"
+                    name="stepped"
+                >
                     <USwitch v-model="state.stepped" :disabled="readonly" />
                 </UFormField>
 
                 <UFormField
-                    label="Counts during holiday"
+                    :label="trans('tracker.tasks.fields.counts_during_holiday')"
                     name="counts_during_holiday"
                 >
                     <USwitch
@@ -262,9 +308,16 @@ async function onSubmit() {
             </div>
         </UPageCard>
 
-        <UPageCard variant="subtle" title="Schedule">
+        <UPageCard
+            variant="subtle"
+            :title="trans('tracker.tasks.sections.schedule')"
+        >
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField label="Period" name="period" required>
+                <UFormField
+                    :label="trans('tracker.tasks.fields.period')"
+                    name="period"
+                    required
+                >
                     <USelect
                         v-model="state.period"
                         :disabled="readonly"
@@ -275,7 +328,11 @@ async function onSubmit() {
 
                 <div class="hidden md:block" />
 
-                <UFormField label="Start date" name="active_from" required>
+                <UFormField
+                    :label="trans('tracker.tasks.fields.active_from')"
+                    name="active_from"
+                    required
+                >
                     <UInput
                         v-model="state.active_from"
                         :disabled="readonly"
@@ -284,7 +341,10 @@ async function onSubmit() {
                     />
                 </UFormField>
 
-                <UFormField label="End date" name="active_to">
+                <UFormField
+                    :label="trans('tracker.tasks.fields.active_to')"
+                    name="active_to"
+                >
                     <UInput
                         v-model="state.active_to!"
                         :disabled="readonly"
@@ -293,21 +353,27 @@ async function onSubmit() {
                     />
                 </UFormField>
 
-                <UFormField label="Days of week" name="days_of_week">
+                <UFormField
+                    :label="trans('tracker.tasks.fields.days_of_week')"
+                    name="days_of_week"
+                >
                     <USelect
                         v-model="state.days_of_week"
                         :disabled="readonly"
-                        :items="daysOfWeek"
+                        :items="daysOfWeek()"
                         class="w-full"
                         multiple
                     />
                 </UFormField>
 
-                <UFormField label="Months of year" name="months_of_year">
+                <UFormField
+                    :label="trans('tracker.tasks.fields.months_of_year')"
+                    name="months_of_year"
+                >
                     <USelect
                         v-model="state.months_of_year"
                         :disabled="readonly"
-                        :items="monthsOfYear"
+                        :items="monthsOfYear()"
                         class="w-full"
                         multiple
                     />
@@ -319,7 +385,11 @@ async function onSubmit() {
             <UButton
                 :loading="form.processing"
                 color="primary"
-                :label="create ? 'Create Task' : 'Save Changes'"
+                :label="
+                    create
+                        ? trans('tracker.tasks.create.submit')
+                        : trans('tracker.save_changes')
+                "
                 type="submit"
             />
         </div>

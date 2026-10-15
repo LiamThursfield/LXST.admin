@@ -6,6 +6,8 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Tracker/HolidayController';
 import RowActions from '@/components/RowActions.vue';
 
+const { trans } = useTrans();
+
 const props = defineProps<{
     filter?: {
         label?: string;
@@ -68,7 +70,7 @@ watch(searchFilter, () => search(), { deep: true });
 <template>
     <UDashboardPanel>
         <template #header>
-            <UDashboardNavbar title="Holidays">
+            <UDashboardNavbar :title="trans('tracker.holidays.index.title')">
                 <template #leading>
                     <UDashboardSidebarCollapse as="button" :disabled="false" />
                 </template>
@@ -76,7 +78,7 @@ watch(searchFilter, () => search(), { deep: true });
                 <template #right>
                     <UButton :as="Link" :href="create.url()" color="primary">
                         <UIcon name="i-lucide-plus" />
-                        New holiday
+                        {{ trans('tracker.holidays.index.create') }}
                     </UButton>
                 </template>
             </UDashboardNavbar>
@@ -90,7 +92,9 @@ watch(searchFilter, () => search(), { deep: true });
                     <div class="flex flex-1 items-center gap-4">
                         <UInput
                             class="max-w-48"
-                            placeholder="Label"
+                            :placeholder="
+                                trans('tracker.holidays.fields.label')
+                            "
                             v-model="searchFilter.label"
                         />
                     </div>

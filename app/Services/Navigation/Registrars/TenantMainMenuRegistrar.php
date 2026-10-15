@@ -53,7 +53,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                     new MenuItem(
                         key: 'dashboard',
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, 'dashboard']),
-                        label: 'Dashboard',
+                        label: 'navigation.dashboard',
                         type: MenuItemType::LINK,
                         to: 'admin.dashboard',
                         icon: 'i-lucide-house',
@@ -83,13 +83,13 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                     new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_ADMIN_LABEL,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_ADMIN_LABEL]),
-                        label: 'Admin',
+                        label: 'navigation.admin',
                         type: MenuItemType::LABEL,
                     ),
                     new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_ACCOUNT_ITEM_SETTINGS,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_USERS]),
-                        label: 'Users',
+                        label: 'navigation.users',
                         type: MenuItemType::LINK,
                         icon: 'i-lucide-users',
                         activePatterns: ['admin.users.*'],
@@ -97,14 +97,14 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                             new MenuChildItem(
                                 key: TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_USERS_VIEW,
                                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_USERS, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_USERS_VIEW]),
-                                label: 'View Users',
+                                label: 'navigation.view_users',
                                 to: 'admin.users.index',
                             )->gate(CorePermission::ViewUsers),
                             // TODO: Implement Create User
                             //                            new MenuChildItem(
                             //                                key: TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_USERS_CREATE,
                             //                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_USERS, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_USERS_CREATE]),
-                            //                                label: 'Create User',
+                            //                                label: 'navigation.create_user',
                             //                                to: 'admin.users.create',
                             //                            )->gate(CorePermission::ManageUsers),
                         ]),
@@ -134,13 +134,13 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                     new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_TRACKER_LABEL,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_LABEL]),
-                        label: 'Tracker',
+                        label: 'navigation.tracker',
                         type: MenuItemType::LABEL,
                     ),
                     (new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TODAY,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TODAY]),
-                        label: 'Today',
+                        label: 'navigation.today',
                         type: MenuItemType::LINK,
                         to: 'admin.tracker.today',
                         icon: 'i-lucide-calendar-check',
@@ -149,7 +149,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                     new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS]),
-                        label: 'Tasks',
+                        label: 'navigation.tasks',
                         type: MenuItemType::LINK,
                         icon: 'i-lucide-list-checks',
                         activePatterns: ['admin.tracker.tasks.*'],
@@ -157,7 +157,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                             new MenuChildItem(
                                 key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS_VIEW,
                                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS_VIEW]),
-                                label: 'View Tasks',
+                                label: 'navigation.view_tasks',
                                 to: 'admin.tracker.tasks.index',
                             )->gate(TrackerPermission::ViewTasks),
                         ]),
@@ -165,7 +165,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                     new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES]),
-                        label: 'Categories',
+                        label: 'navigation.categories',
                         type: MenuItemType::LINK,
                         icon: 'i-lucide-tag',
                         activePatterns: ['admin.tracker.categories.*'],
@@ -173,7 +173,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                             new MenuChildItem(
                                 key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES_VIEW,
                                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES_VIEW]),
-                                label: 'View Categories',
+                                label: 'navigation.view_categories',
                                 to: 'admin.tracker.categories.index',
                             )->gate(TrackerPermission::ViewCategories),
                         ]),
@@ -181,7 +181,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                     new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS]),
-                        label: 'Holidays',
+                        label: 'navigation.holidays',
                         type: MenuItemType::LINK,
                         icon: 'i-lucide-palmtree',
                         activePatterns: ['admin.tracker.holidays.*'],
@@ -189,7 +189,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                             new MenuChildItem(
                                 key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS_VIEW,
                                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS_VIEW]),
-                                label: 'View Holidays',
+                                label: 'navigation.view_holidays',
                                 to: 'admin.tracker.holidays.index',
                             )->gate(TrackerPermission::ManageHolidays),
                         ]),
@@ -218,13 +218,13 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                     new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_ACCOUNT_LABEL,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_ACCOUNT_LABEL]),
-                        label: 'Account',
+                        label: 'navigation.account',
                         type: MenuItemType::LABEL,
                     ),
                     new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_ACCOUNT_ITEM_SETTINGS,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_ACCOUNT_ITEM_SETTINGS]),
-                        label: 'Settings',
+                        label: 'navigation.settings',
                         type: MenuItemType::LINK,
                         icon: 'i-lucide-settings',
                         activePatterns: ['admin.settings.*'],
@@ -232,13 +232,13 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                             new MenuChildItem(
                                 key: TenantMenu::MENU_MAIN_SECTION_ACCOUNT_ITEM_SETTINGS_PROFILE,
                                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_ACCOUNT_ITEM_SETTINGS, TenantMenu::MENU_MAIN_SECTION_ACCOUNT_ITEM_SETTINGS_PROFILE]),
-                                label: 'Profile',
+                                label: 'navigation.profile',
                                 to: 'admin.settings.profile.edit',
                             ),
                             new MenuChildItem(
                                 key: TenantMenu::MENU_MAIN_SECTION_ACCOUNT_ITEM_SETTINGS_SECURITY,
                                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_ACCOUNT_ITEM_SETTINGS, TenantMenu::MENU_MAIN_SECTION_ACCOUNT_ITEM_SETTINGS_SECURITY]),
-                                label: 'Security',
+                                label: 'navigation.security',
                                 to: 'admin.settings.security.edit',
                             ),
                         ]),

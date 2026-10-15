@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import WebLayout from '@/central/layouts/WebLayout.vue';
+
+const { trans } = useTrans();
 defineOptions({ layout: WebLayout });
 </script>
 
@@ -7,10 +9,10 @@ defineOptions({ layout: WebLayout });
     <div>
         <UPageHero
             title="LXST.admin"
-            description="A production-ready multi-tenant SaaS powered by Laravel, Inertia, Vue3, Nuxt UI, and Tailwind CSS."
+            :description="trans('common.welcome.description')"
             :links="[
                 {
-                    label: 'View on GitHub',
+                    label: trans('common.welcome.view_on_github'),
                     to: 'https://github.com/liamthursfield/LXST.admin',
                     target: '_blank',
                     icon: 'simple-icons:github',

@@ -6,6 +6,8 @@ import { useColorMode } from '@vueuse/core';
 import { useAuth } from '@/composables/useAuth';
 import { logout } from '@/routes';
 
+const { trans } = useTrans();
+
 defineProps<{
     collapsed?: boolean;
 }>();
@@ -32,7 +34,7 @@ const items = computed<DropdownMenuItem[][]>(() => [
     ],
     [
         {
-            label: 'Notifications',
+            label: trans('common.user_menu.notifications'),
             icon: 'i-lucide-bell',
             onSelect(e: Event) {
                 e.preventDefault();
@@ -43,18 +45,18 @@ const items = computed<DropdownMenuItem[][]>(() => [
     ],
     [
         {
-            label: 'Profile',
+            label: trans('common.user_menu.profile'),
             icon: 'i-lucide-user',
             to: '/settings/profile',
         },
     ],
     [
         {
-            label: 'Appearance',
+            label: trans('common.user_menu.appearance'),
             icon: 'i-lucide-sun-moon',
             children: [
                 {
-                    label: 'Light',
+                    label: trans('common.user_menu.light'),
                     icon: 'i-lucide-sun',
                     type: 'checkbox',
                     checked: colorMode.value === 'light',
@@ -65,7 +67,7 @@ const items = computed<DropdownMenuItem[][]>(() => [
                     },
                 },
                 {
-                    label: 'Dark',
+                    label: trans('common.user_menu.dark'),
                     icon: 'i-lucide-moon',
                     type: 'checkbox',
                     checked: colorMode.value === 'dark',
@@ -83,7 +85,7 @@ const items = computed<DropdownMenuItem[][]>(() => [
     ],
     [
         {
-            label: 'Log out',
+            label: trans('common.user_menu.log_out'),
             icon: 'i-lucide-log-out',
             to: logout(),
             onSelect: () => handleLogout(),

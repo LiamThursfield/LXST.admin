@@ -41,7 +41,7 @@ class EntryRecorder
 
         if ($occurrence === null) {
             throw ValidationException::withMessages([
-                'occurred_at' => 'This task is not scheduled for that date.',
+                'occurred_at' => __('tracker.validation.not_scheduled'),
             ]);
         }
 

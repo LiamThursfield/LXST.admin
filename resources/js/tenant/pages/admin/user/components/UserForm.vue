@@ -7,6 +7,8 @@ import {
     update,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/UserController';
 
+const { trans } = useTrans();
+
 const props = withDefaults(
     defineProps<{
         user?: {
@@ -27,9 +29,15 @@ const props = withDefaults(
 );
 
 const schema = z.object({
-    first_name: z.string().min(1, 'First name is required').max(255),
-    last_name: z.string().min(1, 'Last name is required').max(255),
-    email: z.email('Invalid email address').max(255),
+    first_name: z
+        .string()
+        .min(1, trans('users.validation.first_name_required'))
+        .max(255),
+    last_name: z
+        .string()
+        .min(1, trans('users.validation.last_name_required'))
+        .max(255),
+    email: z.email(trans('users.validation.email_invalid')).max(255),
     roles: z.array(z.string()).nullable(),
 });
 
@@ -72,7 +80,11 @@ async function onSubmit() {
     <UForm :schema="schema" :state="state" class="space-y-6" @submit="onSubmit">
         <UPageCard variant="subtle">
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField label="First Name" name="first_name" required>
+                <UFormField
+                    :label="trans('users.fields.first_name')"
+                    name="first_name"
+                    required
+                >
                     <UInput
                         v-model="state.first_name"
                         :disabled="readonly"
@@ -80,7 +92,11 @@ async function onSubmit() {
                     />
                 </UFormField>
 
-                <UFormField label="Last Name" name="last_name" required>
+                <UFormField
+                    :label="trans('users.fields.last_name')"
+                    name="last_name"
+                    required
+                >
                     <UInput
                         v-model="state.last_name"
                         :disabled="readonly"
@@ -90,7 +106,7 @@ async function onSubmit() {
 
                 <UFormField
                     class="md:col-span-2"
-                    label="Email"
+                    :label="trans('users.fields.email')"
                     name="email"
                     required
                 >
@@ -102,7 +118,11 @@ async function onSubmit() {
                     />
                 </UFormField>
 
-                <UFormField class="md:col-span-2" label="Roles" name="roles">
+                <UFormField
+                    class="md:col-span-2"
+                    :label="trans('users.fields.roles')"
+                    name="roles"
+                >
                     <USelect
                         v-model="state.roles!"
                         :disabled="readonly"
@@ -115,15 +135,18 @@ async function onSubmit() {
         </UPageCard>
 
         <p v-if="create" class="text-muted text-sm">
-            A password setup email will be sent to the user so they can set
-            their own password.
+            {{ trans('users.create.password_email_notice') }}
         </p>
 
         <div v-if="!readonly" class="flex justify-end gap-2">
             <UButton
                 :loading="form.processing"
                 color="primary"
-                :label="create ? 'Create User' : 'Save Changes'"
+                :label="
+                    create
+                        ? trans('users.create.submit')
+                        : trans('users.edit.submit')
+                "
                 type="submit"
             />
         </div>

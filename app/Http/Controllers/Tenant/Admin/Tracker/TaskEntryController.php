@@ -33,7 +33,7 @@ class TaskEntryController extends Controller
             $request->filled('label') ? $request->string('label')->value() : null,
         );
 
-        return redirect()->back()->with('success', 'Progress logged.');
+        return redirect()->back()->with('success', __('tracker.flash.entry_logged'));
     }
 
     public function destroy(TaskEntry $entry): RedirectResponse
@@ -42,6 +42,6 @@ class TaskEntryController extends Controller
 
         $this->recorder->delete($entry);
 
-        return redirect()->back()->with('success', 'Entry removed.');
+        return redirect()->back()->with('success', __('tracker.flash.entry_removed'));
     }
 }

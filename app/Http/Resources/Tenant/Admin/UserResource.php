@@ -24,15 +24,15 @@ class UserResource extends JsonResource
         $actions = [];
 
         if ($request->user()?->can(CorePermission::ManageUsers, $user)) {
-            $actions[] = Action::make('Edit', route('admin.users.edit', $user))
+            $actions[] = Action::make(__('common.actions.edit'), route('admin.users.edit', $user))
                 ->icon('i-lucide-pencil');
 
-            $actions[] = Action::make('Delete', route('admin.users.destroy', $user))
+            $actions[] = Action::make(__('common.actions.delete'), route('admin.users.destroy', $user))
                 ->icon('i-lucide-trash')
                 ->method('DELETE')
-                ->requireConfirmation("Are you sure you want to delete user $user->email?");
+                ->requireConfirmation(__('users.confirm_delete', ['email' => $user->email]));
         } elseif ($request->user()?->can(CorePermission::ViewUsers)) {
-            $actions[] = Action::make('View', route('admin.users.show', $user))
+            $actions[] = Action::make(__('common.actions.view'), route('admin.users.show', $user))
                 ->icon('i-lucide-eye');
         }
 

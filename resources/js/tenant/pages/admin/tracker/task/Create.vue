@@ -3,6 +3,8 @@ import { Head } from '@inertiajs/vue3';
 import type { SelectItem } from '@/types';
 import TaskDefinitionForm from './components/TaskDefinitionForm.vue';
 
+const { trans } = useTrans();
+
 defineProps<{
     categories: SelectItem[];
     periods: SelectItem[];
@@ -17,7 +19,7 @@ defineProps<{
 <template>
     <UDashboardPanel>
         <template #header>
-            <UDashboardNavbar title="Create Task">
+            <UDashboardNavbar :title="trans('tracker.tasks.create.title')">
                 <template #leading>
                     <UDashboardSidebarCollapse as="button" :disabled="false" />
                 </template>
@@ -25,7 +27,7 @@ defineProps<{
         </template>
 
         <template #body>
-            <Head title="Create Task" />
+            <Head :title="trans('tracker.tasks.create.title')" />
             <div class="w-full max-w-4xl">
                 <TaskDefinitionForm
                     :categories="categories"

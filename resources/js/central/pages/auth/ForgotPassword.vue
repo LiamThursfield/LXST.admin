@@ -5,13 +5,17 @@ import PasswordResetLinkController from '@/actions/App/Http/Controllers/Central/
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { login } from '@/routes';
 
+const { trans } = useTrans();
+
 defineOptions({
     layout: (h: any, page: VNode) => {
         return h(
             AuthLayout,
             {
-                title: 'Forgot Password',
-                description: 'Request a password reset link.',
+                title: useTrans().trans('auth.forgot_password.title'),
+                description: useTrans().trans(
+                    'auth.forgot_password.description',
+                ),
             },
             () => page,
         );
@@ -27,7 +31,7 @@ defineProps<{
 
 <template>
     <div>
-        <Head title="Forgot Password" />
+        <Head :title="trans('auth.forgot_password.head')" />
 
         <div
             v-if="status"
@@ -45,28 +49,32 @@ defineProps<{
                 <UFormField
                     name="email"
                     :error="errors.email"
-                    label="Email address"
+                    :label="trans('auth.fields.email')"
                 >
                     <UInput
                         type="email"
                         class="w-full"
                         autocomplete="email"
-                        placeholder="email@example.com"
+                        :placeholder="trans('auth.fields.email_placeholder')"
                         autofocus
                         required
                     />
                 </UFormField>
 
-                <UButton :loading="processing" type="submit" block class="mt-4"
-                    >Reset Password</UButton
+                <UButton
+                    :loading="processing"
+                    type="submit"
+                    block
+                    class="mt-4"
+                    >{{ trans('auth.forgot_password.submit') }}</UButton
                 >
             </div>
 
             <div class="text-muted text-center text-sm">
-                Or, return to
-                <TextLink :href="login()" :tabindex="5" class="text-primary"
-                    >log in</TextLink
-                >
+                {{ trans('auth.forgot_password.return_to') }}
+                <TextLink :href="login()" :tabindex="5" class="text-primary">{{
+                    trans('auth.forgot_password.log_in')
+                }}</TextLink>
             </div>
         </Form>
     </div>

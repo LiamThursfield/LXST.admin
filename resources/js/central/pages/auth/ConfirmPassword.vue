@@ -4,14 +4,17 @@ import { type VNode } from 'vue';
 import ConfirmablePasswordController from '@/actions/App/Http/Controllers/Central/Fortify/ConfirmablePasswordController';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 
+const { trans } = useTrans();
+
 defineOptions({
     layout: (h: any, page: VNode) => {
         return h(
             AuthLayout,
             {
-                title: 'Confirm your password',
-                description:
-                    'This is a secure area of the application. Please confirm your password before continuing.',
+                title: useTrans().trans('auth.confirm_password.title'),
+                description: useTrans().trans(
+                    'auth.confirm_password.description',
+                ),
             },
             () => page,
         );
@@ -25,14 +28,13 @@ defineProps<{
 
 <template>
     <div>
-        <Head title="Verify email" />
+        <Head :title="trans('auth.confirm_password.head')" />
 
         <div
             v-if="status === 'verification-link-sent'"
             class="mb-4 text-center text-sm font-medium text-green-600"
         >
-            A new verification link has been sent to the email address you
-            provided during registration.
+            {{ trans('auth.verify_email.link_sent') }}
         </div>
 
         <Form
@@ -44,7 +46,7 @@ defineProps<{
             <UFormField
                 name="password"
                 :error="errors.password"
-                label="Password"
+                :label="trans('auth.fields.password')"
             >
                 <UInput
                     type="password"
@@ -56,9 +58,9 @@ defineProps<{
             </UFormField>
 
             <div class="flex items-center">
-                <UButton :loading="processing" type="submit" block
-                    >Confirm Password</UButton
-                >
+                <UButton :loading="processing" type="submit" block>{{
+                    trans('auth.confirm_password.submit')
+                }}</UButton>
             </div>
         </Form>
     </div>

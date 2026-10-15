@@ -6,6 +6,8 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Tracker/CategoryController';
 import RowActions from '@/components/RowActions.vue';
 
+const { trans } = useTrans();
+
 const props = defineProps<{
     filter?: {
         name?: string;
@@ -71,7 +73,7 @@ watch(searchFilter, () => search(), { deep: true });
 <template>
     <UDashboardPanel>
         <template #header>
-            <UDashboardNavbar title="Categories">
+            <UDashboardNavbar :title="trans('tracker.categories.index.title')">
                 <template #leading>
                     <UDashboardSidebarCollapse as="button" :disabled="false" />
                 </template>
@@ -79,7 +81,7 @@ watch(searchFilter, () => search(), { deep: true });
                 <template #right>
                     <UButton :as="Link" :href="create.url()" color="primary">
                         <UIcon name="i-lucide-plus" />
-                        New category
+                        {{ trans('tracker.categories.index.create') }}
                     </UButton>
                 </template>
             </UDashboardNavbar>
@@ -93,7 +95,9 @@ watch(searchFilter, () => search(), { deep: true });
                     <div class="flex flex-1 items-center gap-4">
                         <UInput
                             class="max-w-48"
-                            placeholder="Name"
+                            :placeholder="
+                                trans('tracker.categories.fields.name')
+                            "
                             v-model="searchFilter.name"
                         />
                     </div>
@@ -117,7 +121,15 @@ watch(searchFilter, () => search(), { deep: true });
                             "
                             variant="subtle"
                         >
-                            {{ row.original.is_public ? 'Public' : 'Private' }}
+                            {{
+                                row.original.is_public
+                                    ? trans(
+                                          'tracker.categories.visibility.public',
+                                      )
+                                    : trans(
+                                          'tracker.categories.visibility.private',
+                                      )
+                            }}
                         </UBadge>
                     </template>
 
