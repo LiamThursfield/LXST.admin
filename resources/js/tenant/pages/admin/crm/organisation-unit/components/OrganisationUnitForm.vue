@@ -71,17 +71,17 @@ const form = useForm({
     address: { ...emptyAddress, ...(unit?.address ?? {}) } as AddressData,
 });
 
-/** Only units of an allowed type can be the parent, e.g. a location must be part of a company. */
-const parentItems = computed(() => {
-    const allowed = props.allowedParentTypes[form.type] ?? [];
+/** The parent types allowed for the chosen type: none for a company, which is always at the top. */
+const allowedParentTypes = computed(
+    () => props.allowedParentTypes[form.type] ?? [],
+);
 
-    return [
-        { label: trans('crm.organisation_units.fields.none'), value: null },
-        ...props.parentOptions.filter((option) =>
-            allowed.includes(option.type),
-        ),
-    ];
-});
+/** Only units of an allowed type can be the parent, e.g. a location must be part of a company. */
+const parentItems = computed(() =>
+    props.parentOptions.filter((option) =>
+        allowedParentTypes.value.includes(option.type),
+    ),
+);
 
 // Clear the parent when it is no longer allowed for the chosen type
 watch(
@@ -144,6 +144,7 @@ function onSubmit() {
                 </UFormField>
 
                 <UFormField
+                    v-if="allowedParentTypes.length"
                     :label="trans('crm.organisation_units.fields.parent')"
                     :description="
                         readonly
@@ -154,12 +155,17 @@ function onSubmit() {
                     "
                     name="parent_id"
                     :error="form.errors.parent_id"
-                    :required="form.type !== 'company'"
+                    required
                 >
                     <USelect
                         v-model="form.parent_id"
                         :disabled="readonly"
                         :items="parentItems"
+                        :placeholder="
+                            trans(
+                                'crm.organisation_units.fields.parent_placeholder',
+                            )
+                        "
                         class="w-full"
                     />
                 </UFormField>

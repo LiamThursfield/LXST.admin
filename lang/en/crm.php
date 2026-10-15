@@ -35,7 +35,7 @@ return [
         'fields' => [
             'type' => 'Type',
             'parent' => 'Part of',
-            'parent_description' => 'Companies can be part of a company, locations part of a company, and departments part of a location or department.',
+            'parent_description' => 'Locations are part of a company, and departments are part of a location.',
             'name' => 'Name',
             'slug' => 'Slug',
             'slug_description' => 'Used in URLs. Leave blank to generate it from the name.',
@@ -47,7 +47,7 @@ return [
             'notification_email_placeholder' => 'name@example.com',
             'add_notification_email' => 'Add email',
             'remove_notification_email' => 'Remove email',
-            'none' => 'None',
+            'parent_placeholder' => 'Choose…',
         ],
         'sections' => [
             'details' => 'Details',
@@ -75,8 +75,8 @@ return [
         'validation' => [
             'name_required' => 'Name is required',
             'email_invalid' => 'Invalid email address',
-            'parent_type' => 'A :type must be part of one of: :parents.',
-            'parent_cycle' => 'An organisation unit cannot be part of itself or one of its own units.',
+            'parent_type' => 'A :type must be part of a :parents.',
+            'type_has_children' => 'The type cannot be changed while other units are part of this one.',
             'has_children' => 'This organisation unit still has units within it. Move or delete those first.',
         ],
         'confirm_delete' => 'Are you sure you want to delete organisation unit :name?',

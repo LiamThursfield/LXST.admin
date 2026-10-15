@@ -31,13 +31,14 @@ trait ValidatesOrganisationUnit
     protected function organisationUnitRules(?OrganisationUnit $organisationUnit = null): array
     {
         return [
-            'type' => ['required', Rule::enum(OrganisationUnitType::class)],
+            'type' => ['required', Rule::enum(OrganisationUnitType::class), $this->typeChangeRule($organisationUnit)],
             'parent_id' => [
                 Rule::requiredIf(fn () => $this->type()?->requiresParent() ?? false),
+                Rule::prohibitedIf(fn () => $this->type() === OrganisationUnitType::Company),
                 'nullable',
                 'integer',
                 Rule::exists('crm_organisation_units', 'id'),
-                $this->parentRule($organisationUnit),
+                $this->parentRule(),
             ],
             'name' => ['required', 'string', 'max:255'],
             'slug' => [
@@ -79,12 +80,12 @@ trait ValidatesOrganisationUnit
     }
 
     /**
-     * The parent must be of a type allowed for the unit's type, and (when updating)
-     * must not be the unit itself or one of its descendants
+     * The parent must be of the type allowed for the unit's type: a location is part of a company,
+     * and a department is part of a location
      */
-    protected function parentRule(?OrganisationUnit $organisationUnit): Closure
+    protected function parentRule(): Closure
     {
-        return function (string $attribute, mixed $value, Closure $fail) use ($organisationUnit): void {
+        return function (string $attribute, mixed $value, Closure $fail): void {
             $type = $this->type();
             $parent = is_numeric($value) ? OrganisationUnit::query()->find((int) $value) : null;
 
@@ -97,12 +98,22 @@ trait ValidatesOrganisationUnit
                     'type' => $type->label(),
                     'parents' => collect($type->allowedParentTypes())->map->label()->implode(', '),
                 ]));
+            }
+        };
+    }
 
+    /**
+     * A unit that has units within it cannot change type, as they would no longer be under an allowed parent
+     */
+    protected function typeChangeRule(?OrganisationUnit $organisationUnit): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail) use ($organisationUnit): void {
+            if ($organisationUnit === null || $value === $organisationUnit->type->value) {
                 return;
             }
 
-            if ($organisationUnit !== null && ($parent->is($organisationUnit) || $parent->isDescendantOf($organisationUnit))) {
-                $fail(__('crm.organisation_units.validation.parent_cycle'));
+            if ($organisationUnit->children()->exists()) {
+                $fail(__('crm.organisation_units.validation.type_has_children'));
             }
         };
     }

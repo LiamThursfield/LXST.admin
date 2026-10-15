@@ -157,14 +157,6 @@ class OrganisationUnit extends Model
     }
 
     /**
-     * Returns true if the given unit is somewhere in this unit's parent chain
-     */
-    public function isDescendantOf(OrganisationUnit $unit): bool
-    {
-        return $this->ancestors()->contains('id', $unit->id);
-    }
-
-    /**
      * Returns this unit or its nearest ancestor of the given type
      */
     protected function nearestOfType(OrganisationUnitType $type): ?OrganisationUnit

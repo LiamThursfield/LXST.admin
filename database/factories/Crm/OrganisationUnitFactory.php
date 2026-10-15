@@ -33,13 +33,13 @@ class OrganisationUnitFactory extends Factory
     }
 
     /**
-     * A company, optionally within a parent company (e.g. a group)
+     * A company, which is always at the top of the hierarchy
      */
-    public function company(?OrganisationUnit $parent = null): static
+    public function company(): static
     {
         return $this->state(fn (array $attributes) => [
             'type' => OrganisationUnitType::Company,
-            'parent_id' => $parent?->id,
+            'parent_id' => null,
         ]);
     }
 
@@ -56,14 +56,14 @@ class OrganisationUnitFactory extends Factory
     }
 
     /**
-     * A department within the given location or department (or a new location)
+     * A department within the given location (or a new one)
      */
-    public function department(?OrganisationUnit $parent = null): static
+    public function department(?OrganisationUnit $location = null): static
     {
         return $this->state(fn (array $attributes) => [
             'type' => OrganisationUnitType::Department,
             'name' => fake()->unique()->jobTitle().' Team',
-            'parent_id' => $parent->id ?? OrganisationUnit::factory()->location(),
+            'parent_id' => $location->id ?? OrganisationUnit::factory()->location(),
         ]);
     }
 }

@@ -6,7 +6,7 @@ use App\Enums\Traits\HasLabels;
 
 /**
  * The kinds of organisation unit, from the top of the hierarchy down:
- * a company has locations, and a location has departments (which may have sub-departments)
+ * a company has locations, and a location has departments. Companies are always at the top.
  */
 enum OrganisationUnitType: string
 {
@@ -17,16 +17,16 @@ enum OrganisationUnitType: string
     case Department = 'department';
 
     /**
-     * The types a unit of this type may have as its parent
+     * The types a unit of this type may have as its parent (none for a company, which is always at the top)
      *
      * @return OrganisationUnitType[]
      */
     public function allowedParentTypes(): array
     {
         return match ($this) {
-            self::Company => [self::Company],
+            self::Company => [],
             self::Location => [self::Company],
-            self::Department => [self::Location, self::Department],
+            self::Department => [self::Location],
         };
     }
 

@@ -163,19 +163,29 @@ describe('store', function () {
             ->assertSessionHasNoErrors();
     });
 
-    test('a department can be part of a location or another department, but not a company', function () {
+    test('a department must be part of a location', function () {
         $company = OrganisationUnit::factory()->company()->create();
         $location = OrganisationUnit::factory()->location($company)->create();
         $department = OrganisationUnit::factory()->department($location)->create();
 
-        $this->post(route('admin.crm.organisation-units.store'), validOrganisationUnitData(['type' => 'department', 'parent_id' => $company->id, 'name' => 'A']))
+        $this->post(route('admin.crm.organisation-units.store'), validOrganisationUnitData(['type' => 'department', 'parent_id' => null, 'name' => 'A']))
             ->assertSessionHasErrors('parent_id');
 
-        $this->post(route('admin.crm.organisation-units.store'), validOrganisationUnitData(['type' => 'department', 'parent_id' => $location->id, 'name' => 'B']))
-            ->assertSessionHasNoErrors();
+        $this->post(route('admin.crm.organisation-units.store'), validOrganisationUnitData(['type' => 'department', 'parent_id' => $company->id, 'name' => 'B']))
+            ->assertSessionHasErrors('parent_id');
 
         $this->post(route('admin.crm.organisation-units.store'), validOrganisationUnitData(['type' => 'department', 'parent_id' => $department->id, 'name' => 'C']))
+            ->assertSessionHasErrors('parent_id');
+
+        $this->post(route('admin.crm.organisation-units.store'), validOrganisationUnitData(['type' => 'department', 'parent_id' => $location->id, 'name' => 'D']))
             ->assertSessionHasNoErrors();
+    });
+
+    test('a company cannot be part of another unit', function () {
+        $company = OrganisationUnit::factory()->company()->create();
+
+        $this->post(route('admin.crm.organisation-units.store'), validOrganisationUnitData(['type' => 'company', 'parent_id' => $company->id]))
+            ->assertSessionHasErrors('parent_id');
     });
 
     test('slugs must be unique and unknown social networks are rejected', function () {
@@ -219,21 +229,22 @@ describe('update', function () {
         expect(Address::query()->count())->toBe(0);
     });
 
-    test('a unit cannot be moved under itself or one of its descendants', function () {
+    test('a unit with units within it cannot change type', function () {
         $company = OrganisationUnit::factory()->company()->create();
         $location = OrganisationUnit::factory()->location($company)->create();
-        $department = OrganisationUnit::factory()->department($location)->create();
-        $subDepartment = OrganisationUnit::factory()->department($department)->create();
+        OrganisationUnit::factory()->department($location)->create();
 
-        $this->put(route('admin.crm.organisation-units.update', $department), validOrganisationUnitData([
+        $this->put(route('admin.crm.organisation-units.update', $location), validOrganisationUnitData([
             'type' => 'department',
-            'parent_id' => $department->id,
-        ]))->assertSessionHasErrors('parent_id');
+            'parent_id' => $location->id,
+        ]))->assertSessionHasErrors('type');
 
-        $this->put(route('admin.crm.organisation-units.update', $department), validOrganisationUnitData([
+        $emptyLocation = OrganisationUnit::factory()->location($company)->create();
+
+        $this->put(route('admin.crm.organisation-units.update', $emptyLocation), validOrganisationUnitData([
             'type' => 'department',
-            'parent_id' => $subDepartment->id,
-        ]))->assertSessionHasErrors('parent_id');
+            'parent_id' => $location->id,
+        ]))->assertSessionHasNoErrors();
     });
 });
 

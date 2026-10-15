@@ -125,12 +125,10 @@ class OrganisationUnitController extends Controller
     protected function formOptions(?OrganisationUnit $organisationUnit = null): array
     {
         $parents = OrganisationUnit::query()
-            ->with('parent')
+            // A unit cannot be its own parent
+            ->when($organisationUnit, fn ($query, OrganisationUnit $unit) => $query->whereKeyNot($unit->id))
             ->orderBy('name')
             ->get()
-            // A unit cannot be moved under itself or one of its descendants
-            ->reject(fn (OrganisationUnit $unit) => $organisationUnit !== null
-                && ($unit->is($organisationUnit) || $unit->isDescendantOf($organisationUnit)))
             ->map(fn (OrganisationUnit $unit) => [
                 'value' => $unit->id,
                 'label' => $unit->name,
