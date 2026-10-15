@@ -76,6 +76,11 @@ const allowedParentTypes = computed(
     () => props.allowedParentTypes[form.type] ?? [],
 );
 
+/** Explains which kind of unit the chosen type must be part of, e.g. "A location is part of a company." */
+const parentHelp = computed(() =>
+    trans(`crm.organisation_units.fields.parent_help.${form.type}`),
+);
+
 /** Only units of an allowed type can be the parent, e.g. a location must be part of a company. */
 const parentItems = computed(() =>
     props.parentOptions.filter((option) =>
@@ -146,13 +151,7 @@ function onSubmit() {
                 <UFormField
                     v-if="allowedParentTypes.length"
                     :label="trans('crm.organisation_units.fields.parent')"
-                    :description="
-                        readonly
-                            ? undefined
-                            : trans(
-                                  'crm.organisation_units.fields.parent_description',
-                              )
-                    "
+                    :help="readonly ? undefined : parentHelp"
                     name="parent_id"
                     :error="form.errors.parent_id"
                     required
@@ -185,12 +184,10 @@ function onSubmit() {
 
                 <UFormField
                     :label="trans('crm.organisation_units.fields.slug')"
-                    :description="
+                    :help="
                         readonly
                             ? undefined
-                            : trans(
-                                  'crm.organisation_units.fields.slug_description',
-                              )
+                            : trans('crm.organisation_units.fields.slug_help')
                     "
                     name="slug"
                     :error="form.errors.slug"
@@ -257,11 +254,11 @@ function onSubmit() {
                             'crm.organisation_units.fields.notification_emails',
                         )
                     "
-                    :description="
+                    :help="
                         readonly
                             ? undefined
                             : trans(
-                                  'crm.organisation_units.fields.notification_emails_description',
+                                  'crm.organisation_units.fields.notification_emails_help',
                               )
                     "
                     name="notification_emails"
