@@ -25,10 +25,16 @@ trait RefreshDatabaseWithTenantTrait
     /**
      * The database connections that should have transactions.
      *
-     * `null` is the default landlord connection, used for system-wide operations.
-     * `tenant` is the tenant connection, specific to each tenant in the multi-tenant system.
+     * The central connection is named explicitly rather than using `null` (the default connection),
+     * because tenancy is initialised first and switches the default connection to `tenant`.
+     * With `null`, central tables (e.g. tenants, domains) were never rolled back between tests.
+     *
+     * @return array<int, string>
      */
-    protected array $connectionsToTransact = [null, 'tenant'];
+    protected function connectionsToTransact(): array
+    {
+        return [config('tenancy.database.central_connection'), 'tenant'];
+    }
 
     /**
      * We need to hook initialize tenancy _before_ we start the database
