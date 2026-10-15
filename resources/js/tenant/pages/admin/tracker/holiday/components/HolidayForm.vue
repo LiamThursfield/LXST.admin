@@ -8,6 +8,8 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Tracker/HolidayController';
 import { todayIn, userTimezone } from '@/lib/timezone';
 
+const { trans } = useTrans();
+
 const props = withDefaults(
     defineProps<{
         holiday?: {
@@ -30,8 +32,12 @@ const today = todayIn(userTimezone(useAuth().value.user));
 
 const schema = z.object({
     label: z.string().max(120).nullable(),
-    starts_on: z.string().min(1, 'Start date is required'),
-    ends_on: z.string().min(1, 'End date is required'),
+    starts_on: z
+        .string()
+        .min(1, trans('tracker.holidays.validation.starts_on_required')),
+    ends_on: z
+        .string()
+        .min(1, trans('tracker.holidays.validation.ends_on_required')),
 });
 
 type Schema = z.output<typeof schema>;
@@ -68,16 +74,26 @@ async function onSubmit() {
     <UForm :schema="schema" :state="state" class="space-y-6" @submit="onSubmit">
         <UPageCard variant="subtle">
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField class="md:col-span-2" label="Label" name="label">
+                <UFormField
+                    class="md:col-span-2"
+                    :label="trans('tracker.holidays.fields.label')"
+                    name="label"
+                >
                     <UInput
                         v-model="state.label!"
                         :disabled="readonly"
                         class="w-full"
-                        placeholder="e.g. Italy trip"
+                        :placeholder="
+                            trans('tracker.holidays.fields.label_placeholder')
+                        "
                     />
                 </UFormField>
 
-                <UFormField label="Start date" name="starts_on" required>
+                <UFormField
+                    :label="trans('tracker.holidays.fields.starts_on')"
+                    name="starts_on"
+                    required
+                >
                     <UInput
                         v-model="state.starts_on"
                         :disabled="readonly"
@@ -86,7 +102,11 @@ async function onSubmit() {
                     />
                 </UFormField>
 
-                <UFormField label="End date" name="ends_on" required>
+                <UFormField
+                    :label="trans('tracker.holidays.fields.ends_on')"
+                    name="ends_on"
+                    required
+                >
                     <UInput
                         v-model="state.ends_on"
                         :disabled="readonly"
@@ -101,7 +121,11 @@ async function onSubmit() {
             <UButton
                 :loading="form.processing"
                 color="primary"
-                :label="create ? 'Create Holiday' : 'Save Changes'"
+                :label="
+                    create
+                        ? trans('tracker.holidays.create.submit')
+                        : trans('tracker.save_changes')
+                "
                 type="submit"
             />
         </div>

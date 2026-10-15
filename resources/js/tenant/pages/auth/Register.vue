@@ -5,13 +5,15 @@ import RegisteredUserController from '@/actions/Laravel/Fortify/Http/Controllers
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { login } from '@/routes';
 
+const { trans } = useTrans();
+
 defineOptions({
     layout: (h: any, page: VNode) => {
         return h(
             AuthLayout,
             {
-                title: 'Sign Up',
-                description: 'Create a new account.',
+                title: useTrans().trans('auth.register.title'),
+                description: useTrans().trans('auth.register.description'),
             },
             () => page,
         );
@@ -25,7 +27,7 @@ defineProps<{
 
 <template>
     <div>
-        <Head title="Register" />
+        <Head :title="trans('auth.register.head')" />
 
         <div
             v-if="status"
@@ -44,13 +46,13 @@ defineProps<{
                 <UFormField
                     name="first_name"
                     :error="errors.first_name"
-                    label="First Name"
+                    :label="trans('auth.fields.first_name')"
                 >
                     <UInput
                         type="text"
                         class="w-full"
                         autocomplete="first_name"
-                        placeholder="First Name"
+                        :placeholder="trans('auth.fields.first_name')"
                         autofocus
                         required
                     />
@@ -59,13 +61,13 @@ defineProps<{
                 <UFormField
                     name="last_name"
                     :error="errors.last_name"
-                    label="Last Name"
+                    :label="trans('auth.fields.last_name')"
                 >
                     <UInput
                         type="text"
                         class="w-full"
                         autocomplete="last_name"
-                        placeholder="Last Name"
+                        :placeholder="trans('auth.fields.last_name')"
                         required
                     />
                 </UFormField>
@@ -73,13 +75,13 @@ defineProps<{
                 <UFormField
                     name="email"
                     :error="errors.email"
-                    label="Email address"
+                    :label="trans('auth.fields.email')"
                 >
                     <UInput
                         type="email"
                         class="w-full"
                         autocomplete="email"
-                        placeholder="email@example.com"
+                        :placeholder="trans('auth.fields.email_placeholder')"
                         required
                     />
                 </UFormField>
@@ -87,13 +89,13 @@ defineProps<{
                 <UFormField
                     name="password"
                     :error="errors.password"
-                    label="Password"
+                    :label="trans('auth.fields.password')"
                 >
                     <UInput
                         type="password"
                         class="w-full"
                         autocomplete="current-password"
-                        placeholder="Password"
+                        :placeholder="trans('auth.fields.password')"
                         min="8"
                         required
                     />
@@ -102,28 +104,32 @@ defineProps<{
                 <UFormField
                     name="password_confirmation"
                     :error="errors.password"
-                    label="Confirm Password"
+                    :label="trans('auth.fields.confirm_password')"
                 >
                     <UInput
                         type="password"
                         class="w-full"
                         autocomplete="confirm-password"
-                        placeholder="Confirm Password"
+                        :placeholder="trans('auth.fields.confirm_password')"
                         min="8"
                         required
                     />
                 </UFormField>
 
-                <UButton :loading="processing" type="submit" block class="mt-4"
-                    >Create Account</UButton
+                <UButton
+                    :loading="processing"
+                    type="submit"
+                    block
+                    class="mt-4"
+                    >{{ trans('auth.register.submit') }}</UButton
                 >
             </div>
 
             <div class="text-muted text-center text-sm">
-                Already have an account?
-                <TextLink :href="login()" :tabindex="5" class="text-primary"
-                    >Log In</TextLink
-                >
+                {{ trans('auth.register.have_account') }}
+                <TextLink :href="login()" :tabindex="5" class="text-primary">{{
+                    trans('auth.register.log_in')
+                }}</TextLink>
             </div>
         </Form>
     </div>

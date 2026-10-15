@@ -7,6 +7,8 @@ import {
     update,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Tracker/CategoryController';
 
+const { trans } = useTrans();
+
 const props = withDefaults(
     defineProps<{
         category?: {
@@ -28,7 +30,10 @@ const props = withDefaults(
 );
 
 const schema = z.object({
-    name: z.string().min(1, 'Name is required').max(80),
+    name: z
+        .string()
+        .min(1, trans('tracker.categories.validation.name_required'))
+        .max(80),
     colour: z.string().max(30).nullable(),
     icon: z.string().max(60).nullable(),
     is_public: z.boolean(),
@@ -73,7 +78,7 @@ async function onSubmit() {
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <UFormField
                     class="md:col-span-2"
-                    label="Name"
+                    :label="trans('tracker.categories.fields.name')"
                     name="name"
                     required
                 >
@@ -84,7 +89,10 @@ async function onSubmit() {
                     />
                 </UFormField>
 
-                <UFormField label="Colour" name="colour">
+                <UFormField
+                    :label="trans('tracker.categories.fields.colour')"
+                    name="colour"
+                >
                     <UInput
                         v-model="state.colour!"
                         :disabled="readonly"
@@ -93,7 +101,10 @@ async function onSubmit() {
                     />
                 </UFormField>
 
-                <UFormField label="Icon" name="icon">
+                <UFormField
+                    :label="trans('tracker.categories.fields.icon')"
+                    name="icon"
+                >
                     <UInput
                         v-model="state.icon!"
                         :disabled="readonly"
@@ -105,9 +116,11 @@ async function onSubmit() {
                 <UFormField
                     v-if="canManagePublic"
                     class="md:col-span-2"
-                    label="Public"
+                    :label="trans('tracker.categories.fields.is_public')"
                     name="is_public"
-                    description="Public categories are visible to everyone."
+                    :description="
+                        trans('tracker.categories.fields.is_public_description')
+                    "
                 >
                     <USwitch v-model="state.is_public!" :disabled="readonly" />
                 </UFormField>
@@ -118,7 +131,11 @@ async function onSubmit() {
             <UButton
                 :loading="form.processing"
                 color="primary"
-                :label="create ? 'Create Category' : 'Save Changes'"
+                :label="
+                    create
+                        ? trans('tracker.categories.create.submit')
+                        : trans('tracker.save_changes')
+                "
                 type="submit"
             />
         </div>

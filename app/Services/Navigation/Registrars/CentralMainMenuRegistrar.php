@@ -50,7 +50,7 @@ class CentralMainMenuRegistrar implements MenuRegistrar
                     new MenuItem(
                         key: 'dashboard',
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, 'dashboard']),
-                        label: 'Dashboard',
+                        label: 'navigation.dashboard',
                         type: MenuItemType::LINK,
                         to: 'central.admin.dashboard',
                         icon: 'i-lucide-house',
@@ -79,13 +79,13 @@ class CentralMainMenuRegistrar implements MenuRegistrar
                     new MenuItem(
                         key: 'account-label',
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, 'account-label']),
-                        label: 'Account',
+                        label: 'navigation.account',
                         type: MenuItemType::LABEL,
                     ),
                     new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_ACCOUNT_ITEM_SETTINGS,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, CentralMenu::MENU_MAIN_SECTION_ACCOUNT_ITEM_SETTINGS]),
-                        label: 'Settings',
+                        label: 'navigation.settings',
                         type: MenuItemType::LINK,
                         icon: 'i-lucide-settings',
                         activePatterns: ['central.admin.settings.*'],
@@ -93,13 +93,13 @@ class CentralMainMenuRegistrar implements MenuRegistrar
                             new MenuChildItem(
                                 key: 'profile',
                                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, CentralMenu::MENU_MAIN_SECTION_ACCOUNT_ITEM_SETTINGS, 'profile']),
-                                label: 'Profile',
+                                label: 'navigation.profile',
                                 to: 'central.admin.settings.profile.edit',
                             ),
                             new MenuChildItem(
                                 key: 'security',
                                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, CentralMenu::MENU_MAIN_SECTION_ACCOUNT_ITEM_SETTINGS, 'security']),
-                                label: 'Security',
+                                label: 'navigation.security',
                                 to: 'central.admin.settings.security.edit',
                             ),
                         ]),

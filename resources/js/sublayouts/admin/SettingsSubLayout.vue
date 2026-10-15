@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui';
 
+const { trans } = useTrans();
+
 // TODO: This should be dynamically generated based on the available settings pages
 const links = [
     {
-        label: 'Profile',
+        label: trans('settings.profile.nav'),
         icon: 'i-lucide-user',
         to: '/admin/settings/profile',
         exact: true,
     },
     {
-        label: 'Security',
+        label: trans('settings.security.nav'),
         icon: 'i-lucide-shield',
         to: '/admin/settings/security',
     },
@@ -20,7 +22,7 @@ const links = [
 <template>
     <UDashboardPanel>
         <template #header>
-            <UDashboardNavbar title="Settings">
+            <UDashboardNavbar :title="trans('settings.title')">
                 <template #leading>
                     <UDashboardSidebarCollapse as="button" :disabled="false" />
                 </template>

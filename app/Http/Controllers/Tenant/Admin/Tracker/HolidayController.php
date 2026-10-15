@@ -33,9 +33,9 @@ class HolidayController extends Controller
                 return collect($validated)->filter()->toArray();
             },
             'columns' => [
-                ['accessorKey' => 'label', 'header' => 'Label'],
-                ['accessorKey' => 'starts_on', 'header' => 'Starts'],
-                ['accessorKey' => 'ends_on', 'header' => 'Ends'],
+                ['accessorKey' => 'label', 'header' => __('tracker.holidays.columns.label')],
+                ['accessorKey' => 'starts_on', 'header' => __('tracker.holidays.columns.starts_on')],
+                ['accessorKey' => 'ends_on', 'header' => __('tracker.holidays.columns.ends_on')],
                 ['accessorKey' => 'actions', 'header' => ''],
             ],
             'holidays' => HolidayResource::collection($query->handle($request)),
@@ -62,7 +62,7 @@ class HolidayController extends Controller
         $this->reconciler->reconcileForUser($user);
 
         return redirect()->route('admin.tracker.holidays.index')
-            ->with('success', 'Holiday created successfully.');
+            ->with('success', __('tracker.holidays.flash.created'));
     }
 
     public function show(Holiday $holiday): Response
@@ -90,7 +90,7 @@ class HolidayController extends Controller
         $this->reconciler->reconcileForUser($holiday->user);
 
         return redirect()->route('admin.tracker.holidays.index')
-            ->with('success', 'Holiday updated successfully.');
+            ->with('success', __('tracker.holidays.flash.updated'));
     }
 
     public function destroy(Holiday $holiday): RedirectResponse
@@ -102,6 +102,6 @@ class HolidayController extends Controller
 
         $this->reconciler->reconcileForUser($user);
 
-        return redirect()->back()->with('success', 'Holiday deleted successfully.');
+        return redirect()->back()->with('success', __('tracker.holidays.flash.deleted'));
     }
 }

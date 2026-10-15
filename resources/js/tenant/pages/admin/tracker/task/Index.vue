@@ -6,6 +6,8 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Tracker/TaskDefinitionController';
 import RowActions from '@/components/RowActions.vue';
 
+const { trans } = useTrans();
+
 const props = defineProps<{
     filter?: {
         title?: string;
@@ -76,7 +78,7 @@ watch(searchFilter, () => search(), { deep: true });
 <template>
     <UDashboardPanel>
         <template #header>
-            <UDashboardNavbar title="Tasks">
+            <UDashboardNavbar :title="trans('tracker.tasks.index.title')">
                 <template #leading>
                     <UDashboardSidebarCollapse as="button" :disabled="false" />
                 </template>
@@ -84,7 +86,7 @@ watch(searchFilter, () => search(), { deep: true });
                 <template #right>
                     <UButton :as="Link" :href="create.url()" color="primary">
                         <UIcon name="i-lucide-plus" />
-                        New task
+                        {{ trans('tracker.tasks.index.create') }}
                     </UButton>
                 </template>
             </UDashboardNavbar>
@@ -98,13 +100,13 @@ watch(searchFilter, () => search(), { deep: true });
                     <div class="flex flex-1 items-center gap-4">
                         <UInput
                             class="max-w-48"
-                            placeholder="Title"
+                            :placeholder="trans('tracker.tasks.fields.title')"
                             v-model="searchFilter.title"
                         />
                         <USelect
                             class="w-full max-w-40"
                             :items="statuses"
-                            placeholder="Status"
+                            :placeholder="trans('tracker.tasks.fields.status')"
                             v-model="searchFilter.status"
                         />
                     </div>

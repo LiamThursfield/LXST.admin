@@ -5,6 +5,8 @@ import { formatTimeAgo } from '@vueuse/core';
 import { useDashboard } from '@/composables/useDashboard';
 import type { Notification } from '@/types';
 
+const { trans } = useTrans();
+
 const { isNotificationsSlideoverOpen } = useDashboard();
 
 // TODO: Implement notification api
@@ -15,7 +17,7 @@ const notifications = ref<Notification[]>([]);
 <template>
     <USlideover
         v-model:open="isNotificationsSlideoverOpen"
-        title="Notifications"
+        :title="trans('common.notifications.title')"
     >
         <template #body>
             <Link
@@ -52,7 +54,7 @@ const notifications = ref<Notification[]>([]);
             </Link>
 
             <p v-if="notifications.length === 0">
-                You currently don't have any notifications.
+                {{ trans('common.notifications.empty') }}
             </p>
         </template>
     </USlideover>

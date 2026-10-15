@@ -6,13 +6,15 @@ import AuthLayout from '@/layouts/AuthLayout.vue';
 import { register } from '@/routes';
 import { request } from '@/routes/password';
 
+const { trans } = useTrans();
+
 defineOptions({
     layout: (h: any, page: VNode) => {
         return h(
             AuthLayout,
             {
-                title: 'Sign In',
-                description: 'Welcome back to your account.',
+                title: useTrans().trans('auth.login.title'),
+                description: useTrans().trans('auth.login.description'),
             },
             () => page,
         );
@@ -30,7 +32,7 @@ const inputEmail = ref('');
 
 <template>
     <div>
-        <Head title="Sign in" />
+        <Head :title="trans('auth.login.head')" />
 
         <div
             v-if="status"
@@ -49,13 +51,13 @@ const inputEmail = ref('');
                 <UFormField
                     name="email"
                     :error="errors.email"
-                    label="Email address"
+                    :label="trans('auth.fields.email')"
                 >
                     <UInput
                         type="email"
                         class="w-full"
                         autocomplete="email"
-                        placeholder="email@example.com"
+                        :placeholder="trans('auth.fields.email_placeholder')"
                         autofocus
                         required
                         v-model="inputEmail"
@@ -65,13 +67,13 @@ const inputEmail = ref('');
                 <UFormField
                     name="password"
                     :error="errors.password"
-                    label="Password"
+                    :label="trans('auth.fields.password')"
                 >
                     <UInput
                         type="password"
                         class="w-full"
                         autocomplete="current-password"
-                        placeholder="Password"
+                        :placeholder="trans('auth.fields.password')"
                         required
                     />
                     <template #hint>
@@ -81,24 +83,31 @@ const inputEmail = ref('');
                             class="text-primary text-sm"
                             :tabindex="5"
                         >
-                            Forgot password?
+                            {{ trans('auth.login.forgot_password') }}
                         </TextLink>
                     </template>
                 </UFormField>
 
                 <UFormField name="remember" :error="errors.password">
-                    <UCheckbox label="Remember me" />
+                    <UCheckbox :label="trans('auth.fields.remember_me')" />
                 </UFormField>
 
-                <UButton :loading="processing" type="submit" block class="mt-4"
-                    >Log in</UButton
+                <UButton
+                    :loading="processing"
+                    type="submit"
+                    block
+                    class="mt-4"
+                    >{{ trans('auth.login.submit') }}</UButton
                 >
             </div>
 
             <div v-if="canRegister" class="text-muted text-center text-sm">
-                Don't have an account?
-                <TextLink :href="register()" :tabindex="5" class="text-primary"
-                    >Sign up</TextLink
+                {{ trans('auth.login.no_account') }}
+                <TextLink
+                    :href="register()"
+                    :tabindex="5"
+                    class="text-primary"
+                    >{{ trans('auth.login.sign_up') }}</TextLink
                 >
             </div>
         </Form>

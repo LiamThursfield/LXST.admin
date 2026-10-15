@@ -24,19 +24,19 @@ class CategoryResource extends JsonResource
         $actions = [];
 
         if ($user?->can('update', $category)) {
-            $actions[] = Action::make('Edit', route('admin.tracker.categories.edit', $category))
+            $actions[] = Action::make(__('common.actions.edit'), route('admin.tracker.categories.edit', $category))
                 ->icon('i-lucide-pencil');
         }
 
         if ($user?->can('delete', $category)) {
-            $actions[] = Action::make('Delete', route('admin.tracker.categories.destroy', $category))
+            $actions[] = Action::make(__('common.actions.delete'), route('admin.tracker.categories.destroy', $category))
                 ->icon('i-lucide-trash')
                 ->method('DELETE')
-                ->requireConfirmation("Are you sure you want to delete category $category->name?");
+                ->requireConfirmation(__('tracker.categories.confirm_delete', ['name' => $category->name]));
         }
 
         if (empty($actions) && $user?->can('view', $category)) {
-            $actions[] = Action::make('View', route('admin.tracker.categories.show', $category))
+            $actions[] = Action::make(__('common.actions.view'), route('admin.tracker.categories.show', $category))
                 ->icon('i-lucide-eye');
         }
 

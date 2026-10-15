@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { Form } from '@inertiajs/vue3';
 
+const { trans } = useTrans();
+
 defineProps<{
     controller: {
         destroy: {
@@ -16,10 +18,10 @@ const passwordInput = useTemplateRef('passwordInput');
 <template>
     <UModal
         v-model:open="open"
-        description="Once your account is deleted, all of its resources and data will also be permanently deleted. Please enter your password to confirm you would like to permanently delete your account."
-        title="Are you sure you want to delete your account?"
+        :description="trans('settings.delete_account.description')"
+        :title="trans('settings.delete_account.title')"
     >
-        <UButton color="error" label="Delete account" />
+        <UButton color="error" :label="trans('settings.delete_account.open')" />
 
         <template #body>
             <Form
@@ -36,14 +38,14 @@ const passwordInput = useTemplateRef('passwordInput');
                     <UInput
                         ref="passwordInput"
                         class="w-full"
-                        placeholder="Password"
+                        :placeholder="trans('settings.delete_account.password')"
                         type="password"
                     />
                 </UFormField>
                 <div class="flex justify-end gap-2">
                     <UButton
                         color="neutral"
-                        label="Cancel"
+                        :label="trans('common.actions.cancel')"
                         variant="subtle"
                         @click="
                             () => {
@@ -56,7 +58,7 @@ const passwordInput = useTemplateRef('passwordInput');
                     <UButton
                         :disabled="processing"
                         color="error"
-                        label="Delete Account"
+                        :label="trans('settings.delete_account.submit')"
                         loading-auto
                         type="submit"
                         variant="solid"

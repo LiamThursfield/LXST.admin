@@ -42,9 +42,9 @@ class TaskDefinitionController extends Controller
                 return collect($validated)->filter()->toArray();
             },
             'columns' => [
-                ['accessorKey' => 'title', 'header' => 'Title'],
-                ['accessorKey' => 'period', 'header' => 'Period'],
-                ['accessorKey' => 'status', 'header' => 'Status'],
+                ['accessorKey' => 'title', 'header' => __('tracker.tasks.columns.title')],
+                ['accessorKey' => 'period', 'header' => __('tracker.tasks.columns.period')],
+                ['accessorKey' => 'status', 'header' => __('tracker.tasks.columns.status')],
                 ['accessorKey' => 'actions', 'header' => ''],
             ],
             'tasks' => TaskDefinitionResource::collection($query->handle($request)),
@@ -67,7 +67,7 @@ class TaskDefinitionController extends Controller
         ]);
 
         return redirect()->route('admin.tracker.tasks.index')
-            ->with('success', 'Task created successfully.');
+            ->with('success', __('tracker.tasks.flash.created'));
     }
 
     public function show(TaskDefinition $task): Response
@@ -97,7 +97,7 @@ class TaskDefinitionController extends Controller
         $this->updater->update($task, $this->attributesFromRequest($request));
 
         return redirect()->route('admin.tracker.tasks.index')
-            ->with('success', 'Task updated successfully.');
+            ->with('success', __('tracker.tasks.flash.updated'));
     }
 
     public function destroy(TaskDefinition $task): RedirectResponse
@@ -106,7 +106,7 @@ class TaskDefinitionController extends Controller
 
         $task->delete();
 
-        return redirect()->back()->with('success', 'Task deleted successfully.');
+        return redirect()->back()->with('success', __('tracker.tasks.flash.deleted'));
     }
 
     /**

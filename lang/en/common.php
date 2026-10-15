@@ -5,9 +5,9 @@
 | Common Language Lines
 |--------------------------------------------------------------------------
 |
-| Strings shared across the application, such as generic action and status labels.
-| Every file in this directory is shared with the frontend, where it can be used
-| via the useTrans() composable, e.g. trans('common.actions.save').
+| Strings shared across the application, such as generic action labels, layouts
+| and shared components. Every file in this directory is shared with the frontend,
+| where it can be used via the useTrans() composable, e.g. trans('common.actions.save').
 |
 */
 
@@ -15,11 +15,56 @@ return [
     'actions' => [
         'back' => 'Back',
         'cancel' => 'Cancel',
+        'confirm' => 'Confirm',
         'create' => 'Create',
         'delete' => 'Delete',
         'edit' => 'Edit',
+        'more' => 'More actions',
         'save' => 'Save',
         'search' => 'Search',
         'view' => 'View',
+    ],
+
+    'confirmation' => [
+        'default' => 'Are you sure you want to perform this action?',
+        'title' => 'Confirm :action',
+        'title_fallback' => 'Please confirm',
+    ],
+
+    'cookies' => [
+        'message' => 'We use first-party cookies to enhance your experience on our website.',
+        'accept' => 'Accept',
+        'opt_out' => 'Opt out',
+    ],
+
+    'dashboard' => [
+        'title' => 'Home',
+    ],
+
+    'footer' => [
+        'built_by' => 'Built by LXST.digital • © :year',
+    ],
+
+    'notifications' => [
+        'title' => 'Notifications',
+        'empty' => "You currently don't have any notifications.",
+    ],
+
+    'search' => [
+        'go_to' => 'Go to',
+    ],
+
+    'user_menu' => [
+        'notifications' => 'Notifications',
+        'profile' => 'Profile',
+        'appearance' => 'Appearance',
+        'light' => 'Light',
+        'dark' => 'Dark',
+        'log_out' => 'Log out',
+    ],
+
+    'welcome' => [
+        'description' => 'A production-ready multi-tenant SaaS powered by Laravel, Inertia, Vue3, Nuxt UI, and Tailwind CSS.',
+        'view_on_github' => 'View on GitHub',
     ],
 ];

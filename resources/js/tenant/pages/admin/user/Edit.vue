@@ -2,6 +2,8 @@
 import { Head } from '@inertiajs/vue3';
 import UserForm from './components/UserForm.vue';
 
+const { trans } = useTrans();
+
 defineProps<{
     user: {
         data: {
@@ -20,7 +22,11 @@ defineProps<{
     <UDashboardPanel>
         <template #header>
             <UDashboardNavbar
-                :title="`Edit User: ${user.data.first_name} ${user.data.last_name}`"
+                :title="
+                    trans('users.edit.title', {
+                        name: `${user.data.first_name} ${user.data.last_name}`,
+                    })
+                "
             >
                 <template #leading>
                     <UDashboardSidebarCollapse as="button" :disabled="false" />
@@ -30,7 +36,11 @@ defineProps<{
 
         <template #body>
             <Head
-                :title="`Edit User: ${user.data.first_name} ${user.data.last_name}`"
+                :title="
+                    trans('users.edit.title', {
+                        name: `${user.data.first_name} ${user.data.last_name}`,
+                    })
+                "
             />
             <div class="w-full max-w-4xl">
                 <UserForm :user="user.data" :roles="roles" :readonly="false" />

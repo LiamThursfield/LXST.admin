@@ -30,8 +30,8 @@ class CategoryController extends Controller
                 return collect($validated)->filter()->toArray();
             },
             'columns' => [
-                ['accessorKey' => 'name', 'header' => 'Name'],
-                ['accessorKey' => 'is_public', 'header' => 'Visibility'],
+                ['accessorKey' => 'name', 'header' => __('tracker.categories.columns.name')],
+                ['accessorKey' => 'is_public', 'header' => __('tracker.categories.columns.is_public')],
                 ['accessorKey' => 'actions', 'header' => ''],
             ],
             'categories' => CategoryResource::collection($query->handle($request)),
@@ -56,7 +56,7 @@ class CategoryController extends Controller
         ]);
 
         return redirect()->route('admin.tracker.categories.index')
-            ->with('success', 'Category created successfully.');
+            ->with('success', __('tracker.categories.flash.created'));
     }
 
     public function show(Category $category): Response
@@ -84,7 +84,7 @@ class CategoryController extends Controller
         $category->update($request->only('name', 'colour', 'icon', 'is_public'));
 
         return redirect()->route('admin.tracker.categories.index')
-            ->with('success', 'Category updated successfully.');
+            ->with('success', __('tracker.categories.flash.updated'));
     }
 
     public function destroy(Category $category): RedirectResponse
@@ -93,6 +93,6 @@ class CategoryController extends Controller
 
         $category->delete();
 
-        return redirect()->back()->with('success', 'Category deleted successfully.');
+        return redirect()->back()->with('success', __('tracker.categories.flash.deleted'));
     }
 }

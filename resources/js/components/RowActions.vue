@@ -5,6 +5,8 @@ import type { DropdownMenuItem } from '@nuxt/ui';
 import { useBreakpoints, breakpointsTailwind } from '@vueuse/core';
 import { computed, ref } from 'vue';
 
+const { trans } = useTrans();
+
 interface Action {
     label: string;
     url: string;
@@ -100,7 +102,7 @@ function handleConfirm() {
             :items="overflowItems"
             :content="{ align: 'end' }"
         >
-            <UTooltip text="More actions">
+            <UTooltip :text="trans('common.actions.more')">
                 <UButton
                     color="neutral"
                     variant="ghost"
@@ -115,25 +117,27 @@ function handleConfirm() {
             v-model:open="confirmModalOpen"
             :title="
                 activeAction?.label
-                    ? `Confirm ${activeAction.label}`
-                    : 'Please confirm'
+                    ? trans('common.confirmation.title', {
+                          action: activeAction.label,
+                      })
+                    : trans('common.confirmation.title_fallback')
             "
             :description="
                 activeAction?.confirmationMessage ||
-                'Are you sure you want to perform this action?'
+                trans('common.confirmation.default')
             "
         >
             <template #body>
                 <div class="flex justify-end gap-2">
                     <UButton
                         color="neutral"
-                        label="Cancel"
+                        :label="trans('common.actions.cancel')"
                         variant="subtle"
                         @click="confirmModalOpen = false"
                     />
                     <UButton
                         color="error"
-                        label="Confirm"
+                        :label="trans('common.actions.confirm')"
                         variant="solid"
                         @click="handleConfirm"
                     />

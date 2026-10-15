@@ -2,6 +2,8 @@
 <script lang="ts" setup>
 import { usePageMenus } from '@/composables/usePageMenus';
 
+const { trans } = useTrans();
+
 const toast = useToast();
 
 const open = ref(false);
@@ -13,7 +15,7 @@ const mainMenu = usePageMenus().main;
 const dashboardSearchGroups = computed(() => [
     {
         id: 'links',
-        label: 'Go to',
+        label: trans('common.search.go_to'),
         items: mainMenu.value.flat(),
     },
 ]) as any;
@@ -21,12 +23,12 @@ const dashboardSearchGroups = computed(() => [
 const cookie = useStorage('cookie-consent', 'pending');
 if (cookie.value !== 'accepted') {
     toast.add({
-        title: 'We use first-party cookies to enhance your experience on our website.',
+        title: trans('common.cookies.message'),
         duration: 0,
         close: false,
         actions: [
             {
-                label: 'Accept',
+                label: trans('common.cookies.accept'),
                 color: 'neutral',
                 variant: 'outline',
                 onClick: () => {
@@ -34,7 +36,7 @@ if (cookie.value !== 'accepted') {
                 },
             },
             {
-                label: 'Opt out',
+                label: trans('common.cookies.opt_out'),
                 color: 'neutral',
                 variant: 'ghost',
             },

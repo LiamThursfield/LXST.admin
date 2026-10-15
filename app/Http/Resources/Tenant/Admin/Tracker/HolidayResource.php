@@ -24,19 +24,19 @@ class HolidayResource extends JsonResource
         $actions = [];
 
         if ($user?->can('update', $holiday)) {
-            $actions[] = Action::make('Edit', route('admin.tracker.holidays.edit', $holiday))
+            $actions[] = Action::make(__('common.actions.edit'), route('admin.tracker.holidays.edit', $holiday))
                 ->icon('i-lucide-pencil');
         }
 
         if ($user?->can('delete', $holiday)) {
-            $actions[] = Action::make('Delete', route('admin.tracker.holidays.destroy', $holiday))
+            $actions[] = Action::make(__('common.actions.delete'), route('admin.tracker.holidays.destroy', $holiday))
                 ->icon('i-lucide-trash')
                 ->method('DELETE')
-                ->requireConfirmation('Are you sure you want to delete this holiday?');
+                ->requireConfirmation(__('tracker.holidays.confirm_delete'));
         }
 
         if (empty($actions) && $user?->can('view', $holiday)) {
-            $actions[] = Action::make('View', route('admin.tracker.holidays.show', $holiday))
+            $actions[] = Action::make(__('common.actions.view'), route('admin.tracker.holidays.show', $holiday))
                 ->icon('i-lucide-eye');
         }
 

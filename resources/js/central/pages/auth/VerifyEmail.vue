@@ -5,14 +5,15 @@ import EmailVerificationNotificationController from '@/actions/App/Http/Controll
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { logout } from '@/routes';
 
+const { trans } = useTrans();
+
 defineOptions({
     layout: (h: any, page: VNode) => {
         return h(
             AuthLayout,
             {
-                title: 'Verify email',
-                description:
-                    'Please verify your email address by clicking on the link we just emailed to you.',
+                title: useTrans().trans('auth.verify_email.title'),
+                description: useTrans().trans('auth.verify_email.description'),
             },
             () => page,
         );
@@ -26,14 +27,13 @@ defineProps<{
 
 <template>
     <div>
-        <Head title="Verify email" />
+        <Head :title="trans('auth.verify_email.head')" />
 
         <div
             v-if="status === 'verification-link-sent'"
             class="mb-4 text-center text-sm font-medium text-green-600"
         >
-            A new verification link has been sent to the email address you
-            provided during registration.
+            {{ trans('auth.verify_email.link_sent') }}
         </div>
 
         <Form
@@ -41,16 +41,16 @@ defineProps<{
             class="space-y-6 text-center"
             v-slot="{ processing }"
         >
-            <UButton :loading="processing" type="submit"
-                >Resend verification email</UButton
-            >
+            <UButton :loading="processing" type="submit">{{
+                trans('auth.verify_email.resend')
+            }}</UButton>
 
             <TextLink
                 :href="logout()"
                 as="button"
                 class="text-primary mx-auto block text-sm font-medium"
             >
-                Log out
+                {{ trans('auth.verify_email.log_out') }}
             </TextLink>
         </Form>
     </div>

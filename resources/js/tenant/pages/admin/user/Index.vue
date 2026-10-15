@@ -6,6 +6,8 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/Admin/UserController';
 import RowActions from '@/components/RowActions.vue';
 
+const { trans } = useTrans();
+
 const props = defineProps<{
     filter?: {
         first_name?: string;
@@ -101,7 +103,7 @@ watch(searchFilter, () => search(), { deep: true });
 <template>
     <UDashboardPanel>
         <template #header>
-            <UDashboardNavbar title="Settings">
+            <UDashboardNavbar :title="trans('users.index.title')">
                 <template #leading>
                     <UDashboardSidebarCollapse as="button" :disabled="false" />
                 </template>
@@ -109,7 +111,7 @@ watch(searchFilter, () => search(), { deep: true });
                 <template #right>
                     <UButton :as="Link" :href="create.url()" color="primary">
                         <UIcon name="i-lucide-plus" />
-                        New user
+                        {{ trans('users.index.create') }}
                     </UButton>
                 </template>
             </UDashboardNavbar>
@@ -123,18 +125,18 @@ watch(searchFilter, () => search(), { deep: true });
                     <div class="flex flex-1 items-center gap-4">
                         <UInput
                             class="max-w-48"
-                            placeholder="First Name"
+                            :placeholder="trans('users.fields.first_name')"
                             v-model="searchFilter.first_name"
                         />
                         <UInput
                             class="max-w-48"
-                            placeholder="Last Name"
+                            :placeholder="trans('users.fields.last_name')"
                             v-model="searchFilter.last_name"
                         />
 
                         <UInput
                             class="max-w-48"
-                            placeholder="Email"
+                            :placeholder="trans('users.fields.email')"
                             v-model="searchFilter.email"
                         />
 
@@ -142,7 +144,7 @@ watch(searchFilter, () => search(), { deep: true });
                             class="w-full max-w-32"
                             :items="roles"
                             multiple
-                            placeholder="Role"
+                            :placeholder="trans('users.fields.role')"
                             v-model="searchFilter.role"
                         />
                     </div>

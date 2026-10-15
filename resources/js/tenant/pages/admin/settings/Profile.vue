@@ -7,16 +7,26 @@ import { update } from '@/routes/admin/settings/profile';
 import { send } from '@/routes/verification';
 import SettingsSubLayout from '@/sublayouts/admin/SettingsSubLayout.vue';
 
+const { trans } = useTrans();
+
 defineProps<{
     mustVerifyEmail: boolean;
     status?: string;
 }>();
 
 const profileSchema = z.object({
-    first_name: z.string().min(1, 'Too short').max(50, 'Too long'),
-    last_name: z.string().min(1, 'Too short').max(50, 'Too long'),
+    first_name: z
+        .string()
+        .min(1, trans('settings.profile.validation.too_short'))
+        .max(50, trans('settings.profile.validation.too_long')),
+    last_name: z
+        .string()
+        .min(1, trans('settings.profile.validation.too_short'))
+        .max(50, trans('settings.profile.validation.too_long')),
     email: z.email(),
-    timezone: z.string().min(1, 'Timezone is required'),
+    timezone: z
+        .string()
+        .min(1, trans('settings.profile.validation.timezone_required')),
 });
 
 type ProfileSchema = z.output<typeof profileSchema>;
@@ -47,8 +57,8 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
     form.submit(update());
 
     toast.add({
-        title: 'Success',
-        description: 'Your profile has been updated.',
+        title: trans('settings.success'),
+        description: trans('settings.profile.updated'),
         icon: 'i-lucide-check',
         color: 'success',
     });
@@ -57,7 +67,7 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
 
 <template>
     <SettingsSubLayout>
-        <Head title="Profile settings" />
+        <Head :title="trans('settings.profile.head')" />
 
         <UForm
             id="settings"
@@ -67,16 +77,16 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
         >
             <UPageCard
                 class="mb-4"
-                description="This information will be displayed publicly."
+                :description="trans('settings.profile.description')"
                 orientation="horizontal"
-                title="Profile"
+                :title="trans('settings.profile.title')"
                 variant="naked"
             >
                 <UButton
                     class="w-fit lg:ms-auto"
                     color="primary"
                     form="settings"
-                    label="Save changes"
+                    :label="trans('settings.save_changes')"
                     type="submit"
                 />
             </UPageCard>
@@ -84,7 +94,7 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
             <UPageCard variant="subtle">
                 <UFormField
                     class="flex items-start justify-between gap-4 max-sm:flex-col"
-                    label="First Name"
+                    :label="trans('settings.profile.first_name')"
                     name="first_name"
                     required
                 >
@@ -93,7 +103,7 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
 
                 <UFormField
                     class="flex items-start justify-between gap-4 max-sm:flex-col"
-                    label="Last Name"
+                    :label="trans('settings.profile.last_name')"
                     name="last_name"
                     required
                 >
@@ -104,14 +114,13 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
 
                 <UFormField
                     class="flex items-start justify-between gap-4 max-sm:flex-col"
-                    label="Email"
+                    :label="trans('settings.profile.email')"
                     name="email"
                     required
                 >
                     <template #description>
                         <p class="text-muted">
-                            Used to sign in, for email receipts and product
-                            updates.
+                            {{ trans('settings.profile.email_description') }}
                         </p>
                     </template>
                     <UInput
@@ -125,13 +134,13 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
                     class="flex flex-col"
                 >
                     <p class="text-muted">
-                        Your email address is unverified. <br />
+                        {{ trans('settings.profile.unverified') }} <br />
                         <TextLink
                             :href="send()"
                             as="button"
                             class="text-primary text-sm font-medium"
                         >
-                            Click here to resend the verification email.
+                            {{ trans('settings.profile.resend_verification') }}
                         </TextLink>
                     </p>
 
@@ -139,8 +148,7 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
                         v-if="status === 'verification-link-sent'"
                         class="mt-2 text-sm font-medium text-green-600"
                     >
-                        A new verification link has been sent to your email
-                        address.
+                        {{ trans('settings.profile.verification_sent') }}
                     </div>
                 </div>
 
@@ -148,13 +156,13 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
 
                 <UFormField
                     class="flex items-start justify-between gap-4 max-sm:flex-col"
-                    label="Timezone"
+                    :label="trans('settings.profile.timezone')"
                     name="timezone"
                     required
                 >
                     <template #description>
                         <p class="text-muted">
-                            Decides when your tracker days start and end.
+                            {{ trans('settings.profile.timezone_description') }}
                         </p>
                     </template>
                     <USelectMenu

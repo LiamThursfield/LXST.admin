@@ -24,19 +24,19 @@ class TaskDefinitionResource extends JsonResource
         $actions = [];
 
         if ($user?->can('update', $definition)) {
-            $actions[] = Action::make('Edit', route('admin.tracker.tasks.edit', $definition))
+            $actions[] = Action::make(__('common.actions.edit'), route('admin.tracker.tasks.edit', $definition))
                 ->icon('i-lucide-pencil');
         }
 
         if ($user?->can('delete', $definition)) {
-            $actions[] = Action::make('Delete', route('admin.tracker.tasks.destroy', $definition))
+            $actions[] = Action::make(__('common.actions.delete'), route('admin.tracker.tasks.destroy', $definition))
                 ->icon('i-lucide-trash')
                 ->method('DELETE')
-                ->requireConfirmation("Are you sure you want to delete task \"$definition->title\"?");
+                ->requireConfirmation(__('tracker.tasks.confirm_delete', ['title' => $definition->title]));
         }
 
         if (empty($actions) && $user?->can('view', $definition)) {
-            $actions[] = Action::make('View', route('admin.tracker.tasks.show', $definition))
+            $actions[] = Action::make(__('common.actions.view'), route('admin.tracker.tasks.show', $definition))
                 ->icon('i-lucide-eye');
         }
 

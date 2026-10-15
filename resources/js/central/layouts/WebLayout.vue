@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+
+const { trans } = useTrans();
 </script>
 
 <template>
@@ -40,7 +42,11 @@ import { Link } from '@inertiajs/vue3';
         <UFooter>
             <template #left>
                 <p class="text-muted text-sm">
-                    Built by LXST.digital • © {{ new Date().getFullYear() }}
+                    {{
+                        trans('common.footer.built_by', {
+                            year: new Date().getFullYear(),
+                        })
+                    }}
                 </p>
             </template>
 

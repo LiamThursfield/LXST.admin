@@ -2,6 +2,8 @@
 import { Head } from '@inertiajs/vue3';
 import HolidayForm from './components/HolidayForm.vue';
 
+const { trans } = useTrans();
+
 defineProps<{
     holiday: {
         data: {
@@ -17,7 +19,7 @@ defineProps<{
 <template>
     <UDashboardPanel>
         <template #header>
-            <UDashboardNavbar title="Edit Holiday">
+            <UDashboardNavbar :title="trans('tracker.holidays.edit.title')">
                 <template #leading>
                     <UDashboardSidebarCollapse as="button" :disabled="false" />
                 </template>
@@ -25,7 +27,7 @@ defineProps<{
         </template>
 
         <template #body>
-            <Head title="Edit Holiday" />
+            <Head :title="trans('tracker.holidays.edit.title')" />
             <div class="w-full max-w-4xl">
                 <HolidayForm :holiday="holiday.data" :readonly="false" />
             </div>

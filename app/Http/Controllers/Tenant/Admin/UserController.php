@@ -33,10 +33,10 @@ class UserController extends Controller
                 return collect($validated)->filter()->toArray();
             },
             'columns' => [
-                ['accessorKey' => 'first_name', 'header' => 'First Name'],
-                ['accessorKey' => 'last_name', 'header' => 'Last Name'],
-                ['accessorKey' => 'email', 'header' => 'Email'],
-                ['accessorKey' => 'roles', 'header' => 'Roles'],
+                ['accessorKey' => 'first_name', 'header' => __('users.columns.first_name')],
+                ['accessorKey' => 'last_name', 'header' => __('users.columns.last_name')],
+                ['accessorKey' => 'email', 'header' => __('users.columns.email')],
+                ['accessorKey' => 'roles', 'header' => __('users.columns.roles')],
                 ['accessorKey' => 'actions', 'header' => ''],
             ],
             'users' => UserResource::collection($query->handle($request)),
@@ -67,7 +67,7 @@ class UserController extends Controller
         Password::sendResetLink(['email' => $user->email]);
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'User created. A password setup email has been sent to '.$user->email.'.');
+            ->with('success', __('users.flash.created', ['email' => $user->email]));
     }
 
     public function show(User $user): Response
@@ -98,7 +98,7 @@ class UserController extends Controller
             $user->syncRoles($request->validated('roles', []));
         }
 
-        return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
+        return redirect()->route('admin.users.index')->with('success', __('users.flash.updated'));
     }
 
     public function destroy(User $user): RedirectResponse
@@ -107,6 +107,6 @@ class UserController extends Controller
 
         $user->delete();
 
-        return redirect()->back()->with('success', 'User deleted successfully.');
+        return redirect()->back()->with('success', __('users.flash.deleted'));
     }
 }

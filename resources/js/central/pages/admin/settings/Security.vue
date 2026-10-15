@@ -4,12 +4,14 @@ import PasswordController from '@/actions/App/Http/Controllers/Central/Admin/Set
 import ProfileController from '@/actions/App/Http/Controllers/Central/Admin/Settings/ProfileController';
 import SettingsSubLayout from '@/sublayouts/admin/SettingsSubLayout.vue';
 
+const { trans } = useTrans();
+
 const toast = useToast();
 
 function handleSuccess() {
     toast.add({
-        title: 'Success',
-        description: 'Your password has been updated.',
+        title: trans('settings.success'),
+        description: trans('settings.security.password_updated'),
         icon: 'i-lucide-check',
         color: 'success',
     });
@@ -18,11 +20,11 @@ function handleSuccess() {
 
 <template>
     <SettingsSubLayout>
-        <Head title="Security settings" />
+        <Head :title="trans('settings.security.head')" />
 
         <UPageCard
-            title="Password"
-            description="Confirm your current password before setting a new one."
+            :title="trans('settings.security.password_title')"
+            :description="trans('settings.security.password_description')"
             variant="subtle"
         >
             <Form
@@ -46,7 +48,9 @@ function handleSuccess() {
                 >
                     <UInput
                         type="password"
-                        placeholder="Current password"
+                        :placeholder="
+                            trans('settings.security.current_password')
+                        "
                         class="w-full"
                     />
                 </UFormField>
@@ -54,7 +58,7 @@ function handleSuccess() {
                 <UFormField name="password" :error="errors.password">
                     <UInput
                         type="password"
-                        placeholder="New password"
+                        :placeholder="trans('settings.security.new_password')"
                         class="w-full"
                     />
                 </UFormField>
@@ -65,13 +69,15 @@ function handleSuccess() {
                 >
                     <UInput
                         type="password"
-                        placeholder="Confirm password"
+                        :placeholder="
+                            trans('settings.security.confirm_password')
+                        "
                         class="w-full"
                     />
                 </UFormField>
 
                 <UButton
-                    label="Update"
+                    :label="trans('settings.security.update')"
                     class="w-fit"
                     type="submit"
                     :disabled="processing"
@@ -80,8 +86,8 @@ function handleSuccess() {
         </UPageCard>
 
         <UPageCard
-            title="Account"
-            description="No longer want to use our service? You can delete your account here. This action is not reversible. All information related to this account will be deleted permanently."
+            :title="trans('settings.security.account_title')"
+            :description="trans('settings.security.account_description')"
             class="from-error/10 to-default bg-gradient-to-tl from-5%"
         >
             <template #footer>

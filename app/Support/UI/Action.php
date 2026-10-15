@@ -52,13 +52,14 @@ class Action implements JsonSerializable
 
     /**
      * Sets require confirmation to true, with an optional message
+     * Defaults to the generic common.confirmation.default message
      *
      * @return $this
      */
-    public function requireConfirmation(string $message = 'Are you sure you want to perform this action?'): self
+    public function requireConfirmation(?string $message = null): self
     {
         $this->requireConfirmation = true;
-        $this->confirmationMessage = $message;
+        $this->confirmationMessage = $message ?? __('common.confirmation.default');
 
         return $this;
     }

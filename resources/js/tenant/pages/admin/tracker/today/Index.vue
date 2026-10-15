@@ -6,6 +6,8 @@ import { addDays } from '@/lib/timezone';
 import type { TaskOccurrenceData } from '@/types';
 import OccurrenceCard from './components/OccurrenceCard.vue';
 
+const { trans } = useTrans();
+
 const props = defineProps<{
     /** The day being viewed (Y-m-d). */
     date: string;
@@ -19,7 +21,7 @@ const isToday = computed(() => props.date === props.today);
 
 const heading = computed(() =>
     isToday.value
-        ? 'Today'
+        ? trans('tracker.today.title')
         : new Date(`${props.date}T12:00:00`).toLocaleDateString(undefined, {
               weekday: 'long',
               day: 'numeric',
@@ -69,7 +71,7 @@ function shift(days: number) {
                             color="neutral"
                             variant="ghost"
                             icon="i-lucide-chevron-left"
-                            aria-label="Previous day"
+                            :aria-label="trans('tracker.today.previous_day')"
                             @click="shift(-1)"
                         />
                         <UInput
@@ -85,7 +87,7 @@ function shift(days: number) {
                             color="neutral"
                             variant="ghost"
                             icon="i-lucide-chevron-right"
-                            aria-label="Next day"
+                            :aria-label="trans('tracker.today.next_day')"
                             :disabled="isToday"
                             @click="shift(1)"
                         />
@@ -93,7 +95,7 @@ function shift(days: number) {
                             v-if="!isToday"
                             color="neutral"
                             variant="subtle"
-                            label="Today"
+                            :label="trans('tracker.today.title')"
                             @click="goTo(today)"
                         />
                     </div>
@@ -106,7 +108,12 @@ function shift(days: number) {
 
             <div class="flex flex-col gap-6">
                 <p v-if="summary.total" class="text-muted text-sm">
-                    {{ summary.met }} of {{ summary.total }} met
+                    {{
+                        trans('tracker.today.summary', {
+                            met: summary.met,
+                            total: summary.total,
+                        })
+                    }}
                 </p>
 
                 <div
@@ -126,8 +133,8 @@ function shift(days: number) {
                 <UEmpty
                     v-else
                     icon="i-lucide-calendar-check"
-                    title="Nothing scheduled"
-                    description="No tasks are due on this day."
+                    :title="trans('tracker.today.empty_title')"
+                    :description="trans('tracker.today.empty_description')"
                 />
             </div>
         </template>
