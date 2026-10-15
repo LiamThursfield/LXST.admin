@@ -9,6 +9,8 @@ use App\Http\Requests\Tenant\Admin\Tracker\HolidayStoreRequest;
 use App\Http\Requests\Tenant\Admin\Tracker\HolidayUpdateRequest;
 use App\Http\Resources\Tenant\Admin\Tracker\HolidayResource;
 use App\Models\Tracker\Holiday;
+use App\Models\User;
+use App\Services\Tracker\HolidayReconciler;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -16,6 +18,8 @@ use Inertia\Response;
 
 class HolidayController extends Controller
 {
+    public function __construct(protected HolidayReconciler $reconciler) {}
+
     public function index(HolidayIndexRequest $request, HolidayIndexQuery $query): Response
     {
         return Inertia::render('admin/tracker/holiday/Index', [
@@ -47,10 +51,15 @@ class HolidayController extends Controller
 
     public function store(HolidayStoreRequest $request): RedirectResponse
     {
+        /** @var User $user */
+        $user = $request->user();
+
         Holiday::create([
             ...$request->only('label', 'starts_on', 'ends_on'),
-            'user_id' => $request->user()?->id,
+            'user_id' => $user->id,
         ]);
+
+        $this->reconciler->reconcileForUser($user);
 
         return redirect()->route('admin.tracker.holidays.index')
             ->with('success', 'Holiday created successfully.');
@@ -78,6 +87,8 @@ class HolidayController extends Controller
     {
         $holiday->update($request->only('label', 'starts_on', 'ends_on'));
 
+        $this->reconciler->reconcileForUser($holiday->user);
+
         return redirect()->route('admin.tracker.holidays.index')
             ->with('success', 'Holiday updated successfully.');
     }
@@ -86,7 +97,10 @@ class HolidayController extends Controller
     {
         Gate::authorize('delete', $holiday);
 
+        $user = $holiday->user;
         $holiday->delete();
+
+        $this->reconciler->reconcileForUser($user);
 
         return redirect()->back()->with('success', 'Holiday deleted successfully.');
     }
