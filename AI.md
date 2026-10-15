@@ -46,6 +46,13 @@ The application uses two distinct frontend builds and routing domains:
 - Ensure API and Web routes strictly separate central vs. tenant logic.
 - Modules (CMS, CRM, etc.) should be structured clearly to be extensible and maintainable. 
 
+### Tenant (Headless) API
+- The app is headless only: detached tenant websites call the public API in `routes/tenant/api.php`. There is no server-rendered public website.
+- Every route lives under `/api/v1` (route names `api.v1.*`), with controllers in `App\Http\Controllers\Tenant\Api\V1\{Module}` and Eloquent API Resources for responses.
+- The tenant is identified by the request domain. Endpoints are public (no API keys) and any origin is allowed (`config/cors.php`).
+- Routes are rate limited by the `tenant-api` limiter (per tenant and IP, `API_RATE_LIMIT_PER_MINUTE`). Stricter endpoints (e.g. form submissions) can add their own limiter.
+- Module endpoints must use the `tenant.module:{module}` middleware. API requests always get JSON errors (404, 422, 429), never HTML.
+
 ## Planned Features / Roadmap
 - Modular CMS for tenant websites to manage their content (like a WordPress environment).
 - CRM system for tenants.
