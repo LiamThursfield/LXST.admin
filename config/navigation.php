@@ -60,8 +60,12 @@ return [
                     'sortOrder' => 10,
                     TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_CONTACTS_VIEW => ['sortOrder' => 0],
                 ],
-                TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS => [
+                TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_FORMS => [
                     'sortOrder' => 20,
+                    TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_FORMS_VIEW => ['sortOrder' => 0],
+                ],
+                TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS => [
+                    'sortOrder' => 30,
                     TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS_VIEW => ['sortOrder' => 0],
                 ],
             ],

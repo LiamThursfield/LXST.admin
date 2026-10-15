@@ -15,6 +15,8 @@ return [
     'crm' => 'CRM',
     'contacts' => 'Contacts',
     'view_contacts' => 'View Contacts',
+    'forms' => 'Forms',
+    'view_forms' => 'View Forms',
     'organisation_units' => 'Organisation Units',
     'view_organisation_units' => 'View Organisation Units',
 

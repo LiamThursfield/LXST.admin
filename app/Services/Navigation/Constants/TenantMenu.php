@@ -17,6 +17,7 @@ namespace App\Services\Navigation\Constants;
  * ├── Dashboard
  * ├── CRM
  * │   ├── Contacts
+ * │   ├── Forms
  * │   └── Organisation Units
  * ├── Admin
  * │   └── Users
@@ -41,6 +42,10 @@ class TenantMenu
     public const string MENU_MAIN_SECTION_CRM_ITEM_CONTACTS = 'contacts';
 
     public const string MENU_MAIN_SECTION_CRM_ITEM_CONTACTS_VIEW = 'view';
+
+    public const string MENU_MAIN_SECTION_CRM_ITEM_FORMS = 'forms';
+
+    public const string MENU_MAIN_SECTION_CRM_ITEM_FORMS_VIEW = 'view';
 
     public const string MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS = 'organisation-units';
 
