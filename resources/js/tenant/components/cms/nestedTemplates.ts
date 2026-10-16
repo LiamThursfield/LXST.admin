@@ -37,3 +37,20 @@ export function provideMenuOptions(
 export function useMenuOptions() {
     return inject(menuOptionsKey, ref([]));
 }
+
+export type CrmOptions = {
+    forms: Array<{ value: number; label: string }>;
+    organisationUnits: Array<{ value: number; label: string; type: string }>;
+};
+
+/** The CRM forms and organisation units CRM fields can choose from, or null without CRM. */
+export const crmOptionsKey: InjectionKey<Ref<CrmOptions | null>> =
+    Symbol('cmsCrmOptions');
+
+export function provideCrmOptions(options: Ref<CrmOptions | null>): void {
+    provide(crmOptionsKey, options);
+}
+
+export function useCrmOptions() {
+    return inject(crmOptionsKey, ref(null));
+}

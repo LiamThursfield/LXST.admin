@@ -13,6 +13,7 @@ const props = defineProps<{
     types: SelectItem[];
     fieldTypes: TemplateFieldTypeOption[];
     nestedTemplates: NestedTemplateOption[];
+    organisationUnitTypes: SelectItem[];
 }>();
 
 const { trans } = useTrans();
@@ -39,6 +40,7 @@ const title = computed(() =>
                     :types="types"
                     :field-types="fieldTypes"
                     :nested-templates="nestedTemplates"
+                    :organisation-unit-types="organisationUnitTypes"
                     :template="template.data"
                     readonly
                 />

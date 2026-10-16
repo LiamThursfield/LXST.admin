@@ -3,8 +3,11 @@
 namespace App\Services\Cms;
 
 use App\Enums\Cms\TemplateFieldType;
+use App\Enums\TenantModule;
 use App\Models\Cms\Template;
 use App\Models\Cms\TemplateField;
+use App\Models\Crm\Form;
+use App\Models\Crm\OrganisationUnit;
 use App\Models\FileManager\File;
 use Closure;
 use Illuminate\Database\Query\Builder;
@@ -158,8 +161,21 @@ class ContentRules
             ]),
             // A menu's id
             TemplateFieldType::CmsMenu => [$key => [$required, 'integer', Rule::exists('cms_menus', 'id')]],
-            // Editors for the CRM types arrive in #53; until then their values are kept as sent
-            default => [$key => ['nullable']],
+            // A CRM form's id. Without the CRM module the field is hidden, so its value is kept as it is.
+            TemplateFieldType::CrmForm => $this->crmEnabled()
+                ? [$key => [$required, 'integer', Rule::exists(Form::class, 'id')->whereNull('deleted_at')]]
+                : [$key => ['nullable', 'integer']],
+            // An organisation unit's id, of the type set in the field's settings if there is one
+            TemplateFieldType::CrmOrganisationUnit => $this->crmEnabled()
+                ? [$key => [
+                    $required,
+                    'integer',
+                    Rule::exists(OrganisationUnit::class, 'id')->when(
+                        $settings?->organisation_unit_type,
+                        fn ($rule, string $type) => $rule->where('type', $type),
+                    ),
+                ]]
+                : [$key => ['nullable', 'integer']],
         };
     }
 
@@ -174,6 +190,14 @@ class ContentRules
         $template = $this->nestedTemplate($field);
 
         return $template === null ? [$key => ['prohibited']] : $rules($template);
+    }
+
+    /**
+     * CRM fields only offer (and check) forms and units while the tenant has the CRM module
+     */
+    protected function crmEnabled(): bool
+    {
+        return tenant()?->hasModule(TenantModule::Crm) ?? false;
     }
 
     /**

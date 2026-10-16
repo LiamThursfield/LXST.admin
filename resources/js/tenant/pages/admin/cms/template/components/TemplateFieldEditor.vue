@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type {
     NestedTemplateOption,
+    SelectItem,
     TemplateFieldData,
     TemplateFieldSettingKey,
     TemplateFieldTypeOption,
@@ -14,11 +15,14 @@ const props = withDefaults(
         fieldTypes: TemplateFieldTypeOption[];
         /** The templates component and repeater fields can use. */
         nestedTemplates?: NestedTemplateOption[];
+        /** For limiting an organisation unit field to one type of unit. */
+        organisationUnitTypes?: SelectItem[];
         errors?: Record<string, string | undefined>;
         readonly?: boolean;
     }>(),
     {
         nestedTemplates: () => [],
+        organisationUnitTypes: () => [],
         errors: () => ({}),
         readonly: false,
     },
@@ -37,13 +41,16 @@ const { trans } = useTrans();
  * field that already has one.
  */
 const typeItems = computed(() =>
-    props.fieldTypes.map((type) => ({
-        value: type.value,
-        label: type.isAvailable
-            ? type.label
-            : `${type.label} (${trans('cms.templates.builder.coming_soon')})`,
-        disabled: !type.isAvailable && type.value !== field.value.type,
-    })),
+    props.fieldTypes
+        // Types needing a module the tenant doesn't have aren't offered, unless the field already is one
+        .filter((type) => !type.needsModule || type.value === field.value.type)
+        .map((type) => ({
+            value: type.value,
+            label: type.isAvailable
+                ? type.label
+                : `${type.label} (${trans('cms.templates.builder.coming_soon')})`,
+            disabled: !type.isAvailable && type.value !== field.value.type,
+        })),
 );
 
 const typeSettingKeys = computed<TemplateFieldSettingKey[]>(
@@ -54,7 +61,9 @@ const typeSettingKeys = computed<TemplateFieldSettingKey[]>(
 
 /** The number settings, e.g. max length or a repeater's fewest and most rows. */
 const settingKeys = computed(() =>
-    typeSettingKeys.value.filter((key) => key !== 'template_id'),
+    typeSettingKeys.value.filter(
+        (key) => key !== 'template_id' && key !== 'organisation_unit_type',
+    ),
 );
 
 /** Component and repeater fields choose a template of the same type. */
@@ -170,6 +179,26 @@ function error(key: string): string | undefined {
                         :placeholder="
                             trans(
                                 'cms.templates.builder.template_id_placeholder',
+                            )
+                        "
+                        class="w-full"
+                    />
+                </UFormField>
+
+                <UFormField
+                    v-if="typeSettingKeys.includes('organisation_unit_type')"
+                    :label="
+                        trans('cms.templates.builder.organisation_unit_type')
+                    "
+                    :error="error('settings.organisation_unit_type')"
+                >
+                    <USelect
+                        v-model="field.settings.organisation_unit_type"
+                        :items="organisationUnitTypes"
+                        :disabled="readonly"
+                        :placeholder="
+                            trans(
+                                'cms.templates.builder.organisation_unit_type_placeholder',
                             )
                         "
                         class="w-full"

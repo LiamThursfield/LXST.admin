@@ -25,5 +25,7 @@ class TemplateFieldSettings extends Data
         public ?int $min_items = null,
         /** The most rows (repeater) */
         public ?int $max_items = null,
+        /** Only offer organisation units of this type, e.g. "location" (crm_organisation_unit) */
+        public ?string $organisation_unit_type = null,
     ) {}
 }

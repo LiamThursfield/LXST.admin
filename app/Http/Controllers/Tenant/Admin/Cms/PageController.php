@@ -12,10 +12,10 @@ use App\Http\Requests\Tenant\Admin\Cms\PageUpdateRequest;
 use App\Http\Resources\Tenant\Admin\Cms\PageResource;
 use App\Http\Resources\Tenant\Admin\Cms\TemplateResource;
 use App\Models\Cms\Layout;
-use App\Models\Cms\Menu;
 use App\Models\Cms\Page;
 use App\Models\Cms\Template;
 use App\Models\Cms\Url;
+use App\Services\Cms\ContentFieldOptions;
 use App\Services\Cms\PageUrls;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -29,7 +29,10 @@ use Inertia\Response;
 
 class PageController extends Controller
 {
-    public function __construct(protected PageUrls $urls) {}
+    public function __construct(
+        protected PageUrls $urls,
+        protected ContentFieldOptions $fieldOptions,
+    ) {}
 
     public function index(PageIndexRequest $request, PageIndexQuery $query): Response
     {
@@ -183,9 +186,9 @@ class PageController extends Controller
         return [
             'templates' => $this->templates([TemplateType::Page]),
             'nestedTemplates' => $this->templates([TemplateType::Component, TemplateType::Repeater]),
-            // For menu fields (not `menus`, which is the shared sidebar navigation prop)
-            'menuOptions' => Menu::query()->orderBy('name')->get(['id', 'name'])
-                ->map(fn (Menu $menu) => ['value' => $menu->id, 'label' => $menu->name]),
+            // For menu and CRM fields (not `menus`, which is the shared sidebar navigation prop)
+            'menuOptions' => $this->fieldOptions->menus(),
+            'crmOptions' => $this->fieldOptions->crm(),
             'layouts' => Layout::query()->orderBy('name')->get(['id', 'name'])
                 ->map(fn (Layout $layout) => ['value' => $layout->id, 'label' => $layout->name]),
             // Not this page or anything under it (that would loop), and not the home page (its

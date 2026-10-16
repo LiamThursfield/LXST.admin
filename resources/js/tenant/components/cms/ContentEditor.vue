@@ -2,6 +2,8 @@
 import type { Component } from 'vue';
 import type { ContentValues, TemplateFieldData } from '@/types';
 import ComponentContentField from './fields/ComponentContentField.vue';
+import CrmFormContentField from './fields/CrmFormContentField.vue';
+import CrmOrganisationUnitContentField from './fields/CrmOrganisationUnitContentField.vue';
 import ImageContentField from './fields/ImageContentField.vue';
 import MenuContentField from './fields/MenuContentField.vue';
 import NumberContentField from './fields/NumberContentField.vue';
@@ -33,7 +35,7 @@ const values = defineModel<ContentValues>({ required: true });
 
 const { trans } = useTrans();
 
-/** The editor for each field type. The CRM types arrive in #53. */
+/** The editor for each field type. */
 const editors: Record<string, Component> = {
     text: TextContentField,
     textarea: TextareaContentField,
@@ -43,6 +45,8 @@ const editors: Record<string, Component> = {
     component: ComponentContentField,
     repeater: RepeaterContentField,
     cms_menu: MenuContentField,
+    crm_form: CrmFormContentField,
+    crm_organisation_unit: CrmOrganisationUnitContentField,
 };
 
 /** Components and repeaters show their own fields' errors, so they get the errors and their prefix. */
