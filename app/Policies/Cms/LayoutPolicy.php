@@ -45,7 +45,7 @@ class LayoutPolicy
 
     /**
      * Whether the user can delete the given layout.
-     * Pages will use layouts (#51); deleting one in use will be blocked then.
+     * Layouts used by pages cannot be deleted; the controller reports that case.
      */
     public function delete(User $user, Layout $layout): bool
     {

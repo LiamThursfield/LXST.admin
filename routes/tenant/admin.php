@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Tenant\Admin\Cms\LayoutController;
+use App\Http\Controllers\Tenant\Admin\Cms\PageController;
 use App\Http\Controllers\Tenant\Admin\Cms\RedirectController;
 use App\Http\Controllers\Tenant\Admin\Cms\TemplateController;
 use App\Http\Controllers\Tenant\Admin\Crm\ContactController;
@@ -58,6 +59,9 @@ Route::name('file-manager.')->prefix('file-manager')->group(function () {
 });
 
 Route::name('cms.')->prefix('cms')->middleware('tenant.module:cms')->group(function () {
+    // The URL a page would have, and whether it's free, for the page editor's live check
+    Route::get('pages/url-check', [PageController::class, 'urlCheck'])->name('pages.url-check');
+    Route::resource('pages', PageController::class);
     Route::resource('layouts', LayoutController::class);
     Route::resource('templates', TemplateController::class);
     Route::resource('redirects', RedirectController::class)->except('show');
