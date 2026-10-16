@@ -64,6 +64,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
+        // Rich text is sent as the editor's JSON, where spaces at the ends of text matter
+        // (e.g. "Read the " before a bold "docs"), so don't trim strings inside it
+        $middleware->trimStrings(except: ['content.*.json.*']);
+
         $middleware->web(append: [
             HandleAppearance::class,
             HandleInertiaRequests::class,

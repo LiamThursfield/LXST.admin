@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { Component } from 'vue';
 import type { ContentValues, TemplateFieldData } from '@/types';
+import ImageContentField from './fields/ImageContentField.vue';
 import NumberContentField from './fields/NumberContentField.vue';
+import RichTextContentField from './fields/RichTextContentField.vue';
 import TextareaContentField from './fields/TextareaContentField.vue';
 import TextContentField from './fields/TextContentField.vue';
 
@@ -25,12 +27,26 @@ const values = defineModel<ContentValues>({ required: true });
 
 const { trans } = useTrans();
 
-/** The editor for each field type. Others arrive with their issues (#49–#53). */
+/** The editor for each field type. Others arrive with their issues (#50–#53). */
 const editors: Record<string, Component> = {
     text: TextContentField,
     textarea: TextareaContentField,
     number: NumberContentField,
+    wysiwyg: RichTextContentField,
+    image: ImageContentField,
 };
+
+/** The first error for a field, including nested ones like an image's `content.hero.file_id`. */
+function errorFor(field: TemplateFieldData): string | undefined {
+    const key = `content.${field.slug}`;
+
+    return (
+        props.errors[key] ??
+        Object.entries(props.errors).find(([errorKey]) =>
+            errorKey.startsWith(`${key}.`),
+        )?.[1]
+    );
+}
 
 function editorFor(field: TemplateFieldData): Component | undefined {
     return editors[field.type];
@@ -50,7 +66,7 @@ const hasFields = computed(() => props.fields.length > 0);
             :key="field.slug"
             :label="field.name"
             :help="field.description ?? undefined"
-            :error="errors[`content.${field.slug}`]"
+            :error="errorFor(field)"
             :required="field.is_required"
         >
             <component

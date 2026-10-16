@@ -68,7 +68,7 @@ describe('managing', function () {
         $this->get(route('admin.cms.templates.create'))
             ->assertInertia(fn (Assert $page) => $page
                 ->component('admin/cms/template/Create')
-                ->where('fieldTypes', fn ($types) => collect($types)->where('isAvailable', true)->pluck('value')->all() === ['text', 'textarea', 'number'])
+                ->where('fieldTypes', fn ($types) => collect($types)->where('isAvailable', true)->pluck('value')->all() === ['text', 'textarea', 'number', 'wysiwyg', 'image'])
             );
     });
 
@@ -149,17 +149,22 @@ describe('validation', function () {
             'type' => 'repeater',
             'fields' => [
                 ['type' => 'repeater', 'name' => 'Rows', 'slug' => 'rows', 'settings' => ['template_id' => 1]],
-                ['type' => 'wysiwyg', 'name' => 'Body', 'slug' => 'body'],
+                ['type' => 'text', 'name' => 'Body', 'slug' => 'body'],
             ],
         ]))->assertSessionHasErrors([
             'fields.0.type' => __('cms.templates.validation.field_type_not_allowed', ['field' => 'Repeater', 'template' => 'Repeater']),
-            'fields.1.type' => __('cms.templates.validation.field_type_unavailable', ['field' => 'Rich text']),
+        ]);
+
+        $this->post(route('admin.cms.templates.store'), templateData([
+            'fields' => [['type' => 'cms_menu', 'name' => 'Menu', 'slug' => 'menu']],
+        ]))->assertSessionHasErrors([
+            'fields.0.type' => __('cms.templates.validation.field_type_unavailable', ['field' => 'Menu']),
         ]);
     });
 
     test('an existing field of a type that\'s not available yet can be kept', function () {
         $template = Template::factory()->create();
-        TemplateField::factory()->for($template)->ofType(TemplateFieldType::Wysiwyg)->create();
+        TemplateField::factory()->for($template)->ofType(TemplateFieldType::CmsMenu)->create();
 
         $this->put(route('admin.cms.templates.update', $template), templateData([
             'name' => $template->name,
