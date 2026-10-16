@@ -36,6 +36,17 @@ class FileManagerStorage
     }
 
     /**
+     * The public URL of the file with the given id, or null if there's no such file.
+     * Content (e.g. CMS image fields, the theme logo) stores file ids, which this turns into URLs.
+     */
+    public function urlFor(?int $fileId): ?string
+    {
+        $file = $fileId === null ? null : File::query()->find($fileId);
+
+        return $file === null ? null : $this->url($file);
+    }
+
+    /**
      * Stores an uploaded file in the given folder (or at the top level) and records it.
      * The name is made URL-friendly, and a suffix added if the folder already has a file with that name.
      */
