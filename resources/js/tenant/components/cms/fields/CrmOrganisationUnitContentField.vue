@@ -17,12 +17,13 @@ const { trans } = useTrans();
 
 const crm = useCrmOptions();
 
+/** Drops `type`, which Nuxt UI reads as the item kind (label, separator). */
 const units = computed(() => {
     const type = props.field.settings.organisation_unit_type;
 
-    return (crm.value?.organisationUnits ?? []).filter(
-        (unit) => !type || unit.type === type,
-    );
+    return (crm.value?.organisationUnits ?? [])
+        .filter((unit) => !type || unit.type === type)
+        .map(({ label, value }) => ({ label, value }));
 });
 </script>
 
@@ -32,7 +33,7 @@ const units = computed(() => {
     </p>
     <USelectMenu
         v-else-if="units.length"
-        v-model="value"
+        v-model.nullable="value"
         :items="units"
         value-key="value"
         :disabled="disabled"

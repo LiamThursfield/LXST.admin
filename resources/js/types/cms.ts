@@ -24,7 +24,21 @@ export type RedirectData = {
 export type TemplateType = 'page' | 'layout' | 'component' | 'repeater';
 
 export type TemplateFieldSettingKey =
-    'max_length' | 'rows' | 'min' | 'max' | 'template_id';
+    | 'max_length'
+    | 'rows'
+    | 'min'
+    | 'max'
+    | 'template_id'
+    | 'min_items'
+    | 'max_items'
+    | 'organisation_unit_type';
+
+/** A component or repeater template a field can nest (see `TemplateController::builderOptions()`). */
+export type NestedTemplateOption = {
+    id: number;
+    type: TemplateType;
+    name: string;
+};
 
 /** A field type the template builder can offer (see `TemplateController::builderOptions()`). */
 export type TemplateFieldTypeOption = {
@@ -69,7 +83,7 @@ export type TemplateData = {
 };
 
 /** Content for a template's fields, keyed by field slug. */
-export type ContentValues = Record<string, unknown>;
+export type ContentValues = Record<string, any>;
 
 /** A layout, as returned by `LayoutResource`. */
 export type LayoutData = {

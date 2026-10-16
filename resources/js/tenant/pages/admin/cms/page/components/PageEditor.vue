@@ -177,7 +177,7 @@ function onSubmit() {
                     :error="form.errors.parent_id"
                 >
                     <USelect
-                        v-model="form.parent_id"
+                        v-model.nullable="form.parent_id"
                         :items="parents"
                         :disabled="readonly"
                         :placeholder="
@@ -200,7 +200,7 @@ function onSubmit() {
                         v-model="form.slug"
                         :disabled="readonly"
                         class="w-full font-mono"
-                        @input="slugEdited = true"
+                        @update:model-value="slugEdited = true"
                     />
                 </UFormField>
 
@@ -235,7 +235,7 @@ function onSubmit() {
                     required
                 >
                     <USelect
-                        v-model="form.template_id"
+                        v-model.nullable="form.template_id"
                         :items="templateItems"
                         :disabled="readonly"
                         :placeholder="
@@ -256,7 +256,7 @@ function onSubmit() {
                     required
                 >
                     <USelect
-                        v-model="form.layout_id"
+                        v-model.nullable="form.layout_id"
                         :items="layouts"
                         :disabled="readonly"
                         :placeholder="
@@ -366,7 +366,7 @@ function onSubmit() {
                     :error="errors['metadata.title']"
                 >
                     <UInput
-                        v-model="form.metadata.title"
+                        v-model.nullable="form.metadata.title"
                         :disabled="readonly"
                         maxlength="255"
                         class="w-full"
@@ -384,7 +384,7 @@ function onSubmit() {
                     :error="errors['metadata.description']"
                 >
                     <UTextarea
-                        v-model="form.metadata.description"
+                        v-model.nullable="form.metadata.description"
                         :disabled="readonly"
                         :rows="2"
                         maxlength="255"
@@ -397,7 +397,7 @@ function onSubmit() {
                     :error="errors['metadata.keywords']"
                 >
                     <UInput
-                        v-model="form.metadata.keywords"
+                        v-model.nullable="form.metadata.keywords"
                         :disabled="readonly"
                         maxlength="255"
                         class="w-full"
@@ -414,7 +414,7 @@ function onSubmit() {
                     :error="errors['metadata.canonical']"
                 >
                     <UInput
-                        v-model="form.metadata.canonical"
+                        v-model.nullable="form.metadata.canonical"
                         :disabled="readonly"
                         maxlength="255"
                         class="w-full"
@@ -447,7 +447,7 @@ function onSubmit() {
                     :error="errors['metadata.og_title']"
                 >
                     <UInput
-                        v-model="form.metadata.og_title"
+                        v-model.nullable="form.metadata.og_title"
                         :disabled="readonly"
                         maxlength="255"
                         class="w-full"
@@ -459,7 +459,7 @@ function onSubmit() {
                     :error="errors['metadata.og_type']"
                 >
                     <UInput
-                        v-model="form.metadata.og_type"
+                        v-model.nullable="form.metadata.og_type"
                         :disabled="readonly"
                         maxlength="50"
                         :placeholder="
@@ -475,7 +475,7 @@ function onSubmit() {
                     :error="errors['metadata.og_description']"
                 >
                     <UTextarea
-                        v-model="form.metadata.og_description"
+                        v-model.nullable="form.metadata.og_description"
                         :disabled="readonly"
                         :rows="2"
                         maxlength="255"
@@ -489,7 +489,7 @@ function onSubmit() {
                     :error="errors['metadata.og_url']"
                 >
                     <UInput
-                        v-model="form.metadata.og_url"
+                        v-model.nullable="form.metadata.og_url"
                         :disabled="readonly"
                         maxlength="255"
                         class="w-full"

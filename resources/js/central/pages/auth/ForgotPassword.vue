@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
-import { type VNode } from 'vue';
 import PasswordResetLinkController from '@/actions/App/Http/Controllers/Central/Fortify/PasswordResetLinkController';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { login } from '@/routes';
@@ -8,7 +7,7 @@ import { login } from '@/routes';
 const { trans } = useTrans();
 
 defineOptions({
-    layout: (h: any, page: VNode) => {
+    layout: (h: any, page: any) => {
         return h(
             AuthLayout,
             {

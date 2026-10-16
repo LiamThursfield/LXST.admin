@@ -11,7 +11,7 @@ const value = defineModel<string | null>({ default: null });
 
 <template>
     <UInput
-        v-model="value"
+        v-model.nullable="value"
         :disabled="disabled"
         :maxlength="field.settings.max_length ?? 255"
         class="w-full"

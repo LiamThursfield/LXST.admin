@@ -2,6 +2,8 @@
 import type { Errors, Method } from '@inertiajs/core';
 import { router } from '@inertiajs/vue3';
 import type { DropdownMenuItem } from '@nuxt/ui';
+// Imported explicitly: the central app never uses UTooltip, so its generated component types lack it.
+import UTooltip from '@nuxt/ui/components/Tooltip.vue';
 import { useBreakpoints, breakpointsTailwind } from '@vueuse/core';
 import { computed, ref } from 'vue';
 

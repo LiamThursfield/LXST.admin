@@ -124,7 +124,7 @@ function onSubmit() {
                     required
                 >
                     <USelect
-                        v-model="form.template_id"
+                        v-model.nullable="form.template_id"
                         :items="templateItems"
                         :disabled="readonly"
                         :placeholder="

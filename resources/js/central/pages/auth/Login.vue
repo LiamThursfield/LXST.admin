@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
-import { type VNode } from 'vue';
 import AuthenticatedSessionController from '@/actions/App/Http/Controllers/Central/Fortify/AuthenticatedSessionController';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { register } from '@/routes';
@@ -9,7 +8,7 @@ import { request } from '@/routes/password';
 const { trans } = useTrans();
 
 defineOptions({
-    layout: (h: any, page: VNode) => {
+    layout: (h: any, page: any) => {
         return h(
             AuthLayout,
             {

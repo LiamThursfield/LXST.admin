@@ -113,7 +113,7 @@ function error(key: string): string | undefined {
                     :error="error(`settings.${key}`)"
                 >
                     <UInput
-                        v-model.number="field.settings[key]"
+                        v-model.number.nullable="field.settings[key]"
                         :disabled="readonly"
                         class="w-full"
                         type="number"

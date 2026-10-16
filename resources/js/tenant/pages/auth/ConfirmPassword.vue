@@ -1,13 +1,12 @@
 <script lang="ts" setup>
 import { Form, Head } from '@inertiajs/vue3';
-import { type VNode } from 'vue';
 import ConfirmablePasswordController from '@/actions/Laravel/Fortify/Http/Controllers/ConfirmablePasswordController';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 
 const { trans } = useTrans();
 
 defineOptions({
-    layout: (h: any, page: VNode) => {
+    layout: (h: any, page: any) => {
         return h(
             AuthLayout,
             {

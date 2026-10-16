@@ -11,7 +11,7 @@ const value = defineModel<string | null>({ default: null });
 
 <template>
     <UTextarea
-        v-model="value"
+        v-model.nullable="value"
         :disabled="disabled"
         :rows="field.settings.rows ?? 4"
         :maxlength="field.settings.max_length ?? undefined"

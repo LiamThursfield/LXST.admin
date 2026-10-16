@@ -21,7 +21,7 @@ const crm = useCrmOptions();
     </p>
     <USelect
         v-else-if="crm.forms.length"
-        v-model="value"
+        v-model.nullable="value"
         :items="crm.forms"
         :disabled="disabled"
         :placeholder="trans('cms.content.crm.form_placeholder')"

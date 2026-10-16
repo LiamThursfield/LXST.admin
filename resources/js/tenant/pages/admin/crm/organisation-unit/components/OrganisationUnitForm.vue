@@ -82,10 +82,11 @@ const parentHelp = computed(() =>
 );
 
 /** Only units of an allowed type can be the parent, e.g. a location must be part of a company. */
+/** Drops `type`, which Nuxt UI reads as the item kind (label, separator). */
 const parentItems = computed(() =>
-    props.parentOptions.filter((option) =>
-        allowedParentTypes.value.includes(option.type),
-    ),
+    props.parentOptions
+        .filter((option) => allowedParentTypes.value.includes(option.type))
+        .map(({ label, value }) => ({ label, value })),
 );
 
 // Clear the parent when it is no longer allowed for the chosen type
@@ -157,7 +158,7 @@ function onSubmit() {
                     required
                 >
                     <USelect
-                        v-model="form.parent_id"
+                        v-model.nullable="form.parent_id"
                         :disabled="readonly"
                         :items="parentItems"
                         :placeholder="

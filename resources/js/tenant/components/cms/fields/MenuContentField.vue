@@ -18,7 +18,7 @@ const menus = useMenuOptions();
 <template>
     <USelect
         v-if="menus.length"
-        v-model="value"
+        v-model.nullable="value"
         :items="menus"
         :disabled="disabled"
         :placeholder="trans('cms.content.menu.placeholder')"
