@@ -34,6 +34,13 @@ return [
         'location' => 'Location',
         'department' => 'Department',
     ],
+    'redirect_status' => [
+        'active' => 'Active',
+        'scheduled' => 'Scheduled',
+        'expired' => 'Expired',
+        'disabled' => 'Disabled',
+    ],
+
     'role' => [
         'super-admin' => 'Super Admin',
         'admin' => 'Admin',

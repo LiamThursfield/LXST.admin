@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\Authorisation\Registrars\CmsAuthorisationRegistrar;
 use App\Services\Authorisation\Registrars\CoreAuthorisationRegistrar;
 use App\Services\Authorisation\Registrars\CrmAuthorisationRegistrar;
 use App\Services\Authorisation\Registrars\FileManagerAuthorisationRegistrar;
@@ -20,6 +21,7 @@ return [
     */
     'registrars' => [
         CoreAuthorisationRegistrar::class,
+        CmsAuthorisationRegistrar::class,
         CrmAuthorisationRegistrar::class,
         FileManagerAuthorisationRegistrar::class,
         SettingsAuthorisationRegistrar::class,

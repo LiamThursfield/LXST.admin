@@ -12,6 +12,10 @@
 return [
     'dashboard' => 'Dashboard',
 
+    'cms' => 'CMS',
+    'redirects' => 'Redirects',
+    'view_redirects' => 'View Redirects',
+
     'crm' => 'CRM',
     'contacts' => 'Contacts',
     'view_contacts' => 'View Contacts',

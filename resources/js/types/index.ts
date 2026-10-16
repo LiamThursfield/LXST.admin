@@ -1,5 +1,6 @@
 export * from './admin';
 export * from './auth';
+export * from './cms';
 export * from './crm';
 export * from './file-manager';
 export * from './localisation';
