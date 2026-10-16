@@ -21,3 +21,12 @@ export type FileManagerFile = {
     is_image: boolean;
     created_at: string | null;
 };
+
+/** What the file picker gets back when it opens a folder. */
+export type FilePickerFolder = {
+    currentFolder: FolderSummary | null;
+    breadcrumbs: FolderSummary[];
+    subfolders: FolderSummary[];
+    files: FileManagerFile[];
+    canUpload: boolean;
+};

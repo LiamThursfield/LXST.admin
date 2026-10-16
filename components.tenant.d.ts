@@ -13,6 +13,8 @@ declare module 'vue' {
   export interface GlobalComponents {
     AddressFields: typeof import('./resources/js/tenant/components/crm/AddressFields.vue')['default']
     DeleteAccount: typeof import('./resources/js/components/settings/DeleteAccount.vue')['default']
+    FileField: typeof import('./resources/js/tenant/components/file-manager/FileField.vue')['default']
+    FilePickerModal: typeof import('./resources/js/tenant/components/file-manager/FilePickerModal.vue')['default']
     NotificationsSlideover: typeof import('./resources/js/components/NotificationsSlideover.vue')['default']
     RowActions: typeof import('./resources/js/components/RowActions.vue')['default']
     TextLink: typeof import('./resources/js/components/TextLink.vue')['default']
