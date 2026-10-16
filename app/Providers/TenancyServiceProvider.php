@@ -6,12 +6,15 @@ namespace App\Providers;
 
 use App\Jobs\SeedRolesAndPermissions;
 use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 use Stancl\JobPipeline\JobPipeline;
 use Stancl\Tenancy\Actions\CloneRoutesAsTenant;
 use Stancl\Tenancy\Bootstrappers\RootUrlBootstrapper;
+use Stancl\Tenancy\Controllers\TenantAssetController;
 use Stancl\Tenancy\Events;
 use Stancl\Tenancy\Jobs;
 use Stancl\Tenancy\Listeners;
@@ -195,6 +198,25 @@ class TenancyServiceProvider extends ServiceProvider
         //
     }
 
+    /**
+     * Tenant files (e.g. File Manager uploads) are served from the same domain as the admin, so
+     * browsers must not guess their type, and SVGs (which can contain scripts) are sandboxed when
+     * opened directly. Images shown with <img> tags aren't affected. The sandbox isn't applied to
+     * everything, because browsers won't display PDFs inside one.
+     */
+    protected function secureTenantAssets(): void
+    {
+        TenantAssetController::$headers = function (Request $request): array {
+            $headers = ['X-Content-Type-Options' => 'nosniff'];
+
+            if (Str::lower(pathinfo((string) $request->route('path'), PATHINFO_EXTENSION)) === 'svg') {
+                $headers['Content-Security-Policy'] = "default-src 'none'; style-src 'unsafe-inline'; img-src data:; sandbox";
+            }
+
+            return $headers;
+        };
+    }
+
     public function boot(): void
     {
         $this->bootEvents();
@@ -202,6 +224,7 @@ class TenancyServiceProvider extends ServiceProvider
 
         $this->makeTenancyMiddlewareHighestPriority();
         $this->overrideUrlInTenantContext();
+        $this->secureTenantAssets();
 
         // // Include soft deleted resources in synced resource queries.
         // ResourceSyncing\Listeners\UpdateOrCreateSyncedResource::$scopeGetModelQuery = function (Builder $query) {
