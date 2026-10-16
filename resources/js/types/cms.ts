@@ -74,3 +74,42 @@ export type LayoutData = {
     content?: ContentValues;
     actions?: any[];
 };
+
+export type PublishStatus = 'published' | 'scheduled' | 'expired' | 'draft';
+
+export type PageMetadata = {
+    title: string | null;
+    description: string | null;
+    keywords: string | null;
+    canonical: string | null;
+    og_title: string | null;
+    og_description: string | null;
+    og_type: string | null;
+    og_url: string | null;
+    og_image_file_id: number | null;
+};
+
+/** A page, as returned by `PageResource`. */
+export type PageData = {
+    id: number;
+    template_id: number;
+    layout_id: number;
+    parent_id: number | null;
+    name: string;
+    slug: string;
+    template?: { id: number; name: string };
+    url: string | null;
+    /** How far to indent the page under its parent in the tree. */
+    depth: number;
+    status: PublishStatus | null;
+    status_label: string | null;
+    is_enabled: boolean;
+    published_at: string | null;
+    expired_at: string | null;
+    published_at_local: string | null;
+    expired_at_local: string | null;
+    children_count?: number;
+    content?: ContentValues;
+    metadata?: PageMetadata;
+    actions?: any[];
+};

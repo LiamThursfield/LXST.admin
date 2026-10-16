@@ -16,6 +16,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -105,6 +106,12 @@ class LayoutController extends Controller
     public function destroy(Layout $layout): RedirectResponse
     {
         Gate::authorize('delete', $layout);
+
+        if ($layout->pages()->exists()) {
+            throw ValidationException::withMessages([
+                'layout' => __('cms.layouts.validation.in_use'),
+            ]);
+        }
 
         DB::transaction(function () use ($layout) {
             $layout->content()->delete();

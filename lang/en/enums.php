@@ -34,6 +34,13 @@ return [
         'location' => 'Location',
         'department' => 'Department',
     ],
+    'publish_status' => [
+        'published' => 'Published',
+        'scheduled' => 'Scheduled',
+        'expired' => 'Expired',
+        'draft' => 'Draft',
+    ],
+
     'redirect_status' => [
         'active' => 'Active',
         'scheduled' => 'Scheduled',

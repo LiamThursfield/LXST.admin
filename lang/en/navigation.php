@@ -13,6 +13,8 @@ return [
     'dashboard' => 'Dashboard',
 
     'cms' => 'CMS',
+    'pages' => 'Pages',
+    'view_pages' => 'View Pages',
     'layouts' => 'Layouts',
     'view_layouts' => 'View Layouts',
     'templates' => 'Templates',

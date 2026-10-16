@@ -6,6 +6,7 @@ use App\Models\Concerns\HasContent;
 use Database\Factories\Cms\LayoutFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 
 /**
@@ -36,4 +37,12 @@ class Layout extends Model
         'name',
         'slug',
     ];
+
+    /**
+     * @return HasMany<Page, $this>
+     */
+    public function pages(): HasMany
+    {
+        return $this->hasMany(Page::class);
+    }
 }

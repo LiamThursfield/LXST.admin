@@ -10,6 +10,103 @@
 */
 
 return [
+    'pages' => [
+        'index' => [
+            'title' => 'Pages',
+            'create' => 'New page',
+            'empty' => 'No pages yet.',
+        ],
+        'create' => [
+            'title' => 'New page',
+            'submit' => 'Create page',
+        ],
+        'edit' => [
+            'title' => 'Edit :name',
+            'submit' => 'Save changes',
+        ],
+        'show' => [
+            'title' => ':name',
+        ],
+        'columns' => [
+            'name' => 'Name',
+            'url' => 'URL',
+            'template' => 'Template',
+            'status' => 'Status',
+        ],
+        'filters' => [
+            'search' => 'Search names and URLs',
+            'status' => 'Status',
+        ],
+        'sections' => [
+            'details' => 'Details',
+            'publishing' => 'Publishing',
+            'content' => 'Content',
+            'metadata' => 'SEO',
+            'social' => 'Social sharing',
+        ],
+        'fields' => [
+            'name' => 'Name',
+            'parent' => 'Parent page',
+            'parent_placeholder' => 'None (a top-level page)',
+            'slug' => 'Slug',
+            'slug_help' => 'Lower case letters, numbers and hyphens. Leave empty on a top-level page to make it the home page (/).',
+            'url' => 'URL',
+            'url_available' => 'Available',
+            'url_taken' => 'Already in use',
+            'template' => 'Template',
+            'template_placeholder' => 'Choose a page template',
+            'template_changed' => 'Changing the template keeps content for fields with the same slug. Content for any other fields is removed when you save.',
+            'no_templates' => 'Create a page template first.',
+            'layout' => 'Layout',
+            'layout_placeholder' => 'Choose a layout',
+            'no_layouts' => 'Create a layout first.',
+            'is_enabled' => 'Published',
+            'is_enabled_help' => 'Unpublished pages are drafts: kept, but not shown on the site.',
+            'published_at' => 'Starts',
+            'published_at_help' => 'Leave empty to publish straight away. Uses your timezone.',
+            'expired_at' => 'Ends',
+            'expired_at_help' => 'Leave empty to keep it published. Uses your timezone.',
+        ],
+        'metadata' => [
+            'title' => 'Title',
+            'title_help' => 'Shown in search results and browser tabs. Leave empty to use the page name.',
+            'description' => 'Description',
+            'description_help' => 'The summary shown in search results.',
+            'keywords' => 'Keywords',
+            'canonical' => 'Canonical URL',
+            'canonical_help' => 'Only if this page\'s content is also at another URL that search engines should prefer.',
+            'og_title' => 'Title',
+            'og_description' => 'Description',
+            'og_image' => 'Image',
+            'og_image_help' => 'Shown when the page is shared on social media.',
+            'og_type' => 'Type',
+            'og_type_placeholder' => 'e.g. website or article',
+            'og_url' => 'URL',
+        ],
+        'content_choose_template' => 'Choose a template to add content.',
+        'starts' => 'Starts :date',
+        'ended' => 'Ended :date',
+        'confirm_delete' => 'Delete the :name page?',
+        'flash' => [
+            'created' => 'Page created.',
+            'updated' => 'Page updated.',
+            'deleted' => '{1} Page deleted.|[2,*] :count pages deleted.',
+        ],
+        'validation' => [
+            'template_type' => 'Choose a page template.',
+            'slug_format' => 'Use lower case letters, numbers and single hyphens, e.g. our-team.',
+            'slug_required' => 'Pages under another page need a slug. Only a top-level page can be the home page.',
+            'slug_taken' => 'Another page under the same parent already uses this slug.',
+            'home_taken' => 'There is already a home page (a top-level page with no slug).',
+            'url_taken' => ':url is already in use.',
+            'parent_is_home' => 'The home page can\'t have pages under it.',
+            'parent_loop' => 'A page can\'t sit under itself or one of its own pages.',
+            'expires_before_publish' => 'The end must be after the start.',
+            'og_image' => 'Choose an image from the File Manager.',
+            'has_children' => 'This page has :count page(s) under it. Move or delete them first.',
+        ],
+    ],
+
     'layouts' => [
         'index' => [
             'title' => 'Layouts',
@@ -59,6 +156,7 @@ return [
         ],
         'validation' => [
             'template_type' => 'Choose a layout template.',
+            'in_use' => 'Pages use this layout, so it can\'t be deleted.',
         ],
     ],
 
@@ -188,7 +286,7 @@ return [
             'nested_template' => 'Choose a :type template.',
             'nests_itself' => 'That template already contains this one, so using it here would nest content forever.',
             'max_below_min' => 'The maximum can\'t be below the minimum.',
-            'in_use' => 'This template is used by a layout or another template, so it can\'t be deleted.',
+            'in_use' => 'This template is used by a page, a layout or another template, so it can\'t be deleted.',
         ],
     ],
 
