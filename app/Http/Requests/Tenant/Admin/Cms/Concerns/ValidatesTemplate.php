@@ -5,6 +5,7 @@ namespace App\Http\Requests\Tenant\Admin\Cms\Concerns;
 use App\Data\Cms\TemplateFieldSettings;
 use App\Enums\Cms\TemplateFieldType;
 use App\Enums\Cms\TemplateType;
+use App\Enums\Crm\OrganisationUnitType;
 use App\Models\Cms\Template;
 use Closure;
 use Illuminate\Support\Str;
@@ -81,6 +82,7 @@ trait ValidatesTemplate
             'fields.*.settings.template_id' => ['required_if:fields.*.type,component,repeater', 'nullable', 'integer', $this->nestedTemplateRule($template)],
             'fields.*.settings.min_items' => ['nullable', 'integer', 'min:0', 'max:100'],
             'fields.*.settings.max_items' => ['nullable', 'integer', 'min:1', 'max:100', $this->maxItemsNotBelowMinRule()],
+            'fields.*.settings.organisation_unit_type' => ['nullable', Rule::enum(OrganisationUnitType::class)],
         ];
     }
 
@@ -134,7 +136,13 @@ trait ValidatesTemplate
             $module = $type->requiredModule();
             $isNew = blank($this->input(Str::replaceLast('.type', '.id', $attribute)));
 
-            if ($isNew && (! $type->isAvailable() || ($module !== null && ! (tenant()?->hasModule($module) ?? false)))) {
+            if (! $isNew) {
+                return;
+            }
+
+            if ($module !== null && ! (tenant()?->hasModule($module) ?? false)) {
+                $fail(__('cms.templates.validation.field_type_needs_module', ['field' => $type->label(), 'module' => $module->label()]));
+            } elseif (! $type->isAvailable()) {
                 $fail(__('cms.templates.validation.field_type_unavailable', ['field' => $type->label()]));
             }
         };

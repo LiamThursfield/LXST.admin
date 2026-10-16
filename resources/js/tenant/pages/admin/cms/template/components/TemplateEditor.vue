@@ -21,6 +21,7 @@ const props = withDefaults(
         types: SelectItem[];
         fieldTypes: TemplateFieldTypeOption[];
         nestedTemplates: NestedTemplateOption[];
+        organisationUnitTypes?: SelectItem[];
         /** Other templates use this one, so its type can't change. */
         isInUse?: boolean;
         readonly?: boolean;
@@ -68,8 +69,9 @@ function addField() {
         toBuilderField({
             id: null,
             type:
-                allowedFieldTypes.value.find((type) => type.isAvailable)
-                    ?.value ?? 'text',
+                allowedFieldTypes.value.find(
+                    (type) => type.isAvailable && !type.needsModule,
+                )?.value ?? 'text',
             name: '',
             slug: '',
             description: '',
@@ -197,6 +199,7 @@ function onSubmit() {
                                 (item) => item.id !== template?.id,
                             )
                         "
+                        :organisation-unit-types="organisationUnitTypes"
                         :errors="errors"
                         :readonly="readonly"
                         @remove="removeField(index)"

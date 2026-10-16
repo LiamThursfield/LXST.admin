@@ -6,6 +6,8 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Cms/LayoutController';
 import ContentEditor from '@/tenant/components/cms/ContentEditor.vue';
 import {
+    type CrmOptions,
+    provideCrmOptions,
     provideMenuOptions,
     provideNestedTemplates,
 } from '@/tenant/components/cms/nestedTemplates';
@@ -20,6 +22,8 @@ const props = withDefaults(
         nestedTemplates: TemplateData[];
         /** The menus menu fields can choose from. */
         menus?: Array<{ value: number; label: string }>;
+        /** The CRM forms and organisation units, or null without CRM. */
+        crmOptions?: CrmOptions | null;
         readonly?: boolean;
     }>(),
     {
@@ -32,6 +36,7 @@ const { trans } = useTrans();
 
 provideNestedTemplates(toRef(props, 'nestedTemplates'));
 provideMenuOptions(toRef(() => props.menus ?? []));
+provideCrmOptions(toRef(() => props.crmOptions ?? null));
 
 const layout = props.layout;
 

@@ -64,11 +64,11 @@ describe('managing', function () {
             ->assertInertia(fn (Assert $page) => $page->has('templates.data', 1)->where('templates.data.0.name', 'Default'));
     });
 
-    test('the builder only offers field types whose editors exist', function () {
+    test('the builder offers every field type, now each has an editor', function () {
         $this->get(route('admin.cms.templates.create'))
             ->assertInertia(fn (Assert $page) => $page
                 ->component('admin/cms/template/Create')
-                ->where('fieldTypes', fn ($types) => collect($types)->where('isAvailable', true)->pluck('value')->all() === ['text', 'textarea', 'number', 'wysiwyg', 'image', 'repeater', 'component', 'cms_menu'])
+                ->where('fieldTypes', fn ($types) => collect($types)->where('isAvailable', true)->count() === count(TemplateFieldType::cases()))
             );
     });
 
@@ -144,7 +144,7 @@ describe('validation', function () {
         ]))->assertSessionHasErrors(['fields.1.slug' => __('cms.templates.validation.duplicate_field_slug')]);
     });
 
-    test('field types must be allowed in the template type and have an editor', function () {
+    test('field types must be allowed in the template type', function () {
         $this->post(route('admin.cms.templates.store'), templateData([
             'type' => 'repeater',
             'fields' => [
@@ -154,17 +154,12 @@ describe('validation', function () {
         ]))->assertSessionHasErrors([
             'fields.0.type' => __('cms.templates.validation.field_type_not_allowed', ['field' => 'Repeater', 'template' => 'Repeater']),
         ]);
-
-        $this->post(route('admin.cms.templates.store'), templateData([
-            'fields' => [['type' => 'crm_form', 'name' => 'Form', 'slug' => 'form']],
-        ]))->assertSessionHasErrors([
-            'fields.0.type' => __('cms.templates.validation.field_type_unavailable', ['field' => 'CRM form']),
-        ]);
     });
 
-    test('an existing field of a type that\'s not available yet can be kept', function () {
+    test('an existing field of a type that\'s not offered (e.g. CRM switched off) can be kept', function () {
         $template = Template::factory()->create();
         TemplateField::factory()->for($template)->ofType(TemplateFieldType::CrmForm)->create();
+        tenant()->update(['modules' => [TenantModule::Cms]]);
 
         $this->put(route('admin.cms.templates.update', $template), templateData([
             'name' => $template->name,

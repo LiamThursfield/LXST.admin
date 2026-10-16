@@ -11,6 +11,7 @@ defineProps<{
     types: SelectItem[];
     fieldTypes: TemplateFieldTypeOption[];
     nestedTemplates: NestedTemplateOption[];
+    organisationUnitTypes: SelectItem[];
 }>();
 
 const { trans } = useTrans();
@@ -31,7 +32,12 @@ const title = computed(() => trans('cms.templates.create.title'));
         <template #body>
             <Head :title="title" />
             <div class="w-full max-w-4xl">
-                <TemplateEditor :types="types" :field-types="fieldTypes" />
+                <TemplateEditor
+                    :types="types"
+                    :field-types="fieldTypes"
+                    :nested-templates="nestedTemplates"
+                    :organisation-unit-types="organisationUnitTypes"
+                />
             </div>
         </template>
     </UDashboardPanel>
