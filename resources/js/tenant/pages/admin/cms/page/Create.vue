@@ -7,6 +7,7 @@ defineProps<{
     defaultParentId: number | null;
     templates: { data: TemplateData[] };
     nestedTemplates: { data: TemplateData[] };
+    menuOptions: Array<{ value: number; label: string }>;
     layouts: Array<{ value: number; label: string }>;
     parents: Array<{ value: number; label: string }>;
 }>();
@@ -32,6 +33,7 @@ const title = computed(() => trans('cms.pages.create.title'));
                 <PageEditor
                     :templates="templates.data"
                     :nested-templates="nestedTemplates.data"
+                    :menus="menuOptions"
                     :layouts="layouts"
                     :parents="parents"
                     :default-parent-id="defaultParentId"

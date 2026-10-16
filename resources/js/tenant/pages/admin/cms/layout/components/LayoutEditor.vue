@@ -5,7 +5,10 @@ import {
     update,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Cms/LayoutController';
 import ContentEditor from '@/tenant/components/cms/ContentEditor.vue';
-import { provideNestedTemplates } from '@/tenant/components/cms/nestedTemplates';
+import {
+    provideMenuOptions,
+    provideNestedTemplates,
+} from '@/tenant/components/cms/nestedTemplates';
 import type { ContentValues, LayoutData, TemplateData } from '@/types';
 
 const props = withDefaults(
@@ -15,6 +18,8 @@ const props = withDefaults(
         templates: TemplateData[];
         /** The component and repeater templates, with their fields, for nested content. */
         nestedTemplates: TemplateData[];
+        /** The menus menu fields can choose from. */
+        menus?: Array<{ value: number; label: string }>;
         readonly?: boolean;
     }>(),
     {
@@ -26,6 +31,7 @@ const props = withDefaults(
 const { trans } = useTrans();
 
 provideNestedTemplates(toRef(props, 'nestedTemplates'));
+provideMenuOptions(toRef(() => props.menus ?? []));
 
 const layout = props.layout;
 

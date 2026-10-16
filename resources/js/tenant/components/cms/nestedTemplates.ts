@@ -22,3 +22,18 @@ export function useNestedTemplate(templateId: () => number | null | undefined) {
         ),
     );
 }
+
+/** The menus a menu field can choose from, provided by the page. */
+export const menuOptionsKey: InjectionKey<
+    Ref<Array<{ value: number; label: string }>>
+> = Symbol('cmsMenuOptions');
+
+export function provideMenuOptions(
+    menus: Ref<Array<{ value: number; label: string }>>,
+): void {
+    provide(menuOptionsKey, menus);
+}
+
+export function useMenuOptions() {
+    return inject(menuOptionsKey, ref([]));
+}

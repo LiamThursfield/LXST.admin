@@ -10,6 +10,86 @@
 */
 
 return [
+    'menus' => [
+        'index' => [
+            'title' => 'Menus',
+            'create' => 'New menu',
+            'empty' => 'No menus yet.',
+        ],
+        'create' => [
+            'title' => 'New menu',
+            'submit' => 'Create menu',
+        ],
+        'edit' => [
+            'title' => 'Edit :name',
+            'submit' => 'Save changes',
+        ],
+        'show' => [
+            'title' => ':name',
+        ],
+        'columns' => [
+            'name' => 'Name',
+            'slug' => 'Slug',
+            'items' => 'Items',
+        ],
+        'filters' => [
+            'name' => 'Search names',
+        ],
+        'sections' => [
+            'details' => 'Details',
+            'items' => 'Items',
+        ],
+        'fields' => [
+            'name' => 'Name',
+            'slug' => 'Slug',
+            'slug_help' => 'Leave empty to make one from the name.',
+        ],
+        'items' => [
+            'intro' => 'Drag items to reorder them, or onto another item to nest them (up to :depth levels).',
+            'empty' => 'No items yet.',
+            'add' => 'Add item',
+            'add_child' => 'Add item under this one',
+            'edit' => 'Edit item',
+            'remove' => 'Remove item',
+            'drag' => 'Drag to move',
+            'new' => 'New item',
+            'missing_page' => 'Page no longer exists',
+            'opens_new_tab' => 'Opens in a new tab',
+        ],
+        'item' => [
+            'title' => 'Menu item',
+            'label' => 'Label',
+            'link_type' => 'Links to',
+            'link_types' => [
+                'page' => 'A page',
+                'url' => 'A custom URL',
+            ],
+            'page' => 'Page',
+            'page_placeholder' => 'Choose a page',
+            'page_help' => 'The link follows the page if its URL changes.',
+            'url' => 'URL',
+            'url_help' => 'A full URL (https://…), an email (mailto:…), a phone number (tel:…), a path on the site (/…) or an anchor (#…).',
+            'target' => 'Open in a new tab',
+            'rel' => 'Rel',
+            'rel_help' => 'e.g. nofollow',
+            'custom_class' => 'CSS class',
+            'done' => 'Done',
+        ],
+        'confirm_delete' => 'Delete the :name menu?',
+        'flash' => [
+            'created' => 'Menu created.',
+            'updated' => 'Menu updated.',
+            'deleted' => 'Menu deleted.',
+        ],
+        'validation' => [
+            'slug_taken' => 'Another menu already uses this slug.',
+            'too_deep' => 'Menus can only be :depth levels deep.',
+            'url' => 'Links must start with http://, https://, mailto:, tel:, / or #.',
+            'custom_class' => 'Use letters, numbers, hyphens, underscores and spaces.',
+            'in_use' => 'A page or layout uses this menu, so it can\'t be deleted.',
+        ],
+    ],
+
     'pages' => [
         'index' => [
             'title' => 'Pages',
@@ -192,6 +272,10 @@ return [
                 'apply' => 'Apply',
                 'remove' => 'Remove link',
             ],
+        ],
+        'menu' => [
+            'placeholder' => 'Choose a menu',
+            'none' => 'Create a menu first.',
         ],
         'repeater' => [
             'empty' => 'No rows yet.',

@@ -6,7 +6,10 @@ import {
     urlCheck,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Cms/PageController';
 import ContentEditor from '@/tenant/components/cms/ContentEditor.vue';
-import { provideNestedTemplates } from '@/tenant/components/cms/nestedTemplates';
+import {
+    provideMenuOptions,
+    provideNestedTemplates,
+} from '@/tenant/components/cms/nestedTemplates';
 import FileField from '@/tenant/components/file-manager/FileField.vue';
 import type {
     ContentValues,
@@ -22,6 +25,8 @@ const props = withDefaults(
         templates: TemplateData[];
         /** The component and repeater templates, with their fields, for nested content. */
         nestedTemplates: TemplateData[];
+        /** The menus menu fields can choose from. */
+        menus?: Array<{ value: number; label: string }>;
         layouts: Array<{ value: number; label: string }>;
         /** The pages this one can sit under. */
         parents: Array<{ value: number; label: string }>;
@@ -38,6 +43,7 @@ const props = withDefaults(
 const { trans } = useTrans();
 
 provideNestedTemplates(toRef(props, 'nestedTemplates'));
+provideMenuOptions(toRef(() => props.menus ?? []));
 
 const page = props.page;
 

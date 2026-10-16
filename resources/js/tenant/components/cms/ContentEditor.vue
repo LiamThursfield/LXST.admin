@@ -3,6 +3,7 @@ import type { Component } from 'vue';
 import type { ContentValues, TemplateFieldData } from '@/types';
 import ComponentContentField from './fields/ComponentContentField.vue';
 import ImageContentField from './fields/ImageContentField.vue';
+import MenuContentField from './fields/MenuContentField.vue';
 import NumberContentField from './fields/NumberContentField.vue';
 import RepeaterContentField from './fields/RepeaterContentField.vue';
 import RichTextContentField from './fields/RichTextContentField.vue';
@@ -32,7 +33,7 @@ const values = defineModel<ContentValues>({ required: true });
 
 const { trans } = useTrans();
 
-/** The editor for each field type. Others arrive with their issues (#52, #53). */
+/** The editor for each field type. The CRM types arrive in #53. */
 const editors: Record<string, Component> = {
     text: TextContentField,
     textarea: TextareaContentField,
@@ -41,6 +42,7 @@ const editors: Record<string, Component> = {
     image: ImageContentField,
     component: ComponentContentField,
     repeater: RepeaterContentField,
+    cms_menu: MenuContentField,
 };
 
 /** Components and repeaters show their own fields' errors, so they get the errors and their prefix. */

@@ -68,7 +68,7 @@ describe('managing', function () {
         $this->get(route('admin.cms.templates.create'))
             ->assertInertia(fn (Assert $page) => $page
                 ->component('admin/cms/template/Create')
-                ->where('fieldTypes', fn ($types) => collect($types)->where('isAvailable', true)->pluck('value')->all() === ['text', 'textarea', 'number', 'wysiwyg', 'image', 'repeater', 'component'])
+                ->where('fieldTypes', fn ($types) => collect($types)->where('isAvailable', true)->pluck('value')->all() === ['text', 'textarea', 'number', 'wysiwyg', 'image', 'repeater', 'component', 'cms_menu'])
             );
     });
 
@@ -156,15 +156,15 @@ describe('validation', function () {
         ]);
 
         $this->post(route('admin.cms.templates.store'), templateData([
-            'fields' => [['type' => 'cms_menu', 'name' => 'Menu', 'slug' => 'menu']],
+            'fields' => [['type' => 'crm_form', 'name' => 'Form', 'slug' => 'form']],
         ]))->assertSessionHasErrors([
-            'fields.0.type' => __('cms.templates.validation.field_type_unavailable', ['field' => 'Menu']),
+            'fields.0.type' => __('cms.templates.validation.field_type_unavailable', ['field' => 'CRM form']),
         ]);
     });
 
     test('an existing field of a type that\'s not available yet can be kept', function () {
         $template = Template::factory()->create();
-        TemplateField::factory()->for($template)->ofType(TemplateFieldType::CmsMenu)->create();
+        TemplateField::factory()->for($template)->ofType(TemplateFieldType::CrmForm)->create();
 
         $this->put(route('admin.cms.templates.update', $template), templateData([
             'name' => $template->name,

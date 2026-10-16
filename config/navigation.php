@@ -64,6 +64,10 @@ return [
                     'sortOrder' => 70,
                     TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_LAYOUTS_VIEW => ['sortOrder' => 0],
                 ],
+                TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_MENUS => [
+                    'sortOrder' => 75,
+                    TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_MENUS_VIEW => ['sortOrder' => 0],
+                ],
                 TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_TEMPLATES => [
                     'sortOrder' => 80,
                     TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_TEMPLATES_VIEW => ['sortOrder' => 0],

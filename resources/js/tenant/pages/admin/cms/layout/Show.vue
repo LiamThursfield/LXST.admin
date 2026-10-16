@@ -7,6 +7,7 @@ const props = defineProps<{
     layout: { data: LayoutData };
     templates: { data: TemplateData[] };
     nestedTemplates: { data: TemplateData[] };
+    menuOptions: Array<{ value: number; label: string }>;
 }>();
 
 const { trans } = useTrans();
@@ -32,6 +33,7 @@ const title = computed(() =>
                 <LayoutEditor
                     :templates="templates.data"
                     :nested-templates="nestedTemplates.data"
+                    :menus="menuOptions"
                     :layout="layout.data"
                     readonly
                 />

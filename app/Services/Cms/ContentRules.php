@@ -156,7 +156,9 @@ class ContentRules
                 "{$key}.*" => ['array'],
                 ...$this->fieldsRules($template, "{$key}.*", $data, $optional),
             ]),
-            // Editors for the other types arrive in #52–#53; until then their values are kept as sent
+            // A menu's id
+            TemplateFieldType::CmsMenu => [$key => [$required, 'integer', Rule::exists('cms_menus', 'id')]],
+            // Editors for the CRM types arrive in #53; until then their values are kept as sent
             default => [$key => ['nullable']],
         };
     }
