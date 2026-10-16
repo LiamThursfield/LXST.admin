@@ -6,6 +6,7 @@ use App\Enums\TenantModule;
 use App\Services\Authorisation\Enums\CorePermission;
 use App\Services\Authorisation\Enums\CrmPermission;
 use App\Services\Authorisation\Enums\FileManagerPermission;
+use App\Services\Authorisation\Enums\SettingsPermission;
 use App\Services\Authorisation\Enums\TrackerPermission;
 use App\Services\Navigation\Collections\Menu;
 use App\Services\Navigation\Collections\MenuSection;
@@ -212,7 +213,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         type: MenuItemType::LABEL,
                     ),
                     new MenuItem(
-                        key: TenantMenu::MENU_MAIN_SECTION_ACCOUNT_ITEM_SETTINGS,
+                        key: TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_USERS,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_USERS]),
                         label: 'navigation.users',
                         type: MenuItemType::LINK,
@@ -232,6 +233,28 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                             //                                label: 'navigation.create_user',
                             //                                to: 'admin.users.create',
                             //                            )->gate(CorePermission::ManageUsers),
+                        ]),
+                    ),
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS]),
+                        label: 'navigation.site_settings',
+                        type: MenuItemType::LINK,
+                        icon: 'i-lucide-sliders-horizontal',
+                        activePatterns: ['admin.site-settings.*'],
+                        children: Collection::wrap([
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_GENERAL,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_GENERAL]),
+                                label: 'navigation.general_settings',
+                                to: 'admin.site-settings.general.edit',
+                            )->gate(SettingsPermission::ViewSettings),
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_INTEGRATIONS,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_INTEGRATIONS]),
+                                label: 'navigation.integration_settings',
+                                to: 'admin.site-settings.integrations.edit',
+                            )->gate(SettingsPermission::ViewSettings),
                         ]),
                     ),
                 ]),

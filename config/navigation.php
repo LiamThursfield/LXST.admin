@@ -85,6 +85,11 @@ return [
                     TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_USERS_VIEW => ['sortOrder' => 0],
                     TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_USERS_CREATE => ['sortOrder' => 1],
                 ],
+                TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS => [
+                    'sortOrder' => 20,
+                    TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_GENERAL => ['sortOrder' => 0],
+                    TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_INTEGRATIONS => ['sortOrder' => 1],
+                ],
             ],
             TenantMenu::MENU_MAIN_SECTION_TRACKER => [
                 'sortOrder' => 95,

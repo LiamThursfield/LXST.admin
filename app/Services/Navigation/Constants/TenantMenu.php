@@ -22,7 +22,8 @@ namespace App\Services\Navigation\Constants;
  * │   └── Organisation Units
  * ├── Files
  * ├── Admin
- * │   └── Users
+ * │   ├── Users
+ * │   └── Site Settings
  * ├── Tracker
  * │   ├── Today
  * │   ├── Tasks
@@ -70,6 +71,12 @@ class TenantMenu
     public const string MENU_MAIN_SECTION_ADMIN_ITEM_USERS_VIEW = 'view';
 
     public const string MENU_MAIN_SECTION_ADMIN_ITEM_USERS_CREATE = 'create';
+
+    public const string MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS = 'site-settings';
+
+    public const string MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_GENERAL = 'general';
+
+    public const string MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_INTEGRATIONS = 'integrations';
 
     public const string MENU_MAIN_SECTION_TRACKER = 'tracker';
 
