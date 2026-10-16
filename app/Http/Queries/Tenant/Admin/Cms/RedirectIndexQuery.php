@@ -23,7 +23,10 @@ class RedirectIndexQuery
                 AllowedFilter::callback('search', fn (Builder $query, string $value) => $query->where(
                     fn (Builder $query) => $query->whereLike('url_from', "%{$value}%")->orWhereLike('url_to', "%{$value}%")
                 )),
-                AllowedFilter::callback('status', fn (Builder $query, string $value) => $query->withStatus(RedirectStatus::from($value))),
+                AllowedFilter::callback('status', function (Builder $query, string $value): void {
+                    /** @var Builder<Redirect> $query */
+                    $query->withStatus(RedirectStatus::from($value));
+                }),
             )
             ->defaultSort('url_from')
             ->allowedSorts(
