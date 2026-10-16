@@ -80,6 +80,45 @@ Or individually:
 - `pnpm run build:central`
 - `pnpm run build:tenant`
 
+## Deploying
+
+### After every deploy
+
+Run these on each environment once the new code is in place, in this order:
+
+1. Install dependencies and build the assets:
+   ```bash
+   composer install --no-dev --optimize-autoloader
+   pnpm install --frozen-lockfile
+   pnpm run build
+   ```
+2. Migrate the central database:
+   ```bash
+   php artisan migrate --force
+   ```
+3. Migrate every tenant's database. This also adds new settings, such as site settings, with their defaults:
+   ```bash
+   php artisan tenants:migrate
+   ```
+4. Give existing tenants' roles any new permissions. New tenants get these automatically, but existing ones don't:
+   ```bash
+   php artisan permissions:sync
+   ```
+5. Rebuild the caches and restart the queue workers, so they pick up the new code:
+   ```bash
+   php artisan optimize
+   php artisan queue:restart
+   ```
+
+Steps 3 and 4 are safe to run when nothing has changed, so run them on every deploy rather than trying to remember which releases need them.
+
+### One-off server setup
+
+- **Scheduler**: run `php artisan schedule:run` every minute (e.g. from cron). The Tracker's occurrence commands rely on it.
+- **Queue worker**: keep `php artisan queue:work` running. CRM form submission emails are sent from the queue. Jobs are stored in the central database, even when they're dispatched for a tenant.
+- **File Manager storage**: files are stored per tenant on the local disk by default. Set `FILE_MANAGER_DISK_DRIVER=s3` (with the `AWS_*` variables) to use S3 instead.
+- **Settings cache**: leave `SETTINGS_CACHE_ENABLED` off. Every tenant uses the same settings classes, so a shared cache could show one tenant's settings to another.
+
 
 ## Acknowledgments / Credits
 This project was built with inspiration and code from several open-source repositories:
