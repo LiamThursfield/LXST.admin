@@ -60,3 +60,17 @@ export type TemplateData = {
     fields?: TemplateFieldData[];
     actions?: any[];
 };
+
+/** Content for a template's fields, keyed by field slug. */
+export type ContentValues = Record<string, unknown>;
+
+/** A layout, as returned by `LayoutResource`. */
+export type LayoutData = {
+    id: number;
+    template_id: number;
+    name: string;
+    slug: string;
+    template?: { id: number; name: string };
+    content?: ContentValues;
+    actions?: any[];
+};

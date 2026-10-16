@@ -95,6 +95,22 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         type: MenuItemType::LABEL,
                     ),
                     new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_LAYOUTS,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_LAYOUTS]),
+                        label: 'navigation.layouts',
+                        type: MenuItemType::LINK,
+                        icon: 'i-lucide-panels-top-left',
+                        activePatterns: ['admin.cms.layouts.*'],
+                        children: Collection::wrap([
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_LAYOUTS_VIEW,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_LAYOUTS, TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_LAYOUTS_VIEW]),
+                                label: 'navigation.view_layouts',
+                                to: 'admin.cms.layouts.index',
+                            )->gate(CmsPermission::ViewStructure),
+                        ]),
+                    ),
+                    new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_TEMPLATES,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_TEMPLATES]),
                         label: 'navigation.templates',

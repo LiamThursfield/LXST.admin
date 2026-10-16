@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Tenant\Admin\Cms\LayoutController;
 use App\Http\Controllers\Tenant\Admin\Cms\RedirectController;
 use App\Http\Controllers\Tenant\Admin\Cms\TemplateController;
 use App\Http\Controllers\Tenant\Admin\Crm\ContactController;
@@ -57,6 +58,7 @@ Route::name('file-manager.')->prefix('file-manager')->group(function () {
 });
 
 Route::name('cms.')->prefix('cms')->middleware('tenant.module:cms')->group(function () {
+    Route::resource('layouts', LayoutController::class);
     Route::resource('templates', TemplateController::class);
     Route::resource('redirects', RedirectController::class)->except('show');
 });
