@@ -3,6 +3,7 @@
 use App\Models\FileManager\File;
 use App\Models\Settings\GeneralSettings;
 use App\Models\Settings\IntegrationSettings;
+use App\Models\Settings\MailSettings;
 use App\Models\Settings\ThemeSettings;
 use App\Services\Authorisation\Enums\Role as RoleEnum;
 use App\Services\Authorisation\Enums\SettingsPermission;
@@ -224,7 +225,7 @@ describe('tenancy', function () {
         event(new TenancyBootstrapped(tenancy()));
 
         expect(app($settingsClass))->not->toBe($before);
-    })->with([GeneralSettings::class, IntegrationSettings::class, ThemeSettings::class]);
+    })->with([GeneralSettings::class, IntegrationSettings::class, ThemeSettings::class, MailSettings::class]);
 });
 
 function siteSettingsMenuIsVisible(mixed $user): bool
