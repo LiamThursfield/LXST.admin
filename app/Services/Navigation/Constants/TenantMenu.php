@@ -16,6 +16,7 @@ namespace App\Services\Navigation\Constants;
  * Main Menu
  * ├── Dashboard
  * ├── CMS
+ * │   ├── Templates
  * │   └── Redirects
  * ├── CRM
  * │   ├── Contacts
@@ -43,6 +44,10 @@ class TenantMenu
     public const string MENU_MAIN_SECTION_CMS = 'cms';
 
     public const string MENU_MAIN_SECTION_CMS_LABEL = 'cms-label';
+
+    public const string MENU_MAIN_SECTION_CMS_ITEM_TEMPLATES = 'templates';
+
+    public const string MENU_MAIN_SECTION_CMS_ITEM_TEMPLATES_VIEW = 'view';
 
     public const string MENU_MAIN_SECTION_CMS_ITEM_REDIRECTS = 'redirects';
 
