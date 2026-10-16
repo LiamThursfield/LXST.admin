@@ -71,11 +71,19 @@ class Template extends Model
     }
 
     /**
+     * @return HasMany<Layout, $this>
+     */
+    public function layouts(): HasMany
+    {
+        return $this->hasMany(Layout::class);
+    }
+
+    /**
      * Whether anything uses this template, so it can't be deleted or change type.
-     * Pages and layouts will also count once they exist (#48, #51).
+     * Pages will also count once they exist (#51).
      */
     public function isInUse(): bool
     {
-        return $this->usedByFields()->exists();
+        return $this->usedByFields()->exists() || $this->layouts()->exists();
     }
 }

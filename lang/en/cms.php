@@ -5,11 +5,68 @@
 | CMS Language Lines
 |--------------------------------------------------------------------------
 |
-| Strings for the CMS module (templates, redirects, and later pages and layouts).
+| Strings for the CMS module (layouts, templates, content, redirects, and later pages).
 |
 */
 
 return [
+    'layouts' => [
+        'index' => [
+            'title' => 'Layouts',
+            'create' => 'New layout',
+            'empty' => 'No layouts yet.',
+        ],
+        'create' => [
+            'title' => 'New layout',
+            'submit' => 'Create layout',
+        ],
+        'edit' => [
+            'title' => 'Edit :name',
+            'submit' => 'Save changes',
+        ],
+        'show' => [
+            'title' => ':name',
+        ],
+        'columns' => [
+            'name' => 'Name',
+            'slug' => 'Slug',
+            'template' => 'Template',
+        ],
+        'filters' => [
+            'name' => 'Search names',
+            'template' => 'Template',
+        ],
+        'sections' => [
+            'details' => 'Details',
+            'content' => 'Content',
+        ],
+        'fields' => [
+            'name' => 'Name',
+            'slug' => 'Slug',
+            'slug_help' => 'Leave empty to make one from the name.',
+            'template' => 'Template',
+            'template_placeholder' => 'Choose a layout template',
+            'template_help' => 'The template decides which content fields the layout has.',
+            'template_changed' => 'Changing the template keeps content for fields with the same slug. Content for any other fields is removed when you save.',
+            'no_templates' => 'Create a layout template first.',
+        ],
+        'content_choose_template' => 'Choose a template to add content.',
+        'confirm_delete' => 'Delete the :name layout?',
+        'flash' => [
+            'created' => 'Layout created.',
+            'updated' => 'Layout updated.',
+            'deleted' => 'Layout deleted.',
+        ],
+        'validation' => [
+            'template_type' => 'Choose a layout template.',
+        ],
+    ],
+
+    'content' => [
+        'empty' => 'This template has no fields yet.',
+        'unsupported' => ':type fields can\'t be edited yet.',
+    ],
+
     'templates' => [
         'index' => [
             'title' => 'Templates',
@@ -43,7 +100,7 @@ return [
         'fields' => [
             'type' => 'Type',
             'type_help' => 'Pages and layouts can use any field. Components and repeaters are reusable groups of fields placed inside other templates.',
-            'type_in_use' => 'This template is used by other templates, so its type can\'t be changed.',
+            'type_in_use' => 'This template is in use, so its type can\'t be changed.',
             'name' => 'Name',
             'slug' => 'Slug',
             'slug_help' => 'Leave empty to make one from the name. Must be unique for this type of template.',
@@ -79,12 +136,12 @@ return [
         'validation' => [
             'slug_taken' => 'Another template of this type already uses this slug.',
             'duplicate_field_slug' => 'Each field needs its own slug.',
-            'type_in_use' => 'This template is used by other templates, so its type can\'t be changed.',
+            'type_in_use' => 'This template is in use, so its type can\'t be changed.',
             'field_type_not_allowed' => ':template templates can\'t have :field fields.',
             'field_type_unavailable' => ':field fields can\'t be added yet.',
             'nested_template' => 'Choose a :type template (not this one).',
             'max_below_min' => 'The maximum can\'t be below the minimum.',
-            'in_use' => 'This template is used by other templates, so it can\'t be deleted.',
+            'in_use' => 'This template is used by a layout or another template, so it can\'t be deleted.',
         ],
     ],
 
