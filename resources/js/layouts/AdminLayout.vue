@@ -10,6 +10,9 @@ const open = ref(false);
 
 const mainMenu = usePageMenus().main;
 
+/** The tenant's branding, which is null in the central app. */
+const site = computed(() => usePage().props.site);
+
 // This is used for the DashboardSearch
 // By default, we'll just add the main menu
 const dashboardSearchGroups = computed(() => [
@@ -78,8 +81,21 @@ if (cookie.value !== 'accepted') {
                     resizable
                 >
                     <template #header="{ collapsed }">
+                        <!-- The tenant's logo (site settings), when it has one -->
+                        <img
+                            v-if="site?.logoUrl && !collapsed"
+                            :src="site.logoUrl"
+                            :alt="site.name"
+                            class="mx-auto h-8 max-w-full object-contain"
+                        />
+                        <img
+                            v-else-if="site?.faviconUrl && collapsed"
+                            :src="site.faviconUrl"
+                            :alt="site.name"
+                            class="mx-auto size-8 object-contain"
+                        />
                         <div
-                            v-if="!collapsed"
+                            v-else-if="!collapsed"
                             class="mx-auto select-none text-lg"
                         >
                             <span class="text-primary font-bold">LXST</span

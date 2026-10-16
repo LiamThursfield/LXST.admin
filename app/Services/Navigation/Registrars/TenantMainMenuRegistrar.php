@@ -250,6 +250,12 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                                 to: 'admin.site-settings.general.edit',
                             )->gate(SettingsPermission::ViewSettings),
                             new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_THEME,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_THEME]),
+                                label: 'navigation.theme_settings',
+                                to: 'admin.site-settings.theme.edit',
+                            )->gate(SettingsPermission::ViewSettings),
+                            new MenuChildItem(
                                 key: TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_INTEGRATIONS,
                                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_INTEGRATIONS]),
                                 label: 'navigation.integration_settings',

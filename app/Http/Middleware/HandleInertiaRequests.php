@@ -3,6 +3,9 @@
 namespace App\Http\Middleware;
 
 use App\Enums\AppContext;
+use App\Models\Settings\GeneralSettings;
+use App\Models\Settings\ThemeSettings;
+use App\Services\FileManager\FileManagerStorage;
 use App\Services\Localisation\FrontendTranslations;
 use App\Services\Navigation\Constants\CentralMenu;
 use App\Services\Navigation\Constants\TenantMenu;
@@ -95,6 +98,8 @@ class HandleInertiaRequests extends Middleware
                 'name' => config('app.name'),
                 'context' => $context,
             ],
+            // The tenant's name and branding (site settings), used for page titles, the sidebar logo, favicon and colours
+            'site' => $context === AppContext::Tenant ? fn () => $this->site() : null,
             'menus' => [
                 'main' => $this->navigationService->resolveMenuForUser($mainMenuKey, $request->user()),
             ],
@@ -106,6 +111,26 @@ class HandleInertiaRequests extends Middleware
             'translations' => Inertia::once(fn () => $this->frontendTranslations->forLocale($locale))
                 ->as("translations.{$locale}"),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+        ];
+    }
+
+    /**
+     * @return array{name: string, logoUrl: string|null, faviconUrl: string|null, colors: array{primary: string, neutral: string}}
+     */
+    protected function site(): array
+    {
+        $general = app(GeneralSettings::class);
+        $theme = app(ThemeSettings::class);
+        $storage = app(FileManagerStorage::class);
+
+        return [
+            'name' => $general->site_name,
+            'logoUrl' => $storage->urlFor($theme->logo_file_id),
+            'faviconUrl' => $storage->urlFor($theme->favicon_file_id),
+            'colors' => [
+                'primary' => $theme->primary_color,
+                'neutral' => $theme->neutral_color,
+            ],
         ];
     }
 }

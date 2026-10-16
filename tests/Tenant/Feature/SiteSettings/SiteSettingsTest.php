@@ -1,9 +1,12 @@
 <?php
 
+use App\Models\FileManager\File;
 use App\Models\Settings\GeneralSettings;
 use App\Models\Settings\IntegrationSettings;
+use App\Models\Settings\ThemeSettings;
 use App\Services\Authorisation\Enums\Role as RoleEnum;
 use App\Services\Authorisation\Enums\SettingsPermission;
+use App\Services\FileManager\FileManagerStorage;
 use App\Services\Navigation\Constants\TenantMenu;
 use App\Services\Navigation\NavigationService;
 use Database\Seeders\RolesAndPermissionsSeeder;
@@ -39,6 +42,96 @@ describe('general settings', function () {
     test('the site name is required', function () {
         $this->put(route('admin.site-settings.general.update'), ['site_name' => ''])
             ->assertSessionHasErrors(['site_name' => __('site_settings.general.validation.site_name_required')]);
+    });
+});
+
+describe('theme settings', function () {
+    beforeEach(function () {
+        $this->actingAs($this->createUserWithPermissions(SettingsPermission::cases()));
+    });
+
+    /**
+     * @param  array<string, mixed>  $overrides
+     * @return array<string, mixed>
+     */
+    function themeData(array $overrides = []): array
+    {
+        return [
+            'logo_file_id' => null,
+            'favicon_file_id' => null,
+            'primary_color' => 'amber',
+            'neutral_color' => 'zinc',
+            'site_colors' => ThemeSettings::DEFAULT_SITE_COLORS,
+            ...$overrides,
+        ];
+    }
+
+    test('the theme starts with the admin\'s built-in palettes and legacy\'s website colours', function () {
+        $this->get(route('admin.site-settings.theme.edit'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('admin/site-settings/Theme')
+                ->where('settings.logo_file_id', null)
+                ->where('settings.primary_color', 'amber')
+                ->where('settings.neutral_color', 'zinc')
+                ->where('settings.site_colors', ThemeSettings::DEFAULT_SITE_COLORS)
+            );
+    });
+
+    test('the logo, favicon and colours can be changed, and are shared with every admin page', function () {
+        $logo = File::factory()->create(['name' => 'logo.png', 'path' => 'logo.png', 'mime_type' => 'image/png']);
+        $favicon = File::factory()->create(['name' => 'icon.svg', 'path' => 'icon.svg', 'mime_type' => 'image/svg+xml']);
+
+        $this->put(route('admin.site-settings.theme.update'), themeData([
+            'logo_file_id' => $logo->id,
+            'favicon_file_id' => $favicon->id,
+            'primary_color' => 'blue',
+            'neutral_color' => 'slate',
+            'site_colors' => ['primary' => '#ff0000', 'accent' => ''],
+        ]))
+            ->assertRedirect(route('admin.site-settings.theme.edit'))
+            ->assertSessionHas('success', __('site_settings.theme.updated'));
+
+        $theme = app(ThemeSettings::class);
+        $storage = app(FileManagerStorage::class);
+
+        expect($theme->logo_file_id)->toBe($logo->id)
+            ->and($theme->primary_color)->toBe('blue')
+            // Upper-cased, and colours that were left empty or not sent are left to the website
+            ->and($theme->site_colors['primary'])->toBe('#FF0000')
+            ->and($theme->site_colors['accent'])->toBeNull()
+            ->and($theme->site_colors['base'])->toBeNull();
+
+        $this->get(route('admin.dashboard'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('site.name', tenant('name'))
+                ->where('site.logoUrl', $storage->url($logo))
+                ->where('site.faviconUrl', $storage->url($favicon))
+                ->where('site.colors', ['primary' => 'blue', 'neutral' => 'slate'])
+            );
+    });
+
+    test('the logo and favicon must be images from the File Manager', function () {
+        $pdf = File::factory()->create(['name' => 'prices.pdf', 'path' => 'prices.pdf', 'mime_type' => 'application/pdf']);
+
+        $this->put(route('admin.site-settings.theme.update'), themeData(['logo_file_id' => $pdf->id, 'favicon_file_id' => 999]))
+            ->assertSessionHasErrors([
+                'logo_file_id' => __('site_settings.theme.validation.image'),
+                'favicon_file_id' => __('site_settings.theme.validation.image'),
+            ]);
+    });
+
+    test('colours must be one of the palettes, or hex colours for the website', function () {
+        $this->put(route('admin.site-settings.theme.update'), themeData([
+            'primary_color' => 'slate',
+            'neutral_color' => 'amber',
+            'site_colors' => ['primary' => 'blue', 'unknown' => '#FFFFFF'],
+        ]))->assertSessionHasErrors([
+            'primary_color',
+            'neutral_color',
+            'site_colors.primary' => __('site_settings.theme.validation.hex'),
+            'site_colors',
+        ]);
     });
 });
 
@@ -82,6 +175,7 @@ describe('access', function () {
 
         $this->put(route('admin.site-settings.general.update'), ['site_name' => 'Nope'])->assertForbidden();
         $this->put(route('admin.site-settings.integrations.update'), ['gtm_id' => 'GTM-ABC1234'])->assertForbidden();
+        $this->put(route('admin.site-settings.theme.update'), ['primary_color' => 'blue'])->assertForbidden();
     });
 
     test('users without settings permissions cannot see settings, or the menu item', function () {
@@ -90,6 +184,7 @@ describe('access', function () {
 
         $this->get(route('admin.site-settings.general.edit'))->assertForbidden();
         $this->get(route('admin.site-settings.integrations.edit'))->assertForbidden();
+        $this->get(route('admin.site-settings.theme.edit'))->assertForbidden();
 
         expect(siteSettingsMenuIsVisible($user))->toBeFalse()
             ->and(siteSettingsMenuIsVisible($this->createUserWithPermissions([SettingsPermission::ViewSettings])))->toBeTrue();
@@ -121,13 +216,15 @@ describe('tenancy', function () {
             ->and(Schema::connection(config('tenancy.database.central_connection'))->hasTable('settings'))->toBeFalse();
     });
 
-    test('loaded settings are forgotten when the tenant changes, so the next tenant\'s are read', function () {
-        $before = app(GeneralSettings::class);
+    test('loaded settings are forgotten when the tenant changes, so the next tenant\'s are read', function (string $settingsClass) {
+        $before = app($settingsClass);
+
+        expect(app($settingsClass))->toBe($before);
 
         event(new TenancyBootstrapped(tenancy()));
 
-        expect(app(GeneralSettings::class))->not->toBe($before);
-    });
+        expect(app($settingsClass))->not->toBe($before);
+    })->with([GeneralSettings::class, IntegrationSettings::class, ThemeSettings::class]);
 });
 
 function siteSettingsMenuIsVisible(mixed $user): bool
