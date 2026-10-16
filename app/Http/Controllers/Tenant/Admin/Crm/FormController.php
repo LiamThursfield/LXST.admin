@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenant\Admin\Crm;
 
 use App\Enums\Crm\FormFieldType;
+use App\Http\Controllers\Concerns\SyncsBuilderFields;
 use App\Http\Controllers\Controller;
 use App\Http\Queries\Tenant\Admin\Crm\FormIndexQuery;
 use App\Http\Requests\Tenant\Admin\Crm\FormIndexRequest;
@@ -11,7 +12,6 @@ use App\Http\Requests\Tenant\Admin\Crm\FormUpdateRequest;
 use App\Http\Resources\Tenant\Admin\Crm\FormResource;
 use App\Models\Crm\Form;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -19,6 +19,8 @@ use Inertia\Response;
 
 class FormController extends Controller
 {
+    use SyncsBuilderFields;
+
     public function index(FormIndexRequest $request, FormIndexQuery $query): Response
     {
         return Inertia::render('admin/crm/form/Index', [
@@ -54,7 +56,7 @@ class FormController extends Controller
         DB::transaction(function () use ($request) {
             $form = Form::create($request->formAttributes());
 
-            $this->syncFields($form, $request->fieldsAttributes());
+            $this->syncBuilderFields($form->fields(), $request->fieldsAttributes());
         });
 
         return redirect()->route('admin.crm.forms.index')
@@ -86,7 +88,7 @@ class FormController extends Controller
         DB::transaction(function () use ($request, $form) {
             $form->update($request->formAttributes());
 
-            $this->syncFields($form, $request->fieldsAttributes());
+            $this->syncBuilderFields($form->fields(), $request->fieldsAttributes());
         });
 
         return redirect()->route('admin.crm.forms.index')
@@ -120,31 +122,5 @@ class FormController extends Controller
                 'settingKeys' => $type->settingKeys(),
             ])->values(),
         ];
-    }
-
-    /**
-     * Makes the form's fields match the submitted list: existing fields (by id) are updated,
-     * new ones created and any not in the list removed
-     *
-     * @param  list<array<string, mixed>>  $fields
-     */
-    protected function syncFields(Form $form, array $fields): void
-    {
-        $keptIds = collect($fields)->pluck('id')->filter()->all();
-
-        $form->fields()->whereNotIn('id', $keptIds)->delete();
-
-        // Free up the kept fields' slugs first, so fields can swap slugs without hitting the unique index
-        $form->fields()->whereIn('id', $keptIds)->update(['slug' => DB::raw("CONCAT('__', id)")]);
-
-        foreach ($fields as $field) {
-            $attributes = Arr::except($field, 'id');
-
-            if ($field['id'] !== null) {
-                $form->fields()->whereKey($field['id'])->firstOrFail()->update($attributes);
-            } else {
-                $form->fields()->create($attributes);
-            }
-        }
     }
 }
