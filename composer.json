@@ -27,7 +27,9 @@
         "spatie/laravel-permission": "^7.3",
         "spatie/laravel-query-builder": "^7.2",
         "spatie/laravel-settings": "^3.9",
-        "stancl/tenancy": "dev-master"
+        "stancl/tenancy": "dev-master",
+        "symfony/http-client": "^8.1",
+        "symfony/mailgun-mailer": "^8.1"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

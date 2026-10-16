@@ -31,6 +31,7 @@ return [
     'site_settings' => 'Site Settings',
     'general_settings' => 'General',
     'theme_settings' => 'Theme',
+    'mail_settings' => 'Mail',
     'integration_settings' => 'Integrations',
 
     'tracker' => 'Tracker',

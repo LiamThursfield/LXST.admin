@@ -2,6 +2,7 @@
 
 use App\Models\Settings\GeneralSettings;
 use App\Models\Settings\IntegrationSettings;
+use App\Models\Settings\MailSettings;
 use App\Models\Settings\ThemeSettings;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelSettings\SettingsCasts\DataCast;
@@ -19,6 +20,7 @@ return [
     'settings' => [
         GeneralSettings::class,
         IntegrationSettings::class,
+        MailSettings::class,
         ThemeSettings::class,
     ],
 

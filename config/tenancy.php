@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Tenant;
+use App\Services\Mail\TenantMailBootstrapper;
 use Stancl\Tenancy\Bootstrappers;
 use Stancl\Tenancy\Concerns\UsableWithEarlyIdentification;
 use Stancl\Tenancy\Database\Models\Domain;
@@ -187,6 +188,8 @@ return [
     'bootstrappers' => [
         // Basic Laravel features
         Bootstrappers\DatabaseTenancyBootstrapper::class,
+        // Must run after DatabaseTenancyBootstrapper, as it reads the tenant's mail settings
+        TenantMailBootstrapper::class,
         Bootstrappers\CacheTenancyBootstrapper::class,
         // Bootstrappers\CacheTagsBootstrapper::class, // Alternative to CacheTenancyBootstrapper
         // Bootstrappers\DatabaseCacheBootstrapper::class, // Separates cache by DB rather than by prefix, must run after DatabaseTenancyBootstrapper

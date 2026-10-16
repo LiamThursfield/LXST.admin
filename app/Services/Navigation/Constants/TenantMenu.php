@@ -80,6 +80,8 @@ class TenantMenu
 
     public const string MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_THEME = 'theme';
 
+    public const string MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_MAIL = 'mail';
+
     public const string MENU_MAIN_SECTION_TRACKER = 'tracker';
 
     public const string MENU_MAIN_SECTION_TRACKER_LABEL = 'tracker-label';
