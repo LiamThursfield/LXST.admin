@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import type { EditorCustomHandlers, EditorToolbarItem } from '@nuxt/ui';
-import type { Editor, JSONContent } from '@tiptap/vue-3';
+import type {
+    EditorCustomHandlers,
+    EditorSlots,
+    EditorToolbarItem,
+} from '@nuxt/ui';
 import FilePickerModal from '@/tenant/components/file-manager/FilePickerModal.vue';
 import type { FileManagerFile, TemplateFieldData } from '@/types';
 
@@ -9,6 +12,10 @@ import type { FileManagerFile, TemplateFieldData } from '@/types';
  * server rebuilds and sanitises the HTML from the JSON.
  */
 type RichTextValue = { json: JSONContent; html: string };
+
+/** TipTap's editor and JSON types, taken from Nuxt UI because TipTap isn't a direct dependency. */
+type Editor = Parameters<NonNullable<EditorSlots['default']>>[0]['editor'];
+type JSONContent = ReturnType<Editor['getJSON']>;
 
 defineProps<{
     field: TemplateFieldData;

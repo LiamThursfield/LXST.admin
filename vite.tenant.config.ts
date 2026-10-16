@@ -64,6 +64,8 @@ export default defineConfig({
             autoImport: {
                 dts: 'auto-imports.tenant.d.ts',
                 vueTemplate: true,
+                // Components take a `readonly` prop, which Vue's `readonly()` would shadow in template types.
+                ignore: ['readonly'],
                 dirs: [
                     "resources/js/composables",
                     "resources/js/utils"

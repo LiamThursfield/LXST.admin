@@ -1,3 +1,4 @@
+import type { AriaAttributes } from 'vue';
 import type { App, SiteBranding } from '@/types/app';
 import type { Auth } from '@/types/auth';
 import type { Translations } from '@/types/localisation';
@@ -39,6 +40,14 @@ declare module '@inertiajs/core' {
 }
 
 declare module 'vue' {
+    /**
+     * Accessibility attributes fall through to a component's root element, so allow them on any
+     * component under `strictTemplates`.
+     */
+    interface AllowedComponentProps extends AriaAttributes {
+        tabindex?: number | string;
+    }
+
     interface ComponentCustomProperties {
         $inertia: typeof Router;
         $page: Page;

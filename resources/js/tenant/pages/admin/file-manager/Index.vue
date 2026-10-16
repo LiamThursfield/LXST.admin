@@ -248,7 +248,7 @@ const isEmpty = computed(
                     >
                         <UPagination
                             :items-per-page="files.meta.per_page"
-                            :model-value="files.meta.current_page"
+                            :page="files.meta.current_page"
                             :total="files.meta.total"
                             @update:page="
                                 (page: number) =>

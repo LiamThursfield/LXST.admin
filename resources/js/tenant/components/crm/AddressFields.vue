@@ -71,7 +71,7 @@ const optionalFields = [
                 :error="errors[fieldName(field)]"
             >
                 <UInput
-                    v-model="address[field]"
+                    v-model.nullable="address[field]"
                     :disabled="readonly"
                     class="w-full"
                 />

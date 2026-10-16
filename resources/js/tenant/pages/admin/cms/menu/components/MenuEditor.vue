@@ -43,9 +43,14 @@ const form = useForm({
     menu_items: withKeys(menu?.menu_items ?? []),
 });
 
-/** Server validation errors, including nested ones such as `menu_items.0.children.1.label`. */
+/**
+ * Server validation errors, including nested ones such as `menu_items.0.children.1.label`. Read
+ * through `unknown`: Inertia can't build error keys for the recursive `children`.
+ */
 const errors = computed(
-    () => form.errors as Record<string, string | undefined>,
+    () =>
+        (form as unknown as { errors: Record<string, string | undefined> })
+            .errors,
 );
 
 /** The item being edited in the dialog, and where its errors are. */
@@ -126,7 +131,7 @@ function onSubmit() {
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <UFormField
                     :label="trans('cms.menus.fields.name')"
-                    :error="form.errors.name"
+                    :error="errors.name"
                     required
                 >
                     <UInput
@@ -143,7 +148,7 @@ function onSubmit() {
                             ? undefined
                             : trans('cms.menus.fields.slug_help')
                     "
-                    :error="form.errors.slug"
+                    :error="errors.slug"
                 >
                     <UInput
                         v-model="form.slug"
@@ -247,7 +252,7 @@ function onSubmit() {
                         required
                     >
                         <USelectMenu
-                            v-model="editing.item.page_id"
+                            v-model.nullable="editing.item.page_id"
                             :items="pages"
                             value-key="value"
                             :placeholder="
@@ -265,7 +270,7 @@ function onSubmit() {
                         required
                     >
                         <UInput
-                            v-model="editing.item.url"
+                            v-model.nullable="editing.item.url"
                             placeholder="https://"
                             class="w-full font-mono"
                         />
@@ -291,7 +296,10 @@ function onSubmit() {
                             :help="trans('cms.menus.item.rel_help')"
                             :error="itemError('rel')"
                         >
-                            <UInput v-model="editing.item.rel" class="w-full" />
+                            <UInput
+                                v-model.nullable="editing.item.rel"
+                                class="w-full"
+                            />
                         </UFormField>
 
                         <UFormField
@@ -299,7 +307,7 @@ function onSubmit() {
                             :error="itemError('custom_class')"
                         >
                             <UInput
-                                v-model="editing.item.custom_class"
+                                v-model.nullable="editing.item.custom_class"
                                 class="w-full font-mono"
                             />
                         </UFormField>

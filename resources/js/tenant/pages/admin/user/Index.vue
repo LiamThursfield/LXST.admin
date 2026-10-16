@@ -51,7 +51,7 @@ const searchFilter = ref({
 const search = useDebounceFn((page: number = 1) => {
     console.log('searching page:', page, searchFilter.value);
     const query = new URLSearchParams();
-    const filter = {};
+    const filter: Record<string, string | string[]> = {};
 
     const newValue = searchFilter.value;
 
@@ -81,9 +81,9 @@ const search = useDebounceFn((page: number = 1) => {
     console.log(url);
     window.history.pushState({}, '', url);
 
-    for (const key in searchFilter.value) {
-        if (searchFilter.value[key].length) {
-            filter[key] = searchFilter.value[key];
+    for (const [key, value] of Object.entries(searchFilter.value)) {
+        if (value.length) {
+            filter[key] = value;
         }
     }
 
@@ -182,7 +182,7 @@ watch(searchFilter, () => search(), { deep: true });
                     <div class="mt-4 flex justify-end">
                         <UPagination
                             :items-per-page="users.meta.per_page"
-                            :model-value="users.meta.current_page"
+                            :page="users.meta.current_page"
                             :total="users.meta.total"
                             @update:page="(page: any) => search(page)"
                         />
