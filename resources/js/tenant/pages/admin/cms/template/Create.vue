@@ -31,7 +31,11 @@ const title = computed(() => trans('cms.templates.create.title'));
         <template #body>
             <Head :title="title" />
             <div class="w-full max-w-4xl">
-                <TemplateEditor :types="types" :field-types="fieldTypes" />
+                <TemplateEditor
+                    :types="types"
+                    :field-types="fieldTypes"
+                    :nested-templates="nestedTemplates"
+                />
             </div>
         </template>
     </UDashboardPanel>

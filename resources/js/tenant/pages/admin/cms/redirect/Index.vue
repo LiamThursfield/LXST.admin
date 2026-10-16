@@ -214,7 +214,7 @@ watch(searchFilter, () => search(), { deep: true });
                     <div class="mt-4 flex justify-end">
                         <UPagination
                             :items-per-page="redirects.meta.per_page"
-                            :model-value="redirects.meta.current_page"
+                            :page="redirects.meta.current_page"
                             :total="redirects.meta.total"
                             @update:page="(page: any) => search(page)"
                         />

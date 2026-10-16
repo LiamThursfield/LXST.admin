@@ -179,7 +179,7 @@ watch(searchFilter, () => search(), { deep: true });
                     <div class="mt-4 flex justify-end">
                         <UPagination
                             :items-per-page="contacts.meta.per_page"
-                            :model-value="contacts.meta.current_page"
+                            :page="contacts.meta.current_page"
                             :total="contacts.meta.total"
                             @update:page="(page: any) => search(page)"
                         />

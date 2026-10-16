@@ -10,7 +10,7 @@ const { trans } = useTrans();
             <template #left>
                 <Link
                     class="active:text-primary hover:text-primary text-lg transition-colors duration-300 ease-in-out"
-                    to="/"
+                    href="/"
                 >
                     <div class="flex flex-row">
                         <span class="font-black">LXST</span>

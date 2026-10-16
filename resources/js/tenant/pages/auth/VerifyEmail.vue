@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
-import { type VNode } from 'vue';
 import EmailVerificationNotificationController from '@/actions/Laravel/Fortify/Http/Controllers/EmailVerificationNotificationController';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { logout } from '@/routes';
@@ -8,7 +7,7 @@ import { logout } from '@/routes';
 const { trans } = useTrans();
 
 defineOptions({
-    layout: (h: any, page: VNode) => {
+    layout: (h: any, page: any) => {
         return h(
             AuthLayout,
             {

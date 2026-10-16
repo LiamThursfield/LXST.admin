@@ -133,7 +133,7 @@ function error(key: string): string | undefined {
                     :error="error('description')"
                 >
                     <UInput
-                        v-model="field.description"
+                        v-model.nullable="field.description"
                         :disabled="readonly"
                         class="w-full"
                     />
@@ -164,7 +164,7 @@ function error(key: string): string | undefined {
                     required
                 >
                     <USelect
-                        v-model="field.settings.template_id"
+                        v-model.nullable="field.settings.template_id"
                         :items="nestedTemplateItems"
                         :disabled="readonly"
                         :placeholder="
@@ -183,7 +183,7 @@ function error(key: string): string | undefined {
                     :error="error(`settings.${key}`)"
                 >
                     <UInput
-                        v-model.number="field.settings[key]"
+                        v-model.number.nullable="field.settings[key]"
                         :disabled="readonly"
                         class="w-full"
                         type="number"
