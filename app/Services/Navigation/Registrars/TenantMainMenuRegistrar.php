@@ -3,6 +3,7 @@
 namespace App\Services\Navigation\Registrars;
 
 use App\Enums\TenantModule;
+use App\Services\Authorisation\Enums\CmsPermission;
 use App\Services\Authorisation\Enums\CorePermission;
 use App\Services\Authorisation\Enums\CrmPermission;
 use App\Services\Authorisation\Enums\FileManagerPermission;
@@ -35,6 +36,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
         $registry->addMenu(new Menu, $this->menuKey);
 
         $this->registerDashboardSection($registry);
+        $this->registerCmsSection($registry);
         $this->registerCrmSection($registry);
         $this->registerFilesSection($registry);
         $this->registerAdminSection($registry);
@@ -65,6 +67,50 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         exact: true,
                     ),
                 ]),
+                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
+            ),
+            $sectionKey,
+            $this->menuKey
+        );
+    }
+
+    /**
+     * Register the CMS section of the tenant Main Menu
+     * Every item requires the CMS module, so the whole section is hidden when it is switched off
+     *
+     * @throws DuplicateMenuSectionKeyException
+     * @throws MenuKeyDoesNotExistException
+     */
+    protected function registerCmsSection(NavigationRegistry $registry): void
+    {
+        $sectionKey = TenantMenu::MENU_MAIN_SECTION_CMS;
+
+        $registry->addSectionToMenu(
+            new MenuSection(
+                menuItems: Collection::wrap([
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_CMS_LABEL,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CMS_LABEL]),
+                        label: 'navigation.cms',
+                        type: MenuItemType::LABEL,
+                    ),
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_REDIRECTS,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_REDIRECTS]),
+                        label: 'navigation.redirects',
+                        type: MenuItemType::LINK,
+                        icon: 'i-lucide-signpost',
+                        activePatterns: ['admin.cms.redirects.*'],
+                        children: Collection::wrap([
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_REDIRECTS_VIEW,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_REDIRECTS, TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_REDIRECTS_VIEW]),
+                                label: 'navigation.view_redirects',
+                                to: 'admin.cms.redirects.index',
+                            )->gate(CmsPermission::ViewStructure),
+                        ]),
+                    ),
+                ])->each(fn (MenuItem $item) => $item->module(TenantModule::Cms)),
                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
             ),
             $sectionKey,

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Tenant\Admin\Cms\RedirectController;
 use App\Http\Controllers\Tenant\Admin\Crm\ContactController;
 use App\Http\Controllers\Tenant\Admin\Crm\ContactSpamController;
 use App\Http\Controllers\Tenant\Admin\Crm\FormController;
@@ -52,6 +53,10 @@ Route::name('file-manager.')->prefix('file-manager')->group(function () {
     Route::get('picker', [FilePickerController::class, 'index'])->name('picker.index');
     Route::get('picker/files/{file}', [FilePickerController::class, 'show'])->name('picker.files.show');
     Route::post('picker/files', [FilePickerController::class, 'store'])->name('picker.files.store');
+});
+
+Route::name('cms.')->prefix('cms')->middleware('tenant.module:cms')->group(function () {
+    Route::resource('redirects', RedirectController::class)->except('show');
 });
 
 Route::name('crm.')->prefix('crm')->middleware('tenant.module:crm')->group(function () {
