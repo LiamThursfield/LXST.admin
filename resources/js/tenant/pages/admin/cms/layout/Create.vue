@@ -6,6 +6,7 @@ import LayoutEditor from './components/LayoutEditor.vue';
 defineProps<{
     templates: { data: TemplateData[] };
     nestedTemplates: { data: TemplateData[] };
+    menuOptions: Array<{ value: number; label: string }>;
 }>();
 
 const { trans } = useTrans();
@@ -29,6 +30,7 @@ const title = computed(() => trans('cms.layouts.create.title'));
                 <LayoutEditor
                     :templates="templates.data"
                     :nested-templates="nestedTemplates.data"
+                    :menus="menuOptions"
                 />
             </div>
         </template>

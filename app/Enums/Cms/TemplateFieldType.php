@@ -31,8 +31,8 @@ enum TemplateFieldType: string
     public function isAvailable(): bool
     {
         return match ($this) {
-            self::Text, self::Textarea, self::Number, self::Wysiwyg, self::Image, self::Repeater, self::Component => true,
-            // Menus: #52. CRM: #53.
+            self::Text, self::Textarea, self::Number, self::Wysiwyg, self::Image, self::Repeater, self::Component, self::CmsMenu => true,
+            // CRM: #53.
             default => false,
         };
     }

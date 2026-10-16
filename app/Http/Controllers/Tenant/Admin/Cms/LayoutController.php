@@ -11,6 +11,7 @@ use App\Http\Requests\Tenant\Admin\Cms\LayoutUpdateRequest;
 use App\Http\Resources\Tenant\Admin\Cms\LayoutResource;
 use App\Http\Resources\Tenant\Admin\Cms\TemplateResource;
 use App\Models\Cms\Layout;
+use App\Models\Cms\Menu;
 use App\Models\Cms\Template;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -53,6 +54,7 @@ class LayoutController extends Controller
         return Inertia::render('admin/cms/layout/Create', [
             'templates' => $this->layoutTemplates(),
             'nestedTemplates' => $this->nestedTemplates(),
+            'menuOptions' => $this->menuOptions(),
         ]);
     }
 
@@ -76,6 +78,7 @@ class LayoutController extends Controller
             'layout' => new LayoutResource($layout->load('template', 'content')),
             'templates' => $this->layoutTemplates(),
             'nestedTemplates' => $this->nestedTemplates(),
+            'menuOptions' => $this->menuOptions(),
         ]);
     }
 
@@ -87,6 +90,7 @@ class LayoutController extends Controller
             'layout' => new LayoutResource($layout->load('template', 'content')),
             'templates' => $this->layoutTemplates(),
             'nestedTemplates' => $this->nestedTemplates(),
+            'menuOptions' => $this->menuOptions(),
         ]);
     }
 
@@ -148,5 +152,18 @@ class LayoutController extends Controller
                 ->orderBy('name')
                 ->get()
         );
+    }
+
+    /**
+     * The menus menu fields can choose from
+     *
+     * @return array<int, array{value: int, label: string}>
+     */
+    protected function menuOptions(): array
+    {
+        return Menu::query()->orderBy('name')->get(['id', 'name'])
+            ->map(fn (Menu $menu) => ['value' => $menu->id, 'label' => $menu->name])
+            ->values()
+            ->all();
     }
 }

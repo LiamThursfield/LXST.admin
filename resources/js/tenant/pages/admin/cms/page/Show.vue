@@ -7,6 +7,7 @@ const props = defineProps<{
     page: { data: PageData };
     templates: { data: TemplateData[] };
     nestedTemplates: { data: TemplateData[] };
+    menuOptions: Array<{ value: number; label: string }>;
     layouts: Array<{ value: number; label: string }>;
     parents: Array<{ value: number; label: string }>;
 }>();
@@ -34,6 +35,7 @@ const title = computed(() =>
                 <PageEditor
                     :templates="templates.data"
                     :nested-templates="nestedTemplates.data"
+                    :menus="menuOptions"
                     :layouts="layouts"
                     :parents="parents"
                     :page="page.data"

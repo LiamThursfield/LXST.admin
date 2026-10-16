@@ -113,3 +113,33 @@ export type PageData = {
     metadata?: PageMetadata;
     actions?: any[];
 };
+
+/** A menu item (see backend `MenuItemData`), with `_key` added by the editor while dragging. */
+export type MenuItem = {
+    _key?: number;
+    label: string;
+    link_type: 'page' | 'url';
+    page_id: number | null;
+    url: string | null;
+    target: '_self' | '_blank' | null;
+    rel: string | null;
+    custom_class: string | null;
+    children: MenuItem[];
+};
+
+/** A menu, as returned by `MenuResource`. */
+export type MenuData = {
+    id: number;
+    name: string;
+    slug: string;
+    items_count: number;
+    menu_items: MenuItem[];
+    actions?: any[];
+};
+
+/** A page a menu item can link to. */
+export type MenuPageOption = {
+    value: number;
+    label: string;
+    url: string | null;
+};

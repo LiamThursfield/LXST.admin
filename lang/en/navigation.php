@@ -17,6 +17,8 @@ return [
     'view_pages' => 'View Pages',
     'layouts' => 'Layouts',
     'view_layouts' => 'View Layouts',
+    'cms_menus' => 'Menus',
+    'view_cms_menus' => 'View Menus',
     'templates' => 'Templates',
     'view_templates' => 'View Templates',
     'redirects' => 'Redirects',

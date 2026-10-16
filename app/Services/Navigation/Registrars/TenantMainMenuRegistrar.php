@@ -127,6 +127,22 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         ]),
                     ),
                     new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_MENUS,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_MENUS]),
+                        label: 'navigation.cms_menus',
+                        type: MenuItemType::LINK,
+                        icon: 'i-lucide-menu',
+                        activePatterns: ['admin.cms.menus.*'],
+                        children: Collection::wrap([
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_MENUS_VIEW,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_MENUS, TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_MENUS_VIEW]),
+                                label: 'navigation.view_cms_menus',
+                                to: 'admin.cms.menus.index',
+                            )->gate(CmsPermission::ViewStructure),
+                        ]),
+                    ),
+                    new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_TEMPLATES,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_TEMPLATES]),
                         label: 'navigation.templates',

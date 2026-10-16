@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Tenant\Admin\Cms\LayoutController;
+use App\Http\Controllers\Tenant\Admin\Cms\MenuController;
 use App\Http\Controllers\Tenant\Admin\Cms\PageController;
 use App\Http\Controllers\Tenant\Admin\Cms\RedirectController;
 use App\Http\Controllers\Tenant\Admin\Cms\TemplateController;
@@ -63,6 +64,7 @@ Route::name('cms.')->prefix('cms')->middleware('tenant.module:cms')->group(funct
     Route::get('pages/url-check', [PageController::class, 'urlCheck'])->name('pages.url-check');
     Route::resource('pages', PageController::class);
     Route::resource('layouts', LayoutController::class);
+    Route::resource('menus', MenuController::class);
     Route::resource('templates', TemplateController::class);
     Route::resource('redirects', RedirectController::class)->except('show');
 });
