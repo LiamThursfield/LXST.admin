@@ -217,6 +217,23 @@ class TenancyServiceProvider extends ServiceProvider
         };
     }
 
+    /**
+     * Settings objects (config/settings.php) are kept for the rest of a request or job once
+     * loaded. Forget them whenever the tenant changes, so a process that switches tenants
+     * (e.g. a queue worker or a tenants:* command) never reads the previous tenant's settings.
+     */
+    protected function forgetSettingsWhenTenantChanges(): void
+    {
+        $forgetSettings = function (): void {
+            foreach (config('settings.settings', []) as $settingsClass) {
+                $this->app->forgetInstance($settingsClass);
+            }
+        };
+
+        Event::listen(Events\TenancyBootstrapped::class, $forgetSettings);
+        Event::listen(Events\RevertedToCentralContext::class, $forgetSettings);
+    }
+
     public function boot(): void
     {
         $this->bootEvents();
@@ -225,6 +242,7 @@ class TenancyServiceProvider extends ServiceProvider
         $this->makeTenancyMiddlewareHighestPriority();
         $this->overrideUrlInTenantContext();
         $this->secureTenantAssets();
+        $this->forgetSettingsWhenTenantChanges();
 
         // // Include soft deleted resources in synced resource queries.
         // ResourceSyncing\Listeners\UpdateOrCreateSyncedResource::$scopeGetModelQuery = function (Builder $query) {

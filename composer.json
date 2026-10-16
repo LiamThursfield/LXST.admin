@@ -26,6 +26,7 @@
         "spatie/laravel-data": "*",
         "spatie/laravel-permission": "^7.3",
         "spatie/laravel-query-builder": "^7.2",
+        "spatie/laravel-settings": "^3.9",
         "stancl/tenancy": "dev-master"
     },
     "require-dev": {

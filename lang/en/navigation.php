@@ -28,6 +28,9 @@ return [
     'users' => 'Users',
     'view_users' => 'View Users',
     'create_user' => 'Create User',
+    'site_settings' => 'Site Settings',
+    'general_settings' => 'General',
+    'integration_settings' => 'Integrations',
 
     'tracker' => 'Tracker',
     'today' => 'Today',

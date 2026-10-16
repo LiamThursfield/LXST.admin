@@ -17,6 +17,8 @@ use App\Http\Controllers\Tenant\Admin\Settings\PasswordController;
 use App\Http\Controllers\Tenant\Admin\Settings\ProfileController;
 use App\Http\Controllers\Tenant\Admin\Settings\SecurityController;
 use App\Http\Controllers\Tenant\Admin\Settings\TimezoneController;
+use App\Http\Controllers\Tenant\Admin\SiteSettings\GeneralSettingsController;
+use App\Http\Controllers\Tenant\Admin\SiteSettings\IntegrationSettingsController;
 use App\Http\Controllers\Tenant\Admin\Tracker\CategoryController;
 use App\Http\Controllers\Tenant\Admin\Tracker\HolidayController;
 use App\Http\Controllers\Tenant\Admin\Tracker\TaskDefinitionController;
@@ -74,6 +76,13 @@ Route::name('tracker.')->prefix('tracker')->middleware('tenant.module:tracker')-
 
     Route::post('tasks/{task}/entries', [TaskEntryController::class, 'store'])->name('tasks.entries.store');
     Route::delete('entries/{entry}', [TaskEntryController::class, 'destroy'])->name('entries.destroy');
+});
+
+Route::name('site-settings.')->prefix('site-settings')->group(function () {
+    Route::get('general', [GeneralSettingsController::class, 'edit'])->name('general.edit');
+    Route::put('general', [GeneralSettingsController::class, 'update'])->name('general.update');
+    Route::get('integrations', [IntegrationSettingsController::class, 'edit'])->name('integrations.edit');
+    Route::put('integrations', [IntegrationSettingsController::class, 'update'])->name('integrations.update');
 });
 
 Route::name('settings.')->group(function () {
