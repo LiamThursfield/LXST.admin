@@ -10,6 +10,10 @@
 */
 
 return [
+    'api' => [
+        'not_found' => 'Nothing was found at :url.',
+    ],
+
     'menus' => [
         'index' => [
             'title' => 'Menus',

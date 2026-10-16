@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Tenant\Api\V1\Cms\PageController;
 use App\Http\Controllers\Tenant\Api\V1\Crm\FormController;
 use App\Http\Controllers\Tenant\Api\V1\Crm\FormSubmissionController;
 use App\Http\Controllers\Tenant\Api\V1\PingController;
@@ -25,6 +26,11 @@ Route::prefix('v1')
     ->middleware('throttle:tenant-api')
     ->group(function () {
         Route::get('/', PingController::class)->name('ping');
+
+        Route::prefix('cms')->name('cms.')->middleware('tenant.module:cms')->group(function () {
+            // The page (or redirect) for a URL on the site: /cms/pages?url=/about/team
+            Route::get('pages', [PageController::class, 'show'])->name('pages.show');
+        });
 
         Route::prefix('crm')->name('crm.')->middleware('tenant.module:crm')->group(function () {
             // Forms are addressed by their slug

@@ -47,7 +47,8 @@ Route::get('/', DashboardController::class)->name('dashboard');
 
 Route::resource('users', UserController::class);
 
-Route::name('file-manager.')->prefix('file-manager')->group(function () {
+// Changes here can show on the website, so they refresh the headless API's cached pages
+Route::name('file-manager.')->prefix('file-manager')->middleware('content.changed')->group(function () {
     Route::get('/', [FileManagerController::class, 'index'])->name('index');
     Route::post('folders', [FolderController::class, 'store'])->name('folders.store');
     Route::post('files', [FileController::class, 'store'])->name('files.store');
@@ -59,7 +60,7 @@ Route::name('file-manager.')->prefix('file-manager')->group(function () {
     Route::post('picker/files', [FilePickerController::class, 'store'])->name('picker.files.store');
 });
 
-Route::name('cms.')->prefix('cms')->middleware('tenant.module:cms')->group(function () {
+Route::name('cms.')->prefix('cms')->middleware(['tenant.module:cms', 'content.changed'])->group(function () {
     // The URL a page would have, and whether it's free, for the page editor's live check
     Route::get('pages/url-check', [PageController::class, 'urlCheck'])->name('pages.url-check');
     Route::resource('pages', PageController::class);
@@ -69,7 +70,7 @@ Route::name('cms.')->prefix('cms')->middleware('tenant.module:cms')->group(funct
     Route::resource('redirects', RedirectController::class)->except('show');
 });
 
-Route::name('crm.')->prefix('crm')->middleware('tenant.module:crm')->group(function () {
+Route::name('crm.')->prefix('crm')->middleware(['tenant.module:crm', 'content.changed'])->group(function () {
     Route::patch('contacts/{contact}/restore', [ContactController::class, 'restore'])
         ->withTrashed()
         ->name('contacts.restore');
