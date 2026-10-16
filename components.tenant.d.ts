@@ -13,6 +13,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AddressFields: typeof import('./resources/js/tenant/components/crm/AddressFields.vue')['default']
     BuilderFieldList: typeof import('./resources/js/tenant/components/builder/BuilderFieldList.vue')['default']
+    ComponentContentField: typeof import('./resources/js/tenant/components/cms/fields/ComponentContentField.vue')['default']
     ContentEditor: typeof import('./resources/js/tenant/components/cms/ContentEditor.vue')['default']
     DeleteAccount: typeof import('./resources/js/components/settings/DeleteAccount.vue')['default']
     FileField: typeof import('./resources/js/tenant/components/file-manager/FileField.vue')['default']
@@ -20,6 +21,7 @@ declare module 'vue' {
     ImageContentField: typeof import('./resources/js/tenant/components/cms/fields/ImageContentField.vue')['default']
     NotificationsSlideover: typeof import('./resources/js/components/NotificationsSlideover.vue')['default']
     NumberContentField: typeof import('./resources/js/tenant/components/cms/fields/NumberContentField.vue')['default']
+    RepeaterContentField: typeof import('./resources/js/tenant/components/cms/fields/RepeaterContentField.vue')['default']
     RichTextContentField: typeof import('./resources/js/tenant/components/cms/fields/RichTextContentField.vue')['default']
     RowActions: typeof import('./resources/js/components/RowActions.vue')['default']
     TextareaContentField: typeof import('./resources/js/tenant/components/cms/fields/TextareaContentField.vue')['default']

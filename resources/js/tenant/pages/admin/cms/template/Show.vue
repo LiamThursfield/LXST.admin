@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import type {
+    NestedTemplateOption,
     SelectItem,
     TemplateData,
     TemplateFieldTypeOption,
@@ -11,6 +12,7 @@ const props = defineProps<{
     template: { data: TemplateData };
     types: SelectItem[];
     fieldTypes: TemplateFieldTypeOption[];
+    nestedTemplates: NestedTemplateOption[];
 }>();
 
 const { trans } = useTrans();
@@ -36,6 +38,7 @@ const title = computed(() =>
                 <TemplateEditor
                     :types="types"
                     :field-types="fieldTypes"
+                    :nested-templates="nestedTemplates"
                     :template="template.data"
                     readonly
                 />

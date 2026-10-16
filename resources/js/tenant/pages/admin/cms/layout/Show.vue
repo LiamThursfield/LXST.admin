@@ -6,6 +6,7 @@ import LayoutEditor from './components/LayoutEditor.vue';
 const props = defineProps<{
     layout: { data: LayoutData };
     templates: { data: TemplateData[] };
+    nestedTemplates: { data: TemplateData[] };
 }>();
 
 const { trans } = useTrans();
@@ -30,6 +31,7 @@ const title = computed(() =>
             <div class="w-full max-w-4xl">
                 <LayoutEditor
                     :templates="templates.data"
+                    :nested-templates="nestedTemplates.data"
                     :layout="layout.data"
                     readonly
                 />

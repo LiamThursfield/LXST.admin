@@ -14,6 +14,8 @@ use App\Services\Cms\RichText;
  */
 trait ValidatesContent
 {
+    protected ?ContentRules $contentRuleBuilder = null;
+
     /**
      * The template whose fields the content is for, or null if none was chosen (or it's invalid)
      */
@@ -26,7 +28,7 @@ trait ValidatesContent
     {
         $template = $this->contentTemplate();
 
-        return $template === null ? [] : app(ContentRules::class)->rules($template->loadMissing('fields'));
+        return $template === null ? [] : $this->contentRuleBuilder()->rules($template->loadMissing('fields'), 'content', $this->all());
     }
 
     /**
@@ -36,7 +38,7 @@ trait ValidatesContent
     {
         $template = $this->contentTemplate();
 
-        return $template === null ? [] : app(ContentRules::class)->attributes($template->loadMissing('fields'));
+        return $template === null ? [] : $this->contentRuleBuilder()->attributes($template->loadMissing('fields'));
     }
 
     /**
@@ -76,8 +78,69 @@ trait ValidatesContent
             TemplateFieldType::Image => is_array($value) && filled($value['file_id'] ?? null)
                 ? ['file_id' => (int) $value['file_id'], 'alt' => filled($value['alt'] ?? null) ? (string) $value['alt'] : null]
                 : null,
+            TemplateFieldType::Component => $this->componentValue($field, $value),
+            TemplateFieldType::Repeater => $this->repeaterValue($field, $value),
             default => $value,
         };
+    }
+
+    /**
+     * The component's fields, keyed by slug, or null if none are filled in
+     *
+     * @return array<string, mixed>|null
+     */
+    protected function componentValue(TemplateField $field, mixed $value): ?array
+    {
+        $template = $this->contentRuleBuilder()->nestedTemplate($field);
+
+        if ($template === null || ! is_array($value)) {
+            return null;
+        }
+
+        $values = $this->nestedValues($template, $value);
+
+        return $this->contentRuleBuilder()->hasValues($values) ? $values : null;
+    }
+
+    /**
+     * The rows in order, each keyed by the repeater template's field slugs, or null for no rows
+     *
+     * @return list<array<string, mixed>>|null
+     */
+    protected function repeaterValue(TemplateField $field, mixed $value): ?array
+    {
+        $template = $this->contentRuleBuilder()->nestedTemplate($field);
+
+        if ($template === null || ! is_array($value) || $value === []) {
+            return null;
+        }
+
+        return array_values(array_map(
+            fn (mixed $row) => $this->nestedValues($template, is_array($row) ? $row : []),
+            $value,
+        ));
+    }
+
+    /**
+     * Only the template's fields, in their stored shape (anything else sent, e.g. the editor's
+     * row keys, is dropped)
+     *
+     * @param  array<mixed>  $value
+     * @return array<string, mixed>
+     */
+    protected function nestedValues(Template $template, array $value): array
+    {
+        return $template->fields
+            ->mapWithKeys(fn (TemplateField $nested) => [$nested->slug => $this->storedValue($nested, $value[$nested->slug] ?? null)])
+            ->all();
+    }
+
+    /**
+     * One rule builder per request, so nested templates are only loaded once
+     */
+    protected function contentRuleBuilder(): ContentRules
+    {
+        return $this->contentRuleBuilder ??= app(ContentRules::class);
     }
 
     /**

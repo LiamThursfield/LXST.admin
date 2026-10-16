@@ -6,6 +6,7 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Cms/TemplateController';
 import BuilderFieldList from '@/tenant/components/builder/BuilderFieldList.vue';
 import type {
+    NestedTemplateOption,
     SelectItem,
     TemplateData,
     TemplateFieldData,
@@ -19,6 +20,7 @@ const props = withDefaults(
         template?: TemplateData;
         types: SelectItem[];
         fieldTypes: TemplateFieldTypeOption[];
+        nestedTemplates: NestedTemplateOption[];
         /** Other templates use this one, so its type can't change. */
         isInUse?: boolean;
         readonly?: boolean;
@@ -174,9 +176,7 @@ function onSubmit() {
             variant="subtle"
             :title="trans('cms.templates.builder.title')"
             :description="
-                readonly
-                    ? undefined
-                    : trans('cms.templates.builder.intro')
+                readonly ? undefined : trans('cms.templates.builder.intro')
             "
         >
             <BuilderFieldList
@@ -192,6 +192,11 @@ function onSubmit() {
                         v-model="form.fields[index]"
                         :index="index"
                         :field-types="allowedFieldTypes"
+                        :nested-templates="
+                            nestedTemplates.filter(
+                                (item) => item.id !== template?.id,
+                            )
+                        "
                         :errors="errors"
                         :readonly="readonly"
                         @remove="removeField(index)"

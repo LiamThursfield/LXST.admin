@@ -31,8 +31,8 @@ enum TemplateFieldType: string
     public function isAvailable(): bool
     {
         return match ($this) {
-            self::Text, self::Textarea, self::Number, self::Wysiwyg, self::Image => true,
-            // Repeaters and components: #50. Menus: #52. CRM: #53.
+            self::Text, self::Textarea, self::Number, self::Wysiwyg, self::Image, self::Repeater, self::Component => true,
+            // Menus: #52. CRM: #53.
             default => false,
         };
     }
@@ -71,7 +71,8 @@ enum TemplateFieldType: string
             self::Text => ['max_length'],
             self::Textarea => ['max_length', 'rows'],
             self::Number => ['min', 'max'],
-            self::Component, self::Repeater => ['template_id'],
+            self::Component => ['template_id'],
+            self::Repeater => ['template_id', 'min_items', 'max_items'],
             default => [],
         };
     }

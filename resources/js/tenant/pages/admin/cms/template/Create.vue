@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import type { SelectItem, TemplateFieldTypeOption } from '@/types';
+import type {
+    NestedTemplateOption,
+    SelectItem,
+    TemplateFieldTypeOption,
+} from '@/types';
 import TemplateEditor from './components/TemplateEditor.vue';
 
 defineProps<{
     types: SelectItem[];
     fieldTypes: TemplateFieldTypeOption[];
+    nestedTemplates: NestedTemplateOption[];
 }>();
 
 const { trans } = useTrans();

@@ -5,6 +5,7 @@ import {
     update,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Cms/LayoutController';
 import ContentEditor from '@/tenant/components/cms/ContentEditor.vue';
+import { provideNestedTemplates } from '@/tenant/components/cms/nestedTemplates';
 import type { ContentValues, LayoutData, TemplateData } from '@/types';
 
 const props = withDefaults(
@@ -12,6 +13,8 @@ const props = withDefaults(
         layout?: LayoutData;
         /** The layout templates to choose from, with their fields. */
         templates: TemplateData[];
+        /** The component and repeater templates, with their fields, for nested content. */
+        nestedTemplates: TemplateData[];
         readonly?: boolean;
     }>(),
     {
@@ -21,6 +24,8 @@ const props = withDefaults(
 );
 
 const { trans } = useTrans();
+
+provideNestedTemplates(toRef(props, 'nestedTemplates'));
 
 const layout = props.layout;
 

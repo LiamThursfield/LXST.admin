@@ -26,45 +26,94 @@ class ContentRules
      */
     public const int DEFAULT_TEXTAREA_MAX_LENGTH = 65535;
 
+    /**
+     * Component and repeater templates, with their fields, by id
+     *
+     * @var array<int, Template|null>
+     */
+    protected array $nestedTemplates = [];
+
     public function __construct(protected RichText $richText) {}
 
     /**
+     * @param  array<string, mixed>  $data  The request data, to tell whether an optional component is being filled in
      * @return array<string, list<mixed>>
      */
-    public function rules(Template $template, string $prefix = 'content'): array
+    public function rules(Template $template, string $prefix = 'content', array $data = []): array
     {
-        $rules = [$prefix => ['nullable', 'array']];
+        return [$prefix => ['nullable', 'array'], ...$this->fieldsRules($template, $prefix, $data)];
+    }
+
+    /**
+     * The template a component or repeater field uses, with its fields
+     */
+    public function nestedTemplate(TemplateField $field): ?Template
+    {
+        $id = $field->settings?->template_id;
+
+        if ($id === null) {
+            return null;
+        }
+
+        return $this->nestedTemplates[$id] ??= Template::query()->with('fields')->find($id);
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, list<mixed>>
+     */
+    protected function fieldsRules(Template $template, string $prefix, array $data, bool $optional = false): array
+    {
+        $rules = [];
 
         foreach ($template->fields as $field) {
-            $rules = [...$rules, ...$this->fieldRules($field, "{$prefix}.{$field->slug}")];
+            $rules = [...$rules, ...$this->fieldRules($field, "{$prefix}.{$field->slug}", $data, $optional)];
         }
 
         return $rules;
     }
 
     /**
-     * The fields' names, so messages say e.g. "The Hero title field is required"
+     * The fields' names, so messages say e.g. "The Hero title field is required". Fields inside
+     * components and repeater rows are named after their parent, e.g. "Slides Title".
      *
      * @return array<string, string>
      */
-    public function attributes(Template $template, string $prefix = 'content'): array
+    public function attributes(Template $template, string $prefix = 'content', string $parentName = ''): array
     {
-        return $template->fields
-            ->flatMap(fn (TemplateField $field) => [
-                "{$prefix}.{$field->slug}" => $field->name,
-                // Image fields are validated by their file and alt text
-                "{$prefix}.{$field->slug}.file_id" => $field->name,
-                "{$prefix}.{$field->slug}.alt" => __('cms.content.image.alt_attribute', ['field' => $field->name]),
-            ])
-            ->all();
+        $attributes = [];
+
+        foreach ($template->fields as $field) {
+            $key = "{$prefix}.{$field->slug}";
+            $name = trim("{$parentName} {$field->name}");
+
+            $attributes[$key] = $name;
+            // Image fields are validated by their file and alt text
+            $attributes["{$key}.file_id"] = $name;
+            $attributes["{$key}.alt"] = __('cms.content.image.alt_attribute', ['field' => $name]);
+
+            $nested = in_array($field->type, [TemplateFieldType::Component, TemplateFieldType::Repeater], true)
+                ? $this->nestedTemplate($field)
+                : null;
+
+            if ($nested !== null) {
+                $nestedPrefix = $field->type === TemplateFieldType::Repeater ? "{$key}.*" : $key;
+                $attributes = [...$attributes, ...$this->attributes($nested, $nestedPrefix, $name)];
+            }
+        }
+
+        return $attributes;
     }
 
     /**
+     * @param  array<string, mixed>  $data
+     * @param  bool  $optional  Whether the field is inside an optional component that's been left empty,
+     *                          so none of its fields are required
      * @return array<string, list<mixed>>
      */
-    protected function fieldRules(TemplateField $field, string $key): array
+    protected function fieldRules(TemplateField $field, string $key, array $data, bool $optional = false): array
     {
-        $required = $field->is_required ? 'required' : 'nullable';
+        $required = $field->is_required && ! $optional ? 'required' : 'nullable';
         $settings = $field->settings;
 
         return match ($field->type) {
@@ -88,9 +137,59 @@ class ContentRules
                 ],
                 "{$key}.alt" => ['nullable', 'string', 'max:255'],
             ],
-            // Editors for the other types arrive in #50–#53; until then their values are kept as sent
+            // An object of the component template's fields. An optional component only needs its
+            // required fields once something in it has been filled in.
+            TemplateFieldType::Component => $this->nestedRules($field, $key, function (Template $template) use ($field, $key, $data, $required) {
+                $isEmpty = ! $field->is_required && ! $this->hasValues(data_get($data, $key));
+
+                return [$key => [$required, 'array'], ...$this->fieldsRules($template, $key, $data, $isEmpty)];
+            }),
+            // A list of rows, each an object of the repeater template's fields
+            TemplateFieldType::Repeater => $this->nestedRules($field, $key, fn (Template $template) => [
+                $key => array_values(array_filter([
+                    $field->is_required && ! $optional ? 'required' : 'nullable',
+                    'array',
+                    'list',
+                    $settings?->min_items !== null ? 'min:'.$settings->min_items : null,
+                    $settings?->max_items !== null ? 'max:'.$settings->max_items : null,
+                ])),
+                "{$key}.*" => ['array'],
+                ...$this->fieldsRules($template, "{$key}.*", $data, $optional),
+            ]),
+            // Editors for the other types arrive in #52–#53; until then their values are kept as sent
             default => [$key => ['nullable']],
         };
+    }
+
+    /**
+     * Rules for a component or repeater, or a failure if its template has gone
+     *
+     * @param  Closure(Template): array<string, list<mixed>>  $rules
+     * @return array<string, list<mixed>>
+     */
+    protected function nestedRules(TemplateField $field, string $key, Closure $rules): array
+    {
+        $template = $this->nestedTemplate($field);
+
+        return $template === null ? [$key => ['prohibited']] : $rules($template);
+    }
+
+    /**
+     * Whether a component's value has anything filled in
+     */
+    public function hasValues(mixed $value): bool
+    {
+        if (is_array($value)) {
+            foreach ($value as $item) {
+                if ($this->hasValues($item)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return $value !== null && $value !== '' && $value !== false;
     }
 
     /**
