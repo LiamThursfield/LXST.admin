@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\BumpsContentVersion;
 use App\Http\Middleware\EnsureTenantHasModule;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -77,6 +78,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'permission' => PermissionMiddleware::class,
             'tenant.module' => EnsureTenantHasModule::class,
+            'content.changed' => BumpsContentVersion::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
