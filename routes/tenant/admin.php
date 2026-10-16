@@ -9,6 +9,8 @@ use App\Http\Controllers\Tenant\Admin\Crm\FormSubmissionController;
 use App\Http\Controllers\Tenant\Admin\Crm\FormSubmissionSpamController;
 use App\Http\Controllers\Tenant\Admin\Crm\OrganisationUnitController;
 use App\Http\Controllers\Tenant\Admin\DashboardController;
+use App\Http\Controllers\Tenant\Admin\FileManager\FileManagerController;
+use App\Http\Controllers\Tenant\Admin\FileManager\FolderController;
 use App\Http\Controllers\Tenant\Admin\Settings\PasswordController;
 use App\Http\Controllers\Tenant\Admin\Settings\ProfileController;
 use App\Http\Controllers\Tenant\Admin\Settings\SecurityController;
@@ -33,6 +35,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', DashboardController::class)->name('dashboard');
 
 Route::resource('users', UserController::class);
+
+Route::name('file-manager.')->prefix('file-manager')->group(function () {
+    Route::get('/', [FileManagerController::class, 'index'])->name('index');
+    Route::post('folders', [FolderController::class, 'store'])->name('folders.store');
+});
 
 Route::name('crm.')->prefix('crm')->middleware('tenant.module:crm')->group(function () {
     Route::patch('contacts/{contact}/restore', [ContactController::class, 'restore'])

@@ -20,6 +20,7 @@ namespace App\Services\Navigation\Constants;
  * │   ├── Forms
  * │   ├── Submissions
  * │   └── Organisation Units
+ * ├── Files
  * ├── Admin
  * │   └── Users
  * ├── Tracker
@@ -55,6 +56,10 @@ class TenantMenu
     public const string MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS = 'organisation-units';
 
     public const string MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS_VIEW = 'view';
+
+    public const string MENU_MAIN_SECTION_FILES = 'files';
+
+    public const string MENU_MAIN_SECTION_FILES_ITEM_FILES = 'file-manager';
 
     public const string MENU_MAIN_SECTION_ADMIN = 'admin';
 

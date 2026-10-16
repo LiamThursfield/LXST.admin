@@ -347,6 +347,8 @@ return [
         'disks' => [
             'local',
             'public',
+            // The File Manager's disk: a per-tenant folder locally, or a per-tenant prefix on S3
+            'file_manager',
             // 's3',
         ],
 
@@ -359,6 +361,10 @@ return [
             // Disks whose roots should be overridden after storage_path() is suffixed.
             'local' => '%storage_path%/app/',
             'public' => '%storage_path%/app/public/',
+            // Only for the local driver; on S3 the root is prefixed with the tenant instead
+            ...(env('FILE_MANAGER_DISK_DRIVER', 'local') === 's3' ? [] : [
+                'file_manager' => '%storage_path%/app/public/file-manager/',
+            ]),
         ],
 
         /*
