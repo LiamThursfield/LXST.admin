@@ -13,6 +13,8 @@ return [
     'dashboard' => 'Dashboard',
 
     'cms' => 'CMS',
+    'templates' => 'Templates',
+    'view_templates' => 'View Templates',
     'redirects' => 'Redirects',
     'view_redirects' => 'View Redirects',
 

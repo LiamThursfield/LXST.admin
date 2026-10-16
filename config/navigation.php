@@ -56,6 +56,10 @@ return [
             TenantMenu::MENU_MAIN_SECTION_CMS => [
                 'sortOrder' => 20,
                 TenantMenu::MENU_MAIN_SECTION_CMS_LABEL => ['sortOrder' => 0],
+                TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_TEMPLATES => [
+                    'sortOrder' => 80,
+                    TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_TEMPLATES_VIEW => ['sortOrder' => 0],
+                ],
                 TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_REDIRECTS => [
                     'sortOrder' => 90,
                     TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_REDIRECTS_VIEW => ['sortOrder' => 0],

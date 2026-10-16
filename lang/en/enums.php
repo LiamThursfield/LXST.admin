@@ -69,6 +69,26 @@ return [
         'missed' => 'Missed',
         'skipped' => 'Skipped',
     ],
+    'template_field_type' => [
+        'text' => 'Text',
+        'textarea' => 'Text area',
+        'number' => 'Number',
+        'wysiwyg' => 'Rich text',
+        'image' => 'Image',
+        'repeater' => 'Repeater',
+        'component' => 'Component',
+        'cms_menu' => 'Menu',
+        'crm_form' => 'CRM form',
+        'crm_organisation_unit' => 'CRM organisation unit',
+    ],
+
+    'template_type' => [
+        'page' => 'Page',
+        'layout' => 'Layout',
+        'component' => 'Component',
+        'repeater' => 'Repeater',
+    ],
+
     'tenant_module' => [
         'cms' => 'CMS',
         'crm' => 'CRM',

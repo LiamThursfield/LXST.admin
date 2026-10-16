@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import { VueDraggable } from 'vue-draggable-plus';
 import * as z from 'zod';
 import {
     store,
     update,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Crm/FormController';
+import BuilderFieldList from '@/tenant/components/builder/BuilderFieldList.vue';
 import type { CrmFormData, FormFieldData, FormFieldTypeOption } from '@/types';
 import FormFieldEditor from './FormFieldEditor.vue';
 
@@ -260,42 +260,25 @@ function onSubmit() {
                 readonly ? undefined : trans('crm.forms.builder.description')
             "
         >
-            <p v-if="errors.fields" class="text-error text-sm">
-                {{ errors.fields }}
-            </p>
-
-            <p v-if="!form.fields.length" class="text-muted text-sm">
-                {{ trans('crm.forms.builder.empty') }}
-            </p>
-
-            <VueDraggable
+            <BuilderFieldList
                 v-model="form.fields"
-                :disabled="readonly"
-                handle=".drag-handle"
-                :animation="150"
-                class="flex flex-col gap-3"
+                :empty-text="trans('crm.forms.builder.empty')"
+                :add-label="trans('crm.forms.builder.add')"
+                :error="errors.fields"
+                :readonly="readonly"
+                @add="addField"
             >
-                <FormFieldEditor
-                    v-for="(field, index) in form.fields"
-                    :key="field.uid"
-                    v-model="form.fields[index]"
-                    :index="index"
-                    :field-types="fieldTypes"
-                    :errors="errors"
-                    :readonly="readonly"
-                    @remove="removeField(index)"
-                />
-            </VueDraggable>
-
-            <template v-if="!readonly" #footer>
-                <UButton
-                    color="neutral"
-                    variant="subtle"
-                    icon="i-lucide-plus"
-                    :label="trans('crm.forms.builder.add')"
-                    @click="addField"
-                />
-            </template>
+                <template #default="{ index }">
+                    <FormFieldEditor
+                        v-model="form.fields[index]"
+                        :index="index"
+                        :field-types="fieldTypes"
+                        :errors="errors"
+                        :readonly="readonly"
+                        @remove="removeField(index)"
+                    />
+                </template>
+            </BuilderFieldList>
         </UPageCard>
 
         <UPageCard
