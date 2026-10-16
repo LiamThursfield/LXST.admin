@@ -1,0 +1,2 @@
+# Per-tenant storage created by tenancy's FilesystemTenancyBootstrapper (e.g. File Manager uploads)
+/tenant*

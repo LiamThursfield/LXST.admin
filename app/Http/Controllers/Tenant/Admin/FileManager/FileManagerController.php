@@ -33,6 +33,13 @@ class FileManagerController extends Controller
                 File::query()->where('folder_id', $folder?->id)->orderBy('name')->paginate(50)->withQueryString()
             ),
             'canCreateFolders' => $request->user()?->can('create', Folder::class) ?? false,
+            'canUpload' => $request->user()?->can('create', File::class) ?? false,
+            'canEditFiles' => $request->user()?->can('update', new File) ?? false,
+            'uploadRules' => [
+                'extensions' => config('file-manager.allowed_extensions'),
+                'maxSizeKb' => (int) config('file-manager.max_size_kb'),
+                'maxFiles' => (int) config('file-manager.max_files_per_upload'),
+            ],
         ]);
     }
 

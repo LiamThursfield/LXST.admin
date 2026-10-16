@@ -19,4 +19,29 @@ return [
 
     'uploads_enabled' => (bool) env('FILE_MANAGER_UPLOADS_ENABLED', true),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Uploads
+    |--------------------------------------------------------------------------
+    |
+    | The file extensions that can be uploaded, and the largest file allowed
+    | (in kilobytes). Files served from the tenant's domain are sandboxed (see
+    | TenancyServiceProvider), so scripts inside e.g. an SVG can't run.
+    |
+    */
+
+    'allowed_extensions' => [
+        // Images
+        'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg',
+        // Documents
+        'pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'txt',
+        // Audio and video
+        'mp3', 'mp4',
+    ],
+
+    'max_size_kb' => (int) env('FILE_MANAGER_MAX_SIZE_KB', 20 * 1024),
+
+    // The most files that can be uploaded at once
+    'max_files_per_upload' => 20,
+
 ];

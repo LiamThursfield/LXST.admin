@@ -5,7 +5,9 @@ import { index } from '@/actions/App/Http/Controllers/Tenant/Admin/FileManager/F
 import { formatBytes } from '@/lib/files';
 import { formatDateTime, userTimezone } from '@/lib/timezone';
 import type { FileManagerFile, FolderSummary, FolderTreeNode } from '@/types';
+import FileDetailsSlideover from './components/FileDetailsSlideover.vue';
 import NewFolderModal from './components/NewFolderModal.vue';
+import UploadModal from './components/UploadModal.vue';
 
 const props = defineProps<{
     folderTree: FolderTreeNode[];
@@ -22,12 +24,37 @@ const props = defineProps<{
         };
     };
     canCreateFolders: boolean;
+    canUpload: boolean;
+    canEditFiles: boolean;
+    uploadRules: { extensions: string[]; maxSizeKb: number; maxFiles: number };
 }>();
 
 const { trans } = useTrans();
 const timezone = userTimezone(useAuth().value.user);
 
 const newFolderOpen = ref(false);
+const uploadOpen = ref(false);
+
+/** The file whose details are open; kept up to date as the folder's files reload (e.g. after saving). */
+const selectedFileId = ref<number | null>(null);
+const detailsOpen = ref(false);
+const selectedFile = computed(
+    () =>
+        props.files.data.find((file) => file.id === selectedFileId.value) ??
+        null,
+);
+
+function showDetails(file: FileManagerFile) {
+    selectedFileId.value = file.id;
+    detailsOpen.value = true;
+}
+
+const currentLocation = computed(() =>
+    [
+        trans('file_manager.top_level'),
+        ...props.breadcrumbs.map((folder) => folder.name),
+    ].join(' / '),
+);
 
 /** Opens a folder (or the top level), reloading only its contents. */
 function openFolder(folderId: number | null, page = 1) {
@@ -117,7 +144,15 @@ const isEmpty = computed(
 
                 <template #right>
                     <UButton
+                        v-if="canUpload"
+                        icon="i-lucide-upload"
+                        :label="trans('file_manager.files.upload')"
+                        @click="uploadOpen = true"
+                    />
+                    <UButton
                         v-if="canCreateFolders"
+                        color="neutral"
+                        variant="subtle"
                         icon="i-lucide-folder-plus"
                         :label="trans('file_manager.folders.create')"
                         @click="newFolderOpen = true"
@@ -184,13 +219,14 @@ const isEmpty = computed(
                                 name="i-lucide-file"
                                 class="text-muted size-5"
                             />
-                            <a
-                                :href="file.url"
-                                target="_blank"
-                                class="hover:text-primary flex-1 truncate"
-                                >{{ file.name }}</a
+                            <button
+                                type="button"
+                                class="hover:text-primary flex-1 truncate text-left"
+                                @click="showDetails(file)"
                             >
-                            <span class="text-muted hidden sm:inline">{{
+                                {{ file.name }}
+                            </button>
+                            <span class="text-muted hidden lg:inline">{{
                                 file.mime_type
                             }}</span>
                             <span class="text-muted w-20 text-right">{{
@@ -222,6 +258,21 @@ const isEmpty = computed(
                     </div>
                 </section>
             </div>
+
+            <UploadModal
+                v-if="canUpload"
+                v-model:open="uploadOpen"
+                :folder="currentFolder"
+                :rules="uploadRules"
+            />
+
+            <FileDetailsSlideover
+                v-if="selectedFile"
+                v-model:open="detailsOpen"
+                :file="selectedFile"
+                :location="currentLocation"
+                :can-edit="canEditFiles"
+            />
 
             <NewFolderModal
                 v-if="canCreateFolders"

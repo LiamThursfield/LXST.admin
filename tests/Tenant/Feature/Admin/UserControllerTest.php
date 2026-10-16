@@ -5,6 +5,11 @@ use App\Services\Authorisation\Enums\CorePermission;
 use App\Services\Authorisation\Enums\Role;
 use Inertia\Testing\AssertableInertia as Assert;
 
+/**
+ * A signed-in user whose name and email can't match the filters below (a random "Johnson" would match "Joh")
+ */
+const FIXED_ACTING_USER = ['first_name' => 'Acting', 'last_name' => 'Tester', 'email' => 'acting.tester@test.example'];
+
 test('guests are redirected to the login page when trying to access user index', function () {
     $response = $this->get(route('admin.users.index'));
 
@@ -35,7 +40,7 @@ test('authenticated users can visit the user index if they have the required per
 });
 
 test('user index can be filtered by first name', function () {
-    $user = $this->createUserWithPermissions([CorePermission::ViewUsers]);
+    $user = $this->createUserWithPermissions([CorePermission::ViewUsers], FIXED_ACTING_USER);
     $this->actingAs($user);
 
     User::factory()->create(['first_name' => 'John', 'last_name' => 'Doe']);
@@ -53,7 +58,7 @@ test('user index can be filtered by first name', function () {
 });
 
 test('user index can be filtered by last name', function () {
-    $user = $this->createUserWithPermissions([CorePermission::ViewUsers]);
+    $user = $this->createUserWithPermissions([CorePermission::ViewUsers], FIXED_ACTING_USER);
     $this->actingAs($user);
 
     User::factory()->create(['first_name' => 'John', 'last_name' => 'Smith']);
@@ -71,7 +76,7 @@ test('user index can be filtered by last name', function () {
 });
 
 test('user index can be filtered by email', function () {
-    $user = $this->createUserWithPermissions([CorePermission::ViewUsers]);
+    $user = $this->createUserWithPermissions([CorePermission::ViewUsers], FIXED_ACTING_USER);
     $this->actingAs($user);
 
     User::factory()->create(['first_name' => 'John', 'last_name' => 'Smith', 'email' => 'john@example.com']);

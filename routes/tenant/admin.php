@@ -9,6 +9,7 @@ use App\Http\Controllers\Tenant\Admin\Crm\FormSubmissionController;
 use App\Http\Controllers\Tenant\Admin\Crm\FormSubmissionSpamController;
 use App\Http\Controllers\Tenant\Admin\Crm\OrganisationUnitController;
 use App\Http\Controllers\Tenant\Admin\DashboardController;
+use App\Http\Controllers\Tenant\Admin\FileManager\FileController;
 use App\Http\Controllers\Tenant\Admin\FileManager\FileManagerController;
 use App\Http\Controllers\Tenant\Admin\FileManager\FolderController;
 use App\Http\Controllers\Tenant\Admin\Settings\PasswordController;
@@ -39,6 +40,8 @@ Route::resource('users', UserController::class);
 Route::name('file-manager.')->prefix('file-manager')->group(function () {
     Route::get('/', [FileManagerController::class, 'index'])->name('index');
     Route::post('folders', [FolderController::class, 'store'])->name('folders.store');
+    Route::post('files', [FileController::class, 'store'])->name('files.store');
+    Route::patch('files/{file}', [FileController::class, 'update'])->name('files.update');
 });
 
 Route::name('crm.')->prefix('crm')->middleware('tenant.module:crm')->group(function () {
