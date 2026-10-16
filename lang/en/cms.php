@@ -65,6 +65,41 @@ return [
     'content' => [
         'empty' => 'This template has no fields yet.',
         'unsupported' => ':type fields can\'t be edited yet.',
+        'rich_text' => [
+            'placeholder' => 'Start writing…',
+            'invalid' => 'This rich text couldn\'t be read. Try editing it again.',
+            'unsupported' => 'The rich text contains something the editor doesn\'t support (:type).',
+            'unsafe_link' => 'Links must start with http://, https://, mailto:, tel: or /.',
+            'unsafe_image' => 'Images must come from the File Manager or an http(s) URL.',
+            'toolbar' => [
+                'paragraph' => 'Paragraph',
+                'heading' => 'Heading :level',
+                'text_style' => 'Text style',
+                'bold' => 'Bold',
+                'italic' => 'Italic',
+                'underline' => 'Underline',
+                'strike' => 'Strikethrough',
+                'bullet_list' => 'Bulleted list',
+                'ordered_list' => 'Numbered list',
+                'blockquote' => 'Quote',
+                'link' => 'Link',
+                'image' => 'Image',
+                'undo' => 'Undo',
+                'redo' => 'Redo',
+            ],
+            'link' => [
+                'title' => 'Link',
+                'url' => 'URL',
+                'url_help' => 'A full URL (https://…), an email (mailto:…), a phone number (tel:…) or a path on this site (/…).',
+                'apply' => 'Apply',
+                'remove' => 'Remove link',
+            ],
+        ],
+        'image' => [
+            'alt' => 'Alt text',
+            'alt_help' => 'Describes the image for screen readers and search engines. Leave empty if it\'s only decorative.',
+            'alt_attribute' => ':field alt text',
+        ],
     ],
 
     'templates' => [
