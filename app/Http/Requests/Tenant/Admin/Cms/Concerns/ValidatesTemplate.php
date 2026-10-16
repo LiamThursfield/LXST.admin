@@ -79,6 +79,8 @@ trait ValidatesTemplate
             'fields.*.settings.min' => ['nullable', 'numeric'],
             'fields.*.settings.max' => ['nullable', 'numeric', $this->maxNotBelowMinRule()],
             'fields.*.settings.template_id' => ['required_if:fields.*.type,component,repeater', 'nullable', 'integer', $this->nestedTemplateRule($template)],
+            'fields.*.settings.min_items' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'fields.*.settings.max_items' => ['nullable', 'integer', 'min:1', 'max:100', $this->maxItemsNotBelowMinRule()],
         ];
     }
 
@@ -139,7 +141,9 @@ trait ValidatesTemplate
     }
 
     /**
-     * A component or repeater field must use a template of the matching type, and not this one
+     * A component or repeater field must use a template of the matching type, and that template
+     * can't contain this one (directly or through its own nested templates), or content would nest
+     * forever
      */
     protected function nestedTemplateRule(?Template $template): Closure
     {
@@ -153,8 +157,28 @@ trait ValidatesTemplate
 
             $nested = is_numeric($value) ? Template::query()->whereKey((int) $value)->first() : null;
 
-            if ($nested === null || $nested->type !== $expectedType || $nested->id === $template?->id) {
+            if ($nested === null || $nested->type !== $expectedType) {
                 $fail(__('cms.templates.validation.nested_template', ['type' => $expectedType->label()]));
+
+                return;
+            }
+
+            if ($template !== null && ($nested->id === $template->id || $nested->nestsTemplate($template))) {
+                $fail(__('cms.templates.validation.nests_itself'));
+            }
+        };
+    }
+
+    /**
+     * A repeater's most rows can't be below its fewest (either can be left blank)
+     */
+    protected function maxItemsNotBelowMinRule(): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail): void {
+            $min = $this->input(Str::replaceLast('.max_items', '.min_items', $attribute));
+
+            if (is_numeric($value) && is_numeric($min) && $value < $min) {
+                $fail(__('cms.templates.validation.max_below_min'));
             }
         };
     }

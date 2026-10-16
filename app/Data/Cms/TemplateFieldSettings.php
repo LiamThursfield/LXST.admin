@@ -21,5 +21,9 @@ class TemplateFieldSettings extends Data
         public int|float|null $max = null,
         /** The template whose fields this field holds (component, repeater) */
         public ?int $template_id = null,
+        /** The fewest rows (repeater) */
+        public ?int $min_items = null,
+        /** The most rows (repeater) */
+        public ?int $max_items = null,
     ) {}
 }

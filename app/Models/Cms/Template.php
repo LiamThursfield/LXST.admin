@@ -71,6 +71,44 @@ class Template extends Model
     }
 
     /**
+     * The templates this one's component and repeater fields use
+     *
+     * @return Collection<int, Template>
+     */
+    public function nestedTemplates(): Collection
+    {
+        $ids = $this->fields()->get()
+            ->map(fn (TemplateField $field) => $field->settings?->template_id)
+            ->filter()
+            ->unique()
+            ->values();
+
+        return Template::query()->whereKey($ids)->get();
+    }
+
+    /**
+     * Whether this template contains the given one, directly or through its nested templates
+     *
+     * @param  list<int>  $visited  Templates already checked, so a loop can't recurse forever
+     */
+    public function nestsTemplate(Template $template, array $visited = []): bool
+    {
+        $visited[] = $this->id;
+
+        foreach ($this->nestedTemplates() as $nested) {
+            if ($nested->id === $template->id) {
+                return true;
+            }
+
+            if (! in_array($nested->id, $visited, true) && $nested->nestsTemplate($template, $visited)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @return HasMany<Layout, $this>
      */
     public function layouts(): HasMany

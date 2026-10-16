@@ -68,7 +68,7 @@ describe('managing', function () {
         $this->get(route('admin.cms.templates.create'))
             ->assertInertia(fn (Assert $page) => $page
                 ->component('admin/cms/template/Create')
-                ->where('fieldTypes', fn ($types) => collect($types)->where('isAvailable', true)->pluck('value')->all() === ['text', 'textarea', 'number', 'wysiwyg', 'image'])
+                ->where('fieldTypes', fn ($types) => collect($types)->where('isAvailable', true)->pluck('value')->all() === ['text', 'textarea', 'number', 'wysiwyg', 'image', 'repeater', 'component'])
             );
     });
 

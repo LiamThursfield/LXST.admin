@@ -127,6 +127,12 @@ class TemplateController extends Controller
 
         return [
             'types' => TemplateType::asSelectItems(),
+            // The templates component and repeater fields can use
+            'nestedTemplates' => Template::query()
+                ->whereIn('type', [TemplateType::Component, TemplateType::Repeater])
+                ->orderBy('name')
+                ->get(['id', 'type', 'name'])
+                ->map(fn (Template $template) => ['id' => $template->id, 'type' => $template->type->value, 'name' => $template->name]),
             'fieldTypes' => collect(TemplateFieldType::cases())->map(fn (TemplateFieldType $type) => [
                 'value' => $type->value,
                 'label' => $type->label(),

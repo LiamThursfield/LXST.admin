@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type {
+    NestedTemplateOption,
     TemplateFieldData,
     TemplateFieldSettingKey,
     TemplateFieldTypeOption,
@@ -11,10 +12,13 @@ const props = withDefaults(
         index: number;
         /** The field types this type of template allows. */
         fieldTypes: TemplateFieldTypeOption[];
+        /** The templates component and repeater fields can use. */
+        nestedTemplates?: NestedTemplateOption[];
         errors?: Record<string, string | undefined>;
         readonly?: boolean;
     }>(),
     {
+        nestedTemplates: () => [],
         errors: () => ({}),
         readonly: false,
     },
@@ -42,12 +46,22 @@ const typeItems = computed(() =>
     })),
 );
 
-/** Number settings only; component and repeater templates are chosen once those editors exist (#50). */
-const settingKeys = computed<TemplateFieldSettingKey[]>(() =>
-    (
+const typeSettingKeys = computed<TemplateFieldSettingKey[]>(
+    () =>
         props.fieldTypes.find((type) => type.value === field.value.type)
-            ?.settingKeys ?? []
-    ).filter((key) => key !== 'template_id'),
+            ?.settingKeys ?? [],
+);
+
+/** The number settings, e.g. max length or a repeater's fewest and most rows. */
+const settingKeys = computed(() =>
+    typeSettingKeys.value.filter((key) => key !== 'template_id'),
+);
+
+/** Component and repeater fields choose a template of the same type. */
+const nestedTemplateItems = computed(() =>
+    props.nestedTemplates
+        .filter((template) => template.type === field.value.type)
+        .map((template) => ({ label: template.name, value: template.id })),
 );
 
 function error(key: string): string | undefined {
@@ -127,6 +141,39 @@ function error(key: string): string | undefined {
 
                 <UFormField :label="trans('cms.templates.builder.is_required')">
                     <USwitch v-model="field.is_required" :disabled="readonly" />
+                </UFormField>
+
+                <UFormField
+                    v-if="typeSettingKeys.includes('template_id')"
+                    :label="trans('cms.templates.builder.template_id')"
+                    :help="
+                        nestedTemplateItems.length || readonly
+                            ? undefined
+                            : trans(
+                                  'cms.templates.builder.no_nested_templates',
+                                  {
+                                      type:
+                                          fieldTypes.find(
+                                              (type) =>
+                                                  type.value === field.type,
+                                          )?.label ?? field.type,
+                                  },
+                              )
+                    "
+                    :error="error('settings.template_id')"
+                    required
+                >
+                    <USelect
+                        v-model="field.settings.template_id"
+                        :items="nestedTemplateItems"
+                        :disabled="readonly"
+                        :placeholder="
+                            trans(
+                                'cms.templates.builder.template_id_placeholder',
+                            )
+                        "
+                        class="w-full"
+                    />
                 </UFormField>
 
                 <UFormField

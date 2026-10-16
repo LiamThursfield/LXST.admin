@@ -51,6 +51,7 @@ class LayoutController extends Controller
 
         return Inertia::render('admin/cms/layout/Create', [
             'templates' => $this->layoutTemplates(),
+            'nestedTemplates' => $this->nestedTemplates(),
         ]);
     }
 
@@ -73,6 +74,7 @@ class LayoutController extends Controller
         return Inertia::render('admin/cms/layout/Show', [
             'layout' => new LayoutResource($layout->load('template', 'content')),
             'templates' => $this->layoutTemplates(),
+            'nestedTemplates' => $this->nestedTemplates(),
         ]);
     }
 
@@ -83,6 +85,7 @@ class LayoutController extends Controller
         return Inertia::render('admin/cms/layout/Edit', [
             'layout' => new LayoutResource($layout->load('template', 'content')),
             'templates' => $this->layoutTemplates(),
+            'nestedTemplates' => $this->nestedTemplates(),
         ]);
     }
 
@@ -121,6 +124,20 @@ class LayoutController extends Controller
             Template::query()
                 ->where('type', TemplateType::Layout)
                 ->when($withFields, fn ($query) => $query->with('fields'))
+                ->orderBy('name')
+                ->get()
+        );
+    }
+
+    /**
+     * The component and repeater templates, with their fields, for editing nested content
+     */
+    protected function nestedTemplates(): AnonymousResourceCollection
+    {
+        return TemplateResource::collection(
+            Template::query()
+                ->whereIn('type', [TemplateType::Component, TemplateType::Repeater])
+                ->with('fields')
                 ->orderBy('name')
                 ->get()
         );

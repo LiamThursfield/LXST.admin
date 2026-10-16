@@ -5,6 +5,7 @@ import LayoutEditor from './components/LayoutEditor.vue';
 
 defineProps<{
     templates: { data: TemplateData[] };
+    nestedTemplates: { data: TemplateData[] };
 }>();
 
 const { trans } = useTrans();
@@ -25,7 +26,10 @@ const title = computed(() => trans('cms.layouts.create.title'));
         <template #body>
             <Head :title="title" />
             <div class="w-full max-w-4xl">
-                <LayoutEditor :templates="templates.data" />
+                <LayoutEditor
+                    :templates="templates.data"
+                    :nested-templates="nestedTemplates.data"
+                />
             </div>
         </template>
     </UDashboardPanel>
