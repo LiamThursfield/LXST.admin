@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Tenant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TenantTestCase;
 use Tests\TestCase;
@@ -19,6 +20,18 @@ use Tests\Traits\RefreshDatabaseWithTenantTrait;
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
+    ->afterEach(function (): void {
+        // Tenants created by a test (e.g. for the tenants:* commands) get their own databases. The
+        // tenant rows are rolled back, but the databases aren't, so drop them while the rows still
+        // exist. Some tests fake tenant creation, so only drop databases that were created.
+        Tenant::query()->get()->each(function (Tenant $tenant): void {
+            $database = $tenant->database();
+
+            if ($database->manager()->databaseExists($database->getName())) {
+                $database->manager()->deleteDatabase($tenant);
+            }
+        });
+    })
     ->in('Feature', 'Unit');
 
 // Taken//adapted from previous work by https://github.com/sdsmith1981
