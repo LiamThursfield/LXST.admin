@@ -1,4 +1,4 @@
-import type { App } from '@/types/app';
+import type { App, SiteBranding } from '@/types/app';
 import type { Auth } from '@/types/auth';
 import type { Translations } from '@/types/localisation';
 import type NavigationMenu from '@/types/navigation';
@@ -29,6 +29,8 @@ declare module '@inertiajs/core' {
             menus: {
                 [key: string]: NavigationMenu;
             };
+            /** Only shared in the tenant app. */
+            site: SiteBranding | null;
             sidebarOpen: boolean;
             translations: Translations;
             [key: string]: unknown;

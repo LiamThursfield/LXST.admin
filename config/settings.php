@@ -2,6 +2,7 @@
 
 use App\Models\Settings\GeneralSettings;
 use App\Models\Settings\IntegrationSettings;
+use App\Models\Settings\ThemeSettings;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelSettings\SettingsCasts\DataCast;
 use Spatie\LaravelSettings\SettingsCasts\DateTimeInterfaceCast;
@@ -18,6 +19,7 @@ return [
     'settings' => [
         GeneralSettings::class,
         IntegrationSettings::class,
+        ThemeSettings::class,
     ],
 
     /*

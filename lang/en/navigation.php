@@ -30,6 +30,7 @@ return [
     'create_user' => 'Create User',
     'site_settings' => 'Site Settings',
     'general_settings' => 'General',
+    'theme_settings' => 'Theme',
     'integration_settings' => 'Integrations',
 
     'tracker' => 'Tracker',

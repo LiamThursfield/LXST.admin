@@ -19,6 +19,7 @@ use App\Http\Controllers\Tenant\Admin\Settings\SecurityController;
 use App\Http\Controllers\Tenant\Admin\Settings\TimezoneController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\GeneralSettingsController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\IntegrationSettingsController;
+use App\Http\Controllers\Tenant\Admin\SiteSettings\ThemeSettingsController;
 use App\Http\Controllers\Tenant\Admin\Tracker\CategoryController;
 use App\Http\Controllers\Tenant\Admin\Tracker\HolidayController;
 use App\Http\Controllers\Tenant\Admin\Tracker\TaskDefinitionController;
@@ -83,6 +84,8 @@ Route::name('site-settings.')->prefix('site-settings')->group(function () {
     Route::put('general', [GeneralSettingsController::class, 'update'])->name('general.update');
     Route::get('integrations', [IntegrationSettingsController::class, 'edit'])->name('integrations.edit');
     Route::put('integrations', [IntegrationSettingsController::class, 'update'])->name('integrations.update');
+    Route::get('theme', [ThemeSettingsController::class, 'edit'])->name('theme.edit');
+    Route::put('theme', [ThemeSettingsController::class, 'update'])->name('theme.update');
 });
 
 Route::name('settings.')->group(function () {

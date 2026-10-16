@@ -2,6 +2,7 @@
 import type { NavigationMenuItem } from '@nuxt/ui';
 import { edit as editGeneral } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/GeneralSettingsController';
 import { edit as editIntegrations } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/IntegrationSettingsController';
+import { edit as editTheme } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/ThemeSettingsController';
 
 const { trans } = useTrans();
 
@@ -10,6 +11,11 @@ const links = [
         label: trans('site_settings.general.nav'),
         icon: 'i-lucide-settings',
         to: editGeneral.url(),
+    },
+    {
+        label: trans('site_settings.theme.nav'),
+        icon: 'i-lucide-palette',
+        to: editTheme.url(),
     },
     {
         label: trans('site_settings.integrations.nav'),
