@@ -26,15 +26,11 @@ enum TemplateFieldType: string
 
     /**
      * Whether the type's content editor exists, so it can be offered in the template builder.
-     * Switch each type on in the issue that adds its editor.
+     * Every type has one now; a new type can return false here until its editor is built.
      */
     public function isAvailable(): bool
     {
-        return match ($this) {
-            self::Text, self::Textarea, self::Number, self::Wysiwyg, self::Image, self::Repeater, self::Component, self::CmsMenu => true,
-            // CRM: #53.
-            default => false,
-        };
+        return true;
     }
 
     /**
@@ -73,6 +69,7 @@ enum TemplateFieldType: string
             self::Number => ['min', 'max'],
             self::Component => ['template_id'],
             self::Repeater => ['template_id', 'min_items', 'max_items'],
+            self::CrmOrganisationUnit => ['organisation_unit_type'],
             default => [],
         };
     }

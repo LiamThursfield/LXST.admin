@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tenant\Admin\Cms;
 
 use App\Enums\Cms\TemplateFieldType;
 use App\Enums\Cms\TemplateType;
+use App\Enums\Crm\OrganisationUnitType;
 use App\Http\Controllers\Concerns\SyncsBuilderFields;
 use App\Http\Controllers\Controller;
 use App\Http\Queries\Tenant\Admin\Cms\TemplateIndexQuery;
@@ -127,6 +128,7 @@ class TemplateController extends Controller
 
         return [
             'types' => TemplateType::asSelectItems(),
+            'organisationUnitTypes' => OrganisationUnitType::asSelectItems(),
             // The templates component and repeater fields can use
             'nestedTemplates' => Template::query()
                 ->whereIn('type', [TemplateType::Component, TemplateType::Repeater])
@@ -141,8 +143,9 @@ class TemplateController extends Controller
                     ->filter(fn (TemplateType $templateType) => $templateType->allowsFieldType($type))
                     ->map->value
                     ->values(),
-                'isAvailable' => $type->isAvailable()
-                    && ($type->requiredModule() === null || ($tenant !== null && $tenant->hasModule($type->requiredModule()))),
+                'isAvailable' => $type->isAvailable(),
+                // Types needing a module the tenant doesn't have (e.g. CRM) aren't offered at all
+                'needsModule' => $type->requiredModule() !== null && ! ($tenant !== null && $tenant->hasModule($type->requiredModule())),
             ])->values(),
         ];
     }

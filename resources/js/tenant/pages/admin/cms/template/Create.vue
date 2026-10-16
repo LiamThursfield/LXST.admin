@@ -11,6 +11,7 @@ defineProps<{
     types: SelectItem[];
     fieldTypes: TemplateFieldTypeOption[];
     nestedTemplates: NestedTemplateOption[];
+    organisationUnitTypes: SelectItem[];
 }>();
 
 const { trans } = useTrans();
@@ -35,6 +36,7 @@ const title = computed(() => trans('cms.templates.create.title'));
                     :types="types"
                     :field-types="fieldTypes"
                     :nested-templates="nestedTemplates"
+                    :organisation-unit-types="organisationUnitTypes"
                 />
             </div>
         </template>

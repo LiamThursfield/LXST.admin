@@ -78,7 +78,7 @@ trait ValidatesContent
             TemplateFieldType::Image => is_array($value) && filled($value['file_id'] ?? null)
                 ? ['file_id' => (int) $value['file_id'], 'alt' => filled($value['alt'] ?? null) ? (string) $value['alt'] : null]
                 : null,
-            TemplateFieldType::CmsMenu => is_numeric($value) ? (int) $value : null,
+            TemplateFieldType::CmsMenu, TemplateFieldType::CrmForm, TemplateFieldType::CrmOrganisationUnit => is_numeric($value) ? (int) $value : null,
             TemplateFieldType::Component => $this->componentValue($field, $value),
             TemplateFieldType::Repeater => $this->repeaterValue($field, $value),
             default => $value,

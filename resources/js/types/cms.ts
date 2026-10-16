@@ -30,7 +30,8 @@ export type TemplateFieldSettingKey =
     | 'max'
     | 'template_id'
     | 'min_items'
-    | 'max_items';
+    | 'max_items'
+    | 'organisation_unit_type';
 
 /** A component or repeater template a field can nest (see `TemplateController::builderOptions()`). */
 export type NestedTemplateOption = {
@@ -46,8 +47,10 @@ export type TemplateFieldTypeOption = {
     settingKeys: TemplateFieldSettingKey[];
     /** The template types that allow this field type. */
     templateTypes: TemplateType[];
-    /** False until the type's content editor exists, or when it needs a module the tenant doesn't have. */
+    /** False until the type's content editor exists. */
     isAvailable: boolean;
+    /** The type needs a module the tenant doesn't have (e.g. CRM), so it isn't offered. */
+    needsModule: boolean;
 };
 
 export type TemplateFieldData = {
@@ -58,7 +61,12 @@ export type TemplateFieldData = {
     slug: string;
     description: string | null;
     is_required: boolean;
-    settings: Partial<Record<TemplateFieldSettingKey, number | null>>;
+    settings: Partial<
+        Record<
+            Exclude<TemplateFieldSettingKey, 'organisation_unit_type'>,
+            number | null
+        >
+    > & { organisation_unit_type?: string | null };
 };
 
 /** A template, as returned by `TemplateResource`. */
