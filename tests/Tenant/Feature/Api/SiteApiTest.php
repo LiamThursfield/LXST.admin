@@ -8,15 +8,7 @@ use App\Models\Settings\GeneralSettings;
 use App\Models\Settings\IntegrationSettings;
 use App\Models\Settings\ThemeSettings;
 use App\Services\Authorisation\Enums\SettingsPermission;
-use App\Services\Cms\Api\ContentVersion;
 use App\Services\FileManager\FileManagerStorage;
-
-beforeEach(function () {
-    config(['api.rate_limit_per_minute' => 10000]);
-
-    // The test cache (Redis) outlives each test's database, so start every test with fresh cached responses
-    app(ContentVersion::class)->bump();
-});
 
 /**
  * A menu linking to a published page and an unpublished one

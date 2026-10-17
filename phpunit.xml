@@ -29,6 +29,10 @@
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="redis"/>
+        <!-- Keep tests out of the dev app's Redis databases (0 and 1); tests/Pest.php flushes this cache before each test -->
+        <env name="CACHE_PREFIX" value="lxstadmin-testing-cache-"/>
+        <env name="REDIS_DB" value="14"/>
+        <env name="REDIS_CACHE_DB" value="15"/>
         <!-- Typically mysql isn't used for tests, but this is necessary for improved tenancy testing performance -->
         <env name="DB_CONNECTION" value="mysql"/>
         <env name="DB_DATABASE" value="testing"/>

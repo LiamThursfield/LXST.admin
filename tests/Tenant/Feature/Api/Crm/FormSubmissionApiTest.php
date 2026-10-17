@@ -9,10 +9,8 @@ use App\Models\Crm\Form;
 use App\Models\Crm\FormField;
 use App\Models\Crm\FormSubmission;
 use App\Services\Crm\FormSpamCheck;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\RateLimiter;
 
 beforeEach(function () {
     Mail::fake();
@@ -173,14 +171,9 @@ describe('submitting', function () {
 
     test('submissions are rate limited more strictly than the rest of the API', function () {
         config(['api.form_submissions.rate_limit_per_minute' => 1]);
-        ThrottleRequests::shouldHashKeys(false);
-        RateLimiter::clear('form-submissions:'.tenant()->getTenantKey().'|203.0.113.43');
-        $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.43']);
 
         submit(submission())->assertCreated();
         submit(submission())->assertTooManyRequests();
-
-        ThrottleRequests::shouldHashKeys();
     });
 });
 
