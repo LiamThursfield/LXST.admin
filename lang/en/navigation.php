@@ -45,6 +45,7 @@ return [
     'general_settings' => 'General',
     'theme_settings' => 'Theme',
     'mail_settings' => 'Mail',
+    'email_previews' => 'Email previews',
     'integration_settings' => 'Integrations',
 
     'tracker' => 'Tracker',

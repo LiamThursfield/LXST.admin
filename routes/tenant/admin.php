@@ -22,6 +22,7 @@ use App\Http\Controllers\Tenant\Admin\Settings\PasswordController;
 use App\Http\Controllers\Tenant\Admin\Settings\ProfileController;
 use App\Http\Controllers\Tenant\Admin\Settings\SecurityController;
 use App\Http\Controllers\Tenant\Admin\Settings\TimezoneController;
+use App\Http\Controllers\Tenant\Admin\SiteSettings\EmailPreviewController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\GeneralSettingsController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\IntegrationSettingsController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\MailSettingsController;
@@ -94,6 +95,12 @@ Route::name('tracker.')->prefix('tracker')->middleware('tenant.module:tracker')-
 
     Route::post('tasks/{task}/entries', [TaskEntryController::class, 'store'])->name('tasks.entries.store');
     Route::delete('entries/{entry}', [TaskEntryController::class, 'destroy'])->name('entries.destroy');
+});
+
+// Previews only read, so they're outside the group below, which refreshes the API's cache
+Route::name('site-settings.email-previews.')->prefix('site-settings/email-previews')->group(function () {
+    Route::get('/', [EmailPreviewController::class, 'index'])->name('index');
+    Route::get('{preview}', [EmailPreviewController::class, 'show'])->name('show');
 });
 
 Route::name('site-settings.')->prefix('site-settings')->middleware('content.changed')->group(function () {
