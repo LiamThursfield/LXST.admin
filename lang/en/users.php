@@ -53,6 +53,17 @@ return [
 
     'confirm_delete' => 'Are you sure you want to delete user :email?',
 
+    // The central admin's users, who are all super users
+    'central' => [
+        'search' => 'Search name or email',
+        'you' => 'You',
+        'invite_notice' => 'They\'ll be emailed a link to set their password, and can then manage everything in the central admin.',
+        'validation' => [
+            'delete_self' => 'You can\'t delete yourself here. Use your profile settings instead.',
+            'last_user' => 'You\'re the only central admin user, so your account can\'t be deleted.',
+        ],
+    ],
+
     'flash' => [
         'created' => 'User created. A password setup email has been sent to :email.',
         'updated' => 'User updated successfully.',
