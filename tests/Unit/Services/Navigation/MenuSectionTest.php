@@ -9,9 +9,9 @@ use App\Services\Navigation\Enums\MenuItemType;
 it('filters out invisible menu items when resolving', function () {
     $section = new MenuSection;
 
-    // Add a visible item - important that it is a label as that means it will be visible even
-    // without a link or children
-    $item1 = new MenuItem(key: 'visible-item', sortOrder: 1, label: 'Visible Label', type: MenuItemType::LABEL);
+    // Add a visible item - important that it is a link as that means it will be visible even
+    // without children
+    $item1 = new MenuItem(key: 'visible-item', sortOrder: 1, label: 'Visible Link', type: MenuItemType::LINK, to: '/');
     $item1->gate(true);
     $section->addMenuItem($item1);
 
@@ -37,4 +37,26 @@ it('filters out invisible menu items when resolving', function () {
     // Should only contain the visible item, no nulls
     expect($resolved)->toHaveCount(1)
         ->and($resolved->first()->key)->toBe('visible-item');
+});
+
+it('resolves to nothing when only labels are visible', function () {
+    $section = new MenuSection;
+
+    $label = new MenuItem(key: 'label', sortOrder: 0, label: 'Label', type: MenuItemType::LABEL);
+    $section->addMenuItem($label);
+
+    $hiddenLink = new MenuItem(key: 'hidden-link', sortOrder: 1, label: 'Hidden Link', type: MenuItemType::LINK, to: '/');
+    $hiddenLink->gate(false);
+    $section->addMenuItem($hiddenLink);
+
+    expect($section->resolveForUser(User::factory()->make()))->toBeEmpty();
+});
+
+it('keeps labels when a link is visible beside them', function () {
+    $section = new MenuSection;
+
+    $section->addMenuItem(new MenuItem(key: 'label', sortOrder: 0, label: 'Label', type: MenuItemType::LABEL));
+    $section->addMenuItem(new MenuItem(key: 'link', sortOrder: 1, label: 'Link', type: MenuItemType::LINK, to: '/'));
+
+    expect($section->resolveForUser(User::factory()->make())->pluck('key')->all())->toBe(['label', 'link']);
 });

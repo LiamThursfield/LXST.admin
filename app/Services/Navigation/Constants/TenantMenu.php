@@ -26,6 +26,11 @@ namespace App\Services\Navigation\Constants;
  * │   ├── Forms
  * │   ├── Submissions
  * │   └── Organisation Units
+ * ├── DJ
+ * │   ├── Library
+ * │   ├── Gigs
+ * │   ├── Requests
+ * │   └── Stats
  * ├── Files
  * ├── Admin
  * │   ├── Users
@@ -87,6 +92,10 @@ class TenantMenu
     public const string MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS = 'organisation-units';
 
     public const string MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS_VIEW = 'view';
+
+    public const string MENU_MAIN_SECTION_DJ = 'dj';
+
+    public const string MENU_MAIN_SECTION_DJ_LABEL = 'dj-label';
 
     public const string MENU_MAIN_SECTION_FILES = 'files';
 

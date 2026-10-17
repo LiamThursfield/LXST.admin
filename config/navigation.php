@@ -97,6 +97,10 @@ return [
                     TenantMenu::MENU_MAIN_SECTION_CRM_ITEM_ORGANISATION_UNITS_VIEW => ['sortOrder' => 0],
                 ],
             ],
+            TenantMenu::MENU_MAIN_SECTION_DJ => [
+                'sortOrder' => 40,
+                TenantMenu::MENU_MAIN_SECTION_DJ_LABEL => ['sortOrder' => 0],
+            ],
             TenantMenu::MENU_MAIN_SECTION_FILES => [
                 'sortOrder' => 60,
                 TenantMenu::MENU_MAIN_SECTION_FILES_ITEM_FILES => ['sortOrder' => 0],
