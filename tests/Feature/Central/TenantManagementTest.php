@@ -75,6 +75,14 @@ describe('creating', function () {
             ->and(url('/'))->toBe(config('app.url'));
     });
 
+    test('a bare domain name is a subdomain of the central domain', function () {
+        Event::fake([TenantCreated::class]);
+
+        $this->post(route('central.admin.tenants.store'), tenantInput(['domain' => 'acme']))->assertSessionHasNoErrors();
+
+        expect(Tenant::query()->sole()->domains()->value('domain'))->toBe('acme.'.config('tenancy.identification.central_domains')[0]);
+    });
+
     test('a tenant can be created without an admin', function () {
         Event::fake([TenantCreated::class]);
 

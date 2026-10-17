@@ -9,6 +9,7 @@ import {
 } from '@/actions/App/Http/Controllers/Central/Admin/TenantController';
 import { formatDateTime, userTimezone } from '@/lib/timezone';
 import type { TenantData } from '@/types';
+import TenantDomains from './components/TenantDomains.vue';
 
 const props = defineProps<{
     tenant: { data: TenantData };
@@ -193,41 +194,7 @@ watch(deleteModalOpen, (open) => {
                     </p>
                 </UCard>
 
-                <UCard class="lg:col-span-2">
-                    <template #header>
-                        <h2 class="font-semibold">
-                            {{ trans('tenants.show.domains') }}
-                        </h2>
-                    </template>
-
-                    <ul
-                        v-if="tenant.domains.length"
-                        class="flex flex-col gap-2"
-                    >
-                        <li
-                            v-for="domain in tenant.domains"
-                            :key="domain.domain"
-                            class="flex items-center justify-between gap-4"
-                        >
-                            <span class="font-mono text-sm">{{
-                                domain.domain
-                            }}</span>
-                            <UButton
-                                v-if="domain.admin_url"
-                                :href="domain.admin_url"
-                                target="_blank"
-                                color="neutral"
-                                variant="ghost"
-                                size="sm"
-                                trailing-icon="i-lucide-external-link"
-                                :label="trans('tenants.show.open_admin')"
-                            />
-                        </li>
-                    </ul>
-                    <p v-else class="text-muted text-sm">
-                        {{ trans('tenants.show.no_domains') }}
-                    </p>
-                </UCard>
+                <TenantDomains class="lg:col-span-2" :tenant="tenant" />
             </div>
 
             <UModal

@@ -1,5 +1,6 @@
 /** A tenant's domain, with a link to the tenant's admin on it (none for a bare subdomain). */
 export type TenantDomainData = {
+    id: number;
     domain: string;
     admin_url: string | null;
 };

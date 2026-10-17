@@ -48,8 +48,12 @@ class TenantResource extends JsonResource
             'id' => $tenant->getTenantKey(),
             'name' => $tenant->name,
             'domains' => $tenant->domains
-                ->map(fn (Domain $domain) => (string) $domain->getAttribute('domain'))
-                ->map(fn (string $domain) => ['domain' => $domain, 'admin_url' => $urls->admin($domain)])
+                ->sortBy(fn (Domain $domain) => $domain->getKey())
+                ->map(fn (Domain $domain) => [
+                    'id' => (int) $domain->getKey(),
+                    'domain' => (string) $domain->getAttribute('domain'),
+                    'admin_url' => $urls->admin((string) $domain->getAttribute('domain')),
+                ])
                 ->values()
                 ->all(),
             'admin_url' => $primaryDomain === null ? null : $urls->admin($primaryDomain),
