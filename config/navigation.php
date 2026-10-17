@@ -101,9 +101,27 @@ return [
                 'sortOrder' => 40,
                 TenantMenu::MENU_MAIN_SECTION_DJ_LABEL => ['sortOrder' => 0],
             ],
-            TenantMenu::MENU_MAIN_SECTION_FILES => [
+            TenantMenu::MENU_MAIN_SECTION_TRACKER => [
+                'sortOrder' => 50,
+                TenantMenu::MENU_MAIN_SECTION_TRACKER_LABEL => ['sortOrder' => 0],
+                TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TODAY => ['sortOrder' => 5],
+                TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS => [
+                    'sortOrder' => 10,
+                    TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS_VIEW => ['sortOrder' => 0],
+                ],
+                TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES => [
+                    'sortOrder' => 20,
+                    TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES_VIEW => ['sortOrder' => 0],
+                ],
+                TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS => [
+                    'sortOrder' => 30,
+                    TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS_VIEW => ['sortOrder' => 0],
+                ],
+            ],
+            TenantMenu::MENU_MAIN_SECTION_TOOLS => [
                 'sortOrder' => 60,
-                TenantMenu::MENU_MAIN_SECTION_FILES_ITEM_FILES => ['sortOrder' => 0],
+                TenantMenu::MENU_MAIN_SECTION_TOOLS_LABEL => ['sortOrder' => 0],
+                TenantMenu::MENU_MAIN_SECTION_TOOLS_ITEM_FILES => ['sortOrder' => 10],
             ],
             TenantMenu::MENU_MAIN_SECTION_ADMIN => [
                 'sortOrder' => 90,
@@ -120,23 +138,6 @@ return [
                     TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_MAIL => ['sortOrder' => 2],
                     TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_INTEGRATIONS => ['sortOrder' => 3],
                     TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_EMAIL_PREVIEWS => ['sortOrder' => 4],
-                ],
-            ],
-            TenantMenu::MENU_MAIN_SECTION_TRACKER => [
-                'sortOrder' => 95,
-                TenantMenu::MENU_MAIN_SECTION_TRACKER_LABEL => ['sortOrder' => 0],
-                TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TODAY => ['sortOrder' => 5],
-                TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS => [
-                    'sortOrder' => 10,
-                    TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS_VIEW => ['sortOrder' => 0],
-                ],
-                TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES => [
-                    'sortOrder' => 20,
-                    TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES_VIEW => ['sortOrder' => 0],
-                ],
-                TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS => [
-                    'sortOrder' => 30,
-                    TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS_VIEW => ['sortOrder' => 0],
                 ],
             ],
             TenantMenu::MENU_MAIN_SECTION_ACCOUNT => [

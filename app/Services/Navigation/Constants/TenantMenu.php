@@ -31,15 +31,16 @@ namespace App\Services\Navigation\Constants;
  * │   ├── Gigs
  * │   ├── Requests
  * │   └── Stats
- * ├── Files
- * ├── Admin
- * │   ├── Users
- * │   └── Site Settings
  * ├── Tracker
  * │   ├── Today
  * │   ├── Tasks
  * │   ├── Categories
  * │   └── Holidays
+ * ├── Tools
+ * │   └── Files
+ * ├── Admin
+ * │   ├── Users
+ * │   └── Site Settings
  * └── Account
  *     └── Settings
  */
@@ -97,9 +98,29 @@ class TenantMenu
 
     public const string MENU_MAIN_SECTION_DJ_LABEL = 'dj-label';
 
-    public const string MENU_MAIN_SECTION_FILES = 'files';
+    public const string MENU_MAIN_SECTION_TRACKER = 'tracker';
 
-    public const string MENU_MAIN_SECTION_FILES_ITEM_FILES = 'file-manager';
+    public const string MENU_MAIN_SECTION_TRACKER_LABEL = 'tracker-label';
+
+    public const string MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES = 'categories';
+
+    public const string MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES_VIEW = 'view';
+
+    public const string MENU_MAIN_SECTION_TRACKER_ITEM_TODAY = 'today';
+
+    public const string MENU_MAIN_SECTION_TRACKER_ITEM_TASKS = 'tasks';
+
+    public const string MENU_MAIN_SECTION_TRACKER_ITEM_TASKS_VIEW = 'view';
+
+    public const string MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS = 'holidays';
+
+    public const string MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS_VIEW = 'view';
+
+    public const string MENU_MAIN_SECTION_TOOLS = 'tools';
+
+    public const string MENU_MAIN_SECTION_TOOLS_LABEL = 'tools-label';
+
+    public const string MENU_MAIN_SECTION_TOOLS_ITEM_FILES = 'file-manager';
 
     public const string MENU_MAIN_SECTION_ADMIN = 'admin';
 
@@ -122,24 +143,6 @@ class TenantMenu
     public const string MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_THEME = 'theme';
 
     public const string MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_MAIL = 'mail';
-
-    public const string MENU_MAIN_SECTION_TRACKER = 'tracker';
-
-    public const string MENU_MAIN_SECTION_TRACKER_LABEL = 'tracker-label';
-
-    public const string MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES = 'categories';
-
-    public const string MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES_VIEW = 'view';
-
-    public const string MENU_MAIN_SECTION_TRACKER_ITEM_TODAY = 'today';
-
-    public const string MENU_MAIN_SECTION_TRACKER_ITEM_TASKS = 'tasks';
-
-    public const string MENU_MAIN_SECTION_TRACKER_ITEM_TASKS_VIEW = 'view';
-
-    public const string MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS = 'holidays';
-
-    public const string MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS_VIEW = 'view';
 
     public const string MENU_MAIN_SECTION_ACCOUNT = 'account';
 

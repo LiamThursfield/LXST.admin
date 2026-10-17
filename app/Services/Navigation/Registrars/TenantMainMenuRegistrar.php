@@ -39,9 +39,9 @@ class TenantMainMenuRegistrar implements MenuRegistrar
         $this->registerCmsSection($registry);
         $this->registerCrmSection($registry);
         $this->registerDjSection($registry);
-        $this->registerFilesSection($registry);
-        $this->registerAdminSection($registry);
         $this->registerTrackerSection($registry);
+        $this->registerToolsSection($registry);
+        $this->registerAdminSection($registry);
         $this->registerAccountSection($registry);
     }
 
@@ -305,21 +305,112 @@ class TenantMainMenuRegistrar implements MenuRegistrar
     }
 
     /**
-     * Register the Files section of the tenant Main Menu
+     * Register the Tracker section of the tenant Main Menu
+     * Every item requires the Tracker module, so the whole section is hidden when it is switched off
      *
      * @throws DuplicateMenuSectionKeyException
      * @throws MenuKeyDoesNotExistException
      */
-    protected function registerFilesSection(NavigationRegistry $registry): void
+    protected function registerTrackerSection(NavigationRegistry $registry): void
     {
-        $sectionKey = TenantMenu::MENU_MAIN_SECTION_FILES;
+        $sectionKey = TenantMenu::MENU_MAIN_SECTION_TRACKER;
 
         $registry->addSectionToMenu(
             new MenuSection(
                 menuItems: Collection::wrap([
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_TRACKER_LABEL,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_LABEL]),
+                        label: 'navigation.tracker',
+                        type: MenuItemType::LABEL,
+                    ),
                     (new MenuItem(
-                        key: TenantMenu::MENU_MAIN_SECTION_FILES_ITEM_FILES,
-                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_FILES_ITEM_FILES]),
+                        key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TODAY,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TODAY]),
+                        label: 'navigation.today',
+                        type: MenuItemType::LINK,
+                        to: 'admin.tracker.today',
+                        icon: 'i-lucide-calendar-check',
+                        exact: true,
+                    ))->gate(TrackerPermission::ViewTasks),
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS]),
+                        label: 'navigation.tasks',
+                        type: MenuItemType::LINK,
+                        icon: 'i-lucide-list-checks',
+                        activePatterns: ['admin.tracker.tasks.*'],
+                        children: Collection::wrap([
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS_VIEW,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS_VIEW]),
+                                label: 'navigation.view_tasks',
+                                to: 'admin.tracker.tasks.index',
+                            )->gate(TrackerPermission::ViewTasks),
+                        ]),
+                    ),
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES]),
+                        label: 'navigation.categories',
+                        type: MenuItemType::LINK,
+                        icon: 'i-lucide-tag',
+                        activePatterns: ['admin.tracker.categories.*'],
+                        children: Collection::wrap([
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES_VIEW,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES_VIEW]),
+                                label: 'navigation.view_categories',
+                                to: 'admin.tracker.categories.index',
+                            )->gate(TrackerPermission::ViewCategories),
+                        ]),
+                    ),
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS]),
+                        label: 'navigation.holidays',
+                        type: MenuItemType::LINK,
+                        icon: 'i-lucide-palmtree',
+                        activePatterns: ['admin.tracker.holidays.*'],
+                        children: Collection::wrap([
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS_VIEW,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS_VIEW]),
+                                label: 'navigation.view_holidays',
+                                to: 'admin.tracker.holidays.index',
+                            )->gate(TrackerPermission::ManageHolidays),
+                        ]),
+                    ),
+                ])->each(fn (MenuItem $item) => $item->module(TenantModule::Tracker)),
+                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
+            ),
+            $sectionKey,
+            $this->menuKey
+        );
+    }
+
+    /**
+     * Register the Tools section of the tenant Main Menu
+     *
+     * @throws DuplicateMenuSectionKeyException
+     * @throws MenuKeyDoesNotExistException
+     */
+    protected function registerToolsSection(NavigationRegistry $registry): void
+    {
+        $sectionKey = TenantMenu::MENU_MAIN_SECTION_TOOLS;
+
+        $registry->addSectionToMenu(
+            new MenuSection(
+                menuItems: Collection::wrap([
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_TOOLS_LABEL,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TOOLS_LABEL]),
+                        label: 'navigation.tools',
+                        type: MenuItemType::LABEL,
+                    ),
+                    (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_TOOLS_ITEM_FILES,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TOOLS_ITEM_FILES]),
                         label: 'navigation.files',
                         type: MenuItemType::LINK,
                         to: 'admin.file-manager.index',
@@ -416,91 +507,6 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         ]),
                     ),
                 ]),
-                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
-            ),
-            $sectionKey,
-            $this->menuKey
-        );
-    }
-
-    /**
-     * Register the Tracker section of the tenant Main Menu
-     * Every item requires the Tracker module, so the whole section is hidden when it is switched off
-     *
-     * @throws DuplicateMenuSectionKeyException
-     * @throws MenuKeyDoesNotExistException
-     */
-    protected function registerTrackerSection(NavigationRegistry $registry): void
-    {
-        $sectionKey = TenantMenu::MENU_MAIN_SECTION_TRACKER;
-
-        $registry->addSectionToMenu(
-            new MenuSection(
-                menuItems: Collection::wrap([
-                    new MenuItem(
-                        key: TenantMenu::MENU_MAIN_SECTION_TRACKER_LABEL,
-                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_LABEL]),
-                        label: 'navigation.tracker',
-                        type: MenuItemType::LABEL,
-                    ),
-                    (new MenuItem(
-                        key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TODAY,
-                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TODAY]),
-                        label: 'navigation.today',
-                        type: MenuItemType::LINK,
-                        to: 'admin.tracker.today',
-                        icon: 'i-lucide-calendar-check',
-                        exact: true,
-                    ))->gate(TrackerPermission::ViewTasks),
-                    new MenuItem(
-                        key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS,
-                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS]),
-                        label: 'navigation.tasks',
-                        type: MenuItemType::LINK,
-                        icon: 'i-lucide-list-checks',
-                        activePatterns: ['admin.tracker.tasks.*'],
-                        children: Collection::wrap([
-                            new MenuChildItem(
-                                key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS_VIEW,
-                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_TASKS_VIEW]),
-                                label: 'navigation.view_tasks',
-                                to: 'admin.tracker.tasks.index',
-                            )->gate(TrackerPermission::ViewTasks),
-                        ]),
-                    ),
-                    new MenuItem(
-                        key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES,
-                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES]),
-                        label: 'navigation.categories',
-                        type: MenuItemType::LINK,
-                        icon: 'i-lucide-tag',
-                        activePatterns: ['admin.tracker.categories.*'],
-                        children: Collection::wrap([
-                            new MenuChildItem(
-                                key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES_VIEW,
-                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_CATEGORIES_VIEW]),
-                                label: 'navigation.view_categories',
-                                to: 'admin.tracker.categories.index',
-                            )->gate(TrackerPermission::ViewCategories),
-                        ]),
-                    ),
-                    new MenuItem(
-                        key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS,
-                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS]),
-                        label: 'navigation.holidays',
-                        type: MenuItemType::LINK,
-                        icon: 'i-lucide-palmtree',
-                        activePatterns: ['admin.tracker.holidays.*'],
-                        children: Collection::wrap([
-                            new MenuChildItem(
-                                key: TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS_VIEW,
-                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS, TenantMenu::MENU_MAIN_SECTION_TRACKER_ITEM_HOLIDAYS_VIEW]),
-                                label: 'navigation.view_holidays',
-                                to: 'admin.tracker.holidays.index',
-                            )->gate(TrackerPermission::ManageHolidays),
-                        ]),
-                    ),
-                ])->each(fn (MenuItem $item) => $item->module(TenantModule::Tracker)),
                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
             ),
             $sectionKey,
