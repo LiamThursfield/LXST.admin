@@ -28,7 +28,7 @@ trait HasLabels
     public function label(): string
     {
         // If the Enum defines its own getCustomLabel method, use it
-        /** @phpstan-ignore-next-line  */ // ignored as no enum implements this currently
+        /** @phpstan-ignore-next-line  */ // ignored as it's always true or always false, depending on the enum
         if (method_exists($this, 'getCustomLabel')) {
             return $this->getCustomLabel();
         }
