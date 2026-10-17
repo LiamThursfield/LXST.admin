@@ -23,6 +23,7 @@ declare module 'vue' {
     UButton: typeof import('./node_modules/.pnpm/@nuxt+ui@4.11.3_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Button.vue')['default']
     UCard: typeof import('./node_modules/.pnpm/@nuxt+ui@4.11.3_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Card.vue')['default']
     UCheckbox: typeof import('./node_modules/.pnpm/@nuxt+ui@4.11.3_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Checkbox.vue')['default']
+    UCheckboxGroup: typeof import('./node_modules/.pnpm/@nuxt+ui@4.11.3_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/CheckboxGroup.vue')['default']
     UChip: typeof import('./node_modules/.pnpm/@nuxt+ui@4.11.3_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Chip.vue')['default']
     UColorModeButton: typeof import('./node_modules/.pnpm/@nuxt+ui@4.11.3_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/color-mode/ColorModeButton.vue')['default']
     UDashboardGroup: typeof import('./node_modules/.pnpm/@nuxt+ui@4.11.3_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/DashboardGroup.vue')['default']
