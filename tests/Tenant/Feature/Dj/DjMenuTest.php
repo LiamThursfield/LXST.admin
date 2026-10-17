@@ -1,51 +1,40 @@
 <?php
 
 use App\Enums\TenantModule;
+use App\Services\Authorisation\Enums\DjPermission;
 use App\Services\Navigation\Constants\TenantMenu;
 use App\Services\Navigation\Data\MenuItem;
-use App\Services\Navigation\Enums\MenuItemType;
-use App\Services\Navigation\NavigationRegistry;
-use App\Services\Navigation\Registrars\TenantMainMenuRegistrar;
-
-beforeEach(function () {
-    $this->user = $this->createUserWithPermissions([]);
-
-    $this->registry = new NavigationRegistry;
-    (new TenantMainMenuRegistrar)->register($this->registry);
-});
+use App\Services\Navigation\NavigationService;
 
 /**
- * Stands in for the first DJ page, as the section's items are added by later tickets
+ * The keys of the DJ section's visible items, or an empty list when the section is hidden
+ *
+ * @return list<string>
  */
-function addDjMenuItem(NavigationRegistry $registry): void
+function visibleDjMenuKeys(mixed $user): array
 {
-    $registry->addMenuItemToSection(
-        new MenuItem(key: 'dj-test-item', sortOrder: 1, label: 'navigation.dj', type: MenuItemType::LINK, to: 'admin.dashboard'),
-        TenantMenu::MENU_MAIN_SECTION_DJ,
-        TenantMenu::MENU_MAIN,
-    );
+    return app(NavigationService::class)->resolveMenuForUser(TenantMenu::MENU_MAIN, $user)
+        ->first(fn ($section) => $section->contains(fn (MenuItem $item) => $item->key === TenantMenu::MENU_MAIN_SECTION_DJ_LABEL))
+        ?->pluck('key')
+        ->all() ?? [];
 }
 
-function djMenuLabelIsVisible(NavigationRegistry $registry, mixed $user): bool
-{
-    return $registry->resolveForUser(TenantMenu::MENU_MAIN, $user)
-        ->flatten()
-        ->contains(fn (MenuItem $item) => $item->key === TenantMenu::MENU_MAIN_SECTION_DJ_LABEL);
-}
+test('the DJ menu section shows the library to users who can view it', function () {
+    $user = $this->createUserWithPermissions([DjPermission::ViewLibrary]);
 
-test('the DJ menu section is hidden while it has nothing in it', function () {
-    expect(djMenuLabelIsVisible($this->registry, $this->user))->toBeFalse();
+    expect(visibleDjMenuKeys($user))->toBe([
+        TenantMenu::MENU_MAIN_SECTION_DJ_LABEL,
+        TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY,
+    ]);
 });
 
-test('the DJ menu section is shown when the tenant has the DJ module', function () {
-    addDjMenuItem($this->registry);
-
-    expect(djMenuLabelIsVisible($this->registry, $this->user))->toBeTrue();
+test('the DJ menu section is hidden from users with no DJ permissions', function () {
+    expect(visibleDjMenuKeys($this->createUserWithPermissions([])))->toBe([]);
 });
 
 test('the DJ menu section is hidden when the tenant does not have the DJ module', function () {
-    addDjMenuItem($this->registry);
+    $user = $this->createUserWithPermissions([DjPermission::ViewLibrary]);
     tenant()->update(['modules' => [TenantModule::Cms, TenantModule::Crm, TenantModule::Tracker]]);
 
-    expect(djMenuLabelIsVisible($this->registry, $this->user))->toBeFalse();
+    expect(visibleDjMenuKeys($user))->toBe([]);
 });

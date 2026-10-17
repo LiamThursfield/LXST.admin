@@ -98,6 +98,8 @@ class TenantMenu
 
     public const string MENU_MAIN_SECTION_DJ_LABEL = 'dj-label';
 
+    public const string MENU_MAIN_SECTION_DJ_ITEM_LIBRARY = 'library';
+
     public const string MENU_MAIN_SECTION_TRACKER = 'tracker';
 
     public const string MENU_MAIN_SECTION_TRACKER_LABEL = 'tracker-label';
