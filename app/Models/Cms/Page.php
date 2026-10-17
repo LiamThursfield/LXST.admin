@@ -5,6 +5,7 @@ namespace App\Models\Cms;
 use App\Models\Concerns\HasContent;
 use App\Models\Concerns\HasMetadata;
 use App\Models\Concerns\HasUrl;
+use App\Models\Concerns\HasViews;
 use Database\Factories\Cms\PageFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -36,6 +37,7 @@ class Page extends Model
 
     use HasMetadata;
     use HasUrl;
+    use HasViews;
 
     protected $table = 'cms_pages';
 

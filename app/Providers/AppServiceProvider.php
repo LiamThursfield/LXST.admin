@@ -66,5 +66,10 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('form-submissions', fn (Request $request): Limit => Limit::perMinute((int) config('api.form_submissions.rate_limit_per_minute'))
             ->by(tenant()?->getTenantKey().'|'.$request->ip())
         );
+
+        // Recording page views, per visitor: sites calling from their server send the visitor's IP
+        RateLimiter::for('page-views', fn (Request $request): Limit => Limit::perMinute((int) config('api.page_views.rate_limit_per_minute'))
+            ->by(tenant()?->getTenantKey().'|'.($request->input('ip_address') ?: $request->ip()))
+        );
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Tenant\Api\V1\Cms\MenuController;
 use App\Http\Controllers\Tenant\Api\V1\Cms\PageController;
+use App\Http\Controllers\Tenant\Api\V1\Cms\PageViewController;
 use App\Http\Controllers\Tenant\Api\V1\Crm\FormController;
 use App\Http\Controllers\Tenant\Api\V1\Crm\FormSubmissionController;
 use App\Http\Controllers\Tenant\Api\V1\PingController;
@@ -35,6 +36,10 @@ Route::prefix('v1')
             // The page (or redirect) for a URL on the site: /cms/pages?url=/about/team
             Route::get('pages', [PageController::class, 'show'])->name('pages.show');
             Route::get('menus/{menu:slug}', [MenuController::class, 'show'])->name('menus.show');
+            // Records a visit (queued), sent by the site with the visitor's details
+            Route::post('page-views', [PageViewController::class, 'store'])
+                ->middleware('throttle:page-views')
+                ->name('page-views.store');
         });
 
         Route::prefix('crm')->name('crm.')->middleware('tenant.module:crm')->group(function () {
