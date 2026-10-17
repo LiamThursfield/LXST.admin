@@ -107,6 +107,12 @@ return [
         'dj:now-playing' => 'DJ now playing',
     ],
 
+    'library_source' => [
+        'rekordbox_xml' => 'Rekordbox XML',
+        'rekordbox_db' => 'Rekordbox database',
+        'cli_sync' => 'Rekordbox CLI sync',
+    ],
+
     'tenant_module' => [
         'cms' => 'CMS',
         'crm' => 'CRM',
