@@ -96,7 +96,7 @@ Route::name('tracker.')->prefix('tracker')->middleware('tenant.module:tracker')-
     Route::delete('entries/{entry}', [TaskEntryController::class, 'destroy'])->name('entries.destroy');
 });
 
-Route::name('site-settings.')->prefix('site-settings')->group(function () {
+Route::name('site-settings.')->prefix('site-settings')->middleware('content.changed')->group(function () {
     Route::get('general', [GeneralSettingsController::class, 'edit'])->name('general.edit');
     Route::put('general', [GeneralSettingsController::class, 'update'])->name('general.update');
     Route::get('integrations', [IntegrationSettingsController::class, 'edit'])->name('integrations.edit');
