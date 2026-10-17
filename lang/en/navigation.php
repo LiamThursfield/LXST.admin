@@ -49,6 +49,7 @@ return [
     'theme_settings' => 'Theme',
     'mail_settings' => 'Mail',
     'email_previews' => 'Email previews',
+    'api_tokens' => 'API tokens',
     'integration_settings' => 'Integrations',
 
     'tracker' => 'Tracker',

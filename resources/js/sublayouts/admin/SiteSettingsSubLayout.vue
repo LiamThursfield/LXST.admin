@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { usePage } from '@inertiajs/vue3';
 import type { NavigationMenuItem } from '@nuxt/ui';
+import { index as apiTokens } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/ApiTokenController';
 import { index as emailPreviews } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/EmailPreviewController';
 import { edit as editGeneral } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/GeneralSettingsController';
 import { edit as editIntegrations } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/IntegrationSettingsController';
@@ -8,33 +10,58 @@ import { edit as editTheme } from '@/actions/App/Http/Controllers/Tenant/Admin/S
 
 const { trans } = useTrans();
 
-const links = [
-    {
-        label: trans('site_settings.general.nav'),
-        icon: 'i-lucide-settings',
-        to: editGeneral.url(),
-    },
-    {
-        label: trans('site_settings.theme.nav'),
-        icon: 'i-lucide-palette',
-        to: editTheme.url(),
-    },
-    {
-        label: trans('site_settings.mail.nav'),
-        icon: 'i-lucide-mail',
-        to: editMail.url(),
-    },
-    {
-        label: trans('site_settings.integrations.nav'),
-        icon: 'i-lucide-plug',
-        to: editIntegrations.url(),
-    },
-    {
-        label: trans('site_settings.email_previews.nav'),
-        icon: 'i-lucide-mail-search',
-        to: emailPreviews.url(),
-    },
-] satisfies NavigationMenuItem[];
+const page = usePage();
+
+/** The main menu only has the API tokens item for users who can manage them */
+const canManageApiTokens = computed(() =>
+    page.props.menus.main
+        .flat()
+        .flatMap((item: NavigationMenuItem) => item.children ?? [])
+        .some(
+            (child: NavigationMenuItem & { key?: string }) =>
+                child.key === 'api-tokens',
+        ),
+);
+
+const links = computed(
+    () =>
+        [
+            {
+                label: trans('site_settings.general.nav'),
+                icon: 'i-lucide-settings',
+                to: editGeneral.url(),
+            },
+            {
+                label: trans('site_settings.theme.nav'),
+                icon: 'i-lucide-palette',
+                to: editTheme.url(),
+            },
+            {
+                label: trans('site_settings.mail.nav'),
+                icon: 'i-lucide-mail',
+                to: editMail.url(),
+            },
+            {
+                label: trans('site_settings.integrations.nav'),
+                icon: 'i-lucide-plug',
+                to: editIntegrations.url(),
+            },
+            {
+                label: trans('site_settings.email_previews.nav'),
+                icon: 'i-lucide-mail-search',
+                to: emailPreviews.url(),
+            },
+            ...(canManageApiTokens.value
+                ? [
+                      {
+                          label: trans('site_settings.api_tokens.nav'),
+                          icon: 'i-lucide-key-round',
+                          to: apiTokens.url(),
+                      },
+                  ]
+                : []),
+        ] satisfies NavigationMenuItem[],
+);
 </script>
 
 <template>

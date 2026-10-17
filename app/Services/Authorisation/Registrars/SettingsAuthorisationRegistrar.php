@@ -15,7 +15,7 @@ class SettingsAuthorisationRegistrar implements AuthorisationRegistrar
 
         // Assign the permissions to the roles
 
-        // Admin can view and change the site's settings
+        // Admin can view and change the site's settings, and manage its API tokens
         $registry->assignPermissionsToRole(Role::Admin, SettingsPermission::cases());
 
         // Editor can see them (e.g. to check the site name), but not change them

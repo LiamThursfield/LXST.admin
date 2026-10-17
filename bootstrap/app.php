@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AuthenticateTenantToken;
 use App\Http\Middleware\BumpsContentVersion;
 use App\Http\Middleware\EnsureTenantHasModule;
 use App\Http\Middleware\EnsureTenantIsEnabled;
@@ -81,6 +82,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => PermissionMiddleware::class,
             'tenant.module' => EnsureTenantHasModule::class,
             'content.changed' => BumpsContentVersion::class,
+            'auth.tenant-token' => AuthenticateTenantToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

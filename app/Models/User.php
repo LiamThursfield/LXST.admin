@@ -10,12 +10,29 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
+    /** @use HasApiTokens<ApiToken> */
+    use HasApiTokens;
+
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable, TwoFactorAuthenticatable;
+
+    /**
+     * A deleted user's API tokens go with them, so nothing keeps acting as someone who's gone.
+     * Only tenants have API tokens; central users share this model but not the table.
+     */
+    protected static function booted(): void
+    {
+        static::deleting(function (User $user): void {
+            if (tenant() !== null) {
+                $user->tokens()->delete();
+            }
+        });
+    }
 
     /**
      * The attributes that are mass assignable.
