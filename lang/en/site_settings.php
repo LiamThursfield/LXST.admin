@@ -179,4 +179,47 @@ return [
             'gtm_id_format' => 'Enter a container ID like GTM-ABC1234.',
         ],
     ],
+
+    'api_tokens' => [
+        'nav' => 'API tokens',
+        'title' => 'API tokens',
+        'description' => 'Tokens let trusted tools, like the Rekordbox CLI, use this site\'s API. Each token acts as the person who created it, and stops working if they can no longer manage API tokens.',
+        'create' => 'Create token',
+        'search' => 'Search tokens...',
+        'empty' => 'No API tokens yet.',
+        'never' => 'Never',
+        'no_expiry' => 'Never expires',
+        'expired' => 'Expired',
+        'revoke' => 'Revoke',
+        'confirm_revoke' => 'Revoke the token ":name"? Anything using it will stop working straight away.',
+        'columns' => [
+            'name' => 'Name',
+            'owner' => 'Created by',
+            'last_used' => 'Last used',
+            'expires' => 'Expires',
+        ],
+        'fields' => [
+            'name' => 'Name',
+            'name_help' => 'Something to tell it apart later, e.g. "Rekordbox CLI on my laptop".',
+            'abilities' => 'Abilities',
+            'abilities_help' => 'What the token can do. Give it only what it needs.',
+            'expires_on' => 'Expires on',
+            'expires_on_help' => 'The last day the token works. Leave empty for a token that never expires.',
+        ],
+        'created' => [
+            'title' => 'Copy your new token',
+            'description' => 'This is the only time ":name" is shown. Store it somewhere safe, as it can\'t be shown again.',
+            'copy' => 'Copy',
+            'copied' => 'Token copied.',
+            'done' => 'Done',
+        ],
+        'flash' => [
+            'created' => 'API token created.',
+            'revoked' => 'API token revoked.',
+        ],
+        'api' => [
+            'unauthenticated' => 'A valid API token is required.',
+            'missing_ability' => 'This API token doesn\'t have the :ability ability.',
+        ],
+    ],
 ];

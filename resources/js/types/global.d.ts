@@ -1,4 +1,5 @@
 import type { AriaAttributes } from 'vue';
+import type { NewApiToken } from '@/types/admin';
 import type { App, SiteBranding } from '@/types/app';
 import type { Auth } from '@/types/auth';
 import type { Translations } from '@/types/localisation';
@@ -22,6 +23,8 @@ declare module '@inertiajs/core' {
         flashDataType: {
             success?: string;
             error?: string;
+            /** Only flashed once, straight after the token is created */
+            apiToken?: NewApiToken;
         };
         sharedPageProps: {
             app: App;

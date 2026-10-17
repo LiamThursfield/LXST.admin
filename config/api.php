@@ -50,4 +50,19 @@ return [
         'rate_limit_per_minute' => (int) env('API_PAGE_VIEWS_PER_MINUTE', 60),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | API Tokens
+    |--------------------------------------------------------------------------
+    |
+    | Routes for trusted clients (e.g. the Rekordbox CLI tool) need a tenant API
+    | token with the right ability, and are rate limited per token (the
+    | `tenant-api-token` rate limiter).
+    |
+    */
+
+    'tokens' => [
+        'rate_limit_per_minute' => (int) env('API_TOKENS_PER_MINUTE', 120),
+    ],
+
 ];

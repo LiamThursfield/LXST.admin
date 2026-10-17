@@ -102,6 +102,11 @@ return [
         'repeater' => 'Repeater',
     ],
 
+    'api_token_ability' => [
+        'dj:sync' => 'DJ library sync',
+        'dj:now-playing' => 'DJ now playing',
+    ],
+
     'tenant_module' => [
         'cms' => 'CMS',
         'crm' => 'CRM',
