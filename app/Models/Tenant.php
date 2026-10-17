@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\TenantModule;
 use Illuminate\Database\Eloquent\Casts\AsEnumCollection;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDomains;
@@ -13,6 +14,7 @@ use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 /**
  * @property string $name
  * @property Collection<int, TenantModule>|null $modules
+ * @property Carbon|null $disabled_at
  */
 class Tenant extends BaseTenant implements TenantWithDatabase
 {
@@ -26,6 +28,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         return array_merge(parent::getCustomColumns(), [
             'name',
             'modules',
+            'disabled_at',
         ]);
     }
 
@@ -36,6 +39,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     {
         return [
             'modules' => AsEnumCollection::of(TenantModule::class),
+            'disabled_at' => 'datetime',
         ];
     }
 
@@ -45,5 +49,13 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     public function hasModule(TenantModule $module): bool
     {
         return $this->modules?->contains($module) ?? false;
+    }
+
+    /**
+     * Whether the tenant has been switched off (see EnsureTenantIsEnabled)
+     */
+    public function isDisabled(): bool
+    {
+        return $this->disabled_at !== null;
     }
 }
