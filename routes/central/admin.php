@@ -4,6 +4,7 @@ use App\Http\Controllers\Central\Admin\DashboardController;
 use App\Http\Controllers\Central\Admin\Settings\PasswordController;
 use App\Http\Controllers\Central\Admin\Settings\ProfileController;
 use App\Http\Controllers\Central\Admin\Settings\SecurityController;
+use App\Http\Controllers\Central\Admin\TenantController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,6 +17,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', DashboardController::class)->name('dashboard');
+
+Route::get('tenants', [TenantController::class, 'index'])->name('tenants.index');
+Route::get('tenants/{tenant}', [TenantController::class, 'show'])->name('tenants.show');
 
 Route::name('settings.')->group(function () {
     Route::get('/settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');

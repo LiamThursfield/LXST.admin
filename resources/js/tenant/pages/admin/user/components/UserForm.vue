@@ -72,7 +72,7 @@ async function onSubmit() {
     }
 
     // Otherwise, update the correct user
-    form.submit(update({ user: props.user!.id.toString() }));
+    form.submit(update({ user: props.user!.id }));
 }
 </script>
 

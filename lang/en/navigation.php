@@ -11,6 +11,7 @@
 
 return [
     'dashboard' => 'Dashboard',
+    'tenants' => 'Tenants',
 
     'cms' => 'CMS',
     'pages' => 'Pages',
