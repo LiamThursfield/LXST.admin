@@ -8,8 +8,8 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * After an admin change that could affect the website (CMS, CRM or File Manager), marks the
- * headless API's cached pages as stale. Done per request rather than per model event, as some
+ * After an admin change that could affect the website (CMS, CRM, File Manager or site settings),
+ * marks the headless API's cached responses as stale. Done per request rather than per model event, as some
  * changes (e.g. syncing content) use queries that don't fire model events.
  */
 class BumpsContentVersion

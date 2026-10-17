@@ -6,8 +6,8 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 /**
- * A per-tenant marker that changes whenever the site's content might have (any CMS, CRM or File
- * Manager change in the admin). Cached API responses are keyed by it, so a change refreshes every
+ * A per-tenant marker that changes whenever the site's content might have (any CMS, CRM, File
+ * Manager or site settings change in the admin). Cached API responses are keyed by it, so a change refreshes every
  * page at once: layouts, menus and forms appear on many pages, so working out exactly which pages
  * changed isn't worth it. The cache is already per tenant (CacheTenancyBootstrapper).
  */

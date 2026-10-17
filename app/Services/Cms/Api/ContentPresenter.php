@@ -133,10 +133,14 @@ class ContentPresenter
     {
         $menu = is_numeric($value) ? Menu::query()->find((int) $value) : null;
 
-        if ($menu === null) {
-            return null;
-        }
+        return $menu === null ? null : $this->presentMenu($menu);
+    }
 
+    /**
+     * @return array{slug: string, name: string, items: list<array<string, mixed>>}
+     */
+    public function presentMenu(Menu $menu): array
+    {
         // Page links use the page's current URL; links to pages that aren't published are left out
         $pageUrls = Url::query()
             ->withStatus(PublishStatus::Published)

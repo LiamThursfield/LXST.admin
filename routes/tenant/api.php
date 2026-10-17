@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Tenant\Api\V1\Cms\MenuController;
 use App\Http\Controllers\Tenant\Api\V1\Cms\PageController;
 use App\Http\Controllers\Tenant\Api\V1\Crm\FormController;
 use App\Http\Controllers\Tenant\Api\V1\Crm\FormSubmissionController;
 use App\Http\Controllers\Tenant\Api\V1\PingController;
+use App\Http\Controllers\Tenant\Api\V1\SiteController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -26,10 +28,13 @@ Route::prefix('v1')
     ->middleware('throttle:tenant-api')
     ->group(function () {
         Route::get('/', PingController::class)->name('ping');
+        // Site-wide data for every page: name, branding, theme, GTM and menus
+        Route::get('site', SiteController::class)->name('site');
 
         Route::prefix('cms')->name('cms.')->middleware('tenant.module:cms')->group(function () {
             // The page (or redirect) for a URL on the site: /cms/pages?url=/about/team
             Route::get('pages', [PageController::class, 'show'])->name('pages.show');
+            Route::get('menus/{menu:slug}', [MenuController::class, 'show'])->name('menus.show');
         });
 
         Route::prefix('crm')->name('crm.')->middleware('tenant.module:crm')->group(function () {

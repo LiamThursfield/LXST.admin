@@ -7,11 +7,10 @@ use App\Http\Requests\Tenant\Api\V1\Cms\PageShowRequest;
 use App\Models\Cms\Metadata;
 use App\Models\Cms\Page;
 use App\Models\Cms\Redirect;
+use App\Services\Cms\Api\ApiResponseCache;
 use App\Services\Cms\Api\ContentPresenter;
-use App\Services\Cms\Api\ContentVersion;
 use App\Services\Cms\Api\PageResolver;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * The main endpoint for headless sites: send the URL being visited, get back the page to show,
@@ -19,32 +18,18 @@ use Illuminate\Support\Facades\Cache;
  */
 class PageController extends Controller
 {
-    /**
-     * How long a response is cached at most. Any admin change refreshes it sooner (ContentVersion),
-     * and so does the next scheduled publish or expiry.
-     */
-    protected const int CACHE_SECONDS = 3600;
-
     public function __construct(
         protected PageResolver $resolver,
         protected ContentPresenter $presenter,
-        protected ContentVersion $version,
+        protected ApiResponseCache $cache,
     ) {}
 
     public function show(PageShowRequest $request): JsonResponse
     {
         $path = $request->sitePath();
         $format = $request->richTextFormat();
-        // The key includes the next scheduled publish or expiry, so once it passes the key changes
-        // and the page is resolved again, whatever the cache store's own expiry does
-        $nextChange = $this->resolver->nextScheduledChange();
-        $key = 'cms-api:page:'.$this->version->current().':'.($nextChange?->getTimestamp() ?? 'none').':'.sha1("{$path}|{$format}");
-        $seconds = $nextChange === null
-            ? self::CACHE_SECONDS
-            : (int) max(1, min(self::CACHE_SECONDS, now()->diffInSeconds($nextChange)));
 
-        /** @var array{status: int, body: array<string, mixed>} $cached */
-        $cached = Cache::remember($key, $seconds, fn () => $this->resolve($path, $format));
+        $cached = $this->cache->remember("page|{$path}|{$format}", fn () => $this->resolve($path, $format));
 
         return response()->json($cached['body'], $cached['status']);
     }
