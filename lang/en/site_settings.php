@@ -92,6 +92,29 @@ return [
         ],
     ],
 
+    'email_previews' => [
+        'nav' => 'Email previews',
+        'title' => 'Email previews',
+        'description' => 'See the emails this site sends, filled in with sample data. Nothing is sent.',
+        'choose' => 'Choose an email to preview.',
+        'open' => 'Open in a new tab',
+        'frame_title' => 'Preview of :email',
+        'groups' => [
+            'users' => 'Users',
+            'settings' => 'Settings',
+            'crm' => 'CRM',
+        ],
+        'emails' => [
+            'password_setup' => 'Password setup and reset',
+            'mail_test' => 'Mail settings test',
+            'form_submitted' => 'New submission: :form',
+        ],
+        'sample' => [
+            'answer' => 'A sample answer',
+            'long_answer' => 'A longer sample answer, as someone might type into a larger box on the form.',
+        ],
+    ],
+
     'mail' => [
         'nav' => 'Mail',
         'title' => 'Mail',

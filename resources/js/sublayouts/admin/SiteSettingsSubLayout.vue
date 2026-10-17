@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui';
+import { index as emailPreviews } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/EmailPreviewController';
 import { edit as editGeneral } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/GeneralSettingsController';
 import { edit as editIntegrations } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/IntegrationSettingsController';
 import { edit as editMail } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/MailSettingsController';
@@ -27,6 +28,11 @@ const links = [
         label: trans('site_settings.integrations.nav'),
         icon: 'i-lucide-plug',
         to: editIntegrations.url(),
+    },
+    {
+        label: trans('site_settings.email_previews.nav'),
+        icon: 'i-lucide-mail-search',
+        to: emailPreviews.url(),
     },
 ] satisfies NavigationMenuItem[];
 </script>

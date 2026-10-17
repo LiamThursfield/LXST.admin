@@ -377,6 +377,12 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                                 label: 'navigation.integration_settings',
                                 to: 'admin.site-settings.integrations.edit',
                             )->gate(SettingsPermission::ViewSettings),
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_EMAIL_PREVIEWS,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_EMAIL_PREVIEWS]),
+                                label: 'navigation.email_previews',
+                                to: 'admin.site-settings.email-previews.index',
+                            )->gate(SettingsPermission::ViewSettings),
                         ]),
                     ),
                 ]),
