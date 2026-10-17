@@ -5,6 +5,7 @@ use App\Http\Controllers\Central\Admin\Settings\PasswordController;
 use App\Http\Controllers\Central\Admin\Settings\ProfileController;
 use App\Http\Controllers\Central\Admin\Settings\SecurityController;
 use App\Http\Controllers\Central\Admin\TenantController;
+use App\Http\Controllers\Central\Admin\TenantDomainController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,6 +28,13 @@ Route::put('tenants/{tenant}', [TenantController::class, 'update'])->name('tenan
 Route::post('tenants/{tenant}/disable', [TenantController::class, 'disable'])->name('tenants.disable');
 Route::post('tenants/{tenant}/enable', [TenantController::class, 'enable'])->name('tenants.enable');
 Route::delete('tenants/{tenant}', [TenantController::class, 'destroy'])->name('tenants.destroy');
+
+// A tenant's domains, managed from its page
+Route::scopeBindings()->group(function () {
+    Route::post('tenants/{tenant}/domains', [TenantDomainController::class, 'store'])->name('tenants.domains.store');
+    Route::put('tenants/{tenant}/domains/{domain}', [TenantDomainController::class, 'update'])->name('tenants.domains.update');
+    Route::delete('tenants/{tenant}/domains/{domain}', [TenantDomainController::class, 'destroy'])->name('tenants.domains.destroy');
+});
 
 Route::name('settings.')->group(function () {
     Route::get('/settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');

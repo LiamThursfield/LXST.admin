@@ -51,7 +51,7 @@ return [
         'name' => 'Name',
         'name_help' => 'A short handle: lowercase letters, numbers and dashes, e.g. acme-ltd.',
         'domain' => 'Domain',
-        'domain_help' => 'The tenant\'s first domain, e.g. acme.example.com. More can be added later.',
+        'domain_help' => 'The tenant\'s first domain, e.g. acme.example.com, or just acme for a subdomain of this admin\'s domain. More can be added later.',
         'modules_help' => 'Which optional modules the tenant can use.',
         'admin_first_name' => 'First Name',
         'admin_last_name' => 'Last Name',
@@ -69,9 +69,27 @@ return [
         'details' => 'Details',
         'domains' => 'Domains',
         'modules' => 'Modules',
-        'no_domains' => 'This tenant has no domains.',
         'no_modules' => 'No modules are switched on.',
         'open_admin' => 'Open admin',
+    ],
+
+    'domains' => [
+        'add' => 'Add domain',
+        'placeholder' => 'acme.example.com, or acme',
+        'help' => 'A full domain, or just a name (e.g. acme) for a subdomain of this admin\'s domain. Its DNS (and SSL) must point at this app before the site answers on it.',
+        'edit' => 'Edit domain',
+        'remove' => 'Remove domain',
+        'confirm_remove' => 'Remove :domain? The site will stop answering on it.',
+        'save' => 'Save',
+        'cancel' => 'Cancel',
+        'flash' => [
+            'added' => 'Domain :domain added.',
+            'updated' => 'Domain changed to :domain.',
+            'removed' => 'Domain :domain removed.',
+        ],
+        'validation' => [
+            'last_domain' => 'A tenant needs at least one domain. Add another before removing this one.',
+        ],
     ],
 
     'actions' => [
