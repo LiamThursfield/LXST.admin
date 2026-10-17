@@ -2,10 +2,32 @@
 
 use App\Models\Tenant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Redis;
 use Tests\TenantTestCase;
 use Tests\TestCase;
 use Tests\Traits\CreatesUserWithPermissionsTrait;
 use Tests\Traits\RefreshDatabaseWithTenantTrait;
+
+/*
+|--------------------------------------------------------------------------
+| Test Cache
+|--------------------------------------------------------------------------
+|
+| phpunit.xml gives the tests their own Redis databases and cache prefix. Parallel processes share
+| those databases, so each one appends its token to the prefix before the app reads its config.
+|
+| Laravel's own parallel cache prefix is turned off: it only changes the config after the app has
+| booted, by which point the cache store (and the permission cache) already use the old prefix.
+|
+*/
+
+if (isset($_SERVER['TEST_TOKEN'])) {
+    $parallelCachePrefix = getenv('CACHE_PREFIX').$_SERVER['TEST_TOKEN'].'-';
+
+    putenv('CACHE_PREFIX='.$parallelCachePrefix);
+    $_ENV['CACHE_PREFIX'] = $_SERVER['CACHE_PREFIX'] = $parallelCachePrefix;
+    $_SERVER['LARAVEL_PARALLEL_TESTING_WITHOUT_CACHE'] = true;
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +42,9 @@ use Tests\Traits\RefreshDatabaseWithTenantTrait;
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
+    ->beforeEach(function (): void {
+        flushTestCache();
+    })
     ->afterEach(function (): void {
         // Tenants created by a test (e.g. for the tenants:* commands) get their own databases. The
         // tenant rows are rolled back, but the databases aren't, so drop them while the rows still
@@ -40,6 +65,7 @@ pest()->extend(TenantTestCase::class)
         RefreshDatabaseWithTenantTrait::class,
         CreatesUserWithPermissionsTrait::class
     )->beforeEach(function (): void {
+        flushTestCache();
         $this->withoutVite();
         Http::preventStrayRequests();
     })->in('Tenant/Feature', 'Tenant/Unit');
@@ -73,4 +99,27 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/**
+ * Delete this process's cache keys (including tenant-prefixed ones and rate limiter hits).
+ *
+ * Only keys under the testing cache prefix are deleted, so even a misconfigured Redis database
+ * can never lose the dev app's cache.
+ */
+function flushTestCache(): void
+{
+    $cachePrefix = (string) config('cache.prefix');
+
+    throw_unless(
+        app()->environment('testing') && str_contains($cachePrefix, '-testing-'),
+        RuntimeException::class,
+        "Refusing to flush cache prefix [{$cachePrefix}] outside the testing cache.",
+    );
+
+    Redis::connection(config('cache.stores.redis.connection'))->eval(
+        "for _, key in ipairs(redis.call('keys', ARGV[1])) do redis.call('del', key) end",
+        0,
+        config('database.redis.options.prefix').$cachePrefix.'*',
+    );
 }

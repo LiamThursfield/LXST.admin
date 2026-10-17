@@ -1,8 +1,6 @@
 <?php
 
 use App\Enums\TenantModule;
-use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 
@@ -38,19 +36,12 @@ test('unknown API routes return a JSON 404 even without a JSON accept header', f
 test('requests over the rate limit return a JSON 429', function () {
     config(['api.rate_limit_per_minute' => 2]);
 
-    // The test cache (Redis) persists between runs, so start from a clean limit for this client
-    ThrottleRequests::shouldHashKeys(false);
-    RateLimiter::clear('tenant-api:'.tenant()->getTenantKey().'|203.0.113.42');
-    $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.42']);
-
     $this->get(route('api.v1.ping'))->assertOk();
     $this->get(route('api.v1.ping'))->assertOk();
 
     $this->get(route('api.v1.ping'))
         ->assertTooManyRequests()
         ->assertHeader('Content-Type', 'application/json');
-
-    ThrottleRequests::shouldHashKeys();
 });
 
 test('module routes return a JSON 404 when the tenant does not have the module', function () {

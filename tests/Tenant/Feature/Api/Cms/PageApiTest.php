@@ -19,13 +19,6 @@ use App\Services\FileManager\FileManagerStorage;
 use Illuminate\Support\Carbon;
 use Illuminate\Testing\TestResponse;
 
-beforeEach(function () {
-    config(['api.rate_limit_per_minute' => 10000]);
-
-    // The test cache (Redis) outlives each test's database, so start every test with fresh cached pages
-    app(ContentVersion::class)->bump();
-});
-
 function getPage(string $url, array $query = []): TestResponse
 {
     return test()->getJson(route('api.v1.cms.pages.show', ['url' => $url, ...$query]));
