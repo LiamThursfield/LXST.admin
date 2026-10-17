@@ -54,6 +54,7 @@ class CentralMainMenuRegistrar implements MenuRegistrar
                         type: MenuItemType::LINK,
                         to: 'central.admin.dashboard',
                         icon: 'i-lucide-house',
+                        exact: true,
                     ),
                 ]),
                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
