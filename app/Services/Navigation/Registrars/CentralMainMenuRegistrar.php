@@ -30,7 +30,7 @@ class CentralMainMenuRegistrar implements MenuRegistrar
         $registry->addMenu(new Menu, $this->menuKey);
 
         $this->registerDashboardSection($registry);
-        // TODO: registerTenantSection
+        $this->registerTenantsSection($registry);
         $this->registerAccountSection($registry);
     }
 
@@ -54,6 +54,36 @@ class CentralMainMenuRegistrar implements MenuRegistrar
                         type: MenuItemType::LINK,
                         to: 'central.admin.dashboard',
                         icon: 'i-lucide-house',
+                    ),
+                ]),
+                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
+            ),
+            $sectionKey,
+            $this->menuKey
+        );
+    }
+
+    /**
+     * Register the Tenants section of the central Main Menu
+     *
+     * @throws DuplicateMenuSectionKeyException
+     * @throws MenuKeyDoesNotExistException
+     */
+    protected function registerTenantsSection(NavigationRegistry $registry): void
+    {
+        $sectionKey = CentralMenu::MENU_MAIN_SECTION_TENANTS;
+
+        $registry->addSectionToMenu(
+            new MenuSection(
+                menuItems: Collection::wrap([
+                    new MenuItem(
+                        key: CentralMenu::MENU_MAIN_SECTION_TENANTS_ITEM_TENANTS,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, CentralMenu::MENU_MAIN_SECTION_TENANTS_ITEM_TENANTS]),
+                        label: 'navigation.tenants',
+                        type: MenuItemType::LINK,
+                        to: 'central.admin.tenants.index',
+                        icon: 'i-lucide-building-2',
+                        activePatterns: ['central.admin.tenants.*'],
                     ),
                 ]),
                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
