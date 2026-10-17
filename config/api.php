@@ -36,4 +36,18 @@ return [
         'min_seconds' => (int) env('API_FORM_SUBMISSIONS_MIN_SECONDS', 3),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Page Views
+    |--------------------------------------------------------------------------
+    |
+    | Recording a page view has its own rate limit, per tenant and visitor (the
+    | IP address the site sends, or the request's own).
+    |
+    */
+
+    'page_views' => [
+        'rate_limit_per_minute' => (int) env('API_PAGE_VIEWS_PER_MINUTE', 60),
+    ],
+
 ];
