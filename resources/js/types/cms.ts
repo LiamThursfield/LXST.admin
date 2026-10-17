@@ -164,3 +164,14 @@ export type MenuPageOption = {
     label: string;
     url: string | null;
 };
+
+/** Page view stats for the dashboard, from `PageViewAnalyticsQuery`. */
+export type PageViewAnalyticsData = {
+    range: string;
+    totals: { views: number; visitors: number };
+    /** Per day (YYYY-MM-DD), or per month (YYYY-MM) over 12 months. */
+    series: Array<{ date: string; views: number; visitors: number }>;
+    /** `name` is null once the page at that URL is gone. */
+    top_pages: Array<{ url: string; name: string | null; views: number }>;
+    top_referrers: Array<{ host: string; views: number }>;
+};

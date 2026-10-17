@@ -10,6 +10,21 @@
 */
 
 return [
+    'analytics' => [
+        'title' => 'Page views',
+        'range' => 'Date range',
+        'views' => 'Views',
+        'visitors' => 'Visitors',
+        'visitors_help' => 'Unique visitors per day, added up over the range.',
+        'top_pages' => 'Top pages',
+        'top_referrers' => 'Top referrers',
+        'page' => 'Page',
+        'referrer' => 'Referrer',
+        'no_views' => 'No page views in this range yet.',
+        'no_referrers' => 'No referrers in this range yet.',
+        'no_page' => 'No page at this URL now',
+    ],
+
     'api' => [
         'not_found' => 'Nothing was found at :url.',
     ],

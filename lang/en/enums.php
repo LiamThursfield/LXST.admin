@@ -17,6 +17,12 @@
 */
 
 return [
+    'analytics_range' => [
+        '7d' => 'Last 7 days',
+        '30d' => 'Last 30 days',
+        '90d' => 'Last 90 days',
+        '12m' => 'Last 12 months',
+    ],
     'form_field_type' => [
         'text' => 'Text',
         'textarea' => 'Text area',

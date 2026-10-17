@@ -13,4 +13,7 @@ enum CmsPermission: string
 
     case ViewStructure = 'cms.view-structure';
     case ManageStructure = 'cms.manage-structure';
+
+    /** Page view stats on the dashboard */
+    case ViewAnalytics = 'cms.view-analytics';
 }

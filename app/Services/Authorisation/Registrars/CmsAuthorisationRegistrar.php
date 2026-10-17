@@ -23,12 +23,14 @@ class CmsAuthorisationRegistrar implements AuthorisationRegistrar
             CmsPermission::ViewContent,
             CmsPermission::ManageContent,
             CmsPermission::ViewStructure,
+            CmsPermission::ViewAnalytics,
         ]);
 
         // Viewer can only view
         $registry->assignPermissionsToRole(Role::Viewer, [
             CmsPermission::ViewContent,
             CmsPermission::ViewStructure,
+            CmsPermission::ViewAnalytics,
         ]);
     }
 }
