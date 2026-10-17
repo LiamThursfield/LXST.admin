@@ -37,6 +37,7 @@ return [
 
     'dj' => 'DJ',
 
+    'tools' => 'Tools',
     'files' => 'Files',
 
     'admin' => 'Admin',
