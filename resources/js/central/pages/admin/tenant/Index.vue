@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import {
+    create,
     index,
     show,
 } from '@/actions/App/Http/Controllers/Central/Admin/TenantController';
@@ -114,6 +115,13 @@ watch([searchFilter, sort], () => search(), { deep: true });
                 <template #leading>
                     <UDashboardSidebarCollapse as="button" :disabled="false" />
                 </template>
+
+                <template #right>
+                    <UButton :as="Link" :href="create.url()" color="primary">
+                        <UIcon name="i-lucide-plus" />
+                        {{ trans('tenants.index.create') }}
+                    </UButton>
+                </template>
             </UDashboardNavbar>
         </template>
 
@@ -160,12 +168,21 @@ watch([searchFilter, sort], () => search(), { deep: true });
                     </template>
 
                     <template #name-cell="{ row }">
-                        <Link
-                            :href="show.url(row.original.id)"
-                            class="text-highlighted font-medium hover:underline"
-                        >
-                            {{ row.original.name }}
-                        </Link>
+                        <div class="flex items-center gap-2">
+                            <Link
+                                :href="show.url(row.original.id)"
+                                class="text-highlighted font-medium hover:underline"
+                            >
+                                {{ row.original.name }}
+                            </Link>
+                            <UBadge
+                                v-if="row.original.is_disabled"
+                                color="warning"
+                                variant="subtle"
+                            >
+                                {{ trans('tenants.status.disabled') }}
+                            </UBadge>
+                        </div>
                     </template>
 
                     <template #id-cell="{ row }">

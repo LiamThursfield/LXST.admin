@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\BumpsContentVersion;
 use App\Http\Middleware\EnsureTenantHasModule;
+use App\Http\Middleware\EnsureTenantIsEnabled;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
@@ -38,6 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 'tenant',
                 InitializeTenancyByDomain::class,
                 PreventAccessFromUnwantedDomains::class,
+                EnsureTenantIsEnabled::class,
             ])->group(function () {
                 Route::middleware([
                     'web',

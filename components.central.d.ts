@@ -15,6 +15,7 @@ declare module 'vue' {
     NotificationsSlideover: typeof import('./resources/js/components/NotificationsSlideover.vue')['default']
     RowActions: typeof import('./resources/js/components/RowActions.vue')['default']
     TextLink: typeof import('./resources/js/components/TextLink.vue')['default']
+    UAlert: typeof import('./node_modules/.pnpm/@nuxt+ui@4.11.3_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Alert.vue')['default']
     UApp: typeof import('./node_modules/.pnpm/@nuxt+ui@4.11.3_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/App.vue')['default']
     UAvatar: typeof import('./node_modules/.pnpm/@nuxt+ui@4.11.3_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Avatar.vue')['default']
     UBadge: typeof import('./node_modules/.pnpm/@nuxt+ui@4.11.3_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Badge.vue')['default']

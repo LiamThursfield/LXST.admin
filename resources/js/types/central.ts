@@ -12,6 +12,8 @@ export type TenantData = {
     /** The tenant's admin on its first full domain, if it has one. */
     admin_url: string | null;
     modules: Array<{ value: string; label: string }>;
+    is_disabled: boolean;
+    disabled_at: string | null;
     created_at: string | null;
     actions?: any[];
 };
