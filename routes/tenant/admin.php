@@ -86,6 +86,11 @@ Route::name('crm.')->prefix('crm')->middleware(['tenant.module:crm', 'content.ch
     Route::resource('organisation-units', OrganisationUnitController::class);
 });
 
+// Library, gigs, requests and stats are added here as they're built
+Route::name('dj.')->prefix('dj')->middleware('tenant.module:dj')->group(function () {
+    //
+});
+
 Route::name('tracker.')->prefix('tracker')->middleware('tenant.module:tracker')->group(function () {
     Route::get('today', TodayController::class)->name('today');
 

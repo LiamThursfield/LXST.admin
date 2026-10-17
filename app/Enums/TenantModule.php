@@ -13,5 +13,6 @@ enum TenantModule: string
 
     case Cms = 'cms';
     case Crm = 'crm';
+    case Dj = 'dj';
     case Tracker = 'tracker';
 }

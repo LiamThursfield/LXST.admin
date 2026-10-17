@@ -35,6 +35,8 @@ return [
     'organisation_units' => 'Organisation Units',
     'view_organisation_units' => 'View Organisation Units',
 
+    'dj' => 'DJ',
+
     'files' => 'Files',
 
     'admin' => 'Admin',

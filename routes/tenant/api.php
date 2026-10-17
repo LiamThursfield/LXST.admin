@@ -49,4 +49,9 @@ Route::prefix('v1')
                 ->middleware('throttle:form-submissions')
                 ->name('forms.submissions.store');
         });
+
+        // Request context, song requests and now playing are added here as they're built
+        Route::prefix('dj')->name('dj.')->middleware('tenant.module:dj')->group(function () {
+            //
+        });
     });

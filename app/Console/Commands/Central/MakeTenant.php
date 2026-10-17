@@ -13,7 +13,7 @@ use Stancl\Tenancy\Exceptions\DomainOccupiedByOtherTenantException;
 
 use function Laravel\Prompts\multiselect;
 
-#[Signature('central:make:tenant {--modules= : Comma separated modules to switch on (cms, crm, tracker). Prompts when omitted}')]
+#[Signature('central:make:tenant {--modules= : Comma separated modules to switch on (cms, crm, dj, tracker). Prompts when omitted}')]
 #[Description('Makes a tenant')]
 class MakeTenant extends Command
 {

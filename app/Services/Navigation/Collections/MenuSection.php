@@ -122,6 +122,11 @@ class MenuSection
             return $menuItem->children->isNotEmpty();
         });
 
+        // A section of only labels is a heading with nothing under it, so hide it
+        if ($visible->every(fn (MenuItem $menuItem) => $menuItem->isLabel())) {
+            return new Collection;
+        }
+
         return $visible->sortBy('sortOrder')->values();
     }
 }

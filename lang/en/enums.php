@@ -105,6 +105,7 @@ return [
     'tenant_module' => [
         'cms' => 'CMS',
         'crm' => 'CRM',
+        'dj' => 'DJ',
         'tracker' => 'Tracker',
     ],
     'tracker_aggregation' => [

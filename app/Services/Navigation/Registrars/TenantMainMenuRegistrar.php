@@ -38,6 +38,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
         $this->registerDashboardSection($registry);
         $this->registerCmsSection($registry);
         $this->registerCrmSection($registry);
+        $this->registerDjSection($registry);
         $this->registerFilesSection($registry);
         $this->registerAdminSection($registry);
         $this->registerTrackerSection($registry);
@@ -267,6 +268,35 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         ]),
                     ),
                 ])->each(fn (MenuItem $item) => $item->module(TenantModule::Crm)),
+                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
+            ),
+            $sectionKey,
+            $this->menuKey
+        );
+    }
+
+    /**
+     * Register the DJ section of the tenant Main Menu
+     * Every item requires the DJ module, so the whole section is hidden when it is switched off.
+     * Library, Gigs, Requests and Stats are added here as they're built
+     *
+     * @throws DuplicateMenuSectionKeyException
+     * @throws MenuKeyDoesNotExistException
+     */
+    protected function registerDjSection(NavigationRegistry $registry): void
+    {
+        $sectionKey = TenantMenu::MENU_MAIN_SECTION_DJ;
+
+        $registry->addSectionToMenu(
+            new MenuSection(
+                menuItems: Collection::wrap([
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_DJ_LABEL,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_DJ_LABEL]),
+                        label: 'navigation.dj',
+                        type: MenuItemType::LABEL,
+                    ),
+                ])->each(fn (MenuItem $item) => $item->module(TenantModule::Dj)),
                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
             ),
             $sectionKey,
