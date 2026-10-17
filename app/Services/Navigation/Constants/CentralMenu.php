@@ -16,6 +16,8 @@ namespace App\Services\Navigation\Constants;
  * Main Menu
  * ├── Dashboard
  * ├── Tenants
+ * ├── Admin
+ * │   └── Users
  * └── Account
  *     └── Settings
  */
@@ -28,6 +30,12 @@ class CentralMenu
     public const string MENU_MAIN_SECTION_TENANTS = 'tenants';
 
     public const string MENU_MAIN_SECTION_TENANTS_ITEM_TENANTS = 'tenants';
+
+    public const string MENU_MAIN_SECTION_ADMIN = 'admin';
+
+    public const string MENU_MAIN_SECTION_ADMIN_LABEL = 'admin-label';
+
+    public const string MENU_MAIN_SECTION_ADMIN_ITEM_USERS = 'users';
 
     public const string MENU_MAIN_SECTION_ACCOUNT = 'account';
 

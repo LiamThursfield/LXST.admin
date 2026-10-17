@@ -147,6 +147,11 @@ return [
         CentralMenu::MENU_MAIN => [
             CentralMenu::MENU_MAIN_SECTION_DASHBOARD => ['sortOrder' => 0],
             CentralMenu::MENU_MAIN_SECTION_TENANTS => ['sortOrder' => 10],
+            CentralMenu::MENU_MAIN_SECTION_ADMIN => [
+                'sortOrder' => 50,
+                CentralMenu::MENU_MAIN_SECTION_ADMIN_LABEL => ['sortOrder' => 0],
+                CentralMenu::MENU_MAIN_SECTION_ADMIN_ITEM_USERS => ['sortOrder' => 10],
+            ],
             CentralMenu::MENU_MAIN_SECTION_ACCOUNT => ['sortOrder' => 100],
         ],
     ],

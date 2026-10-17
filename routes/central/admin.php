@@ -6,6 +6,7 @@ use App\Http\Controllers\Central\Admin\Settings\ProfileController;
 use App\Http\Controllers\Central\Admin\Settings\SecurityController;
 use App\Http\Controllers\Central\Admin\TenantController;
 use App\Http\Controllers\Central\Admin\TenantDomainController;
+use App\Http\Controllers\Central\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -35,6 +36,9 @@ Route::scopeBindings()->group(function () {
     Route::put('tenants/{tenant}/domains/{domain}', [TenantDomainController::class, 'update'])->name('tenants.domains.update');
     Route::delete('tenants/{tenant}/domains/{domain}', [TenantDomainController::class, 'destroy'])->name('tenants.domains.destroy');
 });
+
+// The people who can log in to the central admin
+Route::resource('users', UserController::class)->except('show');
 
 Route::name('settings.')->group(function () {
     Route::get('/settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');

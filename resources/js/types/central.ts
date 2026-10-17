@@ -18,3 +18,14 @@ export type TenantData = {
     created_at: string | null;
     actions?: any[];
 };
+
+/** A central admin user, as returned by the central `UserResource`. */
+export type CentralUserData = {
+    id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+    /** Whether this is the logged in user */
+    is_you: boolean;
+    actions?: any[];
+};

@@ -31,6 +31,7 @@ class CentralMainMenuRegistrar implements MenuRegistrar
 
         $this->registerDashboardSection($registry);
         $this->registerTenantsSection($registry);
+        $this->registerAdminSection($registry);
         $this->registerAccountSection($registry);
     }
 
@@ -85,6 +86,42 @@ class CentralMainMenuRegistrar implements MenuRegistrar
                         to: 'central.admin.tenants.index',
                         icon: 'i-lucide-building-2',
                         activePatterns: ['central.admin.tenants.*'],
+                    ),
+                ]),
+                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
+            ),
+            $sectionKey,
+            $this->menuKey
+        );
+    }
+
+    /**
+     * Register the Admin section of the central Main Menu
+     *
+     * @throws DuplicateMenuSectionKeyException
+     * @throws MenuKeyDoesNotExistException
+     */
+    protected function registerAdminSection(NavigationRegistry $registry): void
+    {
+        $sectionKey = CentralMenu::MENU_MAIN_SECTION_ADMIN;
+
+        $registry->addSectionToMenu(
+            new MenuSection(
+                menuItems: Collection::wrap([
+                    new MenuItem(
+                        key: CentralMenu::MENU_MAIN_SECTION_ADMIN_LABEL,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, CentralMenu::MENU_MAIN_SECTION_ADMIN_LABEL]),
+                        label: 'navigation.admin',
+                        type: MenuItemType::LABEL,
+                    ),
+                    new MenuItem(
+                        key: CentralMenu::MENU_MAIN_SECTION_ADMIN_ITEM_USERS,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, CentralMenu::MENU_MAIN_SECTION_ADMIN_ITEM_USERS]),
+                        label: 'navigation.users',
+                        type: MenuItemType::LINK,
+                        to: 'central.admin.users.index',
+                        icon: 'i-lucide-users',
+                        activePatterns: ['central.admin.users.*'],
                     ),
                 ]),
                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
