@@ -3,6 +3,7 @@ export * from './auth';
 export * from './central';
 export * from './cms';
 export * from './crm';
+export * from './dj';
 export * from './file-manager';
 export * from './localisation';
 export * from './navigation';

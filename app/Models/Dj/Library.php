@@ -61,4 +61,28 @@ class Library extends Model
     {
         return $this->hasMany(LibraryTrack::class);
     }
+
+    /**
+     * @return HasMany<LibraryTag, $this>
+     */
+    public function tags(): HasMany
+    {
+        return $this->hasMany(LibraryTag::class);
+    }
+
+    /**
+     * @return HasMany<LibraryImport, $this>
+     */
+    public function imports(): HasMany
+    {
+        return $this->hasMany(LibraryImport::class);
+    }
+
+    /**
+     * @return HasMany<HistorySession, $this>
+     */
+    public function historySessions(): HasMany
+    {
+        return $this->hasMany(HistorySession::class);
+    }
 }

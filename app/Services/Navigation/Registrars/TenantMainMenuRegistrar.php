@@ -6,6 +6,7 @@ use App\Enums\TenantModule;
 use App\Services\Authorisation\Enums\CmsPermission;
 use App\Services\Authorisation\Enums\CorePermission;
 use App\Services\Authorisation\Enums\CrmPermission;
+use App\Services\Authorisation\Enums\DjPermission;
 use App\Services\Authorisation\Enums\FileManagerPermission;
 use App\Services\Authorisation\Enums\SettingsPermission;
 use App\Services\Authorisation\Enums\TrackerPermission;
@@ -278,7 +279,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
     /**
      * Register the DJ section of the tenant Main Menu
      * Every item requires the DJ module, so the whole section is hidden when it is switched off.
-     * Library, Gigs, Requests and Stats are added here as they're built
+     * Gigs, Requests and Stats are added here as they're built
      *
      * @throws DuplicateMenuSectionKeyException
      * @throws MenuKeyDoesNotExistException
@@ -296,6 +297,15 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         label: 'navigation.dj',
                         type: MenuItemType::LABEL,
                     ),
+                    (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY]),
+                        label: 'navigation.library',
+                        type: MenuItemType::LINK,
+                        to: 'admin.dj.libraries.index',
+                        icon: 'i-lucide-library',
+                        activePatterns: ['admin.dj.libraries.*'],
+                    ))->gate(DjPermission::ViewLibrary),
                 ])->each(fn (MenuItem $item) => $item->module(TenantModule::Dj)),
                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
             ),

@@ -113,6 +113,20 @@ return [
         'cli_sync' => 'Rekordbox CLI sync',
     ],
 
+    'import_status' => [
+        'pending' => 'Waiting',
+        'processing' => 'Importing',
+        'completed' => 'Done',
+        'failed' => 'Failed',
+    ],
+
+    'track_service' => [
+        'tidal' => 'Tidal',
+        'spotify' => 'Spotify',
+        'beatport' => 'Beatport',
+        'soundcloud' => 'SoundCloud',
+    ],
+
     'tenant_module' => [
         'cms' => 'CMS',
         'crm' => 'CRM',

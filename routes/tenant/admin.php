@@ -14,6 +14,8 @@ use App\Http\Controllers\Tenant\Admin\Crm\FormSubmissionController;
 use App\Http\Controllers\Tenant\Admin\Crm\FormSubmissionSpamController;
 use App\Http\Controllers\Tenant\Admin\Crm\OrganisationUnitController;
 use App\Http\Controllers\Tenant\Admin\DashboardController;
+use App\Http\Controllers\Tenant\Admin\Dj\LibraryController;
+use App\Http\Controllers\Tenant\Admin\Dj\LibraryImportController;
 use App\Http\Controllers\Tenant\Admin\FileManager\FileController;
 use App\Http\Controllers\Tenant\Admin\FileManager\FileManagerController;
 use App\Http\Controllers\Tenant\Admin\FileManager\FilePickerController;
@@ -87,9 +89,10 @@ Route::name('crm.')->prefix('crm')->middleware(['tenant.module:crm', 'content.ch
     Route::resource('organisation-units', OrganisationUnitController::class);
 });
 
-// Library, gigs, requests and stats are added here as they're built
+// Gigs, requests and stats are added here as they're built
 Route::name('dj.')->prefix('dj')->middleware('tenant.module:dj')->group(function () {
-    //
+    Route::resource('libraries', LibraryController::class)->only(['index', 'destroy']);
+    Route::post('imports', [LibraryImportController::class, 'store'])->name('imports.store');
 });
 
 Route::name('tracker.')->prefix('tracker')->middleware('tenant.module:tracker')->group(function () {
