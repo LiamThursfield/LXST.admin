@@ -105,6 +105,7 @@ return [
                     TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_TRACKS => ['sortOrder' => 0],
                     TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_ARTISTS => ['sortOrder' => 1],
                     TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_LIBRARIES => ['sortOrder' => 2],
+                    TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_MATCHING => ['sortOrder' => 3],
                 ],
             ],
             TenantMenu::MENU_MAIN_SECTION_TRACKER => [

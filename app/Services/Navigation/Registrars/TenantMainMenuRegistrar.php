@@ -303,7 +303,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         label: 'navigation.library',
                         type: MenuItemType::LINK,
                         icon: 'i-lucide-library',
-                        activePatterns: ['admin.dj.tracks.*', 'admin.dj.artists.*', 'admin.dj.libraries.*'],
+                        activePatterns: ['admin.dj.tracks.*', 'admin.dj.artists.*', 'admin.dj.libraries.*', 'admin.dj.matching.*'],
                         children: Collection::wrap([
                             new MenuChildItem(
                                 key: TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_TRACKS,
@@ -322,6 +322,12 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_LIBRARIES]),
                                 label: 'navigation.libraries',
                                 to: 'admin.dj.libraries.index',
+                            )->gate(DjPermission::ViewLibrary),
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_MATCHING,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_MATCHING]),
+                                label: 'navigation.matching',
+                                to: 'admin.dj.matching.index',
                             )->gate(DjPermission::ViewLibrary),
                         ]),
                     ),

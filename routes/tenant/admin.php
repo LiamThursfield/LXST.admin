@@ -14,10 +14,15 @@ use App\Http\Controllers\Tenant\Admin\Crm\FormSubmissionController;
 use App\Http\Controllers\Tenant\Admin\Crm\FormSubmissionSpamController;
 use App\Http\Controllers\Tenant\Admin\Crm\OrganisationUnitController;
 use App\Http\Controllers\Tenant\Admin\DashboardController;
+use App\Http\Controllers\Tenant\Admin\Dj\CanonicalMergeController;
+use App\Http\Controllers\Tenant\Admin\Dj\CanonicalTrackController;
 use App\Http\Controllers\Tenant\Admin\Dj\LibraryArtistController;
 use App\Http\Controllers\Tenant\Admin\Dj\LibraryController;
 use App\Http\Controllers\Tenant\Admin\Dj\LibraryImportController;
 use App\Http\Controllers\Tenant\Admin\Dj\LibraryTrackController;
+use App\Http\Controllers\Tenant\Admin\Dj\LibraryTrackSplitController;
+use App\Http\Controllers\Tenant\Admin\Dj\MatchDismissalController;
+use App\Http\Controllers\Tenant\Admin\Dj\MatchingController;
 use App\Http\Controllers\Tenant\Admin\FileManager\FileController;
 use App\Http\Controllers\Tenant\Admin\FileManager\FileManagerController;
 use App\Http\Controllers\Tenant\Admin\FileManager\FilePickerController;
@@ -97,6 +102,15 @@ Route::name('dj.')->prefix('dj')->middleware('tenant.module:dj')->group(function
     Route::post('imports', [LibraryImportController::class, 'store'])->name('imports.store');
     Route::resource('tracks', LibraryTrackController::class)->only(['index', 'show']);
     Route::get('artists', [LibraryArtistController::class, 'index'])->name('artists.index');
+
+    // Canonical matching: reviewing suggestions, merging, splitting and verifying
+    Route::get('matching', [MatchingController::class, 'index'])->name('matching.index');
+    Route::post('matching/rematch', [MatchingController::class, 'rematch'])->name('matching.rematch');
+    Route::post('matching/merges', [CanonicalMergeController::class, 'store'])->name('matching.merges.store');
+    Route::post('matching/dismissals', [MatchDismissalController::class, 'store'])->name('matching.dismissals.store');
+    Route::get('canonical-tracks/search', [CanonicalTrackController::class, 'search'])->name('canonical-tracks.search');
+    Route::patch('canonical-tracks/{canonicalTrack}/verification', [CanonicalTrackController::class, 'verify'])->name('canonical-tracks.verify');
+    Route::post('tracks/{track}/split', [LibraryTrackSplitController::class, 'store'])->name('tracks.split');
 });
 
 Route::name('tracker.')->prefix('tracker')->middleware('tenant.module:tracker')->group(function () {

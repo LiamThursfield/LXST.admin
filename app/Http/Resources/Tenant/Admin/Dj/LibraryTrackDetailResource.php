@@ -41,6 +41,7 @@ class LibraryTrackDetailResource extends JsonResource
                 'category' => $tag->category,
             ])->values()->all(),
             'canonical' => $canonical === null ? null : [
+                'id' => $canonical->id,
                 'title' => $canonical->title,
                 'artist' => $canonical->artist?->name,
                 'bpm' => $canonical->bpm === null ? null : (float) $canonical->bpm,

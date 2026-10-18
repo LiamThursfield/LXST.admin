@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property int|null $canonical_artist_id
  * @property string $title
+ * @property string|null $match_key The title, normalised for matching (see TrackNormaliser)
  * @property string|null $bpm
  * @property int|null $duration In seconds
  * @property MusicalKey|null $key
@@ -41,6 +42,7 @@ class CanonicalTrack extends Model
     protected $fillable = [
         'canonical_artist_id',
         'title',
+        'match_key',
         'bpm',
         'duration',
         'key',

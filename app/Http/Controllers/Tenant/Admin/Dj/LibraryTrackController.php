@@ -8,9 +8,11 @@ use App\Http\Queries\Tenant\Admin\Dj\LibraryTrackIndexQuery;
 use App\Http\Requests\Tenant\Admin\Dj\LibraryTrackIndexRequest;
 use App\Http\Resources\Tenant\Admin\Dj\LibraryTrackDetailResource;
 use App\Http\Resources\Tenant\Admin\Dj\LibraryTrackResource;
+use App\Models\Dj\CanonicalTrack;
 use App\Models\Dj\Library;
 use App\Models\Dj\LibraryArtist;
 use App\Models\Dj\LibraryTrack;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -55,7 +57,7 @@ class LibraryTrackController extends Controller
         ]);
     }
 
-    public function show(LibraryTrack $track): Response
+    public function show(Request $request, LibraryTrack $track): Response
     {
         Gate::authorize('view', $track);
 
@@ -70,6 +72,7 @@ class LibraryTrackController extends Controller
 
         return Inertia::render('admin/dj/track/Show', [
             'track' => new LibraryTrackDetailResource($track),
+            'canManageMatching' => $request->user()?->can('update', CanonicalTrack::class) ?? false,
         ]);
     }
 }
