@@ -16,8 +16,11 @@ const props = defineProps<{
 
 const { trans } = useTrans();
 
-/** Request settings are sent as null to follow the default */
-const DEFAULT = '';
+/**
+ * Request settings are sent as null to follow the default. Select items
+ * can't have an empty value, so the "Default" option uses a sentinel.
+ */
+const DEFAULT = 'default';
 const overrides = props.gig?.request_settings ?? {};
 
 const toChoice = (value: boolean | null | undefined) =>
@@ -95,7 +98,10 @@ function onSubmit() {
     form.transform((data) => ({
         ...data,
         request_settings: {
-            requests_mode: data.request_settings.requests_mode || null,
+            requests_mode:
+                data.request_settings.requests_mode === DEFAULT
+                    ? null
+                    : data.request_settings.requests_mode,
             requests_open_minutes_before: number(
                 data.request_settings.requests_open_minutes_before,
             ),
