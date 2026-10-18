@@ -12,6 +12,7 @@ use Database\Factories\Dj\GigFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * A gig: the backbone for requests, setlists and stats. Times are stored in UTC and shown in the
@@ -87,6 +88,24 @@ class Gig extends Model
         $query->where('starts_at', '<', $endsAt)
             ->where('ends_at', '>', $startsAt)
             ->when($exceptId !== null, fn (Builder $query) => $query->whereKeyNot($exceptId));
+    }
+
+    /**
+     * The play history sessions linked to this gig, whose plays are what was played
+     *
+     * @return HasMany<HistorySession, $this>
+     */
+    public function historySessions(): HasMany
+    {
+        return $this->hasMany(HistorySession::class);
+    }
+
+    /**
+     * @return HasMany<SongList, $this>
+     */
+    public function songLists(): HasMany
+    {
+        return $this->hasMany(SongList::class);
     }
 
     public function requestSettings(): EffectiveRequestSettings

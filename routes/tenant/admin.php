@@ -20,7 +20,10 @@ use App\Http\Controllers\Tenant\Admin\Dj\CanonicalTrackController;
 use App\Http\Controllers\Tenant\Admin\Dj\DjSettingsController;
 use App\Http\Controllers\Tenant\Admin\Dj\GigController;
 use App\Http\Controllers\Tenant\Admin\Dj\GigPinController;
+use App\Http\Controllers\Tenant\Admin\Dj\GigPlayController;
 use App\Http\Controllers\Tenant\Admin\Dj\GigQrCodeController;
+use App\Http\Controllers\Tenant\Admin\Dj\HistoryBulkController;
+use App\Http\Controllers\Tenant\Admin\Dj\HistoryController;
 use App\Http\Controllers\Tenant\Admin\Dj\LibraryArtistBulkController;
 use App\Http\Controllers\Tenant\Admin\Dj\LibraryArtistController;
 use App\Http\Controllers\Tenant\Admin\Dj\LibraryController;
@@ -112,6 +115,16 @@ Route::name('dj.')->prefix('dj')->middleware('tenant.module:dj')->group(function
     Route::post('gigs/{gig}/pin', [GigPinController::class, 'store'])->name('gigs.pin');
     Route::delete('gigs/{gig}/pin', [GigPinController::class, 'destroy'])->name('gigs.unpin');
     Route::get('gigs/{gig}/qr-code', [GigQrCodeController::class, 'show'])->name('gigs.qr-code');
+    Route::post('gigs/{gig}/plays', [GigPlayController::class, 'store'])->name('gigs.plays.store');
+    Route::delete('gigs/{gig}/plays/{play}', [GigPlayController::class, 'destroy'])->name('gigs.plays.destroy');
+
+    // Play history, linked to gigs or not
+    Route::get('history', [HistoryController::class, 'index'])->name('history.index');
+    Route::post('history/bulk/link', [HistoryBulkController::class, 'link'])->name('history.bulk.link');
+    Route::post('history/bulk/create-gig', [HistoryBulkController::class, 'createGig'])->name('history.bulk.create-gig');
+    Route::post('history/bulk/unlink', [HistoryBulkController::class, 'unlink'])->name('history.bulk.unlink');
+    Route::post('history/bulk/stats', [HistoryBulkController::class, 'stats'])->name('history.bulk.stats');
+    Route::get('history/{session}', [HistoryController::class, 'show'])->name('history.show');
     Route::resource('setlists', SetlistController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
     Route::post('setlists/{setlist}/duplicate', [SetlistController::class, 'duplicate'])->name('setlists.duplicate');
     Route::post('setlists/{setlist}/items', [SetlistItemController::class, 'store'])->name('setlists.items.store');

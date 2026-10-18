@@ -160,6 +160,11 @@ return [
         'do_not_play' => 'Do not play',
     ],
 
+    'history_source' => [
+        'import' => 'Imported',
+        'manual' => 'Added by hand',
+    ],
+
     'tenant_module' => [
         'cms' => 'CMS',
         'crm' => 'CRM',

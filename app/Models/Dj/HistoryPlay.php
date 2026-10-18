@@ -14,13 +14,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $history_session_id
  * @property int|null $library_track_id
- * @property string $source_track_id Kept in case the track arrives in a later import
+ * @property int|null $canonical_track_id For plays added by hand, which name a song
+ * @property string|null $source_track_id Kept in case the track arrives in a later import
  * @property int $position
  * @property CarbonImmutable|null $played_at (UTC)
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  * @property-read HistorySession $session
  * @property-read LibraryTrack|null $track
+ * @property-read CanonicalTrack|null $song
  */
 class HistoryPlay extends Model
 {
@@ -37,6 +39,7 @@ class HistoryPlay extends Model
     protected $fillable = [
         'history_session_id',
         'library_track_id',
+        'canonical_track_id',
         'source_track_id',
         'position',
         'played_at',
@@ -67,5 +70,23 @@ class HistoryPlay extends Model
     public function track(): BelongsTo
     {
         return $this->belongsTo(LibraryTrack::class, 'library_track_id');
+    }
+
+    /**
+     * The song added by hand
+     *
+     * @return BelongsTo<CanonicalTrack, $this>
+     */
+    public function song(): BelongsTo
+    {
+        return $this->belongsTo(CanonicalTrack::class, 'canonical_track_id');
+    }
+
+    /**
+     * The song played: the one added by hand, or the library track's
+     */
+    public function playedSong(): ?CanonicalTrack
+    {
+        return $this->song ?? $this->track?->canonicalTrack;
     }
 }

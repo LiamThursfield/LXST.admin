@@ -227,14 +227,20 @@ class LibraryImporter
             $playedAt = array_filter(array_column($data->plays, 'played_at'));
 
             DB::transaction(function () use ($library, $data, $playedAt, $trackIds) {
-                $session = HistorySession::query()->updateOrCreate(
+                $session = HistorySession::query()->firstOrNew(
                     ['library_id' => $library->id, 'source_history_id' => $data->sourceHistoryId],
-                    [
-                        'name' => $data->name,
-                        'started_at' => $playedAt === [] ? null : min($playedAt),
-                        'ended_at' => $playedAt === [] ? null : max($playedAt),
-                    ],
                 );
+
+                // A re-import keeps any gig link and stats choice made since
+                if (! $session->exists) {
+                    $session->include_in_stats = count($data->plays) >= (int) config('dj.history.min_plays_for_stats');
+                }
+
+                $session->fill([
+                    'name' => $data->name,
+                    'started_at' => $playedAt === [] ? null : min($playedAt),
+                    'ended_at' => $playedAt === [] ? null : max($playedAt),
+                ])->save();
 
                 $session->plays()->delete();
 
