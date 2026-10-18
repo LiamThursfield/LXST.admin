@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * A track as one library holds it, linked to its canonical track once matched
@@ -118,6 +119,16 @@ class LibraryTrack extends Model
     public function canonicalTrack(): BelongsTo
     {
         return $this->belongsTo(CanonicalTrack::class);
+    }
+
+    /**
+     * Plays of this track in the imported history, newest first
+     *
+     * @return HasMany<HistoryPlay, $this>
+     */
+    public function historyPlays(): HasMany
+    {
+        return $this->hasMany(HistoryPlay::class)->latest('played_at');
     }
 
     /**

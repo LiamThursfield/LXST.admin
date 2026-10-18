@@ -14,8 +14,10 @@ use App\Http\Controllers\Tenant\Admin\Crm\FormSubmissionController;
 use App\Http\Controllers\Tenant\Admin\Crm\FormSubmissionSpamController;
 use App\Http\Controllers\Tenant\Admin\Crm\OrganisationUnitController;
 use App\Http\Controllers\Tenant\Admin\DashboardController;
+use App\Http\Controllers\Tenant\Admin\Dj\LibraryArtistController;
 use App\Http\Controllers\Tenant\Admin\Dj\LibraryController;
 use App\Http\Controllers\Tenant\Admin\Dj\LibraryImportController;
+use App\Http\Controllers\Tenant\Admin\Dj\LibraryTrackController;
 use App\Http\Controllers\Tenant\Admin\FileManager\FileController;
 use App\Http\Controllers\Tenant\Admin\FileManager\FileManagerController;
 use App\Http\Controllers\Tenant\Admin\FileManager\FilePickerController;
@@ -93,6 +95,8 @@ Route::name('crm.')->prefix('crm')->middleware(['tenant.module:crm', 'content.ch
 Route::name('dj.')->prefix('dj')->middleware('tenant.module:dj')->group(function () {
     Route::resource('libraries', LibraryController::class)->only(['index', 'destroy']);
     Route::post('imports', [LibraryImportController::class, 'store'])->name('imports.store');
+    Route::resource('tracks', LibraryTrackController::class)->only(['index', 'show']);
+    Route::get('artists', [LibraryArtistController::class, 'index'])->name('artists.index');
 });
 
 Route::name('tracker.')->prefix('tracker')->middleware('tenant.module:tracker')->group(function () {
