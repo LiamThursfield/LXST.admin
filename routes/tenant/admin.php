@@ -14,6 +14,7 @@ use App\Http\Controllers\Tenant\Admin\Crm\FormSubmissionController;
 use App\Http\Controllers\Tenant\Admin\Crm\FormSubmissionSpamController;
 use App\Http\Controllers\Tenant\Admin\Crm\OrganisationUnitController;
 use App\Http\Controllers\Tenant\Admin\DashboardController;
+use App\Http\Controllers\Tenant\Admin\Dj\CanonicalArtistController;
 use App\Http\Controllers\Tenant\Admin\Dj\CanonicalMergeController;
 use App\Http\Controllers\Tenant\Admin\Dj\CanonicalTrackController;
 use App\Http\Controllers\Tenant\Admin\Dj\LibraryArtistController;
@@ -23,6 +24,7 @@ use App\Http\Controllers\Tenant\Admin\Dj\LibraryTrackController;
 use App\Http\Controllers\Tenant\Admin\Dj\LibraryTrackSplitController;
 use App\Http\Controllers\Tenant\Admin\Dj\MatchDismissalController;
 use App\Http\Controllers\Tenant\Admin\Dj\MatchingController;
+use App\Http\Controllers\Tenant\Admin\Dj\SongController;
 use App\Http\Controllers\Tenant\Admin\FileManager\FileController;
 use App\Http\Controllers\Tenant\Admin\FileManager\FileManagerController;
 use App\Http\Controllers\Tenant\Admin\FileManager\FilePickerController;
@@ -110,6 +112,15 @@ Route::name('dj.')->prefix('dj')->middleware('tenant.module:dj')->group(function
     Route::post('matching/dismissals', [MatchDismissalController::class, 'store'])->name('matching.dismissals.store');
     Route::get('canonical-tracks/search', [CanonicalTrackController::class, 'search'])->name('canonical-tracks.search');
     Route::patch('canonical-tracks/{canonicalTrack}/verification', [CanonicalTrackController::class, 'verify'])->name('canonical-tracks.verify');
+
+    // Songs and artists: the canonical records, counted once across libraries
+    Route::post('songs/cleanup', [SongController::class, 'cleanup'])->name('songs.cleanup');
+    Route::resource('songs', SongController::class)->only(['index', 'show', 'update']);
+    Route::get('canonical-artists/search', [CanonicalArtistController::class, 'search'])->name('canonical-artists.search');
+    Route::patch('canonical-artists/{canonicalArtist}/verification', [CanonicalArtistController::class, 'verify'])->name('canonical-artists.verify');
+    Route::resource('canonical-artists', CanonicalArtistController::class)
+        ->only(['index', 'show', 'update'])
+        ->parameters(['canonical-artists' => 'canonicalArtist']);
     Route::post('tracks/{track}/split', [LibraryTrackSplitController::class, 'store'])->name('tracks.split');
 });
 

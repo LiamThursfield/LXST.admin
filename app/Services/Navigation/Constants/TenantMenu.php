@@ -27,7 +27,7 @@ namespace App\Services\Navigation\Constants;
  * │   ├── Submissions
  * │   └── Organisation Units
  * ├── DJ
- * │   ├── Library (Tracks, Artists, Libraries, Matching)
+ * │   ├── Library (Songs, Artists, Library tracks, Library artists, Libraries, Matching)
  * │   ├── Gigs
  * │   ├── Requests
  * │   └── Stats
@@ -99,6 +99,10 @@ class TenantMenu
     public const string MENU_MAIN_SECTION_DJ_LABEL = 'dj-label';
 
     public const string MENU_MAIN_SECTION_DJ_ITEM_LIBRARY = 'library';
+
+    public const string MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_SONGS = 'songs';
+
+    public const string MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_CANONICAL_ARTISTS = 'canonical-artists';
 
     public const string MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_TRACKS = 'tracks';
 

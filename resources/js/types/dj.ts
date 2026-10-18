@@ -103,6 +103,8 @@ export type LibraryArtistData = {
     library: string;
     tracks_count: number;
     tracks_url: string;
+    /** The artist counted once across libraries. */
+    canonical_url: string | null;
 };
 
 /** One side of a suggested duplicate pair on the matching page. */
@@ -135,4 +137,28 @@ export type CanonicalMergeData = {
     /** Null when the re-match did it. */
     user: string | null;
     created_at: string;
+};
+
+/** A canonical track ("song"), as returned by `SongResource`. */
+export type SongData = {
+    id: number;
+    title: string;
+    artist: { id: number; name: string } | null;
+    bpm: number | null;
+    duration: string | null;
+    key: MusicalKeyData | null;
+    is_verified: boolean;
+    library_tracks_count: number;
+    libraries_count: number;
+    url: string;
+};
+
+/** A canonical artist, as returned by `CanonicalArtistResource`. */
+export type CanonicalArtistData = {
+    id: number;
+    name: string;
+    is_verified: boolean;
+    tracks_count: number;
+    library_artists_count: number;
+    url: string;
 };

@@ -24,6 +24,8 @@ class LibraryArtistResource extends JsonResource
             'library' => $artist->library->name,
             'tracks_count' => (int) $artist->getAttribute('tracks_count'),
             'tracks_url' => route('admin.dj.tracks.index', ['filter' => ['artist_id' => $artist->id]]),
+            // The artist counted once across libraries
+            'canonical_url' => $artist->canonical_artist_id === null ? null : route('admin.dj.canonical-artists.show', $artist->canonical_artist_id),
         ];
     }
 }
