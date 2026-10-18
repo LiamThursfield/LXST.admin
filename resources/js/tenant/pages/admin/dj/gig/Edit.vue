@@ -92,7 +92,7 @@ function newSetlist() {
                         @click="togglePin"
                     />
                     <UButton
-                        :as="Link"
+                        as="Link"
                         :href="index.url()"
                         color="neutral"
                         variant="ghost"

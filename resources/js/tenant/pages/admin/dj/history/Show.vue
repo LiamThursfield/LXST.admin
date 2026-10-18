@@ -23,7 +23,7 @@ const session = computed(() => props.session.data);
                 </template>
                 <template #right>
                     <UButton
-                        :as="Link"
+                        as="Link"
                         :href="index.url()"
                         color="neutral"
                         variant="ghost"

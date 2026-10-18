@@ -79,7 +79,7 @@ watch(searchFilter, () => search(), { deep: true });
                 </template>
 
                 <template #right>
-                    <UButton :as="Link" :href="create.url()" color="primary">
+                    <UButton as="Link" :href="create.url()" color="primary">
                         <UIcon name="i-lucide-plus" />
                         {{ trans('tracker.categories.index.create') }}
                     </UButton>

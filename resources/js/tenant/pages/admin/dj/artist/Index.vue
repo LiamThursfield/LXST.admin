@@ -211,7 +211,7 @@ const selectedArtists = computed(() =>
                             </Link>
                             <UButton
                                 v-if="row.original.canonical_url"
-                                :as="Link"
+                                as="Link"
                                 :href="row.original.canonical_url"
                                 size="xs"
                                 color="neutral"

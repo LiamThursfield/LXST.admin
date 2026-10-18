@@ -89,7 +89,7 @@ function togglePin(gig: GigData) {
                 <template #right>
                     <UButton
                         v-if="canCreate"
-                        :as="Link"
+                        as="Link"
                         :href="create.url()"
                         icon="i-lucide-plus"
                         :label="trans('dj.gigs.create')"

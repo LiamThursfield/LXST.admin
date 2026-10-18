@@ -238,7 +238,7 @@ const gigItems = computed(() => [
                         @click="deleteOpen = true"
                     />
                     <UButton
-                        :as="Link"
+                        as="Link"
                         :href="index.url()"
                         color="neutral"
                         variant="ghost"

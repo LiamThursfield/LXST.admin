@@ -65,7 +65,7 @@ watch(deleteModalOpen, (open) => {
 
                 <template #right>
                     <UButton
-                        :as="Link"
+                        as="Link"
                         :href="index.url()"
                         color="neutral"
                         variant="ghost"
@@ -73,7 +73,7 @@ watch(deleteModalOpen, (open) => {
                         :label="trans('tenants.show.back')"
                     />
                     <UButton
-                        :as="Link"
+                        as="Link"
                         :href="edit.url(tenant.id)"
                         color="neutral"
                         variant="outline"

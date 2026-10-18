@@ -22,7 +22,7 @@ const { trans } = useTrans();
                 </template>
                 <template #right>
                     <UButton
-                        :as="Link"
+                        as="Link"
                         :href="index.url()"
                         color="neutral"
                         variant="ghost"

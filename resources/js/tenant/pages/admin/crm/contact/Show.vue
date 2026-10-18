@@ -99,7 +99,7 @@ const allSubmissionsUrl = computed(() =>
                         #footer
                     >
                         <UButton
-                            :as="Link"
+                            as="Link"
                             :href="allSubmissionsUrl"
                             color="neutral"
                             variant="subtle"

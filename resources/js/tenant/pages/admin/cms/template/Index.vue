@@ -82,7 +82,7 @@ watch(searchFilter, () => search(), { deep: true });
                 <template #right>
                     <UButton
                         v-if="canCreate"
-                        :as="Link"
+                        as="Link"
                         :href="create.url()"
                         color="primary"
                     >

@@ -70,7 +70,7 @@ const mergeOpen = ref(false);
 
                 <template #right>
                     <UButton
-                        :as="Link"
+                        as="Link"
                         :href="index.url()"
                         color="neutral"
                         variant="ghost"
@@ -184,7 +184,7 @@ const mergeOpen = ref(false);
                         </ul>
                         <UButton
                             v-if="songsCount > songs.length"
-                            :as="Link"
+                            as="Link"
                             :href="artist.songs_url"
                             variant="link"
                             class="px-0"

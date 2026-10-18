@@ -89,7 +89,7 @@ const details = computed(() =>
 
                 <template #right>
                     <UButton
-                        :as="Link"
+                        as="Link"
                         :href="index.url()"
                         color="neutral"
                         variant="ghost"
