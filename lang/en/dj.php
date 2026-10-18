@@ -208,6 +208,28 @@ return [
         ],
     ],
 
+    'requests' => [
+        'outcomes' => [
+            'accepted' => 'Thanks! Your request is in.',
+            'upvoted' => 'Someone already asked for that one, so we\'ve added your vote.',
+            'already_requested' => 'You\'ve already asked for that one.',
+        ],
+        'refusals' => [
+            'requests_closed' => 'Requests aren\'t open for this gig.',
+            'pass_required' => 'Enter the password to request songs.',
+            'custom_not_allowed' => 'Please pick a song from the list.',
+            'visitor_limit' => 'You\'ve made as many requests as you can for this gig.',
+            'queue_full' => 'There are lots of requests waiting. Try again in a little while.',
+        ],
+        'fields' => [
+            'song' => 'Song',
+            'custom_artist' => 'Artist',
+            'custom_title' => 'Title',
+            'requester_name' => 'Your name',
+            'message' => 'Message',
+        ],
+    ],
+
     'api' => [
         'no_gig' => 'There\'s no gig to request songs for right now.',
         'requests_closed' => 'Requests aren\'t open for this gig.',

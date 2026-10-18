@@ -64,6 +64,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Song Requests
+    |--------------------------------------------------------------------------
+    |
+    | A basic spam check, as for CRM forms: sites render a hidden honeypot field
+    | (left empty by people) and send back the token from the gig's details. A
+    | filled honeypot, a request sooner than `min_seconds` after the token, a
+    | tampered token or a bot user agent is dropped, with an accepted-looking
+    | response. Each visitor may send `rate_limit_per_minute` requests per gig.
+    |
+    */
+
+    'requests' => [
+        'honeypot_field' => 'website_url',
+        'token_field' => 'request_token',
+        'min_seconds' => (int) env('DJ_REQUESTS_MIN_SECONDS', 3),
+        'rate_limit_per_minute' => (int) env('DJ_REQUESTS_PER_MINUTE', 10),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Guest Passes
     |--------------------------------------------------------------------------
     |

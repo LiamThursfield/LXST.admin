@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant\Api\V1\Dj;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Tenant\Api\V1\Dj\PublicGigResource;
 use App\Models\Dj\Gig;
+use App\Services\Crm\FormSpamCheck;
 use App\Services\Dj\Api\DjApiCache;
 use App\Services\Dj\CurrentGig;
 use Illuminate\Http\JsonResponse;
@@ -22,11 +23,11 @@ class GigController extends Controller
      */
     public function current(Request $request, CurrentGig $currentGig): JsonResponse
     {
-        return response()->json($this->cache->remember('gigs|current', function () use ($request, $currentGig): array {
+        return response()->json($this->withRequestForm($this->cache->remember('gigs|current', function () use ($request, $currentGig): array {
             $gig = $currentGig->resolve();
 
             return ['data' => $gig === null ? null : (new PublicGigResource($gig))->resolve($request)];
-        }));
+        })));
     }
 
     /**
@@ -34,8 +35,28 @@ class GigController extends Controller
      */
     public function show(Request $request, Gig $gig): JsonResponse
     {
-        return response()->json($this->cache->remember("gigs|{$gig->public_id}", fn (): array => [
+        return response()->json($this->withRequestForm($this->cache->remember("gigs|{$gig->public_id}", fn (): array => [
             'data' => (new PublicGigResource($gig))->resolve($request),
-        ]));
+        ])));
+    }
+
+    /**
+     * Adds the request form's spam protection, outside the cache, as the token records when the
+     * form was loaded: render the honeypot as a hidden field, and send the token back unchanged
+     *
+     * @param  array{data: array<string, mixed>|null}  $response
+     * @return array{data: array<string, mixed>|null}
+     */
+    protected function withRequestForm(array $response): array
+    {
+        if ($response['data'] !== null) {
+            $response['data']['requests']['spam_protection'] = [
+                'honeypot_field' => config('dj.requests.honeypot_field'),
+                'token_field' => config('dj.requests.token_field'),
+                'token' => FormSpamCheck::for('dj.requests')->issueToken(),
+            ];
+        }
+
+        return $response;
     }
 }

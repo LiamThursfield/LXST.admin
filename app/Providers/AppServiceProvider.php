@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\ApiToken;
+use App\Models\Dj\Gig;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -82,6 +83,14 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('dj-search', fn (Request $request): Limit => Limit::perMinute((int) config('dj.api.search_per_minute'))
             ->by(tenant()?->getTenantKey().'|'.$request->ip())
         );
+
+        // Song requests, per visitor and gig
+        RateLimiter::for('dj-requests', function (Request $request): Limit {
+            $gig = $request->route('gig');
+
+            return Limit::perMinute((int) config('dj.requests.rate_limit_per_minute'))
+                ->by(tenant()?->getTenantKey().'|'.($gig instanceof Gig ? $gig->id : '').'|'.$request->ip());
+        });
 
         // Exchanging a guest pass password for a token; wrong passwords also lock out (see GuestTokenController)
         RateLimiter::for('dj-guest-token', fn (Request $request): Limit => Limit::perMinute(10)

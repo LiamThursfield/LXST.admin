@@ -11,6 +11,7 @@ use App\Http\Controllers\Tenant\Api\V1\Dj\GigController as DjGigController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\GuestSetlistController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\GuestSetlistItemController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\GuestTokenController;
+use App\Http\Controllers\Tenant\Api\V1\Dj\SongRequestController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\TrackController;
 use App\Http\Controllers\Tenant\Api\V1\PingController;
 use App\Http\Controllers\Tenant\Api\V1\SiteController;
@@ -60,6 +61,9 @@ Route::prefix('v1')
             // What a request form needs: the current gig or a given one (by its public ID), and library search
             Route::get('gigs/current', [DjGigController::class, 'current'])->name('gigs.current');
             Route::get('gigs/{gig:public_id}', [DjGigController::class, 'show'])->name('gigs.show');
+            Route::post('gigs/{gig:public_id}/requests', [SongRequestController::class, 'store'])
+                ->middleware('throttle:dj-requests')
+                ->name('gigs.requests.store');
             Route::get('tracks', [TrackController::class, 'index'])
                 ->middleware('throttle:dj-search')
                 ->name('tracks.index');

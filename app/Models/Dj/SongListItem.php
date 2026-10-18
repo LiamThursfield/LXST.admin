@@ -2,6 +2,7 @@
 
 namespace App\Models\Dj;
 
+use App\Enums\Dj\RequestStatus;
 use App\Enums\Dj\SetlistSongType;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -9,6 +10,7 @@ use Database\Factories\Dj\SongListItemFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * A song on a list: one from the library (a canonical track), or a custom artist and title when
@@ -20,11 +22,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $custom_artist
  * @property string|null $custom_title
  * @property SetlistSongType|null $type Null on requests
+ * @property RequestStatus|null $status Null on setlists
  * @property int $position
  * @property string|null $note
  * @property int|null $added_by_user_id
  * @property int|null $guest_pass_id The guest pass that added it
  * @property string|null $guest_name A name the guest gave with a shared pass
+ * @property string|null $requester_name
+ * @property string|null $message The requester's message to the DJ
+ * @property bool $is_do_not_play On one of the gig's setlists as do not play when requested
+ * @property CarbonImmutable|null $played_at
  * @property string|null $visitor_hash
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
@@ -56,6 +63,11 @@ class SongListItem extends Model
         'added_by_user_id',
         'guest_pass_id',
         'guest_name',
+        'status',
+        'requester_name',
+        'message',
+        'is_do_not_play',
+        'played_at',
         'visitor_hash',
     ];
 
@@ -66,7 +78,10 @@ class SongListItem extends Model
     {
         return [
             'type' => SetlistSongType::class,
+            'status' => RequestStatus::class,
             'position' => 'integer',
+            'is_do_not_play' => 'boolean',
+            'played_at' => 'datetime',
         ];
     }
 
@@ -84,6 +99,16 @@ class SongListItem extends Model
     public function song(): BelongsTo
     {
         return $this->belongsTo(CanonicalTrack::class, 'canonical_track_id');
+    }
+
+    /**
+     * Upvotes of a request, including the requester's own
+     *
+     * @return HasMany<SongListItemVote, $this>
+     */
+    public function votes(): HasMany
+    {
+        return $this->hasMany(SongListItemVote::class);
     }
 
     /**
