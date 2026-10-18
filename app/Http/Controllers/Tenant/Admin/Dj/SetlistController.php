@@ -8,9 +8,11 @@ use App\Enums\Dj\SongListVisibility;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Admin\Dj\SetlistStoreRequest;
 use App\Http\Requests\Tenant\Admin\Dj\SetlistUpdateRequest;
+use App\Http\Resources\Tenant\Admin\Dj\GuestPassResource;
 use App\Http\Resources\Tenant\Admin\Dj\SetlistItemResource;
 use App\Http\Resources\Tenant\Admin\Dj\SetlistResource;
 use App\Models\Dj\Gig;
+use App\Models\Dj\GuestPass;
 use App\Models\Dj\SongList;
 use App\Models\User;
 use App\Services\Dj\SongLists;
@@ -71,7 +73,7 @@ class SetlistController extends Controller
         $this->ensureSetlist($setlist);
         Gate::authorize('view', $setlist);
 
-        $setlist->load(['gig', 'items.song.artist', 'items.addedBy']);
+        $setlist->load(['gig', 'items.song.artist', 'items.addedBy', 'items.guestPass']);
 
         return Inertia::render('admin/dj/setlist/Show', [
             'setlist' => new SetlistResource($this->withTypeCounts(SongList::query())->with('gig')->findOrFail($setlist->id)),
@@ -80,6 +82,9 @@ class SetlistController extends Controller
             'visibilities' => SongListVisibility::asSelectItems(),
             'types' => SetlistSongType::asSelectItems(),
             'canManage' => $request->user()?->can('update', $setlist) ?? false,
+            'guestPasses' => fn () => $request->user()?->can('create', [GuestPass::class, $setlist])
+                ? GuestPassResource::collection($setlist->guestPasses()->withCount('items')->oldest()->get())
+                : null,
         ]);
     }
 

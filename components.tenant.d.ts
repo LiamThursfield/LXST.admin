@@ -22,6 +22,7 @@ declare module 'vue' {
     DeleteAccount: typeof import('./resources/js/components/settings/DeleteAccount.vue')['default']
     FileField: typeof import('./resources/js/tenant/components/file-manager/FileField.vue')['default']
     FilePickerModal: typeof import('./resources/js/tenant/components/file-manager/FilePickerModal.vue')['default']
+    GuestPassesCard: typeof import('./resources/js/tenant/components/dj/GuestPassesCard.vue')['default']
     ImageContentField: typeof import('./resources/js/tenant/components/cms/fields/ImageContentField.vue')['default']
     MenuContentField: typeof import('./resources/js/tenant/components/cms/fields/MenuContentField.vue')['default']
     NotificationsSlideover: typeof import('./resources/js/components/NotificationsSlideover.vue')['default']

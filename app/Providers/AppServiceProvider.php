@@ -78,6 +78,11 @@ class AppServiceProvider extends ServiceProvider
             ->by(tenant()?->getTenantKey().'|'.($request->input('ip_address') ?: $request->ip()))
         );
 
+        // Exchanging a guest pass password for a token; wrong passwords also lock out (see GuestTokenController)
+        RateLimiter::for('dj-guest-token', fn (Request $request): Limit => Limit::perMinute(10)
+            ->by(tenant()?->getTenantKey().'|'.$request->ip())
+        );
+
         // Requests made with a tenant API token, per token. Middleware priority runs this before
         // `auth.tenant-token`, so the token is read from Sanctum's guard rather than the request's user
         RateLimiter::for('tenant-api-token', function (Request $request): Limit {

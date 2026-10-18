@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import { index } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/GigController';
 import GigForm from '@/tenant/pages/admin/dj/gig/components/GigForm.vue';
 import type { RequestDefaults, SelectItem } from '@/types';
