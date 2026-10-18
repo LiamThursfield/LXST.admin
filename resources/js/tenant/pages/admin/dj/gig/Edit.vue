@@ -8,7 +8,14 @@ import {
 import { show as qrCode } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/GigQrCodeController';
 import { store as storeSetlist } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/SetlistController';
 import GigForm from '@/tenant/pages/admin/dj/gig/components/GigForm.vue';
-import type { GigData, RequestDefaults, SelectItem } from '@/types';
+import GigPlayed from '@/tenant/pages/admin/dj/gig/components/GigPlayed.vue';
+import type {
+    GigData,
+    HistorySessionData,
+    PlayedTrackData,
+    RequestDefaults,
+    SelectItem,
+} from '@/types';
 
 const props = defineProps<{
     gig: { data: GigData };
@@ -22,6 +29,8 @@ const props = defineProps<{
         url: string;
     }>;
     canCreateSetlist: boolean;
+    played: { data: PlayedTrackData[] };
+    linkedSessions: { data: HistorySessionData[] };
 }>();
 
 const { trans } = useTrans();
@@ -228,6 +237,12 @@ function newSetlist() {
                         @click="newSetlist"
                     />
                 </UPageCard>
+
+                <GigPlayed
+                    :gig="gig"
+                    :played="played.data"
+                    :sessions="linkedSessions.data"
+                />
 
                 <GigForm
                     :gig="gig"

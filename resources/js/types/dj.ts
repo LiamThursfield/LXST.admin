@@ -248,3 +248,29 @@ export type SetlistItemData = {
     added_by: string | null;
     created_at: string;
 };
+
+/** A play history session, as returned by `HistorySessionResource`. */
+export type HistorySessionData = {
+    id: number;
+    name: string;
+    source: 'import' | 'manual';
+    library: string | null;
+    started_at: string | null;
+    ended_at: string | null;
+    plays_count: number;
+    include_in_stats: boolean;
+    gig: { id: number; name: string; url: string } | null;
+    url: string;
+};
+
+/** A play, as returned by `PlayedTrackResource`. */
+export type PlayedTrackData = {
+    id: number;
+    title: string | null;
+    artist: string | null;
+    played_at: string | null;
+    session: string;
+    is_manual: boolean;
+    song_url: string | null;
+    track_url: string | null;
+};

@@ -9,7 +9,10 @@ use App\Http\Requests\Tenant\Admin\Dj\GigIndexRequest;
 use App\Http\Requests\Tenant\Admin\Dj\GigStoreRequest;
 use App\Http\Requests\Tenant\Admin\Dj\GigUpdateRequest;
 use App\Http\Resources\Tenant\Admin\Dj\GigResource;
+use App\Http\Resources\Tenant\Admin\Dj\HistorySessionResource;
+use App\Http\Resources\Tenant\Admin\Dj\PlayedTrackResource;
 use App\Models\Dj\Gig;
+use App\Models\Dj\HistoryPlay;
 use App\Models\Dj\SongList;
 use App\Models\Settings\DjSettings;
 use App\Services\Dj\CurrentGig;
@@ -85,6 +88,19 @@ class GigController extends Controller
                     'url' => route('admin.dj.setlists.show', $setlist),
                 ]),
             'canCreateSetlist' => $request->user()?->can('create', SongList::class) ?? false,
+            // What was played: the plays of the sessions linked to this gig, in time order
+            'played' => PlayedTrackResource::collection(
+                HistoryPlay::query()
+                    ->whereHas('session', fn ($sessions) => $sessions->where('gig_id', $gig->id))
+                    ->with(['session', 'song.artist', 'track.artist', 'track.canonicalTrack'])
+                    ->orderBy('played_at')
+                    ->orderBy('position')
+                    ->limit(500)
+                    ->get()
+            ),
+            'linkedSessions' => HistorySessionResource::collection(
+                $gig->historySessions()->with(['gig', 'library'])->withCount('plays')->orderBy('started_at')->get()
+            ),
         ]);
     }
 

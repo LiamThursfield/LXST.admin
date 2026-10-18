@@ -28,6 +28,23 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Play History
+    |--------------------------------------------------------------------------
+    |
+    | Imported sessions count in stats when they have at least this many plays,
+    | so a quick check of a track doesn't. Sessions less than `gig_gap_minutes`
+    | apart are suggested as one gig, as Rekordbox starts a new session whenever
+    | it's relaunched.
+    |
+    */
+
+    'history' => [
+        'min_plays_for_stats' => (int) env('DJ_HISTORY_MIN_PLAYS_FOR_STATS', 5),
+        'gig_gap_minutes' => (int) env('DJ_HISTORY_GIG_GAP_MINUTES', 60),
+    ],
+
     'matching' => [
         'suggestion_threshold' => (float) env('DJ_MATCHING_SUGGESTION_THRESHOLD', 0.85),
     ],

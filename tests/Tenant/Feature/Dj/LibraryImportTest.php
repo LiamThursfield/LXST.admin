@@ -7,6 +7,7 @@ use App\Enums\Dj\TrackService;
 use App\Jobs\Dj\ImportLibrary;
 use App\Models\Dj\CanonicalArtist;
 use App\Models\Dj\CanonicalTrack;
+use App\Models\Dj\Gig;
 use App\Models\Dj\HistorySession;
 use App\Models\Dj\Library;
 use App\Models\Dj\LibraryImport;
@@ -118,6 +119,22 @@ test('history is kept with each play\'s time in UTC, in order, linked to its tra
         ->and($plays->pluck('position')->all())->toBe([1, 2])
         ->and($plays->first()->track->title)->toBe('Marea')
         ->and($plays->last()->source_track_id)->toBe('102');
+});
+
+test('short sessions are left out of stats, and a re-import keeps gig links and stats choices', function () {
+    config(['dj.history.min_plays_for_stats' => 5]);
+    runImport($this, $this->sampleRekordboxLibrary());
+
+    // The sample session has two plays
+    expect(HistorySession::sole()->include_in_stats)->toBeFalse();
+
+    $gig = Gig::factory()->create();
+    HistorySession::sole()->update(['gig_id' => $gig->id, 'include_in_stats' => true]);
+
+    runImport($this, $this->sampleRekordboxLibrary());
+
+    expect(HistorySession::sole())->gig_id->toBe($gig->id)->include_in_stats->toBeTrue()
+        ->and(HistorySession::sole()->plays()->count())->toBe(2);
 });
 
 test('re-importing updates rather than duplicates, and reports what changed', function () {
