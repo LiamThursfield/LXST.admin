@@ -13,6 +13,9 @@ enum DjPermission: string
     case ViewGigs = 'dj.view-gigs';
     case ManageGigs = 'dj.manage-gigs';
 
+    /** Adding to and editing setlists; viewing them needs dj.view-gigs */
+    case ManageSetlists = 'dj.manage-setlists';
+
     /** Working through the song request queue */
     case ManageRequests = 'dj.manage-requests';
 

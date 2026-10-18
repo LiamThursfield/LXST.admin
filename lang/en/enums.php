@@ -144,6 +144,22 @@ return [
         'scheduled' => 'Open around the gig',
     ],
 
+    'song_list_kind' => [
+        'setlist' => 'Setlist',
+        'requests' => 'Requests',
+    ],
+
+    'song_list_visibility' => [
+        'private' => 'Private',
+        'public' => 'Public',
+    ],
+
+    'setlist_song_type' => [
+        'must_play' => 'Must play',
+        'maybe' => 'Maybe',
+        'do_not_play' => 'Do not play',
+    ],
+
     'tenant_module' => [
         'cms' => 'CMS',
         'crm' => 'CRM',

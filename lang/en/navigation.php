@@ -37,6 +37,7 @@ return [
 
     'dj' => 'DJ',
     'gigs' => 'Gigs',
+    'setlists' => 'Setlists',
     'dj_settings' => 'Settings',
     'library' => 'Library',
     'songs' => 'Songs',

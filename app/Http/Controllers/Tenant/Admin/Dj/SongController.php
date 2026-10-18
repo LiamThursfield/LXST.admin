@@ -15,6 +15,7 @@ use App\Models\Dj\CanonicalArtist;
 use App\Models\Dj\CanonicalMerge;
 use App\Models\Dj\CanonicalTrack;
 use App\Models\Dj\HistoryPlay;
+use App\Models\Dj\SongList;
 use App\Services\Dj\Matching\CanonicalCleaner;
 use App\Services\Dj\Matching\TrackNormaliser;
 use Illuminate\Database\Eloquent\Builder;
@@ -93,6 +94,18 @@ class SongController extends Controller
                     ->limit(20)
                     ->get()
             ),
+            'setlists' => SongList::query()->setlists()
+                ->whereHas('items', fn (Builder $items) => $items->where('canonical_track_id', $song->id))
+                ->with(['gig', 'items' => fn ($items) => $items->where('canonical_track_id', $song->id)])
+                ->orderBy('name')
+                ->get()
+                ->map(fn (SongList $setlist) => [
+                    'id' => $setlist->id,
+                    'name' => $setlist->name,
+                    'gig' => $setlist->gig?->name,
+                    'type' => $setlist->items->first()?->type?->label(),
+                    'url' => route('admin.dj.setlists.show', $setlist),
+                ]),
             'keys' => $this->keyItems(),
             'canManage' => $request->user()?->can('update', $song) ?? false,
         ]);

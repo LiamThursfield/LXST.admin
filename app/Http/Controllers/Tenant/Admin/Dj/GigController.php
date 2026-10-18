@@ -10,6 +10,7 @@ use App\Http\Requests\Tenant\Admin\Dj\GigStoreRequest;
 use App\Http\Requests\Tenant\Admin\Dj\GigUpdateRequest;
 use App\Http\Resources\Tenant\Admin\Dj\GigResource;
 use App\Models\Dj\Gig;
+use App\Models\Dj\SongList;
 use App\Models\Settings\DjSettings;
 use App\Services\Dj\CurrentGig;
 use Illuminate\Http\RedirectResponse;
@@ -76,6 +77,14 @@ class GigController extends Controller
                 ]),
             'defaults' => $this->defaults($settings),
             'requestsModes' => RequestsMode::asSelectItems(),
+            'setlists' => SongList::query()->setlists()->where('gig_id', $gig->id)->withCount('items')->orderBy('name')->get()
+                ->map(fn (SongList $setlist) => [
+                    'id' => $setlist->id,
+                    'name' => $setlist->name,
+                    'items_count' => $setlist->items_count,
+                    'url' => route('admin.dj.setlists.show', $setlist),
+                ]),
+            'canCreateSetlist' => $request->user()?->can('create', SongList::class) ?? false,
         ]);
     }
 

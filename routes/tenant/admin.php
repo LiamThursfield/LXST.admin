@@ -30,6 +30,8 @@ use App\Http\Controllers\Tenant\Admin\Dj\LibraryTrackController;
 use App\Http\Controllers\Tenant\Admin\Dj\LibraryTrackSplitController;
 use App\Http\Controllers\Tenant\Admin\Dj\MatchDismissalController;
 use App\Http\Controllers\Tenant\Admin\Dj\MatchingController;
+use App\Http\Controllers\Tenant\Admin\Dj\SetlistController;
+use App\Http\Controllers\Tenant\Admin\Dj\SetlistItemController;
 use App\Http\Controllers\Tenant\Admin\Dj\SongController;
 use App\Http\Controllers\Tenant\Admin\FileManager\FileController;
 use App\Http\Controllers\Tenant\Admin\FileManager\FileManagerController;
@@ -110,6 +112,12 @@ Route::name('dj.')->prefix('dj')->middleware('tenant.module:dj')->group(function
     Route::post('gigs/{gig}/pin', [GigPinController::class, 'store'])->name('gigs.pin');
     Route::delete('gigs/{gig}/pin', [GigPinController::class, 'destroy'])->name('gigs.unpin');
     Route::get('gigs/{gig}/qr-code', [GigQrCodeController::class, 'show'])->name('gigs.qr-code');
+    Route::resource('setlists', SetlistController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
+    Route::post('setlists/{setlist}/duplicate', [SetlistController::class, 'duplicate'])->name('setlists.duplicate');
+    Route::post('setlists/{setlist}/items', [SetlistItemController::class, 'store'])->name('setlists.items.store');
+    Route::put('setlists/{setlist}/items/order', [SetlistItemController::class, 'reorder'])->name('setlists.items.reorder');
+    Route::patch('setlists/{setlist}/items/{item}', [SetlistItemController::class, 'update'])->name('setlists.items.update');
+    Route::delete('setlists/{setlist}/items/{item}', [SetlistItemController::class, 'destroy'])->name('setlists.items.destroy');
     Route::get('settings', [DjSettingsController::class, 'edit'])->name('settings.edit');
     Route::put('settings', [DjSettingsController::class, 'update'])->name('settings.update');
 

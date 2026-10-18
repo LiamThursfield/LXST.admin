@@ -33,6 +33,13 @@ const props = defineProps<{
         played_at: string | null;
     }>;
     merges: { data: CanonicalMergeData[] };
+    setlists: Array<{
+        id: number;
+        name: string;
+        gig: string | null;
+        type: string | null;
+        url: string;
+    }>;
     keys: SelectItem[];
     canManage: boolean;
 }>();
@@ -368,6 +375,40 @@ const mergeOpen = ref(false);
                         </template>
                         <p v-else class="text-muted text-sm">
                             {{ trans('dj.songs.show.no_history') }}
+                        </p>
+                    </UPageCard>
+
+                    <UPageCard
+                        :title="trans('dj.songs.show.setlists')"
+                        variant="subtle"
+                    >
+                        <ul
+                            v-if="setlists.length"
+                            class="flex flex-col gap-1 text-sm"
+                        >
+                            <li
+                                v-for="setlist in setlists"
+                                :key="setlist.id"
+                                class="flex justify-between gap-2"
+                            >
+                                <Link
+                                    :href="setlist.url"
+                                    class="hover:underline"
+                                >
+                                    {{ setlist.name }}
+                                    <span v-if="setlist.gig" class="text-muted"
+                                        >· {{ setlist.gig }}</span
+                                    >
+                                </Link>
+                                <span
+                                    v-if="setlist.type"
+                                    class="text-muted text-xs"
+                                    >{{ setlist.type }}</span
+                                >
+                            </li>
+                        </ul>
+                        <p v-else class="text-muted text-sm">
+                            {{ trans('dj.songs.show.no_setlists') }}
                         </p>
                     </UPageCard>
 
