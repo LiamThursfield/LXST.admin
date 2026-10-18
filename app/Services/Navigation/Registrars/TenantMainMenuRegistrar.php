@@ -303,8 +303,20 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         label: 'navigation.library',
                         type: MenuItemType::LINK,
                         icon: 'i-lucide-library',
-                        activePatterns: ['admin.dj.tracks.*', 'admin.dj.artists.*', 'admin.dj.libraries.*', 'admin.dj.matching.*'],
+                        activePatterns: ['admin.dj.songs.*', 'admin.dj.canonical-artists.*', 'admin.dj.tracks.*', 'admin.dj.artists.*', 'admin.dj.libraries.*', 'admin.dj.matching.*'],
                         children: Collection::wrap([
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_SONGS,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_SONGS]),
+                                label: 'navigation.songs',
+                                to: 'admin.dj.songs.index',
+                            )->gate(DjPermission::ViewLibrary),
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_CANONICAL_ARTISTS,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_CANONICAL_ARTISTS]),
+                                label: 'navigation.canonical_artists',
+                                to: 'admin.dj.canonical-artists.index',
+                            )->gate(DjPermission::ViewLibrary),
                             new MenuChildItem(
                                 key: TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_TRACKS,
                                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_TRACKS]),

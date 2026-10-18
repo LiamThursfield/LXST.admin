@@ -11,8 +11,109 @@
 */
 
 return [
+    'songs' => [
+        'title' => 'Songs',
+        'description' => 'Each song counts once, however many libraries or versions it\'s in. Requests and stats use these.',
+        'empty' => 'No songs match.',
+        'total' => ':count songs',
+        'search' => 'Search songs or artists...',
+        'in_libraries' => 'In :count libraries',
+        'sources' => ':count library tracks',
+        'orphaned_notice' => ':count songs aren\'t in any library\'s latest import, e.g. after a library was deleted.',
+        'cleanup' => 'Clean up',
+        'confirm_cleanup' => 'Delete every song and artist nothing links to any more? Verified ones are kept.',
+        'columns' => [
+            'title' => 'Song',
+            'bpm' => 'BPM',
+            'key' => 'Key',
+            'duration' => 'Length',
+            'sources' => 'Library tracks',
+        ],
+        'sorts' => [
+            'title' => 'Title',
+            'artist' => 'Artist',
+            'bpm' => 'BPM',
+            'library_tracks_count' => 'Library tracks',
+        ],
+        'filters' => [
+            'verified' => 'Verified',
+            'verified_yes' => 'Verified',
+            'verified_no' => 'Not verified',
+            'shared' => 'In more than one library',
+            'orphaned' => 'Not in any library',
+            'artist' => 'Artist: :name',
+        ],
+        'fields' => [
+            'title' => 'Title',
+            'artist' => 'Artist',
+            'artist_search' => 'Search artists...',
+            'no_artist' => 'No artist',
+            'bpm' => 'BPM',
+            'key' => 'Key',
+            'duration' => 'Length',
+            'duration_help' => 'Minutes and seconds, e.g. 3:45.',
+        ],
+        'show' => [
+            'back' => 'Songs',
+            'edit' => 'Edit details',
+            'edit_help' => 'Saving verifies the song, so matching never changes it back.',
+            'save' => 'Save',
+            'library_tracks' => 'In libraries',
+            'history' => 'Play history',
+            'history_count' => 'Played :count times across every library\'s imported history.',
+            'no_history' => 'Not in the imported play history.',
+            'merges' => 'Merge history',
+            'no_merges' => 'Never merged or split.',
+        ],
+        'errors' => [
+            'duration' => 'Enter the length as minutes and seconds, e.g. 3:45.',
+        ],
+        'flash' => [
+            'updated' => 'Song saved and verified.',
+            'cleaned' => 'Cleaned up :tracks songs and :artists artists.',
+        ],
+    ],
+
+    'canonical_artists' => [
+        'title' => 'Artists',
+        'description' => 'Each artist counts once, however many libraries they\'re in.',
+        'empty' => 'No artists match.',
+        'search' => 'Search artists...',
+        'columns' => [
+            'name' => 'Artist',
+            'songs' => 'Songs',
+            'sources' => 'Library artists',
+        ],
+        'sorts' => [
+            'name' => 'Name',
+            'tracks_count' => 'Songs',
+            'library_artists_count' => 'Library artists',
+        ],
+        'filters' => [
+            'orphaned' => 'Not in any library',
+        ],
+        'fields' => [
+            'name' => 'Name',
+        ],
+        'show' => [
+            'back' => 'Artists',
+            'rename' => 'Rename',
+            'rename_help' => 'Saving verifies the artist, so matching never changes it back.',
+            'songs' => 'Songs',
+            'all_songs' => 'View all :count songs',
+            'library_artists' => 'In libraries',
+            'merge' => 'Merge into another…',
+            'merge_title' => 'Merge into another artist',
+            'merge_help' => 'This artist, their songs and their library artists will move to the artist you choose.',
+            'merge_search' => 'Search artists...',
+        ],
+        'flash' => [
+            'updated' => 'Artist saved and verified.',
+        ],
+    ],
+
     'tracks' => [
-        'title' => 'Tracks',
+        'title' => 'Library tracks',
         'empty' => 'No tracks match. Try clearing a filter, or import a library.',
         'total' => ':count tracks',
         'missing' => 'Missing',
@@ -75,7 +176,8 @@ return [
             'library' => 'Library',
             'source_id' => 'Rekordbox ID',
             'missing' => 'Not in the latest import of this library (since :date).',
-            'canonical' => 'Canonical track',
+            'canonical' => 'Song',
+            'view_song' => 'View song',
             'canonical_help' => 'The song itself, so it counts once across libraries and re-imports.',
             'verified' => 'Verified',
             'unverified' => 'Not verified',
@@ -148,10 +250,11 @@ return [
     ],
 
     'artists' => [
-        'title' => 'Artists',
+        'title' => 'Library artists',
         'empty' => 'No artists match.',
         'search' => 'Search artists...',
         'view_tracks' => 'View tracks',
+        'canonical' => 'Artist page (across libraries)',
         'columns' => [
             'name' => 'Artist',
             'tracks' => 'Tracks',

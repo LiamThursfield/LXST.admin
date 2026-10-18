@@ -87,12 +87,25 @@ watch([filters, sort], () => search(), { deep: true });
                     :empty="trans('dj.artists.empty')"
                 >
                     <template #name-cell="{ row }">
-                        <Link
-                            :href="row.original.tracks_url"
-                            class="text-highlighted font-medium hover:underline"
-                        >
-                            {{ row.original.name }}
-                        </Link>
+                        <div class="flex items-center gap-2">
+                            <Link
+                                :href="row.original.tracks_url"
+                                class="text-highlighted font-medium hover:underline"
+                            >
+                                {{ row.original.name }}
+                            </Link>
+                            <UButton
+                                v-if="row.original.canonical_url"
+                                :as="Link"
+                                :href="row.original.canonical_url"
+                                size="xs"
+                                color="neutral"
+                                variant="ghost"
+                                icon="i-lucide-user-round"
+                                :aria-label="trans('dj.artists.canonical')"
+                                :title="trans('dj.artists.canonical')"
+                            />
+                        </div>
                     </template>
                 </UTable>
 

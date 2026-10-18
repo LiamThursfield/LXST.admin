@@ -37,8 +37,10 @@ return [
 
     'dj' => 'DJ',
     'library' => 'Library',
-    'tracks' => 'Tracks',
-    'artists' => 'Artists',
+    'songs' => 'Songs',
+    'canonical_artists' => 'Artists',
+    'tracks' => 'Library tracks',
+    'artists' => 'Library artists',
     'libraries' => 'Libraries',
     'matching' => 'Matching',
 
