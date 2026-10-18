@@ -58,9 +58,12 @@ watch(
 
 const NEW_LIBRARY = 'new';
 
+// Libraries only take imports from their own source, as artist IDs differ between sources
 const libraryItems = computed(() => [
     ...props.libraries.data
-        .filter((library) => library.can_import)
+        .filter(
+            (library) => library.can_import && library.source === form.source,
+        )
         .map((library) => ({ label: library.name, value: String(library.id) })),
     { label: trans('dj.imports.fields.new_library'), value: NEW_LIBRARY },
 ]);
@@ -68,6 +71,7 @@ const libraryItems = computed(() => [
 const importOpen = ref(false);
 
 const form = useForm({
+    source: String(props.importSources[0]?.value ?? ''),
     library_id: NEW_LIBRARY,
     library_name: '',
     file: null as File | null,
@@ -76,12 +80,32 @@ const form = useForm({
 function openImport(library?: LibraryData) {
     form.reset();
     form.clearErrors();
+    form.source = library
+        ? library.source
+        : String(props.importSources[0]?.value ?? '');
     form.library_id = library ? String(library.id) : NEW_LIBRARY;
     importOpen.value = true;
 }
 
+const isXml = computed(() => form.source === 'rekordbox_xml');
+
+// A different source needs a different library and file
+watch(
+    () => form.source,
+    () => {
+        if (
+            !libraryItems.value.some((item) => item.value === form.library_id)
+        ) {
+            form.library_id = NEW_LIBRARY;
+        }
+
+        form.file = null;
+    },
+);
+
 function onSubmit() {
     form.transform((data) => ({
+        source: data.source,
         library_id: data.library_id === NEW_LIBRARY ? null : data.library_id,
         library_name:
             data.library_id === NEW_LIBRARY ? data.library_name : null,
@@ -355,11 +379,13 @@ function changeImportsPage(page: number) {
                         class="flex flex-col gap-4"
                         @submit.prevent="onSubmit"
                     >
-                        <UFormField :label="trans('dj.imports.fields.source')">
+                        <UFormField
+                            :label="trans('dj.imports.fields.source')"
+                            :error="form.errors.source"
+                        >
                             <USelect
-                                :model-value="importSources[0]?.value"
+                                v-model="form.source"
                                 :items="importSources"
-                                disabled
                                 class="w-full"
                             />
                         </UFormField>
@@ -391,16 +417,20 @@ function changeImportsPage(page: number) {
                         <UFormField
                             :label="trans('dj.imports.fields.file')"
                             :help="
-                                trans('dj.imports.fields.file_help', {
-                                    size: maxUploadMb,
-                                })
+                                trans(
+                                    `dj.imports.fields.file_help.${form.source}`,
+                                    {
+                                        size: maxUploadMb,
+                                    },
+                                )
                             "
                             :error="form.errors.file"
                             required
                         >
                             <UFileUpload
+                                :key="form.source"
                                 v-model="form.file"
-                                accept=".db"
+                                :accept="isXml ? '.xml' : '.db'"
                                 layout="list"
                                 class="w-full"
                                 :label="trans('dj.imports.fields.file')"
@@ -408,6 +438,14 @@ function changeImportsPage(page: number) {
                         </UFormField>
 
                         <UAlert
+                            v-if="isXml"
+                            color="neutral"
+                            variant="subtle"
+                            icon="i-lucide-info"
+                            :description="trans('dj.imports.xml_help')"
+                        />
+                        <UAlert
+                            v-else
                             color="neutral"
                             variant="subtle"
                             icon="i-lucide-info"

@@ -5,8 +5,8 @@ namespace Tests\Traits;
 use PDO;
 
 /**
- * Builds small decrypted Rekordbox master.db files for import tests, using the same tables and
- * columns as Rekordbox 6 and 7 (only the ones the import reads)
+ * Builds small Rekordbox files for import tests: decrypted master.db files with the same tables
+ * and columns as Rekordbox 6 and 7 (only the ones the import reads), and XML exports
  */
 trait BuildsRekordboxDatabasesTrait
 {
@@ -60,6 +60,71 @@ trait BuildsRekordboxDatabasesTrait
         }
 
         return $path;
+    }
+
+    /**
+     * Builds a Rekordbox "Export Collection in xml format" file, with a playlist that references
+     * the first track (as real exports do), so tests show playlist entries aren't imported twice
+     *
+     * @param  list<array<string, string|int>>  $tracks  TRACK attributes
+     */
+    public function makeRekordboxXml(array $tracks, string $product = 'rekordbox'): string
+    {
+        $path = (string) tempnam(sys_get_temp_dir(), 'rekordbox-xml-');
+        $entries = '';
+
+        foreach ($tracks as $attributes) {
+            $entries .= '    <TRACK';
+
+            foreach ($attributes as $name => $value) {
+                $entries .= sprintf(' %s="%s"', $name, htmlspecialchars((string) $value, ENT_XML1 | ENT_QUOTES));
+            }
+
+            $entries .= ">\n      <TEMPO Inizio=\"0.025\" Bpm=\"124.00\" Metro=\"4/4\" Battito=\"1\"/>\n    </TRACK>\n";
+        }
+
+        $firstId = $tracks[0]['TrackID'] ?? '0';
+        $count = count($tracks);
+
+        file_put_contents($path, <<<XML
+            <?xml version="1.0" encoding="UTF-8"?>
+            <DJ_PLAYLISTS Version="1.0.0">
+              <PRODUCT Name="{$product}" Version="7.2.17" Company="AlphaTheta"/>
+              <COLLECTION Entries="{$count}">
+            {$entries}  </COLLECTION>
+              <PLAYLISTS>
+                <NODE Type="0" Name="ROOT" Count="1">
+                  <NODE Name="Warm up" Type="1" KeyType="0" Entries="1">
+                    <TRACK Key="{$firstId}"/>
+                  </NODE>
+                </NODE>
+              </PLAYLISTS>
+            </DJ_PLAYLISTS>
+            XML);
+
+        return $path;
+    }
+
+    /**
+     * Two tracks by the same artist (named with different case), as an XML export lists them
+     *
+     * @return list<array<string, string|int>>
+     */
+    public function sampleRekordboxXmlTracks(): array
+    {
+        return [
+            [
+                'TrackID' => '101', 'Name' => 'Marea', 'Artist' => 'Fred again..', 'Album' => 'Actual Life',
+                'Genre' => 'House', 'Label' => 'Atlantic', 'Year' => '2021', 'AverageBpm' => '124.00',
+                'TotalTime' => '225', 'Tonality' => '8A', 'Comments' => '/* Peak */', 'PlayCount' => '7',
+                'Rating' => '204', 'DateAdded' => '2024-12-25', 'Location' => 'file://localhosttidal:tracks:356883832',
+            ],
+            [
+                'TrackID' => '102', 'Name' => 'Delilah (pull me out of this)', 'Artist' => 'FRED AGAIN.. ',
+                'AverageBpm' => '0.00', 'TotalTime' => '0', 'Tonality' => 'F#m', 'Rating' => '0',
+                'Location' => 'file://localhost/Users/dj/Music/Delilah%20(Edit).mp3',
+            ],
+        ];
     }
 
     /**

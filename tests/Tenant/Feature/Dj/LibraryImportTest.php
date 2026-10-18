@@ -210,3 +210,134 @@ test('deleting a library deletes its tracks, tags, history and imports, but keep
         ->and(LibraryImport::count())->toBe(0)
         ->and(CanonicalTrack::count())->toBe(2);
 });
+
+/**
+ * Uploads an XML export and runs its import straight away, as the queue would
+ *
+ * @param  list<array<string, string|int>>  $tracks
+ */
+function runXmlImport(mixed $test, array $tracks, ?Library $library = null, string $product = 'rekordbox'): LibraryImport
+{
+    $path = 'dj-imports/'.uniqid().'.xml';
+    Storage::disk(config('dj.imports.disk'))->put($path, (string) file_get_contents($test->makeRekordboxXml($tracks, $product)));
+
+    $library ??= Library::factory()->source(LibrarySource::RekordboxXml)->create();
+    $import = LibraryImport::factory()->for($library)->create(['source' => LibrarySource::RekordboxXml, 'file_path' => $path]);
+
+    ImportLibrary::dispatchSync($import);
+
+    return $import->fresh();
+}
+
+test('an XML import brings in tracks with their details, and artists by name', function () {
+    $import = runXmlImport($this, $this->sampleRekordboxXmlTracks());
+    $library = $import->library;
+
+    expect($import->status)->toBe(ImportStatus::Completed)
+        ->and($import->total)->toBe(2)
+        ->and($import->counts)->toMatchArray([
+            'artists_added' => 1,
+            'tracks_added' => 2,
+            'history_sessions' => 0,
+            'tags' => 0,
+        ])
+        // The playlist's reference to the first track isn't a second track
+        ->and($library->tracks()->count())->toBe(2);
+
+    $marea = $library->tracks()->where('source_track_id', '101')->sole();
+
+    expect($marea->title)->toBe('Marea')
+        ->and($marea->artist->name)->toBe('Fred again..')
+        ->and($marea->artist->source_artist_id)->toBe('fred again..')
+        ->and($marea->album)->toBe('Actual Life')
+        ->and($marea->genre)->toBe('House')
+        ->and($marea->label)->toBe('Atlantic')
+        ->and($marea->year)->toBe(2021)
+        ->and($marea->bpm)->toBe('124.00')
+        ->and($marea->duration)->toBe(225)
+        ->and($marea->key)->toBe(MusicalKey::AMinor)
+        ->and($marea->comments)->toBe('/* Peak */')
+        ->and($marea->play_count)->toBe(7)
+        ->and($marea->rating)->toBe(4)
+        ->and($marea->date_added->toDateString())->toBe('2024-12-25')
+        // Stored the way master.db has it
+        ->and($marea->location)->toBe('tidal:tracks:356883832')
+        ->and($marea->service)->toBe(TrackService::Tidal)
+        ->and($marea->service_track_id)->toBe('356883832');
+
+    $delilah = $library->tracks()->where('source_track_id', '102')->sole();
+
+    // The same artist, whatever the case or spacing
+    expect($delilah->library_artist_id)->toBe($marea->library_artist_id)
+        ->and($delilah->key)->toBe(MusicalKey::FSharpMinor)
+        ->and($delilah->bpm)->toBeNull()
+        ->and($delilah->duration)->toBeNull()
+        ->and($delilah->rating)->toBeNull()
+        ->and($delilah->location)->toBe('/Users/dj/Music/Delilah (Edit).mp3')
+        ->and($delilah->service)->toBeNull();
+});
+
+test('re-importing an XML export updates rather than duplicates, and marks what it left out', function () {
+    $library = runXmlImport($this, $this->sampleRekordboxXmlTracks())->library;
+
+    $unchanged = runXmlImport($this, $this->sampleRekordboxXmlTracks(), $library);
+
+    expect($unchanged->counts)->toMatchArray(['tracks_added' => 0, 'tracks_unchanged' => 2]);
+
+    $missing = runXmlImport($this, [$this->sampleRekordboxXmlTracks()[0]], $library);
+
+    expect($missing->counts['tracks_missing'])->toBe(1)
+        ->and($library->tracks()->present()->count())->toBe(1)
+        ->and(LibraryTrack::count())->toBe(2);
+});
+
+test('the same song from a master.db and an XML export shares one canonical track', function () {
+    runImport($this, $this->sampleRekordboxLibrary());
+    runXmlImport($this, $this->sampleRekordboxXmlTracks());
+
+    $canonicalIds = LibraryTrack::query()->where('title', 'Marea')->pluck('canonical_track_id')->unique();
+
+    expect($canonicalIds)->toHaveCount(1);
+});
+
+test('an XML file that cannot be imported fails the import with a reason', function (string $contents, string $error) {
+    $path = 'dj-imports/broken.xml';
+    Storage::disk(config('dj.imports.disk'))->put($path, $contents);
+    $import = LibraryImport::factory()->for(Library::factory()->source(LibrarySource::RekordboxXml))->create([
+        'source' => LibrarySource::RekordboxXml,
+        'file_path' => $path,
+    ]);
+
+    expect(fn () => ImportLibrary::dispatchSync($import))->toThrow(InvalidImportFile::class);
+
+    expect($import->fresh()->status)->toBe(ImportStatus::Failed)
+        ->and($import->fresh()->error)->toBe(__($error))
+        ->and($import->fresh()->file_path)->toBeNull();
+})->with([
+    'another app' => ['<?xml version="1.0"?><DJ_PLAYLISTS><PRODUCT Name="Serato"/></DJ_PLAYLISTS>', 'dj.imports.errors.not_rekordbox_xml'],
+    'not XML' => ['not xml at all', 'dj.imports.errors.not_rekordbox_xml'],
+    'cut off part way' => ['<?xml version="1.0"?><DJ_PLAYLISTS Version="1.0.0"><PRODUCT Name="rekordbox"/><COLLECTION Entries="1"><TRACK TrackID="1" Name="A"', 'dj.imports.errors.malformed_xml'],
+]);
+
+test('an XML export with an external entity does not load it', function () {
+    $secret = tempnam(sys_get_temp_dir(), 'secret-');
+    file_put_contents($secret, 'top secret');
+
+    $xml = '<?xml version="1.0"?><!DOCTYPE x [<!ENTITY leak SYSTEM "file://'.$secret.'">]>'
+        .'<DJ_PLAYLISTS Version="1.0.0"><PRODUCT Name="rekordbox"/><COLLECTION Entries="1">'
+        .'<TRACK TrackID="1" Name="&leak;"/></COLLECTION></DJ_PLAYLISTS>';
+    $path = 'dj-imports/entity.xml';
+    Storage::disk(config('dj.imports.disk'))->put($path, $xml);
+    $import = LibraryImport::factory()->for(Library::factory()->source(LibrarySource::RekordboxXml))->create([
+        'source' => LibrarySource::RekordboxXml,
+        'file_path' => $path,
+    ]);
+
+    try {
+        ImportLibrary::dispatchSync($import);
+    } catch (InvalidImportFile) {
+        // Refusing the file is fine too
+    }
+
+    expect(LibraryTrack::query()->where('title', 'like', '%top secret%')->exists())->toBeFalse();
+});

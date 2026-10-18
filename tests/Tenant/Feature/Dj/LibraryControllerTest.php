@@ -59,6 +59,7 @@ test('the page keeps checking while an import is running', function () {
 
 test('uploading a master.db into a new library stores it and queues the import', function () {
     $this->post(route('admin.dj.imports.store'), [
+        'source' => LibrarySource::RekordboxDb->value,
         'library_name' => 'Home',
         'file' => masterDbUpload($this),
     ])
@@ -83,6 +84,7 @@ test('a master.db can be uploaded into an existing library', function () {
     $library = Library::factory()->source(LibrarySource::RekordboxDb)->create();
 
     $this->post(route('admin.dj.imports.store'), [
+        'source' => LibrarySource::RekordboxDb->value,
         'library_id' => $library->id,
         'file' => masterDbUpload($this),
     ])->assertSessionHasNoErrors();
@@ -92,7 +94,7 @@ test('a master.db can be uploaded into an existing library', function () {
 });
 
 test('uploads are validated', function (Closure $data, string $error) {
-    $this->post(route('admin.dj.imports.store'), $data($this))->assertSessionHasErrors($error);
+    $this->post(route('admin.dj.imports.store'), ['source' => LibrarySource::RekordboxDb->value, ...$data($this)])->assertSessionHasErrors($error);
 
     expect(LibraryImport::count())->toBe(0);
     Queue::assertNothingPushed();
@@ -111,6 +113,7 @@ test('uploads are validated', function (Closure $data, string $error) {
 
 test('an encrypted database is explained', function () {
     $this->post(route('admin.dj.imports.store'), [
+        'source' => LibrarySource::RekordboxDb->value,
         'library_name' => 'Home',
         'file' => UploadedFile::fake()->createWithContent('master.db', random_bytes(2048)),
     ])->assertSessionHasErrors(['file' => __('dj.imports.errors.not_decrypted')]);
@@ -137,8 +140,8 @@ test('users who can only view the library cannot import or delete', function () 
             ->where('libraries.data.0.can_import', false)
         );
 
-    $this->post(route('admin.dj.imports.store'), ['library_name' => 'Home', 'file' => masterDbUpload($this)])->assertForbidden();
-    $this->post(route('admin.dj.imports.store'), ['library_id' => $library->id, 'file' => masterDbUpload($this)])->assertForbidden();
+    $this->post(route('admin.dj.imports.store'), ['source' => LibrarySource::RekordboxDb->value, 'library_name' => 'Home', 'file' => masterDbUpload($this)])->assertForbidden();
+    $this->post(route('admin.dj.imports.store'), ['source' => LibrarySource::RekordboxDb->value, 'library_id' => $library->id, 'file' => masterDbUpload($this)])->assertForbidden();
     $this->delete(route('admin.dj.libraries.destroy', $library))->assertForbidden();
 
     expect($library->fresh())->not->toBeNull();
@@ -155,5 +158,51 @@ test('the library is not found when the tenant does not have the DJ module', fun
     tenant()->update(['modules' => [TenantModule::Cms]]);
 
     $this->get(route('admin.dj.libraries.index'))->assertNotFound();
-    $this->post(route('admin.dj.imports.store'), ['library_name' => 'Home', 'file' => masterDbUpload($this)])->assertNotFound();
+    $this->post(route('admin.dj.imports.store'), ['source' => LibrarySource::RekordboxDb->value, 'library_name' => 'Home', 'file' => masterDbUpload($this)])->assertNotFound();
 });
+
+function rekordboxXmlUpload(mixed $test, string $name = 'rekordbox.xml', string $product = 'rekordbox'): UploadedFile
+{
+    return new UploadedFile($test->makeRekordboxXml($test->sampleRekordboxXmlTracks(), $product), $name, null, null, true);
+}
+
+test('uploading a Rekordbox XML export into a new library queues its import', function () {
+    $this->post(route('admin.dj.imports.store'), [
+        'source' => LibrarySource::RekordboxXml->value,
+        'library_name' => 'Laptop',
+        'file' => rekordboxXmlUpload($this),
+    ])->assertSessionHasNoErrors();
+
+    $import = LibraryImport::sole();
+
+    expect($import->source)->toBe(LibrarySource::RekordboxXml)
+        ->and($import->library->source)->toBe(LibrarySource::RekordboxXml)
+        ->and($import->original_filename)->toBe('rekordbox.xml');
+
+    Queue::assertPushed(ImportLibrary::class);
+});
+
+test('the import page offers both upload sources', function () {
+    $this->get(route('admin.dj.libraries.index'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('importSources.0.value', LibrarySource::RekordboxDb->value)
+            ->where('importSources.1.value', LibrarySource::RekordboxXml->value)
+        );
+});
+
+test('XML uploads are validated', function (Closure $data, string $error, ?string $message = null) {
+    $this->post(route('admin.dj.imports.store'), $data($this))
+        ->assertSessionHasErrors($message === null ? $error : [$error => __($message)]);
+
+    expect(LibraryImport::count())->toBe(0);
+})->with([
+    'no source' => [fn ($test) => ['library_name' => 'Home', 'file' => rekordboxXmlUpload($test)], 'source', null],
+    'a source that cannot be uploaded' => [fn ($test) => ['source' => LibrarySource::CliSync->value, 'library_name' => 'Home', 'file' => rekordboxXmlUpload($test)], 'source', null],
+    'a master.db sent as XML' => [fn ($test) => ['source' => LibrarySource::RekordboxXml->value, 'library_name' => 'Home', 'file' => masterDbUpload($test)], 'file', 'dj.imports.errors.not_xml'],
+    'XML from another app' => [fn ($test) => ['source' => LibrarySource::RekordboxXml->value, 'library_name' => 'Home', 'file' => rekordboxXmlUpload($test, product: 'Serato')], 'file', 'dj.imports.errors.not_rekordbox_xml'],
+    'XML into a master.db library' => [fn ($test) => [
+        'source' => LibrarySource::RekordboxXml->value,
+        'library_id' => Library::factory()->source(LibrarySource::RekordboxDb)->create()->id,
+        'file' => rekordboxXmlUpload($test),
+    ], 'library_id', null],
+]);
