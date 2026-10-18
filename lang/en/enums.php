@@ -138,6 +138,12 @@ return [
         'assign' => 'Assigned',
     ],
 
+    'requests_mode' => [
+        'open' => 'Open',
+        'closed' => 'Closed',
+        'scheduled' => 'Open around the gig',
+    ],
+
     'tenant_module' => [
         'cms' => 'CMS',
         'crm' => 'CRM',

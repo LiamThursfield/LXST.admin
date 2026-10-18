@@ -162,3 +162,51 @@ export type CanonicalArtistData = {
     library_artists_count: number;
     url: string;
 };
+
+/** A gig's request settings (see backend `GigRequestSettings`); null means "use the default". */
+export type GigRequestSettingsData = {
+    requests_mode?: 'open' | 'closed' | 'scheduled' | null;
+    requests_open_minutes_before?: number | null;
+    max_requests_per_visitor?: number | null;
+    max_pending_requests?: number | null;
+    allow_custom_requests?: boolean | null;
+    show_public_list?: boolean | null;
+    allow_upvotes?: boolean | null;
+};
+
+/** The DJ settings' request defaults, as the gig form shows them. */
+export type RequestDefaults = {
+    requests_mode: 'open' | 'closed' | 'scheduled';
+    requests_mode_label: string;
+    requests_open_minutes_before: number;
+    max_requests_per_visitor: number;
+    max_pending_requests: number;
+    allow_custom_requests: boolean;
+    show_public_list: boolean;
+    allow_upvotes: boolean;
+};
+
+/** A gig, as returned by `GigResource`. */
+export type GigData = {
+    id: number;
+    name: string;
+    venue: string | null;
+    location: string | null;
+    timezone: string;
+    starts_at: string;
+    ends_at: string;
+    /** On the gig's own clock, for datetime-local inputs. */
+    starts_at_local: string;
+    ends_at_local: string;
+    notes: string | null;
+    is_pinned: boolean;
+    is_current: boolean;
+    is_on_now: boolean;
+    is_past: boolean;
+    requests_open: boolean;
+    request_url: string | null;
+    request_settings: GigRequestSettingsData;
+    effective_request_settings: Required<GigRequestSettingsData>;
+    can_update: boolean;
+    actions?: any[];
+};
