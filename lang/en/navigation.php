@@ -40,6 +40,7 @@ return [
     'tracks' => 'Tracks',
     'artists' => 'Artists',
     'libraries' => 'Libraries',
+    'matching' => 'Matching',
 
     'tools' => 'Tools',
     'files' => 'Files',

@@ -76,6 +76,7 @@ export type LibraryTrackDetailData = LibraryTrackData & {
     missing_since: string | null;
     tags: Array<{ name: string; category: string | null }>;
     canonical: {
+        id: number;
         title: string;
         artist: string | null;
         bpm: number | null;
@@ -102,4 +103,36 @@ export type LibraryArtistData = {
     library: string;
     tracks_count: number;
     tracks_url: string;
+};
+
+/** One side of a suggested duplicate pair on the matching page. */
+export type MatchCandidate = {
+    id: number;
+    name: string;
+    detail: string | null;
+    sources_count: number;
+    is_verified: boolean;
+    url: string;
+};
+
+/** A suggested pair of canonical records that might be the same. */
+export type MatchSuggestion = {
+    similarity: number;
+    first: MatchCandidate;
+    second: MatchCandidate;
+};
+
+/** A merge or split, as returned by `CanonicalMergeResource`. */
+export type CanonicalMergeData = {
+    id: number;
+    record: 'artist' | 'track';
+    record_label: string;
+    action: 'merge' | 'split';
+    action_label: string;
+    source_name: string;
+    target_name: string;
+    moved_count: number;
+    /** Null when the re-match did it. */
+    user: string | null;
+    created_at: string;
 };

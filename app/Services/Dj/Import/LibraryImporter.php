@@ -3,8 +3,6 @@
 namespace App\Services\Dj\Import;
 
 use App\Enums\Dj\TrackService;
-use App\Models\Dj\CanonicalArtist;
-use App\Models\Dj\CanonicalTrack;
 use App\Models\Dj\HistoryPlay;
 use App\Models\Dj\HistorySession;
 use App\Models\Dj\Library;
@@ -12,18 +10,21 @@ use App\Models\Dj\LibraryArtist;
 use App\Models\Dj\LibraryTag;
 use App\Models\Dj\LibraryTrack;
 use App\Services\Dj\Import\Data\TrackData;
+use App\Services\Dj\Matching\CanonicalMatcher;
 use Carbon\CarbonImmutable;
 use Closure;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Imports a full snapshot of a library from any source. Records are created or updated by their
- * source ID, so re-imports never duplicate, and linked to canonical records by exact match
- * (fuzzier matching comes with #116). Tracks the snapshot leaves out are marked missing rather
+ * source ID, so re-imports never duplicate, and linked to canonical records by the automatic
+ * matching rules (see CanonicalMatcher). Tracks the snapshot leaves out are marked missing rather
  * than deleted, as history points at them.
  */
 class LibraryImporter
 {
+    public function __construct(protected CanonicalMatcher $matcher) {}
+
     /** @var array<string, int> */
     protected array $counts = [];
 
@@ -78,7 +79,7 @@ class LibraryImporter
 
             $isNew = ! $artist->exists;
             $artist->name = $data->name;
-            $artist->canonical_artist_id ??= $this->canonicalArtistFor($data->name)->id;
+            $artist->canonical_artist_id ??= $this->matcher->artistFor($data->name)->id;
 
             if ($artist->isDirty()) {
                 $artist->save();
@@ -163,7 +164,15 @@ class LibraryImporter
                 'missing_since' => null,
             ]);
 
-            $track->canonical_track_id ??= $this->canonicalTrackFor($data, $artist)->id;
+            $track->canonical_track_id ??= $this->matcher->trackFor(
+                $data->title,
+                $artist?->canonical_artist_id,
+                $service[0] ?? null,
+                $service[1] ?? null,
+                $data->duration,
+                $data->bpm,
+                $data->key,
+            )->id;
 
             $changed = $track->isDirty();
 
@@ -245,34 +254,5 @@ class LibraryImporter
             $this->counts['history_sessions']++;
             $this->counts['history_plays'] += count($data->plays);
         }
-    }
-
-    /**
-     * An exact (case-insensitive) name match, or a new canonical artist
-     */
-    protected function canonicalArtistFor(string $name): CanonicalArtist
-    {
-        return CanonicalArtist::query()->where('name', $name)->first()
-            ?? CanonicalArtist::query()->create(['name' => $name]);
-    }
-
-    /**
-     * An exact (case-insensitive) title match by the same canonical artist, or a new canonical track
-     */
-    protected function canonicalTrackFor(TrackData $data, ?LibraryArtist $artist): CanonicalTrack
-    {
-        $canonicalArtistId = $artist?->canonical_artist_id;
-
-        return CanonicalTrack::query()
-            ->where('title', $data->title)
-            ->where('canonical_artist_id', $canonicalArtistId)
-            ->first()
-            ?? CanonicalTrack::query()->create([
-                'canonical_artist_id' => $canonicalArtistId,
-                'title' => $data->title,
-                'bpm' => $data->bpm,
-                'duration' => $data->duration,
-                'key' => $data->key,
-            ]);
     }
 }

@@ -1,11 +1,18 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, useHttp } from '@inertiajs/vue3';
+import { store as merge } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/CanonicalMergeController';
+import {
+    search as searchCanonical,
+    verify,
+} from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/CanonicalTrackController';
 import { index } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/LibraryTrackController';
+import { store as split } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/LibraryTrackSplitController';
 import { formatDateTime, userTimezone } from '@/lib/timezone';
 import type { LibraryTrackDetailData } from '@/types';
 
 const props = defineProps<{
     track: { data: LibraryTrackDetailData };
+    canManageMatching: boolean;
 }>();
 
 const detail = computed(() => props.track.data);
@@ -13,6 +20,106 @@ const detail = computed(() => props.track.data);
 const { trans } = useTrans();
 const timezone = userTimezone(useAuth().value.user);
 const none = trans('dj.tracks.show.none');
+
+const busy = ref(false);
+const splitOpen = ref(false);
+
+function setVerified(verified: boolean) {
+    if (!detail.value.canonical) {
+        return;
+    }
+
+    router.patch(
+        verify.url(detail.value.canonical.id),
+        { verified },
+        {
+            preserveScroll: true,
+            onStart: () => (busy.value = true),
+            onFinish: () => (busy.value = false),
+        },
+    );
+}
+
+function splitOff() {
+    router.post(
+        split.url(detail.value.id),
+        {},
+        {
+            preserveScroll: true,
+            onStart: () => (busy.value = true),
+            onFinish: () => {
+                busy.value = false;
+                splitOpen.value = false;
+            },
+        },
+    );
+}
+
+type CanonicalOption = {
+    id: number;
+    title: string;
+    artist: string | null;
+    sources_count: number;
+};
+
+// Merging this canonical track into another, picked by searching
+const mergeOpen = ref(false);
+const mergeSearch = ref('');
+const mergeResults = ref<CanonicalOption[]>([]);
+const mergeTarget = ref<CanonicalOption | null>(null);
+const searcher = useHttp();
+
+const findTargets = useDebounceFn(async () => {
+    if (!detail.value.canonical) {
+        return;
+    }
+
+    try {
+        const response = (await searcher.get(
+            searchCanonical.url({
+                query: {
+                    search: mergeSearch.value,
+                    except: String(detail.value.canonical.id),
+                },
+            }),
+        )) as { data: CanonicalOption[] };
+        mergeResults.value = response.data;
+    } catch {
+        mergeResults.value = [];
+    }
+}, 250);
+
+watch(mergeSearch, () => findTargets());
+
+function openMerge() {
+    mergeSearch.value = detail.value.canonical?.title ?? '';
+    mergeTarget.value = null;
+    mergeOpen.value = true;
+    findTargets();
+}
+
+function mergeInto() {
+    if (!detail.value.canonical || !mergeTarget.value) {
+        return;
+    }
+
+    router.post(
+        merge.url(),
+        {
+            record: 'track',
+            target_id: mergeTarget.value.id,
+            source_id: detail.value.canonical.id,
+        },
+        {
+            preserveScroll: true,
+            onStart: () => (busy.value = true),
+            onFinish: () => {
+                busy.value = false;
+                mergeOpen.value = false;
+            },
+        },
+    );
+}
 
 const details = computed(() =>
     [
@@ -212,6 +319,50 @@ const details = computed(() =>
                             {{ trans('dj.tracks.show.no_canonical') }}
                         </p>
 
+                        <div
+                            v-if="canManageMatching && detail.canonical"
+                            class="mt-2 flex flex-wrap gap-2"
+                        >
+                            <UButton
+                                size="sm"
+                                color="neutral"
+                                variant="outline"
+                                :icon="
+                                    detail.canonical.is_verified
+                                        ? 'i-lucide-shield-off'
+                                        : 'i-lucide-shield-check'
+                                "
+                                :label="
+                                    detail.canonical.is_verified
+                                        ? trans('dj.matching.track.unverify')
+                                        : trans('dj.matching.track.verify')
+                                "
+                                :title="trans('dj.matching.track.verify_help')"
+                                :disabled="busy"
+                                @click="
+                                    setVerified(!detail.canonical.is_verified)
+                                "
+                            />
+                            <UButton
+                                size="sm"
+                                color="neutral"
+                                variant="outline"
+                                icon="i-lucide-merge"
+                                :label="trans('dj.matching.track.merge')"
+                                :disabled="busy"
+                                @click="openMerge"
+                            />
+                            <UButton
+                                size="sm"
+                                color="neutral"
+                                variant="outline"
+                                icon="i-lucide-split"
+                                :label="trans('dj.matching.track.split')"
+                                :disabled="busy"
+                                @click="splitOpen = true"
+                            />
+                        </div>
+
                         <USeparator class="my-2" />
 
                         <h3 class="text-highlighted text-sm font-medium">
@@ -292,6 +443,109 @@ const details = computed(() =>
                     </UPageCard>
                 </div>
             </div>
+            <UModal
+                v-model:open="splitOpen"
+                :title="trans('dj.matching.track.split')"
+            >
+                <template #body>
+                    <p class="text-sm">
+                        {{ trans('dj.matching.track.confirm_split') }}
+                    </p>
+                </template>
+                <template #footer>
+                    <div class="flex w-full justify-end gap-2">
+                        <UButton
+                            color="neutral"
+                            variant="ghost"
+                            :label="trans('common.actions.cancel')"
+                            @click="splitOpen = false"
+                        />
+                        <UButton
+                            :loading="busy"
+                            :label="trans('dj.matching.track.split')"
+                            @click="splitOff"
+                        />
+                    </div>
+                </template>
+            </UModal>
+
+            <UModal
+                v-model:open="mergeOpen"
+                :title="trans('dj.matching.track.merge_title')"
+                :description="trans('dj.matching.track.merge_help')"
+            >
+                <template #body>
+                    <div class="flex flex-col gap-3">
+                        <UInput
+                            v-model="mergeSearch"
+                            icon="i-lucide-search"
+                            class="w-full"
+                            autofocus
+                            :loading="searcher.processing"
+                            :placeholder="
+                                trans('dj.matching.track.merge_search')
+                            "
+                        />
+                        <ul
+                            class="flex max-h-72 flex-col gap-1 overflow-y-auto"
+                        >
+                            <li v-for="option in mergeResults" :key="option.id">
+                                <button
+                                    type="button"
+                                    class="hover:bg-elevated flex w-full flex-col rounded-md px-3 py-2 text-start"
+                                    :class="{
+                                        'bg-elevated ring-primary ring-1':
+                                            mergeTarget?.id === option.id,
+                                    }"
+                                    @click="mergeTarget = option"
+                                >
+                                    <span
+                                        class="text-highlighted text-sm font-medium"
+                                    >
+                                        {{ option.title }}
+                                    </span>
+                                    <span class="text-muted text-xs">
+                                        {{
+                                            option.artist ??
+                                            trans('dj.tracks.unknown_artist')
+                                        }}
+                                        ·
+                                        {{
+                                            trans('dj.matching.sources', {
+                                                count: option.sources_count,
+                                            })
+                                        }}
+                                    </span>
+                                </button>
+                            </li>
+                            <li
+                                v-if="
+                                    !mergeResults.length && !searcher.processing
+                                "
+                                class="text-muted px-3 py-2 text-sm"
+                            >
+                                {{ trans('dj.matching.track.no_results') }}
+                            </li>
+                        </ul>
+                    </div>
+                </template>
+                <template #footer>
+                    <div class="flex w-full justify-end gap-2">
+                        <UButton
+                            color="neutral"
+                            variant="ghost"
+                            :label="trans('common.actions.cancel')"
+                            @click="mergeOpen = false"
+                        />
+                        <UButton
+                            :disabled="!mergeTarget"
+                            :loading="busy"
+                            :label="trans('dj.matching.track.merge_submit')"
+                            @click="mergeInto"
+                        />
+                    </div>
+                </template>
+            </UModal>
         </template>
     </UDashboardPanel>
 </template>

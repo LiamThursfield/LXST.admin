@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * @property int $id
  * @property string $name
+ * @property string|null $match_key The name, normalised for matching
  * @property CarbonImmutable|null $verified_at When someone confirmed the details, so matching won't change them
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
@@ -32,6 +33,7 @@ class CanonicalArtist extends Model
      */
     protected $fillable = [
         'name',
+        'match_key',
         'verified_at',
     ];
 

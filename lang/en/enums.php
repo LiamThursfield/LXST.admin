@@ -127,6 +127,16 @@ return [
         'soundcloud' => 'SoundCloud',
     ],
 
+    'canonical_record' => [
+        'artist' => 'Artist',
+        'track' => 'Track',
+    ],
+
+    'merge_action' => [
+        'merge' => 'Merged',
+        'split' => 'Split',
+    ],
+
     'tenant_module' => [
         'cms' => 'CMS',
         'crm' => 'CRM',
