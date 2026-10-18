@@ -307,6 +307,15 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         activePatterns: ['admin.dj.gigs.*'],
                     ))->gate(DjPermission::ViewGigs),
                     (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_SETLISTS,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_SETLISTS]),
+                        label: 'navigation.setlists',
+                        type: MenuItemType::LINK,
+                        to: 'admin.dj.setlists.index',
+                        icon: 'i-lucide-list-music',
+                        activePatterns: ['admin.dj.setlists.*'],
+                    ))->gate(DjPermission::ViewGigs),
+                    (new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_SETTINGS,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_SETTINGS]),
                         label: 'navigation.dj_settings',

@@ -6,6 +6,7 @@ import {
     store as pin,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/GigPinController';
 import { show as qrCode } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/GigQrCodeController';
+import { store as storeSetlist } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/SetlistController';
 import GigForm from '@/tenant/pages/admin/dj/gig/components/GigForm.vue';
 import type { GigData, RequestDefaults, SelectItem } from '@/types';
 
@@ -14,6 +15,13 @@ const props = defineProps<{
     overlaps: Array<{ id: number; name: string; url: string }>;
     defaults: RequestDefaults;
     requestsModes: SelectItem[];
+    setlists: Array<{
+        id: number;
+        name: string;
+        items_count: number;
+        url: string;
+    }>;
+    canCreateSetlist: boolean;
 }>();
 
 const { trans } = useTrans();
@@ -43,6 +51,14 @@ async function copyLink() {
 const linksToThisGig = computed(
     () => gig.value.request_url?.includes(String(gig.value.id)) ?? false,
 );
+
+function newSetlist() {
+    router.post(storeSetlist.url(), {
+        name: gig.value.name,
+        gig_id: gig.value.id,
+        visibility: 'private',
+    });
+}
 </script>
 
 <template>
@@ -174,6 +190,43 @@ const linksToThisGig = computed(
                     <p v-else class="text-muted text-sm">
                         {{ trans('dj.gigs.share.no_url') }}
                     </p>
+                </UPageCard>
+
+                <UPageCard
+                    :title="trans('dj.gigs.sections.setlists')"
+                    variant="subtle"
+                >
+                    <ul
+                        v-if="setlists.length"
+                        class="flex flex-col gap-1 text-sm"
+                    >
+                        <li
+                            v-for="setlist in setlists"
+                            :key="setlist.id"
+                            class="flex justify-between gap-2"
+                        >
+                            <Link :href="setlist.url" class="hover:underline">{{
+                                setlist.name
+                            }}</Link>
+                            <span class="text-muted text-xs">{{
+                                trans('dj.songs.total', {
+                                    count: setlist.items_count,
+                                })
+                            }}</span>
+                        </li>
+                    </ul>
+                    <p v-else class="text-muted text-sm">
+                        {{ trans('dj.gigs.sections.no_setlists') }}
+                    </p>
+                    <UButton
+                        v-if="canCreateSetlist"
+                        icon="i-lucide-list-plus"
+                        color="neutral"
+                        variant="outline"
+                        class="w-fit"
+                        :label="trans('dj.gigs.sections.new_setlist')"
+                        @click="newSetlist"
+                    />
                 </UPageCard>
 
                 <GigForm

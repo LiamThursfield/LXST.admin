@@ -210,3 +210,41 @@ export type GigData = {
     can_update: boolean;
     actions?: any[];
 };
+
+/** A setlist song's type (see backend `SetlistSongType`). */
+export type SetlistSongType = 'must_play' | 'maybe' | 'do_not_play';
+
+/** A setlist, as returned by `SetlistResource`. */
+export type SetlistData = {
+    id: number;
+    name: string;
+    description: string | null;
+    visibility: 'private' | 'public';
+    visibility_label: string;
+    gig: {
+        id: number;
+        name: string;
+        starts_at: string;
+        timezone: string;
+        url: string;
+    } | null;
+    counts: Record<SetlistSongType, number>;
+    url: string;
+    actions?: any[];
+};
+
+/** A song on a setlist, as returned by `SetlistItemResource`. */
+export type SetlistItemData = {
+    id: number;
+    title: string;
+    artist: string | null;
+    is_custom: boolean;
+    song_url: string | null;
+    bpm: number | null;
+    key: MusicalKeyData | null;
+    duration: string | null;
+    type: SetlistSongType | null;
+    note: string | null;
+    added_by: string | null;
+    created_at: string;
+};
