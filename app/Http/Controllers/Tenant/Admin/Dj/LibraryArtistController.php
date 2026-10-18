@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Queries\Tenant\Admin\Dj\LibraryArtistIndexQuery;
 use App\Http\Requests\Tenant\Admin\Dj\LibraryArtistIndexRequest;
 use App\Http\Resources\Tenant\Admin\Dj\LibraryArtistResource;
+use App\Models\Dj\CanonicalArtist;
 use App\Models\Dj\Library;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -29,6 +30,7 @@ class LibraryArtistController extends Controller
             'libraries' => Library::query()->orderBy('name')->get()
                 ->map(fn (Library $library) => ['value' => (string) $library->id, 'label' => $library->name])
                 ->values(),
+            'canManageMatching' => $request->user()?->can('update', CanonicalArtist::class) ?? false,
         ]);
     }
 }

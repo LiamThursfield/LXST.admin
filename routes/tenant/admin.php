@@ -17,9 +17,11 @@ use App\Http\Controllers\Tenant\Admin\DashboardController;
 use App\Http\Controllers\Tenant\Admin\Dj\CanonicalArtistController;
 use App\Http\Controllers\Tenant\Admin\Dj\CanonicalMergeController;
 use App\Http\Controllers\Tenant\Admin\Dj\CanonicalTrackController;
+use App\Http\Controllers\Tenant\Admin\Dj\LibraryArtistBulkController;
 use App\Http\Controllers\Tenant\Admin\Dj\LibraryArtistController;
 use App\Http\Controllers\Tenant\Admin\Dj\LibraryController;
 use App\Http\Controllers\Tenant\Admin\Dj\LibraryImportController;
+use App\Http\Controllers\Tenant\Admin\Dj\LibraryTrackBulkController;
 use App\Http\Controllers\Tenant\Admin\Dj\LibraryTrackController;
 use App\Http\Controllers\Tenant\Admin\Dj\LibraryTrackSplitController;
 use App\Http\Controllers\Tenant\Admin\Dj\MatchDismissalController;
@@ -102,6 +104,11 @@ Route::name('crm.')->prefix('crm')->middleware(['tenant.module:crm', 'content.ch
 Route::name('dj.')->prefix('dj')->middleware('tenant.module:dj')->group(function () {
     Route::resource('libraries', LibraryController::class)->only(['index', 'destroy']);
     Route::post('imports', [LibraryImportController::class, 'store'])->name('imports.store');
+    // Bulk actions on the tracks or artists selected on a page
+    Route::post('tracks/bulk/assign', [LibraryTrackBulkController::class, 'assign'])->name('tracks.bulk.assign');
+    Route::post('tracks/bulk/verify', [LibraryTrackBulkController::class, 'verify'])->name('tracks.bulk.verify');
+    Route::post('artists/bulk/assign', [LibraryArtistBulkController::class, 'assign'])->name('artists.bulk.assign');
+    Route::post('artists/bulk/verify', [LibraryArtistBulkController::class, 'verify'])->name('artists.bulk.verify');
     Route::resource('tracks', LibraryTrackController::class)->only(['index', 'show']);
     Route::get('artists', [LibraryArtistController::class, 'index'])->name('artists.index');
 

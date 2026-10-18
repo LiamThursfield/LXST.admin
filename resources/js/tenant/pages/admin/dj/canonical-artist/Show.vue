@@ -243,6 +243,7 @@ const mergeOpen = ref(false);
                                                 {
                                                     source: merge.source_name,
                                                     target: merge.target_name,
+                                                    count: merge.moved_count,
                                                 },
                                             )
                                         }}

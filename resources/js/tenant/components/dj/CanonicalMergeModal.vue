@@ -125,7 +125,7 @@ function submit() {
                             type="button"
                             class="hover:bg-elevated flex w-full flex-col rounded-md px-3 py-2 text-start"
                             :class="{
-                                'bg-elevated ring-primary ring-1':
+                                'bg-elevated ring-primary ring-1 ring-inset':
                                     target?.id === option.id,
                             }"
                             @click="target = option"

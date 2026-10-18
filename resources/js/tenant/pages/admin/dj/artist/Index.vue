@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
+import { verify as verifyArtists } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/LibraryArtistBulkController';
 import { index } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/LibraryArtistController';
+import BulkAssignModal from '@/tenant/components/dj/BulkAssignModal.vue';
 import type { LibraryArtistData, SelectItem } from '@/types';
 
 const props = defineProps<{
@@ -17,6 +19,7 @@ const props = defineProps<{
         };
     };
     libraries: SelectItem[];
+    canManageMatching: boolean;
 }>();
 
 const { trans } = useTrans();
@@ -45,6 +48,51 @@ const search = useDebounceFn((page: number = 1) => {
 }, 300);
 
 watch([filters, sort], () => search(), { deep: true });
+
+// Rows ticked on this page, for the bulk actions
+const selected = ref<number[]>([]);
+const assignOpen = ref(false);
+
+watch(
+    () => props.artists.data,
+    () => (selected.value = []),
+);
+
+const allSelected = computed(
+    () =>
+        props.artists.data.length > 0 &&
+        props.artists.data.every((row) => selected.value.includes(row.id)),
+);
+
+function toggleAll(checked: boolean | 'indeterminate') {
+    selected.value =
+        checked === true ? props.artists.data.map((row) => row.id) : [];
+}
+
+function toggleRow(id: number, checked: boolean | 'indeterminate') {
+    selected.value =
+        checked === true
+            ? [...new Set([...selected.value, id])]
+            : selected.value.filter((selectedId) => selectedId !== id);
+}
+
+const tableColumns = computed(() =>
+    props.canManageMatching
+        ? [{ accessorKey: 'select', header: '' }, ...props.columns]
+        : props.columns,
+);
+
+function bulkVerify(verified: boolean) {
+    router.post(
+        verifyArtists.url(),
+        { artist_ids: selected.value, verified },
+        { preserveScroll: true, onSuccess: () => (selected.value = []) },
+    );
+}
+
+const selectedArtists = computed(() =>
+    props.artists.data.filter((artist) => selected.value.includes(artist.id)),
+);
 </script>
 
 <template>
@@ -81,11 +129,78 @@ watch([filters, sort], () => search(), { deep: true });
                     />
                 </div>
 
+                <div
+                    v-if="selected.length"
+                    class="bg-elevated flex flex-wrap items-center gap-2 rounded-md px-3 py-2"
+                >
+                    <span class="text-sm font-medium">
+                        {{
+                            trans('dj.bulk.selected', {
+                                count: selected.length,
+                            })
+                        }}
+                    </span>
+                    <UButton
+                        size="sm"
+                        icon="i-lucide-link"
+                        :label="trans('dj.bulk.assign_artist')"
+                        @click="assignOpen = true"
+                    />
+                    <UButton
+                        size="sm"
+                        color="neutral"
+                        variant="outline"
+                        icon="i-lucide-shield-check"
+                        :label="trans('dj.bulk.verify')"
+                        @click="bulkVerify(true)"
+                    />
+                    <UButton
+                        size="sm"
+                        color="neutral"
+                        variant="outline"
+                        icon="i-lucide-shield-off"
+                        :label="trans('dj.bulk.unverify')"
+                        @click="bulkVerify(false)"
+                    />
+                    <UButton
+                        size="sm"
+                        color="neutral"
+                        variant="ghost"
+                        class="ms-auto"
+                        :label="trans('dj.bulk.clear')"
+                        @click="selected = []"
+                    />
+                </div>
+
                 <UTable
-                    :columns="columns"
+                    :columns="tableColumns"
                     :data="artists.data"
                     :empty="trans('dj.artists.empty')"
                 >
+                    <template #select-header>
+                        <UCheckbox
+                            :model-value="
+                                allSelected
+                                    ? true
+                                    : selected.length
+                                      ? 'indeterminate'
+                                      : false
+                            "
+                            :aria-label="trans('dj.bulk.select_all')"
+                            @update:model-value="toggleAll"
+                        />
+                    </template>
+
+                    <template #select-cell="{ row }">
+                        <UCheckbox
+                            :model-value="selected.includes(row.original.id)"
+                            :aria-label="trans('dj.bulk.select_row')"
+                            @update:model-value="
+                                (checked) => toggleRow(row.original.id, checked)
+                            "
+                        />
+                    </template>
+
                     <template #name-cell="{ row }">
                         <div class="flex items-center gap-2">
                             <Link
@@ -118,6 +233,14 @@ watch([filters, sort], () => search(), { deep: true });
                     />
                 </div>
             </div>
+
+            <BulkAssignModal
+                v-model:open="assignOpen"
+                record="artist"
+                :ids="selected"
+                :default-name="selectedArtists[0]?.name ?? ''"
+                @assigned="selected = []"
+            />
         </template>
     </UDashboardPanel>
 </template>

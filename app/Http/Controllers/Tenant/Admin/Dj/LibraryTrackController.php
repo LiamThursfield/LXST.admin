@@ -54,6 +54,7 @@ class LibraryTrackController extends Controller
                 ->values(),
             // Named, so the artist filter can be shown and cleared
             'artist' => $artistId === null ? null : LibraryArtist::query()->whereKey($artistId)->value('name'),
+            'canManageMatching' => $request->user()?->can('update', CanonicalTrack::class) ?? false,
         ]);
     }
 
