@@ -8,6 +8,7 @@ use App\Http\Controllers\Tenant\Api\V1\Cms\PageViewController;
 use App\Http\Controllers\Tenant\Api\V1\Crm\FormController;
 use App\Http\Controllers\Tenant\Api\V1\Crm\FormSubmissionController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\GigController as DjGigController;
+use App\Http\Controllers\Tenant\Api\V1\Dj\GigRequestController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\GuestSetlistController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\GuestSetlistItemController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\GuestTokenController;
@@ -61,6 +62,11 @@ Route::prefix('v1')
             // What a request form needs: the current gig or a given one (by its public ID), and library search
             Route::get('gigs/current', [DjGigController::class, 'current'])->name('gigs.current');
             Route::get('gigs/{gig:public_id}', [DjGigController::class, 'show'])->name('gigs.show');
+            // The public request list, and upvoting a request on it
+            Route::get('gigs/{gig:public_id}/requests', [GigRequestController::class, 'index'])->name('gigs.requests.index');
+            Route::post('gigs/{gig:public_id}/requests/{item}/upvote', [GigRequestController::class, 'upvote'])
+                ->middleware('throttle:dj-upvotes')
+                ->name('gigs.requests.upvote');
             Route::post('gigs/{gig:public_id}/requests', [SongRequestController::class, 'store'])
                 ->middleware('throttle:dj-requests')
                 ->name('gigs.requests.store');

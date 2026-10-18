@@ -71,7 +71,8 @@ return [
     | (left empty by people) and send back the token from the gig's details. A
     | filled honeypot, a request sooner than `min_seconds` after the token, a
     | tampered token or a bot user agent is dropped, with an accepted-looking
-    | response. Each visitor may send `rate_limit_per_minute` requests per gig.
+    | response. Each visitor may send `rate_limit_per_minute` requests and
+    | `upvotes_per_minute` upvotes per gig.
     |
     */
 
@@ -80,6 +81,9 @@ return [
         'token_field' => 'request_token',
         'min_seconds' => (int) env('DJ_REQUESTS_MIN_SECONDS', 3),
         'rate_limit_per_minute' => (int) env('DJ_REQUESTS_PER_MINUTE', 10),
+        'upvotes_per_minute' => (int) env('DJ_REQUEST_UPVOTES_PER_MINUTE', 30),
+        // How many played requests the public list shows, newest first
+        'played_shown' => 20,
     ],
 
     /*

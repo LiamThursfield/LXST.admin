@@ -144,6 +144,7 @@ class GigController extends Controller
             'allow_custom_requests' => $settings->allow_custom_requests,
             'show_public_list' => $settings->show_public_list,
             'allow_upvotes' => $settings->allow_upvotes,
+            'show_pass_labels' => $settings->show_pass_labels,
         ];
     }
 }

@@ -16,6 +16,8 @@ return new class extends SettingsMigration
         $this->migrator->add('dj.allow_custom_requests', true);
         $this->migrator->add('dj.show_public_list', true);
         $this->migrator->add('dj.allow_upvotes', true);
+        // Off by default: guests' pass labels (e.g. "Bride") stay off the public request list
+        $this->migrator->add('dj.show_pass_labels', false);
     }
 
     public function down(): void
@@ -23,6 +25,7 @@ return new class extends SettingsMigration
         foreach ([
             'default_timezone', 'request_page_url', 'requests_mode', 'requests_open_minutes_before',
             'max_requests_per_visitor', 'max_pending_requests', 'allow_custom_requests', 'show_public_list', 'allow_upvotes',
+            'show_pass_labels',
         ] as $name) {
             $this->migrator->delete("dj.{$name}");
         }

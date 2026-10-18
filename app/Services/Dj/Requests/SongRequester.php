@@ -12,6 +12,7 @@ use App\Models\Dj\CanonicalTrack;
 use App\Models\Dj\Gig;
 use App\Models\Dj\SongList;
 use App\Models\Dj\SongListItem;
+use App\Services\Dj\Api\DjApiCache;
 use App\Services\Dj\Matching\TrackNormaliser;
 use App\Services\Dj\Requests\Exceptions\RequestRefused;
 use App\Services\Dj\SongLists;
@@ -28,6 +29,9 @@ class SongRequester
     public function __construct(
         protected SongLists $songLists,
         protected TrackNormaliser $normaliser,
+        protected RequestAccess $access,
+        protected RequestVotes $votes,
+        protected DjApiCache $cache,
     ) {}
 
     /**
@@ -43,11 +47,8 @@ class SongRequester
             throw new RequestRefused(RequestRefusal::Closed);
         }
 
+        $this->access->ensureAllowed($gig, $request->guest_pass);
         $list = $this->songLists->requestsListFor($gig);
-
-        if ($request->guest_pass === null && $list->guestPasses()->active()->exists()) {
-            throw new RequestRefused(RequestRefusal::PassRequired);
-        }
 
         $song = $this->song($request);
 
@@ -63,7 +64,7 @@ class SongRequester
 
             if ($existing !== null) {
                 return [
-                    'outcome' => $this->vote($existing, $request) ? RequestOutcome::Upvoted : RequestOutcome::AlreadyRequested,
+                    'outcome' => $this->votes->add($existing, $request->visitor_hash, $request->guest_pass) ? RequestOutcome::Upvoted : RequestOutcome::AlreadyRequested,
                     'item' => $existing,
                 ];
             }
@@ -82,12 +83,14 @@ class SongRequester
                 ...$song,
                 'status' => RequestStatus::Pending,
                 'requester_name' => $request->requester_name,
+                'show_requester_name' => $request->show_requester_name,
                 'message' => $request->message,
                 'visitor_hash' => $request->visitor_hash,
                 'guest_pass_id' => $request->guest_pass?->id,
                 'is_do_not_play' => $this->isDoNotPlay($gig, $song),
             ]);
-            $this->vote($item, $request);
+            $this->votes->add($item, $request->visitor_hash, $request->guest_pass);
+            $this->cache->refreshRequests($gig);
 
             return ['outcome' => RequestOutcome::Accepted, 'item' => $item];
         });
@@ -169,20 +172,5 @@ class SongRequester
                 && $this->normaliser->titleKey((string) $item->custom_title) === $titleKey)
             ->values()
             ->toBase();
-    }
-
-    /**
-     * Adds the visitor's vote, one each. False when they'd already voted.
-     */
-    protected function vote(SongListItem $item, SongRequestData $request): bool
-    {
-        if ($request->visitor_hash === null) {
-            return false;
-        }
-
-        return $item->votes()->firstOrCreate(
-            ['visitor_hash' => $request->visitor_hash],
-            ['guest_pass_id' => $request->guest_pass?->id],
-        )->wasRecentlyCreated;
     }
 }

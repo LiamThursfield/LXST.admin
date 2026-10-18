@@ -14,13 +14,16 @@ enum RequestRefusal: string
     case CustomNotAllowed = 'custom_not_allowed';
     case VisitorLimit = 'visitor_limit';
     case QueueFull = 'queue_full';
+    case ListHidden = 'list_hidden';
+    case UpvotesOff = 'upvotes_off';
+    case NotVotable = 'not_votable';
 
     public function httpStatus(): int
     {
         return match ($this) {
-            self::Closed => Response::HTTP_FORBIDDEN,
+            self::Closed, self::ListHidden, self::UpvotesOff => Response::HTTP_FORBIDDEN,
             self::PassRequired => Response::HTTP_UNAUTHORIZED,
-            self::CustomNotAllowed => Response::HTTP_UNPROCESSABLE_ENTITY,
+            self::CustomNotAllowed, self::NotVotable => Response::HTTP_UNPROCESSABLE_ENTITY,
             self::VisitorLimit, self::QueueFull => Response::HTTP_TOO_MANY_REQUESTS,
         };
     }

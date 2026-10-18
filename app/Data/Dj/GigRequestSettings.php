@@ -23,6 +23,7 @@ class GigRequestSettings extends Data
         public ?bool $allow_custom_requests = null,
         public ?bool $show_public_list = null,
         public ?bool $allow_upvotes = null,
+        public ?bool $show_pass_labels = null,
     ) {}
 
     /**
@@ -38,6 +39,7 @@ class GigRequestSettings extends Data
             allow_custom_requests: $this->allow_custom_requests ?? $defaults->allow_custom_requests,
             show_public_list: $this->show_public_list ?? $defaults->show_public_list,
             allow_upvotes: $this->allow_upvotes ?? $defaults->allow_upvotes,
+            show_pass_labels: $this->show_pass_labels ?? $defaults->show_pass_labels,
         );
     }
 }

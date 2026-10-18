@@ -35,6 +35,7 @@ class DjSettingsUpdateRequest extends FormRequest
             'allow_custom_requests' => ['required', 'boolean'],
             'show_public_list' => ['required', 'boolean'],
             'allow_upvotes' => ['required', 'boolean'],
+            'show_pass_labels' => ['required', 'boolean'],
         ];
     }
 
