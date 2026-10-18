@@ -13,6 +13,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AddressFields: typeof import('./resources/js/tenant/components/crm/AddressFields.vue')['default']
     BuilderFieldList: typeof import('./resources/js/tenant/components/builder/BuilderFieldList.vue')['default']
+    BulkAssignModal: typeof import('./resources/js/tenant/components/dj/BulkAssignModal.vue')['default']
     CanonicalMergeModal: typeof import('./resources/js/tenant/components/dj/CanonicalMergeModal.vue')['default']
     ComponentContentField: typeof import('./resources/js/tenant/components/cms/fields/ComponentContentField.vue')['default']
     ContentEditor: typeof import('./resources/js/tenant/components/cms/ContentEditor.vue')['default']

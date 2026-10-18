@@ -135,6 +135,7 @@ return [
     'merge_action' => [
         'merge' => 'Merged',
         'split' => 'Split',
+        'assign' => 'Assigned',
     ],
 
     'tenant_module' => [

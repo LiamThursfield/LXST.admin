@@ -307,6 +307,7 @@ function changeMergesPage(page: number) {
                                                     .source_name,
                                                 target: row.original
                                                     .target_name,
+                                                count: row.original.moved_count,
                                             },
                                         )
                                     }}

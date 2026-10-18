@@ -215,6 +215,7 @@ return [
         'history_entry' => [
             'merge' => '":source" merged into ":target"',
             'split' => '":target" split from ":source"',
+            'assign' => ':count from ":source" assigned to ":target"',
         ],
         'moved' => ':count moved',
         'columns' => [
@@ -246,6 +247,41 @@ return [
         ],
         'errors' => [
             'same_record' => 'Choose a different record to merge.',
+        ],
+    ],
+
+    'bulk' => [
+        'selected' => ':count selected',
+        'clear' => 'Clear selection',
+        'select_all' => 'Select all on this page',
+        'select_row' => 'Select',
+        'assign_song' => 'Assign to song…',
+        'assign_artist' => 'Assign to artist…',
+        'verify' => 'Verify',
+        'unverify' => 'Unverify',
+        'assign_song_title' => 'Assign to a song',
+        'assign_song_help' => 'The selected tracks will count as this song. Each keeps its own artist.',
+        'assign_artist_title' => 'Assign to an artist',
+        'assign_artist_help' => 'The selected library artists will count as this artist, along with songs only they have.',
+        'existing' => 'An existing one',
+        'new' => 'A new one',
+        'mixed_artists' => 'These tracks are by :count different artists. They\'ll keep their own artists; the song keeps its own.',
+        'assign' => 'Assign',
+        'fields' => [
+            'tracks' => 'Tracks',
+            'artists' => 'Artists',
+            'song' => 'Song',
+            'new_song_title' => 'New song title',
+            'artist' => 'Artist',
+            'new_artist_name' => 'New artist name',
+        ],
+        'flash' => [
+            'tracks_assigned' => ':count track assigned to ":song".|:count tracks assigned to ":song".',
+            'artists_assigned' => ':count library artist assigned to ":artist".|:count library artists assigned to ":artist".',
+            'songs_verified' => ':count song verified.|:count songs verified.',
+            'songs_unverified' => ':count song no longer verified.|:count songs no longer verified.',
+            'artists_verified' => ':count artist verified.|:count artists verified.',
+            'artists_unverified' => ':count artist no longer verified.|:count artists no longer verified.',
         ],
     ],
 

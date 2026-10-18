@@ -2,7 +2,9 @@
 import { Head, Link } from '@inertiajs/vue3';
 // Imported explicitly, as the generated component types don't include UTooltip
 import UTooltip from '@nuxt/ui/components/Tooltip.vue';
+import { verify as verifyTracks } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/LibraryTrackBulkController';
 import { index } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/LibraryTrackController';
+import BulkAssignModal from '@/tenant/components/dj/BulkAssignModal.vue';
 import type { LibraryTrackData, SelectItem } from '@/types';
 
 type TrackFilter = {
@@ -36,6 +38,7 @@ const props = defineProps<{
     genres: SelectItem[];
     keys: SelectItem[];
     artist: string | null;
+    canManageMatching: boolean;
 }>();
 
 const { trans } = useTrans();
@@ -137,6 +140,56 @@ function clearFilters() {
         missing: false,
     };
 }
+
+// Rows ticked on this page, for the bulk actions
+const selected = ref<number[]>([]);
+const assignOpen = ref(false);
+
+watch(
+    () => props.tracks.data,
+    () => (selected.value = []),
+);
+
+const allSelected = computed(
+    () =>
+        props.tracks.data.length > 0 &&
+        props.tracks.data.every((row) => selected.value.includes(row.id)),
+);
+
+function toggleAll(checked: boolean | 'indeterminate') {
+    selected.value =
+        checked === true ? props.tracks.data.map((row) => row.id) : [];
+}
+
+function toggleRow(id: number, checked: boolean | 'indeterminate') {
+    selected.value =
+        checked === true
+            ? [...new Set([...selected.value, id])]
+            : selected.value.filter((selectedId) => selectedId !== id);
+}
+
+const tableColumns = computed(() =>
+    props.canManageMatching
+        ? [{ accessorKey: 'select', header: '' }, ...props.columns]
+        : props.columns,
+);
+
+function bulkVerify(verified: boolean) {
+    router.post(
+        verifyTracks.url(),
+        { track_ids: selected.value, verified },
+        { preserveScroll: true, onSuccess: () => (selected.value = []) },
+    );
+}
+
+const selectedTracks = computed(() =>
+    props.tracks.data.filter((track) => selected.value.includes(track.id)),
+);
+const selectedArtistCount = computed(
+    () =>
+        new Set(selectedTracks.value.map((track) => track.artist?.id ?? 0))
+            .size,
+);
 </script>
 
 <template>
@@ -329,11 +382,78 @@ function clearFilters() {
                     </div>
                 </div>
 
+                <div
+                    v-if="selected.length"
+                    class="bg-elevated flex flex-wrap items-center gap-2 rounded-md px-3 py-2"
+                >
+                    <span class="text-sm font-medium">
+                        {{
+                            trans('dj.bulk.selected', {
+                                count: selected.length,
+                            })
+                        }}
+                    </span>
+                    <UButton
+                        size="sm"
+                        icon="i-lucide-link"
+                        :label="trans('dj.bulk.assign_song')"
+                        @click="assignOpen = true"
+                    />
+                    <UButton
+                        size="sm"
+                        color="neutral"
+                        variant="outline"
+                        icon="i-lucide-shield-check"
+                        :label="trans('dj.bulk.verify')"
+                        @click="bulkVerify(true)"
+                    />
+                    <UButton
+                        size="sm"
+                        color="neutral"
+                        variant="outline"
+                        icon="i-lucide-shield-off"
+                        :label="trans('dj.bulk.unverify')"
+                        @click="bulkVerify(false)"
+                    />
+                    <UButton
+                        size="sm"
+                        color="neutral"
+                        variant="ghost"
+                        class="ms-auto"
+                        :label="trans('dj.bulk.clear')"
+                        @click="selected = []"
+                    />
+                </div>
+
                 <UTable
-                    :columns="columns"
+                    :columns="tableColumns"
                     :data="tracks.data"
                     :empty="trans('dj.tracks.empty')"
                 >
+                    <template #select-header>
+                        <UCheckbox
+                            :model-value="
+                                allSelected
+                                    ? true
+                                    : selected.length
+                                      ? 'indeterminate'
+                                      : false
+                            "
+                            :aria-label="trans('dj.bulk.select_all')"
+                            @update:model-value="toggleAll"
+                        />
+                    </template>
+
+                    <template #select-cell="{ row }">
+                        <UCheckbox
+                            :model-value="selected.includes(row.original.id)"
+                            :aria-label="trans('dj.bulk.select_row')"
+                            @update:model-value="
+                                (checked) => toggleRow(row.original.id, checked)
+                            "
+                        />
+                    </template>
+
                     <template #title-cell="{ row }">
                         <div class="flex min-w-48 flex-col">
                             <Link
@@ -390,6 +510,15 @@ function clearFilters() {
                     />
                 </div>
             </div>
+
+            <BulkAssignModal
+                v-model:open="assignOpen"
+                record="track"
+                :ids="selected"
+                :default-name="selectedTracks[0]?.title ?? ''"
+                :artist-count="selectedArtistCount"
+                @assigned="selected = []"
+            />
         </template>
     </UDashboardPanel>
 </template>
