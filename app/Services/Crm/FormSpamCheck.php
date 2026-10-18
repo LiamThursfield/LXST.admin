@@ -11,10 +11,22 @@ use Illuminate\Support\Facades\Crypt;
  *
  * Websites get a token with the form definition and send it back with the submission,
  * along with a hidden honeypot field that people leave empty. Bots tend to fill in every
- * field and submit instantly. See config/api.php (form_submissions).
+ * field and submit instantly. See config/api.php (form_submissions), or the config given,
+ * e.g. config/dj.php (requests) for song requests.
  */
 class FormSpamCheck
 {
+    /**
+     * @param  string  $config  Where the honeypot field, token field and minimum seconds are configured,
+     *                          e.g. `dj.requests` for song requests
+     */
+    public function __construct(protected string $config = 'api.form_submissions') {}
+
+    public static function for(string $config): self
+    {
+        return new self($config);
+    }
+
     /**
      * The fields the website must render (and the check reads), which form fields can't use as keys
      *
@@ -43,11 +55,11 @@ class FormSpamCheck
      */
     public function looksAutomated(Request $request): bool
     {
-        if (filled($request->input((string) config('api.form_submissions.honeypot_field')))) {
+        if (filled($request->input((string) config("{$this->config}.honeypot_field")))) {
             return true;
         }
 
-        $token = $request->input((string) config('api.form_submissions.token_field'));
+        $token = $request->input((string) config("{$this->config}.token_field"));
 
         if (! is_string($token) || $token === '') {
             return false;
@@ -59,6 +71,6 @@ class FormSpamCheck
             return true;
         }
 
-        return now()->getTimestamp() - $loadedAt < (int) config('api.form_submissions.min_seconds');
+        return now()->getTimestamp() - $loadedAt < (int) config("{$this->config}.min_seconds");
     }
 }

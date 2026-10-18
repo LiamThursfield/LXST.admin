@@ -160,6 +160,13 @@ return [
         'do_not_play' => 'Do not play',
     ],
 
+    'request_status' => [
+        'pending' => 'Pending',
+        'accepted' => 'Accepted',
+        'declined' => 'Declined',
+        'played' => 'Played',
+    ],
+
     'history_source' => [
         'import' => 'Imported',
         'manual' => 'Added by hand',
