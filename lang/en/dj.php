@@ -49,8 +49,12 @@ return [
             'new_library' => 'New library',
             'library_name' => 'Library name',
             'file' => 'File',
-            'file_help' => 'A decrypted Rekordbox 6 or 7 master.db, up to :size MB.',
+            'file_help' => [
+                'rekordbox_db' => 'A decrypted Rekordbox 6 or 7 master.db, up to :size MB.',
+                'rekordbox_xml' => 'A Rekordbox XML export, up to :size MB.',
+            ],
         ],
+        'xml_help' => 'In Rekordbox, choose File, then Export Collection in xml format. The export has no play history or My Tags, so use a master.db for those.',
         'decrypt_help' => 'Rekordbox encrypts its master.db, so decrypt a copy first, e.g. with pyrekordbox. Never upload the copy Rekordbox is using.',
         'decrypt_link' => 'How to decrypt with pyrekordbox',
         'counts' => [
@@ -66,6 +70,9 @@ return [
         ],
         'errors' => [
             'not_db' => 'Choose a master.db file.',
+            'not_xml' => 'Choose an .xml file.',
+            'not_rekordbox_xml' => 'This isn\'t a Rekordbox XML export. In Rekordbox, choose File, then Export Collection in xml format.',
+            'malformed_xml' => 'This XML file is damaged or incomplete. Export it from Rekordbox again.',
             'too_large' => 'The file must be :size MB or smaller.',
             'not_decrypted' => 'This file isn\'t a decrypted database. Rekordbox encrypts master.db, so decrypt a copy first.',
             'not_rekordbox' => 'This isn\'t a Rekordbox database.',

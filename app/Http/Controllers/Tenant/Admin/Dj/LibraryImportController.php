@@ -24,15 +24,18 @@ class LibraryImportController extends Controller
         $file = $request->file('file');
         $path = $file->store('dj-imports', ['disk' => config('dj.imports.disk')]);
 
-        $import = DB::transaction(function () use ($request, $file, $path): LibraryImport {
+        /** @var LibrarySource $source */
+        $source = $request->source();
+
+        $import = DB::transaction(function () use ($request, $file, $path, $source): LibraryImport {
             $library = $request->library() ?? Library::query()->create([
                 'name' => $request->validated('library_name'),
-                'source' => LibrarySource::RekordboxDb,
+                'source' => $source,
             ]);
 
             return $library->imports()->create([
                 'user_id' => $request->user()?->getKey(),
-                'source' => LibrarySource::RekordboxDb,
+                'source' => $source,
                 'status' => ImportStatus::Pending,
                 'original_filename' => $file->getClientOriginalName(),
                 'file_path' => $path,

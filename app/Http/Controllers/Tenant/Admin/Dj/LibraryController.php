@@ -42,8 +42,7 @@ class LibraryController extends Controller
             'hasRunningImports' => LibraryImport::query()
                 ->whereIn('status', [ImportStatus::Pending, ImportStatus::Processing])
                 ->exists(),
-            // Only master.db imports so far; the XML import comes with #112
-            'importSources' => [LibrarySource::RekordboxDb->toSelectItem()],
+            'importSources' => array_map(fn (LibrarySource $source) => $source->toSelectItem(), LibrarySource::uploadable()),
             'maxUploadMb' => (int) round((int) config('dj.imports.max_size_kb') / 1024),
             'canImport' => $request->user()?->can('create', Library::class) ?? false,
         ]);

@@ -9,6 +9,7 @@ use App\Services\Dj\Import\Exceptions\InvalidImportFile;
 use App\Services\Dj\Import\ImportSource;
 use App\Services\Dj\Import\LibraryImporter;
 use App\Services\Dj\Import\RekordboxDatabase;
+use App\Services\Dj\Import\RekordboxXml;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -82,6 +83,7 @@ class ImportLibrary implements ShouldQueue
     {
         return match ($this->import->source) {
             LibrarySource::RekordboxDb => new RekordboxDatabase($path),
+            LibrarySource::RekordboxXml => new RekordboxXml($path),
             default => throw new InvalidImportFile(__('dj.imports.errors.unsupported_source')),
         };
     }
