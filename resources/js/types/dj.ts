@@ -303,3 +303,44 @@ export type GuestPassData = {
     last_used_at: string | null;
     items_count: number;
 };
+
+/** Where a song request is in the DJ's queue (see backend `RequestStatus`). */
+export type RequestStatus = 'pending' | 'accepted' | 'declined' | 'played';
+
+/** A song request in the DJ's queue, as returned by `RequestQueueItemResource`. */
+export type RequestQueueItemData = {
+    id: number;
+    title: string;
+    artist: string | null;
+    in_library: boolean;
+    song_url: string | null;
+    bpm: number | null;
+    key: MusicalKeyData | null;
+    status: RequestStatus;
+    votes: number;
+    requester_name: string | null;
+    message: string | null;
+    /** The guest pass that asked, with the guest's name. */
+    pass: string | null;
+    setlist_types: SetlistSongType[];
+    was_do_not_play: boolean;
+    requested_at: string;
+    played_at: string | null;
+};
+
+/** The gig a request queue is for. */
+export type RequestQueueGig = {
+    id: number;
+    name: string;
+    timezone: string;
+    starts_at: string;
+    ends_at: string;
+    requests_open: boolean;
+    /** The gig's own override, or null to follow DJ settings. */
+    requests_mode: 'open' | 'closed' | 'scheduled' | null;
+    default_requests_mode: string;
+    edit_url: string;
+};
+
+/** A gig's requests by status. */
+export type RequestQueueData = Record<RequestStatus, RequestQueueItemData[]>;

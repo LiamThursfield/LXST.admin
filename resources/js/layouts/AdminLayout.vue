@@ -1,5 +1,6 @@
 <!-- This is adapted from: https://github.com/jkque/laravel-nuxt-ui-starter-kit/ -->
 <script lang="ts" setup>
+import { useFlashToasts } from '@/composables/useFlashToasts';
 import { usePageMenus } from '@/composables/usePageMenus';
 
 const { trans } = useTrans();
@@ -23,25 +24,7 @@ const dashboardSearchGroups = computed(() => [
     },
 ]) as any;
 
-// Show the messages controllers flash (e.g. `->with('success', ...)`) as toasts.
-// Flash data isn't kept in the browser history, so each message is shown once
-const removeFlashListener = router.on('flash', (event) => {
-    const { success, error } = event.detail.flash;
-
-    if (success) {
-        toast.add({ title: success, icon: 'i-lucide-check', color: 'success' });
-    }
-
-    if (error) {
-        toast.add({
-            title: error,
-            icon: 'i-lucide-circle-alert',
-            color: 'error',
-        });
-    }
-});
-
-onUnmounted(removeFlashListener);
+useFlashToasts();
 
 const cookie = useStorage('cookie-consent', 'pending');
 if (cookie.value !== 'accepted') {

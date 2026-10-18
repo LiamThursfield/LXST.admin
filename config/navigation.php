@@ -100,6 +100,7 @@ return [
             TenantMenu::MENU_MAIN_SECTION_DJ => [
                 'sortOrder' => 40,
                 TenantMenu::MENU_MAIN_SECTION_DJ_LABEL => ['sortOrder' => 0],
+                TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_REQUESTS => ['sortOrder' => 4],
                 TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_GIGS => ['sortOrder' => 5],
                 TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_SETLISTS => ['sortOrder' => 6],
                 TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_HISTORY => ['sortOrder' => 7],

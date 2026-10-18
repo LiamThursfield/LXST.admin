@@ -32,6 +32,7 @@ class SongRequester
         protected RequestAccess $access,
         protected RequestVotes $votes,
         protected DjApiCache $cache,
+        protected SongKeys $keys,
     ) {}
 
     /**
@@ -151,8 +152,7 @@ class SongRequester
     }
 
     /**
-     * The items for the same song: the same library song, or the same custom artist and title
-     * once normalised
+     * The items for the same song (see SongKeys)
      *
      * @param  Builder<SongListItem>  $items
      * @param  array{canonical_track_id: int|null, custom_artist: string|null, custom_title: string|null}  $song
@@ -164,12 +164,10 @@ class SongRequester
             return $items->where('canonical_track_id', $song['canonical_track_id'])->get()->toBase();
         }
 
-        $artistKey = $this->normaliser->artistKey($song['custom_artist']);
-        $titleKey = $this->normaliser->titleKey((string) $song['custom_title']);
+        $key = $this->keys->key(null, $song['custom_artist'], $song['custom_title']);
 
         return $items->whereNull('canonical_track_id')->get()
-            ->filter(fn (SongListItem $item) => $this->normaliser->artistKey($item->custom_artist) === $artistKey
-                && $this->normaliser->titleKey((string) $item->custom_title) === $titleKey)
+            ->filter(fn (SongListItem $item) => $this->keys->forItem($item) === $key)
             ->values()
             ->toBase();
     }

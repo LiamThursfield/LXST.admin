@@ -72,3 +72,13 @@ export function formatDateTime(iso: string, timezone: string): string {
         timeZone: timezone,
     });
 }
+
+/**
+ * Formats an ISO timestamp as a time on the given timezone's clock, e.g. "14:05".
+ */
+export function formatTime(iso: string, timezone: string): string {
+    return new Date(iso).toLocaleTimeString(undefined, {
+        timeStyle: 'short',
+        timeZone: timezone,
+    });
+}

@@ -298,6 +298,15 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         type: MenuItemType::LABEL,
                     ),
                     (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_REQUESTS,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_REQUESTS]),
+                        label: 'navigation.requests',
+                        type: MenuItemType::LINK,
+                        to: 'admin.dj.requests.index',
+                        icon: 'i-lucide-inbox',
+                        activePatterns: ['admin.dj.requests.*'],
+                    ))->gate(DjPermission::ManageRequests),
+                    (new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_GIGS,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_GIGS]),
                         label: 'navigation.gigs',
