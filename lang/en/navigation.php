@@ -37,6 +37,9 @@ return [
 
     'dj' => 'DJ',
     'library' => 'Library',
+    'tracks' => 'Tracks',
+    'artists' => 'Artists',
+    'libraries' => 'Libraries',
 
     'tools' => 'Tools',
     'files' => 'Files',

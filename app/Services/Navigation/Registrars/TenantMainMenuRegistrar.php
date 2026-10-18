@@ -297,15 +297,34 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         label: 'navigation.dj',
                         type: MenuItemType::LABEL,
                     ),
-                    (new MenuItem(
+                    new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY]),
                         label: 'navigation.library',
                         type: MenuItemType::LINK,
-                        to: 'admin.dj.libraries.index',
                         icon: 'i-lucide-library',
-                        activePatterns: ['admin.dj.libraries.*'],
-                    ))->gate(DjPermission::ViewLibrary),
+                        activePatterns: ['admin.dj.tracks.*', 'admin.dj.artists.*', 'admin.dj.libraries.*'],
+                        children: Collection::wrap([
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_TRACKS,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_TRACKS]),
+                                label: 'navigation.tracks',
+                                to: 'admin.dj.tracks.index',
+                            )->gate(DjPermission::ViewLibrary),
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_ARTISTS,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_ARTISTS]),
+                                label: 'navigation.artists',
+                                to: 'admin.dj.artists.index',
+                            )->gate(DjPermission::ViewLibrary),
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_LIBRARIES,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_LIBRARIES]),
+                                label: 'navigation.libraries',
+                                to: 'admin.dj.libraries.index',
+                            )->gate(DjPermission::ViewLibrary),
+                        ]),
+                    ),
                 ])->each(fn (MenuItem $item) => $item->module(TenantModule::Dj)),
                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
             ),

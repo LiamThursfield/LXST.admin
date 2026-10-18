@@ -139,6 +139,25 @@ enum MusicalKey: string
     }
 
     /**
+     * The keys that mix harmonically with this one: itself, its neighbours on the Camelot wheel
+     * (one number either side, same letter) and its relative major or minor (same number)
+     *
+     * @return list<self>
+     */
+    public function compatible(): array
+    {
+        $letter = $this->isMinor() ? 'A' : 'B';
+        $number = $this->number();
+
+        return [
+            $this,
+            self::from((($number + 10) % 12 + 1).$letter),
+            self::from(($number % 12 + 1).$letter),
+            self::from($number.($this->isMinor() ? 'B' : 'A')),
+        ];
+    }
+
+    /**
      * Shows both notations, e.g. "8A (Am)"
      */
     public function getCustomLabel(): string

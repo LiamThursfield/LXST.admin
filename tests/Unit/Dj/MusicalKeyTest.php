@@ -52,3 +52,11 @@ test('a key is shown in each notation', function () {
         ->and(MusicalKey::CMajor->isMinor())->toBeFalse()
         ->and(MusicalKey::BMinor->number())->toBe(10);
 });
+
+test('compatible keys are the key, its neighbours on the wheel and its relative major or minor', function (MusicalKey $key, array $compatible) {
+    expect(array_map(fn (MusicalKey $key) => $key->value, $key->compatible()))->toBe($compatible);
+})->with([
+    'A minor' => [MusicalKey::AMinor, ['8A', '7A', '9A', '8B']],
+    'wraps from 1 to 12' => [MusicalKey::AFlatMinor, ['1A', '12A', '2A', '1B']],
+    'wraps from 12 to 1' => [MusicalKey::EMajor, ['12B', '11B', '1B', '12A']],
+]);
