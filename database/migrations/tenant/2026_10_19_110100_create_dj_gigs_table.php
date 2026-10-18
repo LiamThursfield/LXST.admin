@@ -16,6 +16,8 @@ return new class extends Migration
     {
         Schema::create('dj_gigs', function (Blueprint $table) {
             $table->id();
+            // Random, so request links and the public API can't be used to step through every gig
+            $table->ulid('public_id')->unique();
             $table->string('name');
             $table->string('venue')->nullable();
             // e.g. the town or address

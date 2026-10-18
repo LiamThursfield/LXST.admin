@@ -73,6 +73,7 @@ class GigResource extends JsonResource
             'is_on_now' => $gig->isOnAt($now),
             'is_past' => $gig->ends_at->lessThanOrEqualTo($now),
             'requests_open' => $gig->requestsOpenAt($now),
+            'public_id' => $gig->public_id,
             'request_url' => $gig->requestUrl(),
             'request_settings' => $gig->request_settings?->toArray() ?? [],
             'effective_request_settings' => $gig->requestSettings()->toArray(),

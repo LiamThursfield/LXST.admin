@@ -7,9 +7,11 @@ use App\Http\Controllers\Tenant\Api\V1\Cms\PageController;
 use App\Http\Controllers\Tenant\Api\V1\Cms\PageViewController;
 use App\Http\Controllers\Tenant\Api\V1\Crm\FormController;
 use App\Http\Controllers\Tenant\Api\V1\Crm\FormSubmissionController;
+use App\Http\Controllers\Tenant\Api\V1\Dj\GigController as DjGigController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\GuestSetlistController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\GuestSetlistItemController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\GuestTokenController;
+use App\Http\Controllers\Tenant\Api\V1\Dj\TrackController;
 use App\Http\Controllers\Tenant\Api\V1\PingController;
 use App\Http\Controllers\Tenant\Api\V1\SiteController;
 use Illuminate\Support\Facades\Route;
@@ -55,6 +57,13 @@ Route::prefix('v1')
 
         // Request context, song requests and now playing are added here as they're built
         Route::prefix('dj')->name('dj.')->middleware('tenant.module:dj')->group(function () {
+            // What a request form needs: the current gig or a given one (by its public ID), and library search
+            Route::get('gigs/current', [DjGigController::class, 'current'])->name('gigs.current');
+            Route::get('gigs/{gig:public_id}', [DjGigController::class, 'show'])->name('gigs.show');
+            Route::get('tracks', [TrackController::class, 'index'])
+                ->middleware('throttle:dj-search')
+                ->name('tracks.index');
+
             // A guest pass's password, exchanged for a short-lived token sent as X-Guest-Token
             Route::post('song-lists/{songList}/guest-token', [GuestTokenController::class, 'store'])
                 ->middleware('throttle:dj-guest-token')

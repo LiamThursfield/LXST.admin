@@ -62,7 +62,7 @@ async function copyLink() {
 }
 
 const linksToThisGig = computed(
-    () => gig.value.request_url?.includes(String(gig.value.id)) ?? false,
+    () => gig.value.request_url?.includes(gig.value.public_id) ?? false,
 );
 
 function newSetlist() {

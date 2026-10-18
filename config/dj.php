@@ -47,6 +47,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Public API
+    |--------------------------------------------------------------------------
+    |
+    | Request context and library search are cached for `cache_seconds`, and
+    | refreshed at once by any DJ admin change. Library search allows
+    | `search_per_minute` requests per IP address.
+    |
+    */
+
+    'api' => [
+        'cache_seconds' => (int) env('DJ_API_CACHE_SECONDS', 30),
+        'search_per_minute' => (int) env('DJ_API_SEARCH_PER_MINUTE', 60),
+        'search_limit' => 20,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Guest Passes
     |--------------------------------------------------------------------------
     |

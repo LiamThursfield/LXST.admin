@@ -2,26 +2,38 @@
 
 namespace App\Services\Cms\Api;
 
+use App\Enums\Api\ContentScope;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 /**
- * A per-tenant marker that changes whenever the site's content might have (any CMS, CRM, File
- * Manager or site settings change in the admin). Cached API responses are keyed by it, so a change refreshes every
- * page at once: layouts, menus and forms appear on many pages, so working out exactly which pages
- * changed isn't worth it. The cache is already per tenant (CacheTenancyBootstrapper).
+ * A per-tenant marker that changes whenever an API's content might have, e.g. any CMS, CRM, File
+ * Manager or site settings change in the admin for the CMS API. Cached API responses are keyed by
+ * it, so a change refreshes every response at once: layouts, menus and forms appear on many pages,
+ * so working out exactly which changed isn't worth it. Each scope has its own version, so a DJ
+ * change doesn't refresh the CMS API. The cache is already per tenant (CacheTenancyBootstrapper).
  */
 class ContentVersion
 {
-    protected const string KEY = 'cms-api:content-version';
+    public function __construct(protected ContentScope $scope = ContentScope::Cms) {}
+
+    public static function for(ContentScope $scope): self
+    {
+        return new self($scope);
+    }
 
     public function current(): string
     {
-        return Cache::rememberForever(self::KEY, fn () => (string) Str::ulid());
+        return Cache::rememberForever($this->key(), fn () => (string) Str::ulid());
     }
 
     public function bump(): void
     {
-        Cache::forever(self::KEY, (string) Str::ulid());
+        Cache::forever($this->key(), (string) Str::ulid());
+    }
+
+    protected function key(): string
+    {
+        return "{$this->scope->value}-api:content-version";
     }
 }

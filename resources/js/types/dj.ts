@@ -201,6 +201,8 @@ export type RequestDefaults = {
 /** A gig, as returned by `GigResource`. */
 export type GigData = {
     id: number;
+    /** Random, for request links and the public API. */
+    public_id: string;
     name: string;
     venue: string | null;
     location: string | null;
