@@ -61,11 +61,7 @@ class HistoryController extends Controller
                 'session' => (new HistorySessionResource($suggestion['session']))->resolve(),
                 'gig' => ['id' => $suggestion['gig']->id, 'name' => $suggestion['gig']->name],
             ])),
-            'gigs' => Gig::query()->latest('starts_at')->limit(200)->get()
-                ->map(fn (Gig $gig) => [
-                    'value' => $gig->id,
-                    'label' => $gig->name.' · '.$gig->starts_at->setTimezone($gig->timezone)->format('j M Y'),
-                ]),
+            'gigs' => Gig::selectItems(),
             'timezone' => $settings->default_timezone,
             'canManage' => $request->user()?->can('update', HistorySession::class) ?? false,
         ]);

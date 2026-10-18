@@ -28,6 +28,8 @@ declare module 'vue' {
     NotificationsSlideover: typeof import('./resources/js/components/NotificationsSlideover.vue')['default']
     NumberContentField: typeof import('./resources/js/tenant/components/cms/fields/NumberContentField.vue')['default']
     RepeaterContentField: typeof import('./resources/js/tenant/components/cms/fields/RepeaterContentField.vue')['default']
+    RequestCard: typeof import('./resources/js/tenant/components/dj/RequestCard.vue')['default']
+    RequestModeControl: typeof import('./resources/js/tenant/components/dj/RequestModeControl.vue')['default']
     RequestVisibilityCard: typeof import('./resources/js/tenant/components/dj/RequestVisibilityCard.vue')['default']
     RichTextContentField: typeof import('./resources/js/tenant/components/cms/fields/RichTextContentField.vue')['default']
     RowActions: typeof import('./resources/js/components/RowActions.vue')['default']

@@ -55,7 +55,7 @@ class SetlistController extends Controller
         return Inertia::render('admin/dj/setlist/Index', [
             'filter' => array_filter(['search' => $search, 'gig_id' => $gigId]),
             'setlists' => SetlistResource::collection($setlists),
-            'gigs' => $this->gigOptions(),
+            'gigs' => Gig::selectItems(),
             'visibilities' => SongListVisibility::asSelectItems(),
             'canCreate' => $request->user()?->can('create', SongList::class) ?? false,
         ]);
@@ -78,7 +78,7 @@ class SetlistController extends Controller
         return Inertia::render('admin/dj/setlist/Show', [
             'setlist' => new SetlistResource($this->withTypeCounts(SongList::query())->with('gig')->findOrFail($setlist->id)),
             'items' => SetlistItemResource::collection($setlist->items),
-            'gigs' => $this->gigOptions(),
+            'gigs' => Gig::selectItems(),
             'visibilities' => SongListVisibility::asSelectItems(),
             'types' => SetlistSongType::asSelectItems(),
             'canManage' => $request->user()?->can('update', $setlist) ?? false,
@@ -146,20 +146,5 @@ class SetlistController extends Controller
         return $query->withCount(collect(SetlistSongType::cases())->mapWithKeys(fn (SetlistSongType $type) => [
             "items as {$type->value}_count" => fn (Builder $items) => $items->where('type', $type),
         ])->all());
-    }
-
-    /**
-     * Gigs to pick from, the most recent first
-     *
-     * @return list<array{value: int, label: string}>
-     */
-    protected function gigOptions(): array
-    {
-        return array_values(Gig::query()->latest('starts_at')->limit(200)->get()
-            ->map(fn (Gig $gig) => [
-                'value' => $gig->id,
-                'label' => $gig->name.' · '.$gig->starts_at->setTimezone($gig->timezone)->format('j M Y'),
-            ])
-            ->all());
     }
 }

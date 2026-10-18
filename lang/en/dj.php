@@ -208,6 +208,46 @@ return [
         ],
     ],
 
+    'queue' => [
+        'title' => 'Requests',
+        'description' => 'Song requests for a gig, updated every few seconds. Accept, decline or mark them played as you go.',
+        'no_gig' => 'There\'s no gig to show requests for. Add one in Gigs.',
+        'gig' => 'Gig',
+        'booth' => 'Booth mode',
+        'exit_booth' => 'Exit booth mode',
+        'empty' => 'No requests yet.',
+        'votes' => ':count vote|:count votes',
+        'in_library' => 'In the library',
+        'not_in_library' => 'Not in the library',
+        'requested_at' => 'Asked :time',
+        'played_at' => 'Played :time',
+        'from' => 'From :name',
+        'via_pass' => 'Pass: :pass',
+        'was_do_not_play' => 'Was on the do-not-play list when asked',
+        'requests_open' => 'Requests open',
+        'requests_closed' => 'Requests closed',
+        'open' => 'Open requests',
+        'close' => 'Close requests',
+        'follow_default' => 'Back to default (:mode)',
+        'gig_page' => 'Gig page',
+        'sections' => [
+            'pending' => 'Waiting',
+            'accepted' => 'Accepted',
+            'played' => 'Played',
+            'declined' => 'Declined',
+        ],
+        'actions' => [
+            'accept' => 'Accept',
+            'decline' => 'Decline',
+            'played' => 'Played',
+            'undo' => 'Undo',
+        ],
+        'flash' => [
+            'opened' => 'Requests are open.',
+            'closed' => 'Requests are closed.',
+        ],
+    ],
+
     'requests' => [
         'outcomes' => [
             'accepted' => 'Thanks! Your request is in.',

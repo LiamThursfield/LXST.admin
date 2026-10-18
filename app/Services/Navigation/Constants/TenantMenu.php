@@ -106,6 +106,8 @@ class TenantMenu
 
     public const string MENU_MAIN_SECTION_DJ_ITEM_HISTORY = 'history';
 
+    public const string MENU_MAIN_SECTION_DJ_ITEM_REQUESTS = 'requests';
+
     public const string MENU_MAIN_SECTION_DJ_ITEM_SETTINGS = 'dj-settings';
 
     public const string MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_SONGS = 'songs';

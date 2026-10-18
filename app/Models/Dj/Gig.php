@@ -105,6 +105,21 @@ class Gig extends Model
     }
 
     /**
+     * The latest gigs as select options, labelled with their date on their own clock
+     *
+     * @return list<array{value: int, label: string}>
+     */
+    public static function selectItems(int $limit = 200): array
+    {
+        return array_values(self::query()->latest('starts_at')->limit($limit)->get()
+            ->map(fn (Gig $gig) => [
+                'value' => $gig->id,
+                'label' => $gig->name.' · '.$gig->starts_at->setTimezone($gig->timezone)->format('j M Y'),
+            ])
+            ->all());
+    }
+
+    /**
      * The play history sessions linked to this gig, whose plays are what was played
      *
      * @return HasMany<HistorySession, $this>

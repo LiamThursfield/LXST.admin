@@ -34,6 +34,7 @@ use App\Http\Controllers\Tenant\Admin\Dj\LibraryTrackController;
 use App\Http\Controllers\Tenant\Admin\Dj\LibraryTrackSplitController;
 use App\Http\Controllers\Tenant\Admin\Dj\MatchDismissalController;
 use App\Http\Controllers\Tenant\Admin\Dj\MatchingController;
+use App\Http\Controllers\Tenant\Admin\Dj\RequestQueueController;
 use App\Http\Controllers\Tenant\Admin\Dj\SetlistController;
 use App\Http\Controllers\Tenant\Admin\Dj\SetlistItemController;
 use App\Http\Controllers\Tenant\Admin\Dj\SongController;
@@ -120,6 +121,11 @@ Route::name('dj.')->prefix('dj')->middleware(['tenant.module:dj', 'content.chang
     Route::delete('gigs/{gig}/plays/{play}', [GigPlayController::class, 'destroy'])->name('gigs.plays.destroy');
 
     // Play history, linked to gigs or not
+    // The request queue: during a gig, in the admin or full screen in the booth
+    Route::get('requests', [RequestQueueController::class, 'index'])->name('requests.index');
+    Route::get('requests/booth', [RequestQueueController::class, 'booth'])->name('requests.booth');
+    Route::patch('requests/{item}/status', [RequestQueueController::class, 'updateStatus'])->name('requests.status');
+    Route::patch('gigs/{gig}/requests-mode', [RequestQueueController::class, 'updateMode'])->name('gigs.requests-mode');
     Route::get('history', [HistoryController::class, 'index'])->name('history.index');
     Route::post('history/bulk/link', [HistoryBulkController::class, 'link'])->name('history.bulk.link');
     Route::post('history/bulk/create-gig', [HistoryBulkController::class, 'createGig'])->name('history.bulk.create-gig');
