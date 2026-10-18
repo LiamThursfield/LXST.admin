@@ -36,6 +36,8 @@ class SongIndexRequest extends FormRequest
             'filter.shared' => ['nullable', 'boolean'],
             // In no library's latest import
             'filter.orphaned' => ['nullable', 'boolean'],
+            // Hidden from song requests
+            'filter.hidden' => ['nullable', 'boolean'],
             'filter.key' => ['nullable', Rule::enum(MusicalKey::class)],
             'filter.bpm_min' => ['nullable', 'numeric', 'min:0', 'max:999'],
             'filter.bpm_max' => ['nullable', 'numeric', 'min:0', 'max:999', Rule::when($this->filled('filter.bpm_min'), 'gte:filter.bpm_min')],

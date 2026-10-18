@@ -17,7 +17,7 @@ class LibraryArtistIndexQuery
     public function handle(LibraryArtistIndexRequest $request): LengthAwarePaginator
     {
         $query = LibraryArtist::query()
-            ->with('library')
+            ->with(['library', 'canonicalArtist'])
             // Only the tracks the latest import still had
             ->withCount(['tracks' => fn (Builder $tracks) => $tracks->whereNull('missing_since')]);
 
@@ -25,6 +25,11 @@ class LibraryArtistIndexQuery
             ->allowedFilters(
                 AllowedFilter::callback('search', fn (Builder $query, string $value) => $query->whereLike('name', "%{$value}%")),
                 AllowedFilter::exact('library_id'),
+                AllowedFilter::callback('hidden', function (Builder $query, mixed $value): void {
+                    if (filter_var($value, FILTER_VALIDATE_BOOLEAN)) {
+                        $query->whereHas('canonicalArtist', fn (Builder $artist) => $artist->whereNotNull('hidden_from_requests_at'));
+                    }
+                }),
             )
             ->defaultSort('name')
             ->allowedSorts('name', 'tracks_count')

@@ -47,4 +47,18 @@ class LibraryTrackBulkController extends Controller
 
         return redirect()->back()->with('success', trans_choice($verified ? 'dj.bulk.flash.songs_verified' : 'dj.bulk.flash.songs_unverified', $count, ['count' => $count]));
     }
+
+    /**
+     * Hides (or shows) the selected tracks' songs in song request search
+     */
+    public function hide(LibraryTrackBulkRequest $request): RedirectResponse
+    {
+        $hidden = $request->boolean('hidden');
+
+        $count = CanonicalTrack::query()
+            ->whereKey($request->tracks()->pluck('canonical_track_id')->filter()->unique()->all())
+            ->update(['hidden_from_requests_at' => $hidden ? now() : null]);
+
+        return redirect()->back()->with('success', trans_choice($hidden ? 'dj.bulk.flash.songs_hidden' : 'dj.bulk.flash.songs_shown', $count, ['count' => $count]));
+    }
 }

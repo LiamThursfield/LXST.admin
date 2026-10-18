@@ -12,6 +12,7 @@ type SongFilter = {
     verified?: string;
     shared?: boolean | string;
     orphaned?: boolean | string;
+    hidden?: boolean | string;
     key?: string;
 };
 
@@ -46,6 +47,7 @@ const filters = ref({
     key: props.filter.key ?? '',
     shared: isTrue(props.filter.shared),
     orphaned: isTrue(props.filter.orphaned),
+    hidden: isTrue(props.filter.hidden),
 });
 
 const sortField = ref(props.sort.replace(/^-/, ''));
@@ -189,6 +191,10 @@ function runCleanup() {
                             v-model="filters.orphaned"
                             :label="trans('dj.songs.filters.orphaned')"
                         />
+                        <UCheckbox
+                            v-model="filters.hidden"
+                            :label="trans('dj.requests_visibility.filter')"
+                        />
                         <UBadge
                             v-if="filters.artist_id && artist"
                             color="primary"
@@ -264,6 +270,27 @@ function runCleanup() {
                                     row.original.artist?.name ??
                                     trans('dj.tracks.unknown_artist')
                                 }}
+                                <UBadge
+                                    v-if="
+                                        row.original.is_hidden_from_requests ||
+                                        row.original
+                                            .is_artist_hidden_from_requests
+                                    "
+                                    color="neutral"
+                                    variant="subtle"
+                                    size="sm"
+                                    icon="i-lucide-eye-off"
+                                >
+                                    {{
+                                        row.original.is_hidden_from_requests
+                                            ? trans(
+                                                  'dj.requests_visibility.hidden',
+                                              )
+                                            : trans(
+                                                  'dj.requests_visibility.hidden_with_artist',
+                                              )
+                                    }}
+                                </UBadge>
                             </span>
                         </div>
                     </template>

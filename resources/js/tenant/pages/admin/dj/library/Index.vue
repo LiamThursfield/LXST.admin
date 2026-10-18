@@ -2,7 +2,10 @@
 import { Head, useForm, usePoll } from '@inertiajs/vue3';
 // Imported explicitly, as the generated component types don't include UTooltip
 import UTooltip from '@nuxt/ui/components/Tooltip.vue';
-import { index } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/LibraryController';
+import {
+    hide,
+    index,
+} from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/LibraryController';
 import { store } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/LibraryImportController';
 import RowActions from '@/components/RowActions.vue';
 import { formatDateTime, userTimezone } from '@/lib/timezone';
@@ -31,6 +34,14 @@ const props = defineProps<{
 }>();
 
 const { trans } = useTrans();
+
+function setHidden(library: LibraryData) {
+    router.patch(
+        hide.url(library.id),
+        { hidden: !library.is_hidden_from_requests },
+        { preserveScroll: true },
+    );
+}
 const timezone = userTimezone(useAuth().value.user);
 
 const statusColors: Record<
@@ -200,6 +211,15 @@ function changeImportsPage(page: number) {
                                 >
                                     {{ library.source_label }}
                                 </UBadge>
+                                <UBadge
+                                    v-if="library.is_hidden_from_requests"
+                                    color="neutral"
+                                    variant="subtle"
+                                    icon="i-lucide-eye-off"
+                                    class="w-fit"
+                                >
+                                    {{ trans('dj.requests_visibility.hidden') }}
+                                </UBadge>
                             </div>
                             <RowActions
                                 v-if="library.actions?.length"
@@ -258,6 +278,28 @@ function changeImportsPage(page: number) {
                                 }}
                             </li>
                         </ul>
+
+                        <UButton
+                            v-if="library.can_update"
+                            size="xs"
+                            color="neutral"
+                            variant="link"
+                            class="mt-2 px-0"
+                            :icon="
+                                library.is_hidden_from_requests
+                                    ? 'i-lucide-eye'
+                                    : 'i-lucide-eye-off'
+                            "
+                            :label="
+                                library.is_hidden_from_requests
+                                    ? trans('dj.requests_visibility.show')
+                                    : trans('dj.requests_visibility.hide')
+                            "
+                            :title="
+                                trans('dj.requests_visibility.library_help')
+                            "
+                            @click="setHidden(library)"
+                        />
 
                         <template v-if="library.can_import" #footer>
                             <UButton

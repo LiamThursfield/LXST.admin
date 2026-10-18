@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $name
  * @property string|null $match_key The name, normalised for matching
  * @property CarbonImmutable|null $verified_at When someone confirmed the details, so matching won't change them
+ * @property CarbonImmutable|null $hidden_from_requests_at When it was hidden from song request search, with their songs
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  */
@@ -35,6 +36,7 @@ class CanonicalArtist extends Model
         'name',
         'match_key',
         'verified_at',
+        'hidden_from_requests_at',
     ];
 
     /**
@@ -44,6 +46,7 @@ class CanonicalArtist extends Model
     {
         return [
             'verified_at' => 'datetime',
+            'hidden_from_requests_at' => 'datetime',
         ];
     }
 
@@ -66,5 +69,10 @@ class CanonicalArtist extends Model
     public function isVerified(): bool
     {
         return $this->verified_at !== null;
+    }
+
+    public function isHiddenFromRequests(): bool
+    {
+        return $this->hidden_from_requests_at !== null;
     }
 }

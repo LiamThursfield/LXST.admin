@@ -11,7 +11,7 @@ use Illuminate\Validation\Rule;
 
 /**
  * Library artists selected on a page, for a bulk action: assigning them to a canonical artist (an
- * existing one, or a new one), or verifying their canonical artists
+ * existing one, or a new one), verifying their canonical artists, or hiding them from requests
  */
 class LibraryArtistBulkRequest extends FormRequest
 {
@@ -39,7 +39,8 @@ class LibraryArtistBulkRequest extends FormRequest
             'canonical_artist_id' => [Rule::when($assigning, ['nullable', 'integer', Rule::exists(CanonicalArtist::class, 'id')], ['prohibited'])],
             // A new canonical artist, used when none is chosen
             'new_artist_name' => [Rule::when($assigning, ['required_without:canonical_artist_id', 'nullable', Rule::string()->max(255)], ['prohibited'])],
-            'verified' => [Rule::when($assigning, ['prohibited'], ['required', 'boolean'])],
+            'verified' => [Rule::when($this->routeIs('admin.dj.artists.bulk.verify'), ['required', 'boolean'], ['prohibited'])],
+            'hidden' => [Rule::when($this->routeIs('admin.dj.artists.bulk.hide'), ['required', 'boolean'], ['prohibited'])],
         ];
     }
 
