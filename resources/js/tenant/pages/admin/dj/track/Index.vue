@@ -2,7 +2,10 @@
 import { Head, Link } from '@inertiajs/vue3';
 // Imported explicitly, as the generated component types don't include UTooltip
 import UTooltip from '@nuxt/ui/components/Tooltip.vue';
-import { verify as verifyTracks } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/LibraryTrackBulkController';
+import {
+    hide as hideTracks,
+    verify as verifyTracks,
+} from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/LibraryTrackBulkController';
 import { index } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/LibraryTrackController';
 import BulkAssignModal from '@/tenant/components/dj/BulkAssignModal.vue';
 import type { LibraryTrackData, SelectItem } from '@/types';
@@ -19,6 +22,7 @@ type TrackFilter = {
     duration_min?: string;
     duration_max?: string;
     missing?: boolean | string;
+    hidden?: boolean | string;
 };
 
 const props = defineProps<{
@@ -62,6 +66,7 @@ const filters = ref({
         ? String(props.filter.duration_max)
         : '',
     missing: isTrue(props.filter.missing),
+    hidden: isTrue(props.filter.hidden),
 });
 
 const sortField = ref(props.sort.replace(/^-/, ''));
@@ -74,7 +79,8 @@ const showMoreFilters = ref(
         props.filter.bpm_max ||
         props.filter.duration_min ||
         props.filter.duration_max ||
-        isTrue(props.filter.missing),
+        isTrue(props.filter.missing) ||
+        isTrue(props.filter.hidden),
     ),
 );
 
@@ -138,6 +144,7 @@ function clearFilters() {
         duration_min: '',
         duration_max: '',
         missing: false,
+        hidden: false,
     };
 }
 
@@ -178,6 +185,14 @@ function bulkVerify(verified: boolean) {
     router.post(
         verifyTracks.url(),
         { track_ids: selected.value, verified },
+        { preserveScroll: true, onSuccess: () => (selected.value = []) },
+    );
+}
+
+function bulkHide(hidden: boolean) {
+    router.post(
+        hideTracks.url(),
+        { track_ids: selected.value, hidden },
         { preserveScroll: true, onSuccess: () => (selected.value = []) },
     );
 }
@@ -379,6 +394,12 @@ const selectedArtistCount = computed(
                                 :label="trans('dj.tracks.filters.missing')"
                             />
                         </UFormField>
+                        <UFormField label="&nbsp;">
+                            <USwitch
+                                v-model="filters.hidden"
+                                :label="trans('dj.requests_visibility.filter')"
+                            />
+                        </UFormField>
                     </div>
                 </div>
 
@@ -414,6 +435,22 @@ const selectedArtistCount = computed(
                         icon="i-lucide-shield-off"
                         :label="trans('dj.bulk.unverify')"
                         @click="bulkVerify(false)"
+                    />
+                    <UButton
+                        size="sm"
+                        color="neutral"
+                        variant="outline"
+                        icon="i-lucide-eye-off"
+                        :label="trans('dj.requests_visibility.hide')"
+                        @click="bulkHide(true)"
+                    />
+                    <UButton
+                        size="sm"
+                        color="neutral"
+                        variant="outline"
+                        icon="i-lucide-eye"
+                        :label="trans('dj.requests_visibility.show')"
+                        @click="bulkHide(false)"
                     />
                     <UButton
                         size="sm"
@@ -481,6 +518,15 @@ const selectedArtistCount = computed(
                                         {{ trans('dj.tracks.missing') }}
                                     </UBadge>
                                 </UTooltip>
+                                <UBadge
+                                    v-if="row.original.is_hidden_from_requests"
+                                    color="neutral"
+                                    variant="subtle"
+                                    size="sm"
+                                    icon="i-lucide-eye-off"
+                                >
+                                    {{ trans('dj.requests_visibility.hidden') }}
+                                </UBadge>
                             </span>
                         </div>
                     </template>

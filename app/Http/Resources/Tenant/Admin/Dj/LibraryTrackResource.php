@@ -36,6 +36,8 @@ class LibraryTrackResource extends JsonResource
             'date_added' => $track->date_added?->toDateString(),
             'service' => $track->service?->label(),
             'is_missing' => $track->missing_since !== null,
+            // Its song is hidden from song requests, itself or with its artist
+            'is_hidden_from_requests' => $track->relationLoaded('canonicalTrack') && ($track->canonicalTrack?->isHiddenFromRequestsWithArtist() ?? false),
             'url' => route('admin.dj.tracks.show', $track),
         ];
     }

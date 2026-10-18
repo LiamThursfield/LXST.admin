@@ -25,6 +25,7 @@ class CanonicalArtistResource extends JsonResource
             'id' => $artist->id,
             'name' => $artist->name,
             'is_verified' => $artist->isVerified(),
+            'is_hidden_from_requests' => $artist->isHiddenFromRequests(),
             'tracks_count' => (int) $artist->getAttribute('tracks_count'),
             'library_artists_count' => (int) $artist->getAttribute('library_artists_count'),
             'url' => route('admin.dj.canonical-artists.show', $artist),

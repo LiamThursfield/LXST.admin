@@ -9,8 +9,11 @@ export type LibraryData = {
     missing_tracks_count: number;
     artists_count: number;
     history_sessions_count: number;
+    /** Hides the songs only in it from song request search. */
+    is_hidden_from_requests: boolean;
     last_imported_at: string | null;
     can_import: boolean;
+    can_update: boolean;
     actions?: any[];
 };
 
@@ -61,6 +64,8 @@ export type LibraryTrackData = {
     date_added: string | null;
     service: string | null;
     is_missing: boolean;
+    /** Its song is hidden from song requests, itself or with its artist. */
+    is_hidden_from_requests: boolean;
     url: string;
 };
 
@@ -83,6 +88,8 @@ export type LibraryTrackDetailData = LibraryTrackData & {
         duration: string | null;
         key: MusicalKeyData | null;
         is_verified: boolean;
+        is_hidden_from_requests: boolean;
+        is_artist_hidden_from_requests: boolean;
     } | null;
     other_sources: Array<{
         id: number;
@@ -103,6 +110,8 @@ export type LibraryArtistData = {
     library: string;
     tracks_count: number;
     tracks_url: string;
+    /** Its canonical artist is hidden from song requests. */
+    is_hidden_from_requests: boolean;
     /** The artist counted once across libraries. */
     canonical_url: string | null;
 };
@@ -148,6 +157,8 @@ export type SongData = {
     duration: string | null;
     key: MusicalKeyData | null;
     is_verified: boolean;
+    is_hidden_from_requests: boolean;
+    is_artist_hidden_from_requests: boolean;
     library_tracks_count: number;
     libraries_count: number;
     url: string;
@@ -158,6 +169,7 @@ export type CanonicalArtistData = {
     id: number;
     name: string;
     is_verified: boolean;
+    is_hidden_from_requests: boolean;
     tracks_count: number;
     library_artists_count: number;
     url: string;

@@ -41,6 +41,14 @@ class LibraryPolicy
     }
 
     /**
+     * Whether the user can change the given library, e.g. hide it from requests.
+     */
+    public function update(User $user, Library $library): bool
+    {
+        return $user->can(DjPermission::ManageLibrary);
+    }
+
+    /**
      * Whether the user can delete the given library.
      */
     public function delete(User $user, Library $library): bool

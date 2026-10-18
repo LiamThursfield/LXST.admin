@@ -44,6 +44,8 @@ class LibraryTrackIndexRequest extends FormRequest
             'filter.duration_max' => ['nullable', 'numeric', 'min:0', 'max:600', Rule::when($this->filled('filter.duration_min'), 'gte:filter.duration_min')],
             // Tracks the latest import no longer had are hidden unless asked for
             'filter.missing' => ['nullable', 'boolean'],
+            // Hidden from song requests
+            'filter.hidden' => ['nullable', 'boolean'],
             'sort' => ['nullable', Rule::in(['title', '-title', 'artist', '-artist', 'bpm', '-bpm', 'duration', '-duration', 'key', '-key', 'date_added', '-date_added', 'play_count', '-play_count'])],
             'per_page' => ['nullable', 'integer', Rule::in([25, 50, 100])],
         ];

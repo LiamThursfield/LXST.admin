@@ -48,6 +48,8 @@ class LibraryTrackDetailResource extends JsonResource
                 'duration' => $canonical->formattedDuration(),
                 'key' => LibraryTrackResource::key($canonical->key),
                 'is_verified' => $canonical->isVerified(),
+                'is_hidden_from_requests' => $canonical->isHiddenFromRequests(),
+                'is_artist_hidden_from_requests' => $canonical->artist?->isHiddenFromRequests() ?? false,
             ],
             // The same song in other libraries (or listed twice in this one)
             'other_sources' => $canonical === null ? [] : $canonical->libraryTracks

@@ -49,11 +49,13 @@ class LibraryResource extends JsonResource
             'tracks_count' => (int) $library->getAttribute('present_tracks_count'),
             'missing_tracks_count' => (int) $library->getAttribute('missing_tracks_count'),
             'artists_count' => (int) $library->getAttribute('artists_count'),
+            'is_hidden_from_requests' => $library->isHiddenFromRequests(),
             'history_sessions_count' => (int) $library->getAttribute('history_sessions_count'),
             'last_imported_at' => $library->getAttribute('last_imported_at')
                 ? (string) $library->getAttribute('last_imported_at')
                 : null,
             'can_import' => $request->user()?->can('import', $library) ?? false,
+            'can_update' => $request->user()?->can('update', $library) ?? false,
         ]);
     }
 }

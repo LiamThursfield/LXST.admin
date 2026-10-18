@@ -135,12 +135,15 @@ Route::name('dj.')->prefix('dj')->middleware('tenant.module:dj')->group(function
     Route::put('settings', [DjSettingsController::class, 'update'])->name('settings.update');
 
     Route::resource('libraries', LibraryController::class)->only(['index', 'destroy']);
+    Route::patch('libraries/{library}/hidden', [LibraryController::class, 'hide'])->name('libraries.hide');
     Route::post('imports', [LibraryImportController::class, 'store'])->name('imports.store');
     // Bulk actions on the tracks or artists selected on a page
     Route::post('tracks/bulk/assign', [LibraryTrackBulkController::class, 'assign'])->name('tracks.bulk.assign');
     Route::post('tracks/bulk/verify', [LibraryTrackBulkController::class, 'verify'])->name('tracks.bulk.verify');
+    Route::post('tracks/bulk/hide', [LibraryTrackBulkController::class, 'hide'])->name('tracks.bulk.hide');
     Route::post('artists/bulk/assign', [LibraryArtistBulkController::class, 'assign'])->name('artists.bulk.assign');
     Route::post('artists/bulk/verify', [LibraryArtistBulkController::class, 'verify'])->name('artists.bulk.verify');
+    Route::post('artists/bulk/hide', [LibraryArtistBulkController::class, 'hide'])->name('artists.bulk.hide');
     Route::resource('tracks', LibraryTrackController::class)->only(['index', 'show']);
     Route::get('artists', [LibraryArtistController::class, 'index'])->name('artists.index');
 
@@ -151,12 +154,14 @@ Route::name('dj.')->prefix('dj')->middleware('tenant.module:dj')->group(function
     Route::post('matching/dismissals', [MatchDismissalController::class, 'store'])->name('matching.dismissals.store');
     Route::get('canonical-tracks/search', [CanonicalTrackController::class, 'search'])->name('canonical-tracks.search');
     Route::patch('canonical-tracks/{canonicalTrack}/verification', [CanonicalTrackController::class, 'verify'])->name('canonical-tracks.verify');
+    Route::patch('canonical-tracks/{canonicalTrack}/hidden', [CanonicalTrackController::class, 'hide'])->name('canonical-tracks.hide');
 
     // Songs and artists: the canonical records, counted once across libraries
     Route::post('songs/cleanup', [SongController::class, 'cleanup'])->name('songs.cleanup');
     Route::resource('songs', SongController::class)->only(['index', 'show', 'update']);
     Route::get('canonical-artists/search', [CanonicalArtistController::class, 'search'])->name('canonical-artists.search');
     Route::patch('canonical-artists/{canonicalArtist}/verification', [CanonicalArtistController::class, 'verify'])->name('canonical-artists.verify');
+    Route::patch('canonical-artists/{canonicalArtist}/hidden', [CanonicalArtistController::class, 'hide'])->name('canonical-artists.hide');
     Route::resource('canonical-artists', CanonicalArtistController::class)
         ->only(['index', 'show', 'update'])
         ->parameters(['canonical-artists' => 'canonicalArtist']);

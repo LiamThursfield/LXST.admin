@@ -56,6 +56,7 @@ class CanonicalArtistController extends Controller
                 'id' => $canonicalArtist->id,
                 'name' => $canonicalArtist->name,
                 'is_verified' => $canonicalArtist->isVerified(),
+                'is_hidden_from_requests' => $canonicalArtist->isHiddenFromRequests(),
                 'songs_url' => route('admin.dj.songs.index', ['filter' => ['artist_id' => $canonicalArtist->id]]),
             ],
             'songs' => $canonicalArtist->tracks()->withCount('libraryTracks')->orderBy('title')->limit(100)->get()
@@ -116,6 +117,19 @@ class CanonicalArtistController extends Controller
         $canonicalArtist->update(['verified_at' => $verified ? now() : null]);
 
         return redirect()->back()->with('success', __($verified ? 'dj.matching.flash.verified' : 'dj.matching.flash.unverified'));
+    }
+
+    /**
+     * Hides it from song request search, or shows it again
+     */
+    public function hide(Request $request, CanonicalArtist $canonicalArtist): RedirectResponse
+    {
+        Gate::authorize('update', $canonicalArtist);
+
+        $hidden = $request->validate(['hidden' => ['required', 'boolean']])['hidden'];
+        $canonicalArtist->update(['hidden_from_requests_at' => $hidden ? now() : null]);
+
+        return redirect()->back()->with('success', __($hidden ? 'dj.requests_visibility.flash.artist_hidden' : 'dj.requests_visibility.flash.artist_shown'));
     }
 
     /**

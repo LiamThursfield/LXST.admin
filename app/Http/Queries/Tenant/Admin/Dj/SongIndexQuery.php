@@ -54,6 +54,12 @@ class SongIndexQuery
                     }
                 }),
                 AllowedFilter::exact('key'),
+                AllowedFilter::callback('hidden', function (Builder $query, mixed $value): void {
+                    if (filter_var($value, FILTER_VALIDATE_BOOLEAN)) {
+                        /** @var Builder<CanonicalTrack> $query */
+                        $query->hiddenFromRequests();
+                    }
+                }),
                 AllowedFilter::callback('bpm_min', fn (Builder $query, string $value) => $query->where('bpm', '>=', (float) $value)),
                 AllowedFilter::callback('bpm_max', fn (Builder $query, string $value) => $query->where('bpm', '<=', (float) $value)),
             )
