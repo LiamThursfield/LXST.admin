@@ -74,6 +74,21 @@ class SongList extends Model
     }
 
     /**
+     * Labelled passwords for people without a login
+     *
+     * @return HasMany<GuestPass, $this>
+     */
+    public function guestPasses(): HasMany
+    {
+        return $this->hasMany(GuestPass::class);
+    }
+
+    public function isSetlist(): bool
+    {
+        return $this->kind === SongListKind::Setlist;
+    }
+
+    /**
      * @param  Builder<SongList>  $query
      */
     public function scopeSetlists(Builder $query): void

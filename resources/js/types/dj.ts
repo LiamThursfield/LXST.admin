@@ -286,3 +286,16 @@ export type PlayedTrackData = {
     song_url: string | null;
     track_url: string | null;
 };
+
+/** A guest pass, as returned by `GuestPassResource`. */
+export type GuestPassData = {
+    id: number;
+    label: string;
+    password: string;
+    can_add: boolean;
+    status: 'active' | 'expired' | 'revoked';
+    /** The last day it works, on the DJ's clock. */
+    expires_on: string | null;
+    last_used_at: string | null;
+    items_count: number;
+};

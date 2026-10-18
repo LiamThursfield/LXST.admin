@@ -22,6 +22,7 @@ use App\Http\Controllers\Tenant\Admin\Dj\GigController;
 use App\Http\Controllers\Tenant\Admin\Dj\GigPinController;
 use App\Http\Controllers\Tenant\Admin\Dj\GigPlayController;
 use App\Http\Controllers\Tenant\Admin\Dj\GigQrCodeController;
+use App\Http\Controllers\Tenant\Admin\Dj\GuestPassController;
 use App\Http\Controllers\Tenant\Admin\Dj\HistoryBulkController;
 use App\Http\Controllers\Tenant\Admin\Dj\HistoryController;
 use App\Http\Controllers\Tenant\Admin\Dj\LibraryArtistBulkController;
@@ -131,6 +132,11 @@ Route::name('dj.')->prefix('dj')->middleware('tenant.module:dj')->group(function
     Route::put('setlists/{setlist}/items/order', [SetlistItemController::class, 'reorder'])->name('setlists.items.reorder');
     Route::patch('setlists/{setlist}/items/{item}', [SetlistItemController::class, 'update'])->name('setlists.items.update');
     Route::delete('setlists/{setlist}/items/{item}', [SetlistItemController::class, 'destroy'])->name('setlists.items.destroy');
+    // Guest passes on a setlist, or on a gig's requests (whose list is made with the first pass)
+    Route::post('song-lists/{songList}/guest-passes', [GuestPassController::class, 'store'])->name('song-lists.guest-passes.store');
+    Route::post('gigs/{gig}/guest-passes', [GuestPassController::class, 'storeForGig'])->name('gigs.guest-passes.store');
+    Route::put('guest-passes/{guestPass}', [GuestPassController::class, 'update'])->name('guest-passes.update');
+    Route::delete('guest-passes/{guestPass}', [GuestPassController::class, 'destroy'])->name('guest-passes.destroy');
     Route::get('settings', [DjSettingsController::class, 'edit'])->name('settings.edit');
     Route::put('settings', [DjSettingsController::class, 'update'])->name('settings.update');
 

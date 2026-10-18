@@ -7,6 +7,9 @@ use App\Http\Controllers\Tenant\Api\V1\Cms\PageController;
 use App\Http\Controllers\Tenant\Api\V1\Cms\PageViewController;
 use App\Http\Controllers\Tenant\Api\V1\Crm\FormController;
 use App\Http\Controllers\Tenant\Api\V1\Crm\FormSubmissionController;
+use App\Http\Controllers\Tenant\Api\V1\Dj\GuestSetlistController;
+use App\Http\Controllers\Tenant\Api\V1\Dj\GuestSetlistItemController;
+use App\Http\Controllers\Tenant\Api\V1\Dj\GuestTokenController;
 use App\Http\Controllers\Tenant\Api\V1\PingController;
 use App\Http\Controllers\Tenant\Api\V1\SiteController;
 use Illuminate\Support\Facades\Route;
@@ -52,6 +55,18 @@ Route::prefix('v1')
 
         // Request context, song requests and now playing are added here as they're built
         Route::prefix('dj')->name('dj.')->middleware('tenant.module:dj')->group(function () {
-            //
+            // A guest pass's password, exchanged for a short-lived token sent as X-Guest-Token
+            Route::post('song-lists/{songList}/guest-token', [GuestTokenController::class, 'store'])
+                ->middleware('throttle:dj-guest-token')
+                ->name('song-lists.guest-token.store');
+
+            // A setlist for guests with a pass: view it, and add, change or remove their songs
+            Route::middleware('dj.guest-pass')->prefix('setlists/{songList}')->name('setlists.')->group(function () {
+                Route::get('/', [GuestSetlistController::class, 'show'])->name('show');
+                Route::get('songs', [GuestSetlistController::class, 'songs'])->name('songs');
+                Route::post('items', [GuestSetlistItemController::class, 'store'])->name('items.store');
+                Route::patch('items/{item}', [GuestSetlistItemController::class, 'update'])->name('items.update');
+                Route::delete('items/{item}', [GuestSetlistItemController::class, 'destroy'])->name('items.destroy');
+            });
         });
     });

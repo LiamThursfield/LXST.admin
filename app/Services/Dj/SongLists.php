@@ -2,6 +2,8 @@
 
 namespace App\Services\Dj;
 
+use App\Enums\Dj\SongListKind;
+use App\Enums\Dj\SongListVisibility;
 use App\Models\Dj\Gig;
 use App\Models\Dj\SongList;
 use App\Models\Dj\SongListItem;
@@ -13,6 +15,17 @@ use Illuminate\Support\Facades\DB;
  */
 class SongLists
 {
+    /**
+     * The gig's requests list, made the first time it's needed
+     */
+    public function requestsListFor(Gig $gig): SongList
+    {
+        return SongList::query()->firstOrCreate(
+            ['gig_id' => $gig->id, 'kind' => SongListKind::Requests],
+            ['name' => __('dj.guest_passes.requests_list_name', ['gig' => $gig->name]), 'visibility' => SongListVisibility::Private],
+        );
+    }
+
     /**
      * Adds a song at the end of the list
      *

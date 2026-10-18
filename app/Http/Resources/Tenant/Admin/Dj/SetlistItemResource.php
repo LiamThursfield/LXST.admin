@@ -33,7 +33,8 @@ class SetlistItemResource extends JsonResource
             'duration' => $song?->formattedDuration(),
             'type' => $item->type?->value,
             'note' => $item->note,
-            'added_by' => $item->addedBy?->name,
+            'added_by' => $item->addedByName(),
+            'added_by_guest' => $item->guest_pass_id !== null,
             'created_at' => $item->created_at->toIso8601String(),
         ];
     }

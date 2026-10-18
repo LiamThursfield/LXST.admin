@@ -2,6 +2,7 @@
 import { Head, Link, useForm, useHttp } from '@inertiajs/vue3';
 import { VueDraggable } from 'vue-draggable-plus';
 import { search as searchSongs } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/CanonicalTrackController';
+import { store as storeGuestPass } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/GuestPassController';
 import {
     destroy,
     duplicate,
@@ -14,7 +15,9 @@ import {
     store as addItem,
     update as updateItem,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/SetlistItemController';
+import GuestPassesCard from '@/tenant/components/dj/GuestPassesCard.vue';
 import type {
+    GuestPassData,
     SelectItem,
     SetlistData,
     SetlistItemData,
@@ -28,6 +31,7 @@ const props = defineProps<{
     visibilities: SelectItem[];
     types: SelectItem[];
     canManage: boolean;
+    guestPasses?: { data: GuestPassData[] } | null;
 }>();
 
 const { trans } = useTrans();
@@ -557,70 +561,88 @@ const gigItems = computed(() => [
                     </UPageCard>
                 </div>
 
-                <UPageCard
-                    :title="trans('dj.setlists.details')"
-                    variant="subtle"
-                    class="h-fit"
-                >
-                    <form
-                        class="flex flex-col gap-4"
-                        @submit.prevent="saveDetails"
+                <div class="flex h-fit flex-col gap-6">
+                    <UPageCard
+                        :title="trans('dj.setlists.details')"
+                        variant="subtle"
                     >
-                        <fieldset
-                            :disabled="!canManage"
+                        <form
                             class="flex flex-col gap-4"
+                            @submit.prevent="saveDetails"
                         >
-                            <UFormField
-                                :label="trans('dj.setlists.fields.name')"
-                                :error="details.errors.name"
-                                required
+                            <fieldset
+                                :disabled="!canManage"
+                                class="flex flex-col gap-4"
                             >
-                                <UInput v-model="details.name" class="w-full" />
-                            </UFormField>
-                            <UFormField
-                                :label="trans('dj.setlists.fields.gig')"
-                                :error="details.errors.gig_id"
-                            >
-                                <USelectMenu
-                                    v-model="details.gig_id"
-                                    :items="gigItems"
-                                    value-key="value"
-                                    class="w-full"
+                                <UFormField
+                                    :label="trans('dj.setlists.fields.name')"
+                                    :error="details.errors.name"
+                                    required
+                                >
+                                    <UInput
+                                        v-model="details.name"
+                                        class="w-full"
+                                    />
+                                </UFormField>
+                                <UFormField
+                                    :label="trans('dj.setlists.fields.gig')"
+                                    :error="details.errors.gig_id"
+                                >
+                                    <USelectMenu
+                                        v-model="details.gig_id"
+                                        :items="gigItems"
+                                        value-key="value"
+                                        class="w-full"
+                                    />
+                                </UFormField>
+                                <UFormField
+                                    :label="
+                                        trans('dj.setlists.fields.visibility')
+                                    "
+                                    :help="
+                                        trans(
+                                            'dj.setlists.fields.visibility_help',
+                                        )
+                                    "
+                                    :error="details.errors.visibility"
+                                >
+                                    <USelect
+                                        v-model="details.visibility"
+                                        :items="visibilities"
+                                        class="w-full"
+                                    />
+                                </UFormField>
+                                <UFormField
+                                    :label="
+                                        trans('dj.setlists.fields.description')
+                                    "
+                                    :error="details.errors.description"
+                                >
+                                    <UTextarea
+                                        v-model="details.description"
+                                        :rows="3"
+                                        class="w-full"
+                                    />
+                                </UFormField>
+                            </fieldset>
+                            <div v-if="canManage" class="flex justify-end">
+                                <UButton
+                                    type="submit"
+                                    :loading="details.processing"
+                                    :label="trans('dj.setlists.save')"
                                 />
-                            </UFormField>
-                            <UFormField
-                                :label="trans('dj.setlists.fields.visibility')"
-                                :help="
-                                    trans('dj.setlists.fields.visibility_help')
-                                "
-                                :error="details.errors.visibility"
-                            >
-                                <USelect
-                                    v-model="details.visibility"
-                                    :items="visibilities"
-                                    class="w-full"
-                                />
-                            </UFormField>
-                            <UFormField
-                                :label="trans('dj.setlists.fields.description')"
-                                :error="details.errors.description"
-                            >
-                                <UTextarea
-                                    v-model="details.description"
-                                    :rows="3"
-                                    class="w-full"
-                                />
-                            </UFormField>
-                        </fieldset>
-                        <div v-if="canManage" class="flex justify-end">
-                            <UButton
-                                type="submit"
-                                :loading="details.processing"
-                                :label="trans('dj.setlists.save')"
-                            />
-                        </div>
-                    </form>
-                </UPageCard>
+                            </div>
+                        </form>
+                    </UPageCard>
+
+                    <GuestPassesCard
+                        v-if="guestPasses"
+                        :passes="guestPasses.data"
+                        :title="trans('dj.guest_passes.title')"
+                        :description="trans('dj.guest_passes.setlist_help')"
+                        :store-url="storeGuestPass.url(setlist.id)"
+                    />
+                </div>
             </div>
 
             <UModal

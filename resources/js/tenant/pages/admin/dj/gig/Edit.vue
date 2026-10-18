@@ -6,11 +6,14 @@ import {
     store as pin,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/GigPinController';
 import { show as qrCode } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/GigQrCodeController';
+import { storeForGig as storeGuestPass } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/GuestPassController';
 import { store as storeSetlist } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/SetlistController';
+import GuestPassesCard from '@/tenant/components/dj/GuestPassesCard.vue';
 import GigForm from '@/tenant/pages/admin/dj/gig/components/GigForm.vue';
 import GigPlayed from '@/tenant/pages/admin/dj/gig/components/GigPlayed.vue';
 import type {
     GigData,
+    GuestPassData,
     HistorySessionData,
     PlayedTrackData,
     RequestDefaults,
@@ -31,6 +34,7 @@ const props = defineProps<{
     canCreateSetlist: boolean;
     played: { data: PlayedTrackData[] };
     linkedSessions: { data: HistorySessionData[] };
+    requestPasses?: { data: GuestPassData[] } | null;
 }>();
 
 const { trans } = useTrans();
@@ -237,6 +241,14 @@ function newSetlist() {
                         @click="newSetlist"
                     />
                 </UPageCard>
+
+                <GuestPassesCard
+                    v-if="requestPasses"
+                    :passes="requestPasses.data"
+                    :title="trans('dj.guest_passes.requests_title')"
+                    :description="trans('dj.guest_passes.requests_help')"
+                    :store-url="storeGuestPass.url(gig.id)"
+                />
 
                 <GigPlayed
                     :gig="gig"

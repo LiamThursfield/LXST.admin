@@ -45,6 +45,23 @@ return [
         'gig_gap_minutes' => (int) env('DJ_HISTORY_GIG_GAP_MINUTES', 60),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Guest Passes
+    |--------------------------------------------------------------------------
+    |
+    | Guests exchange a pass's password for a token that lasts `token_minutes`.
+    | After `max_attempts` wrong passwords for a list from one IP address, that
+    | address is locked out of the list for `lockout_minutes`.
+    |
+    */
+
+    'guest_passes' => [
+        'token_minutes' => (int) env('DJ_GUEST_TOKEN_MINUTES', 720),
+        'max_attempts' => (int) env('DJ_GUEST_PASS_MAX_ATTEMPTS', 5),
+        'lockout_minutes' => (int) env('DJ_GUEST_PASS_LOCKOUT_MINUTES', 15),
+    ],
+
     'matching' => [
         'suggestion_threshold' => (float) env('DJ_MATCHING_SUGGESTION_THRESHOLD', 0.85),
     ],

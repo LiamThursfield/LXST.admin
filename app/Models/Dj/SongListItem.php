@@ -23,13 +23,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $position
  * @property string|null $note
  * @property int|null $added_by_user_id
- * @property int|null $guest_pass_id Comes with guest passes (#147)
+ * @property int|null $guest_pass_id The guest pass that added it
+ * @property string|null $guest_name A name the guest gave with a shared pass
  * @property string|null $visitor_hash
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  * @property-read SongList $songList
  * @property-read CanonicalTrack|null $song
  * @property-read User|null $addedBy
+ * @property-read GuestPass|null $guestPass
  */
 class SongListItem extends Model
 {
@@ -53,6 +55,7 @@ class SongListItem extends Model
         'note',
         'added_by_user_id',
         'guest_pass_id',
+        'guest_name',
         'visitor_hash',
     ];
 
@@ -81,6 +84,26 @@ class SongListItem extends Model
     public function song(): BelongsTo
     {
         return $this->belongsTo(CanonicalTrack::class, 'canonical_track_id');
+    }
+
+    /**
+     * @return BelongsTo<GuestPass, $this>
+     */
+    public function guestPass(): BelongsTo
+    {
+        return $this->belongsTo(GuestPass::class);
+    }
+
+    /**
+     * Who added it, for the admin: a user's name, or a pass's label with the guest's name
+     */
+    public function addedByName(): ?string
+    {
+        if ($this->guestPass !== null) {
+            return $this->guest_name !== null ? $this->guestPass->label.' · '.$this->guest_name : $this->guestPass->label;
+        }
+
+        return $this->addedBy?->name;
     }
 
     /**

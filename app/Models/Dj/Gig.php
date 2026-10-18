@@ -5,6 +5,7 @@ namespace App\Models\Dj;
 use App\Data\Dj\EffectiveRequestSettings;
 use App\Data\Dj\GigRequestSettings;
 use App\Enums\Dj\RequestsMode;
+use App\Enums\Dj\SongListKind;
 use App\Models\Settings\DjSettings;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * A gig: the backbone for requests, setlists and stats. Times are stored in UTC and shown in the
@@ -106,6 +108,16 @@ class Gig extends Model
     public function songLists(): HasMany
     {
         return $this->hasMany(SongList::class);
+    }
+
+    /**
+     * The gig's requests list, made when first needed (see SongLists::requestsListFor())
+     *
+     * @return HasOne<SongList, $this>
+     */
+    public function requestsList(): HasOne
+    {
+        return $this->hasOne(SongList::class)->where('kind', SongListKind::Requests);
     }
 
     public function requestSettings(): EffectiveRequestSettings

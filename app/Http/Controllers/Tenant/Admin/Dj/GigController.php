@@ -3,15 +3,18 @@
 namespace App\Http\Controllers\Tenant\Admin\Dj;
 
 use App\Enums\Dj\RequestsMode;
+use App\Enums\Dj\SongListKind;
 use App\Http\Controllers\Controller;
 use App\Http\Queries\Tenant\Admin\Dj\GigIndexQuery;
 use App\Http\Requests\Tenant\Admin\Dj\GigIndexRequest;
 use App\Http\Requests\Tenant\Admin\Dj\GigStoreRequest;
 use App\Http\Requests\Tenant\Admin\Dj\GigUpdateRequest;
 use App\Http\Resources\Tenant\Admin\Dj\GigResource;
+use App\Http\Resources\Tenant\Admin\Dj\GuestPassResource;
 use App\Http\Resources\Tenant\Admin\Dj\HistorySessionResource;
 use App\Http\Resources\Tenant\Admin\Dj\PlayedTrackResource;
 use App\Models\Dj\Gig;
+use App\Models\Dj\GuestPass;
 use App\Models\Dj\HistoryPlay;
 use App\Models\Dj\SongList;
 use App\Models\Settings\DjSettings;
@@ -88,6 +91,10 @@ class GigController extends Controller
                     'url' => route('admin.dj.setlists.show', $setlist),
                 ]),
             'canCreateSetlist' => $request->user()?->can('create', SongList::class) ?? false,
+            // Passes a guest needs to submit requests; with none, requests are open to anyone
+            'requestPasses' => fn () => $request->user()?->can('create', [GuestPass::class, new SongList(['kind' => SongListKind::Requests])])
+                ? GuestPassResource::collection($gig->requestsList?->guestPasses()->withCount('items')->oldest()->get() ?? [])
+                : null,
             // What was played: the plays of the sessions linked to this gig, in time order
             'played' => PlayedTrackResource::collection(
                 HistoryPlay::query()
