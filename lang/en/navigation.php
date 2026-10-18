@@ -36,6 +36,8 @@ return [
     'view_organisation_units' => 'View Organisation Units',
 
     'dj' => 'DJ',
+    'gigs' => 'Gigs',
+    'dj_settings' => 'Settings',
     'library' => 'Library',
     'songs' => 'Songs',
     'canonical_artists' => 'Artists',

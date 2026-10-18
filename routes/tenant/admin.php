@@ -17,6 +17,10 @@ use App\Http\Controllers\Tenant\Admin\DashboardController;
 use App\Http\Controllers\Tenant\Admin\Dj\CanonicalArtistController;
 use App\Http\Controllers\Tenant\Admin\Dj\CanonicalMergeController;
 use App\Http\Controllers\Tenant\Admin\Dj\CanonicalTrackController;
+use App\Http\Controllers\Tenant\Admin\Dj\DjSettingsController;
+use App\Http\Controllers\Tenant\Admin\Dj\GigController;
+use App\Http\Controllers\Tenant\Admin\Dj\GigPinController;
+use App\Http\Controllers\Tenant\Admin\Dj\GigQrCodeController;
 use App\Http\Controllers\Tenant\Admin\Dj\LibraryArtistBulkController;
 use App\Http\Controllers\Tenant\Admin\Dj\LibraryArtistController;
 use App\Http\Controllers\Tenant\Admin\Dj\LibraryController;
@@ -100,8 +104,15 @@ Route::name('crm.')->prefix('crm')->middleware(['tenant.module:crm', 'content.ch
     Route::resource('organisation-units', OrganisationUnitController::class);
 });
 
-// Gigs, requests and stats are added here as they're built
+// Requests and stats are added here as they're built
 Route::name('dj.')->prefix('dj')->middleware('tenant.module:dj')->group(function () {
+    Route::resource('gigs', GigController::class)->except('show');
+    Route::post('gigs/{gig}/pin', [GigPinController::class, 'store'])->name('gigs.pin');
+    Route::delete('gigs/{gig}/pin', [GigPinController::class, 'destroy'])->name('gigs.unpin');
+    Route::get('gigs/{gig}/qr-code', [GigQrCodeController::class, 'show'])->name('gigs.qr-code');
+    Route::get('settings', [DjSettingsController::class, 'edit'])->name('settings.edit');
+    Route::put('settings', [DjSettingsController::class, 'update'])->name('settings.update');
+
     Route::resource('libraries', LibraryController::class)->only(['index', 'destroy']);
     Route::post('imports', [LibraryImportController::class, 'store'])->name('imports.store');
     // Bulk actions on the tracks or artists selected on a page

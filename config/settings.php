@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Settings\DjSettings;
 use App\Models\Settings\GeneralSettings;
 use App\Models\Settings\IntegrationSettings;
 use App\Models\Settings\MailSettings;
@@ -20,6 +21,7 @@ return [
     'settings' => [
         GeneralSettings::class,
         IntegrationSettings::class,
+        DjSettings::class,
         MailSettings::class,
         ThemeSettings::class,
     ],

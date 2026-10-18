@@ -100,6 +100,10 @@ class TenantMenu
 
     public const string MENU_MAIN_SECTION_DJ_ITEM_LIBRARY = 'library';
 
+    public const string MENU_MAIN_SECTION_DJ_ITEM_GIGS = 'gigs';
+
+    public const string MENU_MAIN_SECTION_DJ_ITEM_SETTINGS = 'dj-settings';
+
     public const string MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_SONGS = 'songs';
 
     public const string MENU_MAIN_SECTION_DJ_ITEM_LIBRARY_CANONICAL_ARTISTS = 'canonical-artists';
