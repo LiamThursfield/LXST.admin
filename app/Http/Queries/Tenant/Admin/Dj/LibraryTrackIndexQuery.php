@@ -4,6 +4,7 @@ namespace App\Http\Queries\Tenant\Admin\Dj;
 
 use App\Enums\Dj\MusicalKey;
 use App\Http\Requests\Tenant\Admin\Dj\LibraryTrackIndexRequest;
+use App\Models\Dj\CanonicalTrack;
 use App\Models\Dj\LibraryArtist;
 use App\Models\Dj\LibraryTrack;
 use Illuminate\Database\Eloquent\Builder;
@@ -19,7 +20,7 @@ class LibraryTrackIndexQuery
      */
     public function handle(LibraryTrackIndexRequest $request): LengthAwarePaginator
     {
-        $query = LibraryTrack::query()->with(['artist', 'library']);
+        $query = LibraryTrack::query()->with(['artist', 'library', 'canonicalTrack.artist']);
 
         // Missing tracks are hidden unless the filter asks for them
         if (! $request->boolean('filter.missing')) {
@@ -51,6 +52,14 @@ class LibraryTrackIndexQuery
                 AllowedFilter::callback('duration_max', fn (Builder $query, string $value) => $query->where('duration', '<=', (int) round((float) $value * 60))),
                 // Applied above
                 AllowedFilter::callback('missing', fn () => null),
+                AllowedFilter::callback('hidden', function (Builder $query, mixed $value): void {
+                    if (filter_var($value, FILTER_VALIDATE_BOOLEAN)) {
+                        $query->whereHas('canonicalTrack', function (Builder $song): void {
+                            /** @var Builder<CanonicalTrack> $song */
+                            $song->hiddenFromRequests();
+                        });
+                    }
+                }),
             )
             ->defaultSort('title')
             ->allowedSorts(

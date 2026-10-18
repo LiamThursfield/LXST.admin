@@ -4,7 +4,12 @@ import { index } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/CanonicalA
 import type { CanonicalArtistData } from '@/types';
 
 const props = defineProps<{
-    filter: { search?: string; verified?: string; orphaned?: boolean | string };
+    filter: {
+        search?: string;
+        verified?: string;
+        orphaned?: boolean | string;
+        hidden?: boolean | string;
+    };
     sort: string;
     columns: Array<{ accessorKey: string; header: string }>;
     artists: {
@@ -24,6 +29,7 @@ const filters = ref({
     search: props.filter.search ?? '',
     verified: props.filter.verified ?? '',
     orphaned: props.filter.orphaned === true || props.filter.orphaned === '1',
+    hidden: props.filter.hidden === true || props.filter.hidden === '1',
 });
 
 const sortItems = [
@@ -57,6 +63,10 @@ const search = useDebounceFn((page: number = 1) => {
 
     if (filters.value.orphaned) {
         filter.orphaned = '1';
+    }
+
+    if (filters.value.hidden) {
+        filter.hidden = '1';
     }
 
     router.get(
@@ -104,6 +114,10 @@ watch([filters, sort], () => search(), { deep: true });
                         v-model="filters.orphaned"
                         :label="trans('dj.canonical_artists.filters.orphaned')"
                     />
+                    <UCheckbox
+                        v-model="filters.hidden"
+                        :label="trans('dj.requests_visibility.filter')"
+                    />
                     <USelect
                         v-model="sort"
                         class="w-full sm:ms-auto sm:w-44"
@@ -131,6 +145,15 @@ watch([filters, sort], () => search(), { deep: true });
                                 class="text-success size-4"
                                 :aria-label="trans('dj.matching.verified')"
                             />
+                            <UBadge
+                                v-if="row.original.is_hidden_from_requests"
+                                color="neutral"
+                                variant="subtle"
+                                size="sm"
+                                icon="i-lucide-eye-off"
+                            >
+                                {{ trans('dj.requests_visibility.hidden') }}
+                            </UBadge>
                         </span>
                     </template>
                 </UTable>

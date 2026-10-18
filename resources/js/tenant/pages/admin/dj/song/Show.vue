@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import { Head, Link, useForm, useHttp } from '@inertiajs/vue3';
 import { search as searchArtists } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/CanonicalArtistController';
-import { verify } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/CanonicalTrackController';
+import {
+    hide,
+    verify,
+} from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/CanonicalTrackController';
 import {
     index,
     update,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/SongController';
 import { formatDateTime, userTimezone } from '@/lib/timezone';
 import CanonicalMergeModal from '@/tenant/components/dj/CanonicalMergeModal.vue';
+import RequestVisibilityCard from '@/tenant/components/dj/RequestVisibilityCard.vue';
 import type {
     CanonicalMergeData,
     LibraryTrackData,
@@ -19,11 +23,18 @@ const props = defineProps<{
     song: {
         id: number;
         title: string;
-        artist: { id: number; name: string; url: string } | null;
+        artist: {
+            id: number;
+            name: string;
+            url: string;
+            is_hidden_from_requests: boolean;
+        } | null;
         bpm: number | null;
         duration: string | null;
         key: MusicalKeyData | null;
         is_verified: boolean;
+        is_hidden_from_requests: boolean;
+        is_requestable: boolean;
     };
     libraryTracks: { data: LibraryTrackData[] };
     playsCount: number;
@@ -200,6 +211,15 @@ const mergeOpen = ref(false);
                         />
                     </div>
                 </div>
+
+                <RequestVisibilityCard
+                    :hidden="song.is_hidden_from_requests"
+                    :hidden-with-artist="song.artist?.is_hidden_from_requests"
+                    :requestable="song.is_requestable"
+                    :help="trans('dj.requests_visibility.song_help')"
+                    :url="hide.url(song.id)"
+                    :can-manage="canManage"
+                />
 
                 <UPageCard
                     v-if="canManage"

@@ -29,6 +29,8 @@ class LibraryArtistIndexRequest extends FormRequest
             'filter' => ['nullable', 'array'],
             'filter.search' => ['nullable', Rule::string()->max(255)],
             'filter.library_id' => ['nullable', 'integer', Rule::exists(Library::class, 'id')],
+            // Hidden from song requests
+            'filter.hidden' => ['nullable', 'boolean'],
             'sort' => ['nullable', Rule::in(['name', '-name', 'tracks_count', '-tracks_count'])],
             'per_page' => ['nullable', 'integer', Rule::in([25, 50, 100])],
         ];

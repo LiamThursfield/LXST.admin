@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { verify } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/CanonicalTrackController';
+import {
+    hide,
+    verify,
+} from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/CanonicalTrackController';
 import { index } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/LibraryTrackController';
 import { store as split } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/LibraryTrackSplitController';
 import { show as showSong } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/SongController';
 import { formatDateTime, userTimezone } from '@/lib/timezone';
 import CanonicalMergeModal from '@/tenant/components/dj/CanonicalMergeModal.vue';
+import RequestVisibilityCard from '@/tenant/components/dj/RequestVisibilityCard.vue';
 import type { LibraryTrackDetailData } from '@/types';
 
 const props = defineProps<{
@@ -379,6 +383,17 @@ const details = computed(() =>
                         </p>
                     </UPageCard>
                 </div>
+
+                <RequestVisibilityCard
+                    v-if="detail.canonical"
+                    :hidden="detail.canonical.is_hidden_from_requests"
+                    :hidden-with-artist="
+                        detail.canonical.is_artist_hidden_from_requests
+                    "
+                    :help="trans('dj.requests_visibility.song_help')"
+                    :url="hide.url(detail.canonical.id)"
+                    :can-manage="canManageMatching"
+                />
             </div>
             <UModal
                 v-model:open="splitOpen"

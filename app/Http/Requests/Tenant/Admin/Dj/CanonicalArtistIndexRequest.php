@@ -30,6 +30,8 @@ class CanonicalArtistIndexRequest extends FormRequest
             'filter.verified' => ['nullable', Rule::in(['yes', 'no'])],
             // Linked to no library artist
             'filter.orphaned' => ['nullable', 'boolean'],
+            // Hidden from song requests
+            'filter.hidden' => ['nullable', 'boolean'],
             'sort' => ['nullable', Rule::in(['name', '-name', 'tracks_count', '-tracks_count', 'library_artists_count', '-library_artists_count'])],
             'per_page' => ['nullable', 'integer', Rule::in([25, 50, 100])],
         ];

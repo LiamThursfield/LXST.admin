@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import {
+    hide,
     index,
     update,
     verify,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/CanonicalArtistController';
 import { formatDateTime, userTimezone } from '@/lib/timezone';
 import CanonicalMergeModal from '@/tenant/components/dj/CanonicalMergeModal.vue';
+import RequestVisibilityCard from '@/tenant/components/dj/RequestVisibilityCard.vue';
 import type { CanonicalMergeData } from '@/types';
 
 const props = defineProps<{
@@ -14,6 +16,7 @@ const props = defineProps<{
         id: number;
         name: string;
         is_verified: boolean;
+        is_hidden_from_requests: boolean;
         songs_url: string;
     };
     songs: Array<{
@@ -127,6 +130,13 @@ const mergeOpen = ref(false);
                         />
                     </div>
                 </div>
+
+                <RequestVisibilityCard
+                    :hidden="artist.is_hidden_from_requests"
+                    :help="trans('dj.requests_visibility.artist_help')"
+                    :url="hide.url(artist.id)"
+                    :can-manage="canManage"
+                />
 
                 <UPageCard
                     v-if="canManage"

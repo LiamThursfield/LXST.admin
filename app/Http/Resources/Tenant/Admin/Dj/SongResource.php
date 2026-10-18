@@ -30,6 +30,8 @@ class SongResource extends JsonResource
             'duration' => $song->formattedDuration(),
             'key' => LibraryTrackResource::key($song->key),
             'is_verified' => $song->isVerified(),
+            'is_hidden_from_requests' => $song->isHiddenFromRequests(),
+            'is_artist_hidden_from_requests' => $song->artist?->isHiddenFromRequests() ?? false,
             'library_tracks_count' => (int) $song->getAttribute('library_tracks_count'),
             'libraries_count' => (int) $song->getAttribute('libraries_count'),
             'url' => route('admin.dj.songs.show', $song),

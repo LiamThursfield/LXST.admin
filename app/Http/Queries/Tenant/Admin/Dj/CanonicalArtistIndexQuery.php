@@ -32,6 +32,11 @@ class CanonicalArtistIndexQuery
                         $query->whereDoesntHave('libraryArtists');
                     }
                 }),
+                AllowedFilter::callback('hidden', function (Builder $query, mixed $value): void {
+                    if (filter_var($value, FILTER_VALIDATE_BOOLEAN)) {
+                        $query->whereNotNull('hidden_from_requests_at');
+                    }
+                }),
             )
             ->defaultSort('name')
             ->allowedSorts('name', 'tracks_count', 'library_artists_count')

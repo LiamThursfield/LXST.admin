@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property string $name
  * @property LibrarySource $source
+ * @property CarbonImmutable|null $hidden_from_requests_at When it was hidden from song request search, with the songs only in it
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  */
@@ -34,6 +35,7 @@ class Library extends Model
     protected $fillable = [
         'name',
         'source',
+        'hidden_from_requests_at',
     ];
 
     /**
@@ -43,6 +45,7 @@ class Library extends Model
     {
         return [
             'source' => LibrarySource::class,
+            'hidden_from_requests_at' => 'datetime',
         ];
     }
 
@@ -84,5 +87,10 @@ class Library extends Model
     public function historySessions(): HasMany
     {
         return $this->hasMany(HistorySession::class);
+    }
+
+    public function isHiddenFromRequests(): bool
+    {
+        return $this->hidden_from_requests_at !== null;
     }
 }

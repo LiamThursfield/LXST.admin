@@ -13,6 +13,7 @@ use App\Models\Dj\Library;
 use App\Models\Dj\LibraryImport;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -52,6 +53,19 @@ class LibraryController extends Controller
      * Deletes the library with its artists, tracks, tags, history and imports.
      * Canonical artists and tracks are kept.
      */
+    /**
+     * Hides the library from song request search, with the songs only in it, or shows it again
+     */
+    public function hide(Request $request, Library $library): RedirectResponse
+    {
+        Gate::authorize('update', $library);
+
+        $hidden = $request->validate(['hidden' => ['required', 'boolean']])['hidden'];
+        $library->update(['hidden_from_requests_at' => $hidden ? now() : null]);
+
+        return redirect()->back()->with('success', __($hidden ? 'dj.requests_visibility.flash.library_hidden' : 'dj.requests_visibility.flash.library_shown'));
+    }
+
     public function destroy(Library $library): RedirectResponse
     {
         Gate::authorize('delete', $library);

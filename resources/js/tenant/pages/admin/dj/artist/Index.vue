@@ -1,12 +1,19 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { verify as verifyArtists } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/LibraryArtistBulkController';
+import {
+    hide as hideArtists,
+    verify as verifyArtists,
+} from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/LibraryArtistBulkController';
 import { index } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/LibraryArtistController';
 import BulkAssignModal from '@/tenant/components/dj/BulkAssignModal.vue';
 import type { LibraryArtistData, SelectItem } from '@/types';
 
 const props = defineProps<{
-    filter: { search?: string; library_id?: string };
+    filter: {
+        search?: string;
+        library_id?: string;
+        hidden?: boolean | string;
+    };
     sort: string;
     columns: Array<{ accessorKey: string; header: string }>;
     artists: {
@@ -27,6 +34,7 @@ const { trans } = useTrans();
 const filters = ref({
     search: props.filter.search ?? '',
     library_id: props.filter.library_id ? String(props.filter.library_id) : '',
+    hidden: props.filter.hidden === true || props.filter.hidden === '1',
 });
 
 const sortItems = [
@@ -37,7 +45,9 @@ const sort = ref(props.sort);
 
 const search = useDebounceFn((page: number = 1) => {
     const filter = Object.fromEntries(
-        Object.entries(filters.value).filter(([, value]) => value !== ''),
+        Object.entries(filters.value)
+            .filter(([, value]) => value !== '' && value !== false)
+            .map(([name, value]) => [name, value === true ? '1' : value]),
     );
 
     router.get(
@@ -90,6 +100,14 @@ function bulkVerify(verified: boolean) {
     );
 }
 
+function bulkHide(hidden: boolean) {
+    router.post(
+        hideArtists.url(),
+        { artist_ids: selected.value, hidden },
+        { preserveScroll: true, onSuccess: () => (selected.value = []) },
+    );
+}
+
 const selectedArtists = computed(() =>
     props.artists.data.filter((artist) => selected.value.includes(artist.id)),
 );
@@ -121,6 +139,10 @@ const selectedArtists = computed(() =>
                         class="w-full sm:w-44"
                         :items="libraries"
                         :placeholder="trans('dj.artists.columns.library')"
+                    />
+                    <UCheckbox
+                        v-model="filters.hidden"
+                        :label="trans('dj.requests_visibility.filter')"
                     />
                     <USelect
                         v-model="sort"
@@ -161,6 +183,22 @@ const selectedArtists = computed(() =>
                         icon="i-lucide-shield-off"
                         :label="trans('dj.bulk.unverify')"
                         @click="bulkVerify(false)"
+                    />
+                    <UButton
+                        size="sm"
+                        color="neutral"
+                        variant="outline"
+                        icon="i-lucide-eye-off"
+                        :label="trans('dj.requests_visibility.hide')"
+                        @click="bulkHide(true)"
+                    />
+                    <UButton
+                        size="sm"
+                        color="neutral"
+                        variant="outline"
+                        icon="i-lucide-eye"
+                        :label="trans('dj.requests_visibility.show')"
+                        @click="bulkHide(false)"
                     />
                     <UButton
                         size="sm"
@@ -220,6 +258,15 @@ const selectedArtists = computed(() =>
                                 :aria-label="trans('dj.artists.canonical')"
                                 :title="trans('dj.artists.canonical')"
                             />
+                            <UBadge
+                                v-if="row.original.is_hidden_from_requests"
+                                color="neutral"
+                                variant="subtle"
+                                size="sm"
+                                icon="i-lucide-eye-off"
+                            >
+                                {{ trans('dj.requests_visibility.hidden') }}
+                            </UBadge>
                         </div>
                     </template>
                 </UTable>

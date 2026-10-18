@@ -60,4 +60,17 @@ class CanonicalTrackController extends Controller
 
         return redirect()->back()->with('success', __($verified ? 'dj.matching.flash.verified' : 'dj.matching.flash.unverified'));
     }
+
+    /**
+     * Hides it from song request search, or shows it again
+     */
+    public function hide(Request $request, CanonicalTrack $canonicalTrack): RedirectResponse
+    {
+        Gate::authorize('update', $canonicalTrack);
+
+        $hidden = $request->validate(['hidden' => ['required', 'boolean']])['hidden'];
+        $canonicalTrack->update(['hidden_from_requests_at' => $hidden ? now() : null]);
+
+        return redirect()->back()->with('success', __($hidden ? 'dj.requests_visibility.flash.song_hidden' : 'dj.requests_visibility.flash.song_shown'));
+    }
 }

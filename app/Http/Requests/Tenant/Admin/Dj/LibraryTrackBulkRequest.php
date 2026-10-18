@@ -11,7 +11,7 @@ use Illuminate\Validation\Rule;
 
 /**
  * Library tracks selected on a page, for a bulk action: assigning them to a song (an existing one,
- * or a new one), or verifying their songs
+ * or a new one), verifying their songs, or hiding their songs from requests
  */
 class LibraryTrackBulkRequest extends FormRequest
 {
@@ -39,7 +39,8 @@ class LibraryTrackBulkRequest extends FormRequest
             'song_id' => [Rule::when($assigning, ['nullable', 'integer', Rule::exists(CanonicalTrack::class, 'id')], ['prohibited'])],
             // A new song, used when no song is chosen
             'new_song_title' => [Rule::when($assigning, ['required_without:song_id', 'nullable', Rule::string()->max(255)], ['prohibited'])],
-            'verified' => [Rule::when($assigning, ['prohibited'], ['required', 'boolean'])],
+            'verified' => [Rule::when($this->routeIs('admin.dj.tracks.bulk.verify'), ['required', 'boolean'], ['prohibited'])],
+            'hidden' => [Rule::when($this->routeIs('admin.dj.tracks.bulk.hide'), ['required', 'boolean'], ['prohibited'])],
         ];
     }
 
