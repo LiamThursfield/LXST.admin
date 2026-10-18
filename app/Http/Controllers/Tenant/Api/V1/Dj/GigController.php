@@ -1,0 +1,41 @@
+<?php
+
+namespace App\Http\Controllers\Tenant\Api\V1\Dj;
+
+use App\Http\Controllers\Controller;
+use App\Http\Resources\Tenant\Api\V1\Dj\PublicGigResource;
+use App\Models\Dj\Gig;
+use App\Services\Dj\Api\DjApiCache;
+use App\Services\Dj\CurrentGig;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
+/**
+ * What a site needs to show a request form: the gig and its request settings
+ */
+class GigController extends Controller
+{
+    public function __construct(protected DjApiCache $cache) {}
+
+    /**
+     * The current gig (pinned as live, on now, or up next), or null when there isn't one
+     */
+    public function current(Request $request, CurrentGig $currentGig): JsonResponse
+    {
+        return response()->json($this->cache->remember('gigs|current', function () use ($request, $currentGig): array {
+            $gig = $currentGig->resolve();
+
+            return ['data' => $gig === null ? null : (new PublicGigResource($gig))->resolve($request)];
+        }));
+    }
+
+    /**
+     * A gig by its public ID, for shared links and QR codes. Past gigs still show, with requests closed.
+     */
+    public function show(Request $request, Gig $gig): JsonResponse
+    {
+        return response()->json($this->cache->remember("gigs|{$gig->public_id}", fn (): array => [
+            'data' => (new PublicGigResource($gig))->resolve($request),
+        ]));
+    }
+}

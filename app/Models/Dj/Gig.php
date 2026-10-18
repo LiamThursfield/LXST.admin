@@ -11,6 +11,7 @@ use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Database\Factories\Dj\GigFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * gig's own timezone.
  *
  * @property int $id
+ * @property string $public_id Random, for request links and the public API
  * @property string $name
  * @property string|null $venue
  * @property string|null $location
@@ -36,7 +38,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Gig extends Model
 {
     /** @use HasFactory<GigFactory> */
-    use HasFactory;
+    use HasFactory, HasUlids;
 
     protected $table = 'dj_gigs';
 
@@ -56,6 +58,16 @@ class Gig extends Model
         'is_pinned',
         'request_settings',
     ];
+
+    /**
+     * Only the public ID is a ULID; the primary key stays an integer
+     *
+     * @return list<string>
+     */
+    public function uniqueIds(): array
+    {
+        return ['public_id'];
+    }
 
     /**
      * @return array<string, string>
@@ -156,6 +168,6 @@ class Gig extends Model
             return null;
         }
 
-        return str_replace('{gig}', (string) $this->id, $url);
+        return str_replace('{gig}', $this->public_id, $url);
     }
 }

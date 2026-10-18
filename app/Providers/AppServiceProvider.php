@@ -78,6 +78,11 @@ class AppServiceProvider extends ServiceProvider
             ->by(tenant()?->getTenantKey().'|'.($request->input('ip_address') ?: $request->ip()))
         );
 
+        // Library search for song requests, per IP address
+        RateLimiter::for('dj-search', fn (Request $request): Limit => Limit::perMinute((int) config('dj.api.search_per_minute'))
+            ->by(tenant()?->getTenantKey().'|'.$request->ip())
+        );
+
         // Exchanging a guest pass password for a token; wrong passwords also lock out (see GuestTokenController)
         RateLimiter::for('dj-guest-token', fn (Request $request): Limit => Limit::perMinute(10)
             ->by(tenant()?->getTenantKey().'|'.$request->ip())

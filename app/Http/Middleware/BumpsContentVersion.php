@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\Api\ContentScope;
 use App\Services\Cms\Api\ContentVersion;
 use Closure;
 use Illuminate\Http\Request;
@@ -11,17 +12,18 @@ use Symfony\Component\HttpFoundation\Response;
  * After an admin change that could affect the website (CMS, CRM, File Manager or site settings),
  * marks the headless API's cached responses as stale. Done per request rather than per model event, as some
  * changes (e.g. syncing content) use queries that don't fire model events.
+ *
+ * Usage: Route::middleware('content.changed') for the CMS API, or 'content.changed:{scope}' for
+ * another ContentScope, e.g. 'content.changed:dj'
  */
 class BumpsContentVersion
 {
-    public function __construct(protected ContentVersion $version) {}
-
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, string $scope = ContentScope::Cms->value): Response
     {
         $response = $next($request);
 
         if (! $request->isMethodSafe() && $response->getStatusCode() < 400 && ! $this->failedValidation($request)) {
-            $this->version->bump();
+            ContentVersion::for(ContentScope::from($scope))->bump();
         }
 
         return $response;

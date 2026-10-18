@@ -208,7 +208,7 @@ test('each gig has a request link and QR code once the request page address is s
     $settings->request_page_url = 'https://mydjsite.com/request?gig={gig}';
     $settings->save();
 
-    expect($gig->fresh()->requestUrl())->toBe("https://mydjsite.com/request?gig={$gig->id}");
+    expect($gig->fresh()->requestUrl())->toBe("https://mydjsite.com/request?gig={$gig->public_id}");
 
     $this->get(route('admin.dj.gigs.qr-code', $gig))
         ->assertOk()

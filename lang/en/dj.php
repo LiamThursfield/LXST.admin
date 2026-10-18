@@ -208,6 +208,15 @@ return [
         ],
     ],
 
+    'api' => [
+        'no_gig' => 'There\'s no gig to request songs for right now.',
+        'requests_closed' => 'Requests aren\'t open for this gig.',
+        'fields' => [
+            'search' => 'Search',
+            'gig' => 'Gig',
+        ],
+    ],
+
     'guest_passes' => [
         'title' => 'Guest passes',
         'setlist_help' => 'Simple passwords for people without a login, e.g. a bride or a planner, to view this setlist and add songs. Each has a label, so you can see who added what.',
@@ -289,7 +298,7 @@ return [
             'default_timezone' => 'Default timezone',
             'default_timezone_help' => 'New gigs start in this timezone.',
             'request_page_url' => 'Request page address',
-            'request_page_url_help' => 'Where visitors make requests, e.g. https://mydjsite.com/request. Add {gig} where the gig\'s ID goes, e.g. https://mydjsite.com/request?gig={gig}, for a link to each gig; without it, the link always goes to the current gig.',
+            'request_page_url_help' => 'Where visitors make requests, e.g. https://mydjsite.com/request. Add {gig} where the gig\'s link ID goes, e.g. https://mydjsite.com/request?gig={gig}, for a link to each gig; without it, the link always goes to the current gig.',
         ],
         'save' => 'Save settings',
         'flash' => [

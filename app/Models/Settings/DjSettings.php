@@ -17,7 +17,7 @@ class DjSettings extends Settings
 
     /**
      * Where visitors make requests, e.g. https://mydjsite.com/request. {gig} is replaced with the
-     * gig's ID for a link to one gig; without it, the link always means the current gig.
+     * gig's public ID for a link to one gig; without it, the link always means the current gig.
      */
     public ?string $request_page_url;
 

@@ -111,7 +111,7 @@ Route::name('crm.')->prefix('crm')->middleware(['tenant.module:crm', 'content.ch
 });
 
 // Requests and stats are added here as they're built
-Route::name('dj.')->prefix('dj')->middleware('tenant.module:dj')->group(function () {
+Route::name('dj.')->prefix('dj')->middleware(['tenant.module:dj', 'content.changed:dj'])->group(function () {
     Route::resource('gigs', GigController::class)->except('show');
     Route::post('gigs/{gig}/pin', [GigPinController::class, 'store'])->name('gigs.pin');
     Route::delete('gigs/{gig}/pin', [GigPinController::class, 'destroy'])->name('gigs.unpin');
