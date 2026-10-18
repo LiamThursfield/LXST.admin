@@ -213,6 +213,8 @@ return [
             'accepted' => 'Thanks! Your request is in.',
             'upvoted' => 'Someone already asked for that one, so we\'ve added your vote.',
             'already_requested' => 'You\'ve already asked for that one.',
+            'voted' => 'Thanks for your vote!',
+            'already_voted' => 'You\'ve already voted for that one.',
         ],
         'refusals' => [
             'requests_closed' => 'Requests aren\'t open for this gig.',
@@ -220,6 +222,9 @@ return [
             'custom_not_allowed' => 'Please pick a song from the list.',
             'visitor_limit' => 'You\'ve made as many requests as you can for this gig.',
             'queue_full' => 'There are lots of requests waiting. Try again in a little while.',
+            'list_hidden' => 'The request list isn\'t shown for this gig.',
+            'upvotes_off' => 'Upvotes are off for this gig.',
+            'not_votable' => 'That request can\'t be voted for any more.',
         ],
         'fields' => [
             'song' => 'Song',
@@ -305,6 +310,7 @@ return [
             'allow_custom_requests' => 'Allow requests for songs not in the library',
             'show_public_list' => 'Show the request list publicly',
             'allow_upvotes' => 'Allow upvotes',
+            'show_pass_labels' => 'Show guest pass labels on the request list',
         ],
     ],
 

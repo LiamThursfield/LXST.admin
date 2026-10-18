@@ -5,13 +5,12 @@ namespace App\Http\Controllers\Tenant\Api\V1\Dj;
 use App\Enums\Dj\RequestOutcome;
 use App\Enums\Dj\RequestStatus;
 use App\Http\Controllers\Controller;
-use App\Http\Middleware\AuthenticateGuestPass;
 use App\Http\Requests\Tenant\Api\V1\Dj\SongRequestStoreRequest;
 use App\Models\Dj\Gig;
 use App\Models\Dj\SongListItem;
 use App\Services\Cms\Api\VisitorPrivacy;
 use App\Services\Crm\FormSpamCheck;
-use App\Services\Dj\GuestPasses\GuestTokens;
+use App\Services\Dj\Requests\RequestAccess;
 use App\Services\Dj\Requests\SongRequester;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,7 +28,7 @@ class SongRequestController extends Controller
         SongRequestStoreRequest $request,
         Gig $gig,
         SongRequester $requester,
-        GuestTokens $tokens,
+        RequestAccess $access,
         VisitorPrivacy $privacy,
     ): JsonResponse {
         if (FormSpamCheck::for('dj.requests')->looksAutomated($request) || $privacy->isBot($request->visitorUserAgent())) {
@@ -42,14 +41,7 @@ class SongRequestController extends Controller
             return $this->respond(RequestOutcome::Accepted, $this->requestData($unsaved->load('song.artist')));
         }
 
-        $list = $gig->requestsList;
-        $pass = $list === null ? null : $tokens->resolve($request->header(AuthenticateGuestPass::HEADER), $list->id);
-
-        if ($pass !== null) {
-            $tokens->touch($pass);
-        }
-
-        $result = $requester->submit($gig, $request->songRequest($gig, $pass, $privacy));
+        $result = $requester->submit($gig, $request->songRequest($gig, $access->pass($request, $gig)));
         $item = $result['item']->load('song.artist')->loadCount('votes');
 
         return $this->respond($result['outcome'], $this->requestData($item));

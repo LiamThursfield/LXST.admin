@@ -20,5 +20,7 @@ class EffectiveRequestSettings extends Data
         public bool $allow_custom_requests,
         public bool $show_public_list,
         public bool $allow_upvotes,
+        /** Whether the public request list shows the guest pass that made each request */
+        public bool $show_pass_labels,
     ) {}
 }

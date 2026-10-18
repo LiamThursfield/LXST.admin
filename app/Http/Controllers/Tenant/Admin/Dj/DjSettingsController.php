@@ -34,6 +34,7 @@ class DjSettingsController extends Controller
                 'allow_custom_requests' => $settings->allow_custom_requests,
                 'show_public_list' => $settings->show_public_list,
                 'allow_upvotes' => $settings->allow_upvotes,
+                'show_pass_labels' => $settings->show_pass_labels,
             ],
             'requestsModes' => RequestsMode::asSelectItems(),
             'canManage' => $request->user()?->can(DjPermission::ManageGigs) ?? false,
@@ -51,6 +52,7 @@ class DjSettingsController extends Controller
         $settings->allow_custom_requests = $request->boolean('allow_custom_requests');
         $settings->show_public_list = $request->boolean('show_public_list');
         $settings->allow_upvotes = $request->boolean('allow_upvotes');
+        $settings->show_pass_labels = $request->boolean('show_pass_labels');
         $settings->save();
 
         return redirect()->route('admin.dj.settings.edit')->with('success', __('dj.settings.flash.updated'));

@@ -48,6 +48,7 @@ class GigStoreRequest extends FormRequest
             'request_settings.allow_custom_requests' => ['nullable', 'boolean'],
             'request_settings.show_public_list' => ['nullable', 'boolean'],
             'request_settings.allow_upvotes' => ['nullable', 'boolean'],
+            'request_settings.show_pass_labels' => ['nullable', 'boolean'],
         ];
     }
 

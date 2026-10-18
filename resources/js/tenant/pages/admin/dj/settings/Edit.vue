@@ -15,6 +15,7 @@ const props = defineProps<{
         allow_custom_requests: boolean;
         show_public_list: boolean;
         allow_upvotes: boolean;
+        show_pass_labels: boolean;
     };
     requestsModes: SelectItem[];
     canManage: boolean;
@@ -37,6 +38,7 @@ const toggles = [
     'allow_custom_requests',
     'show_public_list',
     'allow_upvotes',
+    'show_pass_labels',
 ] as const;
 
 function onSubmit() {

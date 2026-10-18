@@ -38,6 +38,9 @@ class DjSettings extends Settings
 
     public bool $allow_upvotes;
 
+    /** Whether the public request list shows the guest pass that made each request */
+    public bool $show_pass_labels;
+
     public static function group(): string
     {
         return 'dj';

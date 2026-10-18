@@ -84,13 +84,15 @@ class AppServiceProvider extends ServiceProvider
             ->by(tenant()?->getTenantKey().'|'.$request->ip())
         );
 
-        // Song requests, per visitor and gig
-        RateLimiter::for('dj-requests', function (Request $request): Limit {
+        // Song requests and upvotes, per visitor and gig
+        $perVisitorAndGig = fn (string $limit) => function (Request $request) use ($limit): Limit {
             $gig = $request->route('gig');
 
-            return Limit::perMinute((int) config('dj.requests.rate_limit_per_minute'))
+            return Limit::perMinute((int) config("dj.requests.{$limit}"))
                 ->by(tenant()?->getTenantKey().'|'.($gig instanceof Gig ? $gig->id : '').'|'.$request->ip());
-        });
+        };
+        RateLimiter::for('dj-requests', $perVisitorAndGig('rate_limit_per_minute'));
+        RateLimiter::for('dj-upvotes', $perVisitorAndGig('upvotes_per_minute'));
 
         // Exchanging a guest pass password for a token; wrong passwords also lock out (see GuestTokenController)
         RateLimiter::for('dj-guest-token', fn (Request $request): Limit => Limit::perMinute(10)

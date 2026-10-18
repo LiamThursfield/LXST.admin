@@ -184,6 +184,7 @@ export type GigRequestSettingsData = {
     allow_custom_requests?: boolean | null;
     show_public_list?: boolean | null;
     allow_upvotes?: boolean | null;
+    show_pass_labels?: boolean | null;
 };
 
 /** The DJ settings' request defaults, as the gig form shows them. */
@@ -196,6 +197,7 @@ export type RequestDefaults = {
     allow_custom_requests: boolean;
     show_public_list: boolean;
     allow_upvotes: boolean;
+    show_pass_labels: boolean;
 };
 
 /** A gig, as returned by `GigResource`. */

@@ -233,6 +233,7 @@ test('DJ settings can be changed', function () {
         'allow_custom_requests' => false,
         'show_public_list' => true,
         'allow_upvotes' => false,
+        'show_pass_labels' => true,
     ])->assertRedirect(route('admin.dj.settings.edit'));
 
     $settings = app(DjSettings::class)->refresh();
@@ -240,7 +241,8 @@ test('DJ settings can be changed', function () {
     expect($settings->default_timezone)->toBe('Europe/Berlin')
         ->and($settings->requests_mode)->toBe(RequestsMode::Open)
         ->and($settings->max_pending_requests)->toBe(40)
-        ->and($settings->allow_custom_requests)->toBeFalse();
+        ->and($settings->allow_custom_requests)->toBeFalse()
+        ->and($settings->show_pass_labels)->toBeTrue();
 
     $this->get(route('admin.dj.gigs.create'))->assertInertia(fn (Assert $page) => $page->where('defaultTimezone', 'Europe/Berlin'));
 

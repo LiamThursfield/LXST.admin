@@ -46,6 +46,7 @@ const form = useForm({
         allow_custom_requests: toChoice(overrides.allow_custom_requests),
         show_public_list: toChoice(overrides.show_public_list),
         allow_upvotes: toChoice(overrides.allow_upvotes),
+        show_pass_labels: toChoice(overrides.show_pass_labels),
     },
 });
 
@@ -81,6 +82,7 @@ const toggles = [
     'allow_custom_requests',
     'show_public_list',
     'allow_upvotes',
+    'show_pass_labels',
 ] as const;
 
 const scheduled = computed(
@@ -116,6 +118,7 @@ function onSubmit() {
             ),
             show_public_list: choice(data.request_settings.show_public_list),
             allow_upvotes: choice(data.request_settings.allow_upvotes),
+            show_pass_labels: choice(data.request_settings.show_pass_labels),
         },
     })).submit(props.gig ? update(props.gig.id) : store(), {
         preserveScroll: true,

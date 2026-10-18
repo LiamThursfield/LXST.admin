@@ -16,6 +16,12 @@ enum RequestOutcome: string
     /** The visitor had already requested or upvoted the song */
     case AlreadyRequested = 'already_requested';
 
+    /** The visitor upvoted a request on the public list */
+    case Voted = 'voted';
+
+    /** The visitor had already upvoted this request */
+    case AlreadyVoted = 'already_voted';
+
     public function message(): string
     {
         return __("dj.requests.outcomes.{$this->value}");

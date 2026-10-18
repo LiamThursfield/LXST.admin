@@ -3,10 +3,10 @@
 namespace App\Http\Requests\Tenant\Api\V1\Dj;
 
 use App\Data\Dj\SongRequestData;
+use App\Http\Requests\Concerns\IdentifiesVisitor;
 use App\Models\Dj\CanonicalTrack;
 use App\Models\Dj\Gig;
 use App\Models\Dj\GuestPass;
-use App\Services\Cms\Api\VisitorPrivacy;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -16,6 +16,8 @@ use Illuminate\Validation\Rule;
  */
 class SongRequestStoreRequest extends FormRequest
 {
+    use IdentifiesVisitor;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -42,10 +44,9 @@ class SongRequestStoreRequest extends FormRequest
             'custom_title' => ['nullable', Rule::string()->max(255)],
             'requester_name' => ['nullable', Rule::string()->max(100)],
             'message' => ['nullable', Rule::string()->max(500)],
-            // The visitor's, which the site passes on when it calls from its server. Left out,
-            // the request's own are used (right when the visitor's browser calls the API).
-            'user_agent' => ['nullable', 'string', 'max:512'],
-            'ip_address' => ['nullable', 'ip'],
+            // Whether the requester's name can show on the public request list (#121)
+            'show_name' => ['nullable', 'boolean'],
+            ...$this->visitorRules(),
         ];
     }
 
@@ -63,20 +64,10 @@ class SongRequestStoreRequest extends FormRequest
         ];
     }
 
-    public function visitorUserAgent(): ?string
-    {
-        return $this->filled('user_agent') ? $this->string('user_agent')->toString() : $this->userAgent();
-    }
-
-    public function visitorIp(): ?string
-    {
-        return $this->filled('ip_address') ? $this->string('ip_address')->toString() : $this->ip();
-    }
-
     /**
      * The request, with the visitor hashed for the gig's day, so it holds for the whole gig
      */
-    public function songRequest(Gig $gig, ?GuestPass $pass, VisitorPrivacy $privacy): SongRequestData
+    public function songRequest(Gig $gig, ?GuestPass $pass): SongRequestData
     {
         $optional = fn (string $key): ?string => trim((string) $this->validated($key)) !== '' ? trim((string) $this->validated($key)) : null;
 
@@ -86,7 +77,8 @@ class SongRequestStoreRequest extends FormRequest
             custom_title: $optional('custom_title'),
             requester_name: $optional('requester_name'),
             message: $optional('message'),
-            visitor_hash: $privacy->visitorHash($this->visitorIp(), $this->visitorUserAgent(), $gig->starts_at),
+            show_requester_name: $this->boolean('show_name'),
+            visitor_hash: $this->visitorHash($gig->starts_at),
             guest_pass: $pass,
         );
     }

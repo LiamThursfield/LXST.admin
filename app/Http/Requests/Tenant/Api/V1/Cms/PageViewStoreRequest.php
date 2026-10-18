@@ -2,11 +2,14 @@
 
 namespace App\Http\Requests\Tenant\Api\V1\Cms;
 
+use App\Http\Requests\Concerns\IdentifiesVisitor;
 use App\Models\Cms\Redirect;
 use Illuminate\Foundation\Http\FormRequest;
 
 class PageViewStoreRequest extends FormRequest
 {
+    use IdentifiesVisitor;
+
     /**
      * The UTM parameters kept as the view's source
      *
@@ -25,10 +28,7 @@ class PageViewStoreRequest extends FormRequest
             // The path viewed, e.g. /about/team (a full URL is cut down to its path)
             'url' => ['required', 'string', 'max:2048'],
             'referrer' => ['nullable', 'string', 'max:2048'],
-            // The visitor's, which the site passes on when it calls from its server. Left out,
-            // the request's own are used (right when the visitor's browser calls the API).
-            'user_agent' => ['nullable', 'string', 'max:512'],
-            'ip_address' => ['nullable', 'ip'],
+            ...$this->visitorRules(),
             'session_id' => ['nullable', 'string', 'max:255'],
             'source' => ['nullable', 'array:'.implode(',', self::SOURCE_KEYS)],
             'source.*' => ['nullable', 'string', 'max:255'],
@@ -45,15 +45,5 @@ class PageViewStoreRequest extends FormRequest
         $path = Redirect::normalisePath($this->string('url')->toString());
 
         return (string) strtok($path, '?') ?: '/';
-    }
-
-    public function visitorUserAgent(): ?string
-    {
-        return $this->filled('user_agent') ? $this->string('user_agent')->toString() : $this->userAgent();
-    }
-
-    public function visitorIp(): ?string
-    {
-        return $this->filled('ip_address') ? $this->string('ip_address')->toString() : $this->ip();
     }
 }

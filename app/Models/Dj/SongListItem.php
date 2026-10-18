@@ -29,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $guest_pass_id The guest pass that added it
  * @property string|null $guest_name A name the guest gave with a shared pass
  * @property string|null $requester_name
+ * @property bool $show_requester_name Whether the name can show on the public request list
  * @property string|null $message The requester's message to the DJ
  * @property bool $is_do_not_play On one of the gig's setlists as do not play when requested
  * @property CarbonImmutable|null $played_at
@@ -65,6 +66,7 @@ class SongListItem extends Model
         'guest_name',
         'status',
         'requester_name',
+        'show_requester_name',
         'message',
         'is_do_not_play',
         'played_at',
@@ -80,6 +82,7 @@ class SongListItem extends Model
             'type' => SetlistSongType::class,
             'status' => RequestStatus::class,
             'position' => 'integer',
+            'show_requester_name' => 'boolean',
             'is_do_not_play' => 'boolean',
             'played_at' => 'datetime',
         ];
