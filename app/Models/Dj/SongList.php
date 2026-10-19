@@ -7,6 +7,7 @@ use App\Enums\Dj\SongListVisibility;
 use Carbon\CarbonImmutable;
 use Database\Factories\Dj\SongListFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * belong to one gig, or none.
  *
  * @property int $id
+ * @property string $public_id Random, for hosted setlist links and the public API
  * @property int|null $gig_id
  * @property SongListKind $kind
  * @property string $name
@@ -29,7 +31,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class SongList extends Model
 {
     /** @use HasFactory<SongListFactory> */
-    use HasFactory;
+    use HasFactory, HasUlids;
 
     protected $table = 'dj_song_lists';
 
@@ -45,6 +47,16 @@ class SongList extends Model
         'description',
         'visibility',
     ];
+
+    /**
+     * Only the public ID is a ULID; the primary key stays an integer
+     *
+     * @return list<string>
+     */
+    public function uniqueIds(): array
+    {
+        return ['public_id'];
+    }
 
     /**
      * @return array<string, string>

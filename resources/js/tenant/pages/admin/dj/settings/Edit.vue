@@ -8,6 +8,7 @@ const props = defineProps<{
     settings: {
         default_timezone: string;
         request_page_url: string | null;
+        hosted_page_enabled: boolean;
         requests_mode: string;
         requests_open_minutes_before: number;
         max_requests_per_visitor: number;
@@ -109,6 +110,20 @@ function onSubmit() {
                                     class="w-full font-mono"
                                 />
                             </UFormField>
+                            <USwitch
+                                v-model="form.hosted_page_enabled"
+                                class="md:col-span-2"
+                                :label="
+                                    trans(
+                                        'dj.settings.fields.hosted_page_enabled',
+                                    )
+                                "
+                                :description="
+                                    trans(
+                                        'dj.settings.fields.hosted_page_enabled_help',
+                                    )
+                                "
+                            />
                         </div>
                     </UPageCard>
 

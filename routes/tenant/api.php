@@ -75,12 +75,12 @@ Route::prefix('v1')
                 ->name('tracks.index');
 
             // A guest pass's password, exchanged for a short-lived token sent as X-Guest-Token
-            Route::post('song-lists/{songList}/guest-token', [GuestTokenController::class, 'store'])
+            Route::post('song-lists/{songList:public_id}/guest-token', [GuestTokenController::class, 'store'])
                 ->middleware('throttle:dj-guest-token')
                 ->name('song-lists.guest-token.store');
 
             // A setlist for guests with a pass: view it, and add, change or remove their songs
-            Route::middleware('dj.guest-pass')->prefix('setlists/{songList}')->name('setlists.')->group(function () {
+            Route::middleware('dj.guest-pass')->prefix('setlists/{songList:public_id}')->name('setlists.')->group(function () {
                 Route::get('/', [GuestSetlistController::class, 'show'])->name('show');
                 Route::get('songs', [GuestSetlistController::class, 'songs'])->name('songs');
                 Route::post('items', [GuestSetlistItemController::class, 'store'])->name('items.store');
