@@ -90,6 +90,7 @@ return [
         'not_in_stats' => 'Not in stats',
         'gig_name' => 'Set on :date',
         'manual_session' => 'Added by hand',
+        'live_session' => 'Live from Rekordbox',
         'filters' => [
             'linked' => 'Linked to a gig',
             'unlinked' => 'Not linked',
@@ -246,6 +247,10 @@ return [
             'opened' => 'Requests are open.',
             'closed' => 'Requests are closed.',
         ],
+    ],
+
+    'now_playing' => [
+        'no_gig' => 'There\'s no gig on right now, so the play wasn\'t recorded. The next library import will bring it in with your history.',
     ],
 
     'hosted' => [

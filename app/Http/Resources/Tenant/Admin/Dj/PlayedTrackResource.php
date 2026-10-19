@@ -27,8 +27,9 @@ class PlayedTrackResource extends JsonResource
 
         return [
             'id' => $play->id,
-            'title' => $track !== null ? $track->title : ($song->title ?? $play->source_track_id),
-            'artist' => $track !== null ? $track->artist?->name : $song?->artist?->name,
+            // A library track, a song, or what was reported live when neither matched
+            'title' => $track !== null ? $track->title : ($song->title ?? $play->title ?? $play->source_track_id),
+            'artist' => $track !== null ? $track->artist?->name : ($song->artist->name ?? $play->artist),
             'played_at' => $play->played_at?->toIso8601String(),
             'session' => $play->session->name,
             'is_manual' => $play->session->source === HistorySource::Manual,

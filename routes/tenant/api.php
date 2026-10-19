@@ -12,6 +12,7 @@ use App\Http\Controllers\Tenant\Api\V1\Dj\GigRequestController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\GuestSetlistController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\GuestSetlistItemController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\GuestTokenController;
+use App\Http\Controllers\Tenant\Api\V1\Dj\NowPlayingController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\SongRequestController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\TrackController;
 use App\Http\Controllers\Tenant\Api\V1\PingController;
@@ -59,6 +60,11 @@ Route::prefix('v1')
 
         // Request context, song requests and now playing are added here as they're built
         Route::prefix('dj')->name('dj.')->middleware('tenant.module:dj')->group(function () {
+            // Tracks the Rekordbox CLI tool reports as played, with a `dj:now-playing` token
+            Route::post('now-playing', [NowPlayingController::class, 'store'])
+                ->middleware(['auth.tenant-token:dj:now-playing', 'throttle:tenant-api-token'])
+                ->name('now-playing.store');
+
             // What a request form needs: the current gig or a given one (by its public ID), and library search
             Route::get('gigs/current', [DjGigController::class, 'current'])->name('gigs.current');
             Route::get('gigs/{gig:public_id}', [DjGigController::class, 'show'])->name('gigs.show');
