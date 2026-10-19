@@ -27,7 +27,7 @@ class GuestSetlistResource extends JsonResource
         $gig = $setlist->gig;
 
         return [
-            'id' => $setlist->id,
+            'id' => $setlist->public_id,
             'name' => $setlist->name,
             'description' => $setlist->description,
             'gig' => $gig === null ? null : [

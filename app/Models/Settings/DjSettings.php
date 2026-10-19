@@ -21,6 +21,9 @@ class DjSettings extends Settings
      */
     public ?string $request_page_url;
 
+    /** Whether the hosted request page on the tenant's domain is on; links use it when request_page_url is blank */
+    public bool $hosted_page_enabled;
+
     public RequestsMode $requests_mode;
 
     /** How long before the start requests open, when scheduled */

@@ -1,3 +1,5 @@
+import type { SelectItem } from './ui';
+
 /** A DJ library, as returned by `LibraryResource`. */
 export type LibraryData = {
     id: number;
@@ -344,3 +346,80 @@ export type RequestQueueGig = {
 
 /** A gig's requests by status. */
 export type RequestQueueData = Record<RequestStatus, RequestQueueItemData[]>;
+
+/** A gig's public details, as returned by the public API's `PublicGigResource`. */
+export type PublicGigData = {
+    id: string;
+    name: string;
+    venue: string | null;
+    location: string | null;
+    starts_at: string;
+    ends_at: string;
+    timezone: string;
+    is_on_now: boolean;
+    requests: {
+        open: boolean;
+        mode: 'open' | 'closed' | 'scheduled';
+        opens_at: string | null;
+        closes_at: string | null;
+        list_id: string | null;
+        requires_pass: boolean;
+        allow_custom_requests: boolean;
+        max_requests_per_visitor: number;
+        show_public_list: boolean;
+        allow_upvotes: boolean;
+        spam_protection: {
+            honeypot_field: string;
+            token_field: string;
+            token: string;
+        };
+    };
+};
+
+/** A request on a gig's public list, as returned by the public API. */
+export type PublicRequestData = {
+    id: number;
+    title: string;
+    artist: string | null;
+    is_custom: boolean;
+    status: RequestStatus;
+    votes: number;
+    requester_name: string | null;
+    pass: string | null;
+    played_at: string | null;
+    voted?: boolean;
+};
+
+/** A library song from the public API's search. */
+export type PublicSongData = {
+    id: number;
+    title: string;
+    artist: string | null;
+    duration?: string | null;
+};
+
+/** A setlist, as a guest with a pass sees it (`GuestSetlistResource`). */
+export type GuestSetlistData = {
+    id: string;
+    name: string;
+    description: string | null;
+    gig: {
+        name: string;
+        venue: string | null;
+        starts_at: string;
+        timezone: string;
+    } | null;
+    pass: { label: string; can_add: boolean };
+    types: SelectItem[];
+    items: Array<{
+        id: number;
+        title: string;
+        artist: string | null;
+        is_custom: boolean;
+        type: SetlistSongType | null;
+        type_label: string | null;
+        note: string | null;
+        added_by: string | null;
+        is_mine: boolean;
+    }>;
+};

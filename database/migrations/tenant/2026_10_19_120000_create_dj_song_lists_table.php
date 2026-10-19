@@ -16,6 +16,8 @@ return new class extends Migration
     {
         Schema::create('dj_song_lists', function (Blueprint $table) {
             $table->id();
+            // Random, so hosted setlist links and the public API can't be used to step through lists
+            $table->ulid('public_id')->unique();
             // A list can belong to one gig, or none; a gig can have several setlists
             $table->foreignId('gig_id')->nullable()->constrained('dj_gigs')->nullOnDelete();
             // SongListKind: setlist or requests

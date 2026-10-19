@@ -9,6 +9,8 @@ return new class extends SettingsMigration
     {
         $this->migrator->add('dj.default_timezone', (string) config('app.timezone'));
         $this->migrator->add('dj.request_page_url', null);
+        // The request page on the tenant's own domain (#123), for DJs without their own site
+        $this->migrator->add('dj.hosted_page_enabled', true);
         $this->migrator->add('dj.requests_mode', RequestsMode::Scheduled->value);
         $this->migrator->add('dj.requests_open_minutes_before', 60);
         $this->migrator->add('dj.max_requests_per_visitor', 3);
@@ -23,7 +25,7 @@ return new class extends SettingsMigration
     public function down(): void
     {
         foreach ([
-            'default_timezone', 'request_page_url', 'requests_mode', 'requests_open_minutes_before',
+            'default_timezone', 'request_page_url', 'hosted_page_enabled', 'requests_mode', 'requests_open_minutes_before',
             'max_requests_per_visitor', 'max_pending_requests', 'allow_custom_requests', 'show_public_list', 'allow_upvotes',
             'show_pass_labels',
         ] as $name) {

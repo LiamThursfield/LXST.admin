@@ -48,7 +48,7 @@ class GuestTokenController extends Controller
             'data' => [
                 'token' => $issued['token'],
                 'expires_at' => $issued['expires_at']->toIso8601String(),
-                'list' => ['id' => $songList->id, 'kind' => $songList->kind->value, 'name' => $songList->name],
+                'list' => ['id' => $songList->public_id, 'kind' => $songList->kind->value, 'name' => $songList->name],
                 'pass' => ['label' => $pass->label, 'can_add' => $pass->can_add],
             ],
         ], Response::HTTP_CREATED);

@@ -201,10 +201,12 @@ test('a gig can be deleted', function () {
 
 test('each gig has a request link and QR code once the request page address is set', function () {
     $gig = Gig::factory()->create(['name' => 'Fabric Night']);
+    $settings = app(DjSettings::class);
+    $settings->hosted_page_enabled = false;
+    $settings->save();
 
     $this->get(route('admin.dj.gigs.qr-code', $gig))->assertNotFound();
 
-    $settings = app(DjSettings::class);
     $settings->request_page_url = 'https://mydjsite.com/request?gig={gig}';
     $settings->save();
 
@@ -234,6 +236,7 @@ test('DJ settings can be changed', function () {
         'show_public_list' => true,
         'allow_upvotes' => false,
         'show_pass_labels' => true,
+        'hosted_page_enabled' => false,
     ])->assertRedirect(route('admin.dj.settings.edit'));
 
     $settings = app(DjSettings::class)->refresh();
@@ -242,7 +245,8 @@ test('DJ settings can be changed', function () {
         ->and($settings->requests_mode)->toBe(RequestsMode::Open)
         ->and($settings->max_pending_requests)->toBe(40)
         ->and($settings->allow_custom_requests)->toBeFalse()
-        ->and($settings->show_pass_labels)->toBeTrue();
+        ->and($settings->show_pass_labels)->toBeTrue()
+        ->and($settings->hosted_page_enabled)->toBeFalse();
 
     $this->get(route('admin.dj.gigs.create'))->assertInertia(fn (Assert $page) => $page->where('defaultTimezone', 'Europe/Berlin'));
 

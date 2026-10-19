@@ -44,6 +44,8 @@ class PublicGigResource extends JsonResource
                 // When scheduled requests open and close
                 'opens_at' => $scheduled ? $gig->starts_at->subMinutes($settings->requests_open_minutes_before)->toIso8601String() : null,
                 'closes_at' => $scheduled ? $gig->ends_at->toIso8601String() : null,
+                // The requests list, whose guest passes are exchanged for a token (#147)
+                'list_id' => $gig->requestsList?->public_id,
                 // Whether a guest pass is needed to request (#147)
                 'requires_pass' => GuestPass::query()->active()
                     ->whereHas('songList', fn ($lists) => $lists->where('gig_id', $gig->id)->where('kind', SongListKind::Requests))

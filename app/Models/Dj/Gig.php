@@ -173,14 +173,17 @@ class Gig extends Model
     }
 
     /**
-     * Where visitors request songs for this gig, if the DJ settings say where the request page is
+     * Where visitors request songs for this gig: the DJ's own request page if DJ settings give
+     * one, otherwise the hosted page if it's on
      */
     public function requestUrl(): ?string
     {
-        $url = app(DjSettings::class)->request_page_url;
+        $settings = app(DjSettings::class);
+        $url = $settings->request_page_url;
 
         if ($url === null || trim($url) === '') {
-            return null;
+            // The hosted request page on the tenant's domain (#123), when it's on
+            return $settings->hosted_page_enabled ? route('dj.request.gig', $this->public_id) : null;
         }
 
         return str_replace('{gig}', $this->public_id, $url);
