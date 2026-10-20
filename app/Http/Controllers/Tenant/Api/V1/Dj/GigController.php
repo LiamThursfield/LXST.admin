@@ -23,11 +23,9 @@ class GigController extends Controller
      */
     public function current(Request $request, CurrentGig $currentGig): JsonResponse
     {
-        return response()->json($this->withRequestForm($this->cache->remember('gigs|current', function () use ($request, $currentGig): array {
-            $gig = $currentGig->resolve();
+        $gig = $currentGig->resolve();
 
-            return ['data' => $gig === null ? null : (new PublicGigResource($gig))->resolve($request)];
-        })));
+        return response()->json($this->withRequestForm($gig === null ? ['data' => null] : $this->details($request, $gig)));
     }
 
     /**
@@ -35,9 +33,19 @@ class GigController extends Controller
      */
     public function show(Request $request, Gig $gig): JsonResponse
     {
-        return response()->json($this->withRequestForm($this->cache->remember("gigs|{$gig->public_id}", fn (): array => [
+        return response()->json($this->withRequestForm($this->details($request, $gig)));
+    }
+
+    /**
+     * Cached per gig, as what's playing now (#125) changes with each play
+     *
+     * @return array{data: array<string, mixed>}
+     */
+    protected function details(Request $request, Gig $gig): array
+    {
+        return $this->cache->rememberForGig($gig, 'details', fn (): array => [
             'data' => (new PublicGigResource($gig))->resolve($request),
-        ])));
+        ]);
     }
 
     /**

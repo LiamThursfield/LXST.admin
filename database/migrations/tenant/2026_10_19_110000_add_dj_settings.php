@@ -20,6 +20,10 @@ return new class extends SettingsMigration
         $this->migrator->add('dj.allow_upvotes', true);
         // Off by default: guests' pass labels (e.g. "Bride") stay off the public request list
         $this->migrator->add('dj.show_pass_labels', false);
+        // The public tracklist (#125): off by default, so a DJ's tracklist isn't public unless they choose
+        $this->migrator->add('dj.show_tracklist', false);
+        $this->migrator->add('dj.tracklist_per_page', 10);
+        $this->migrator->add('dj.tracklist_delay_minutes', 0);
     }
 
     public function down(): void
@@ -27,7 +31,7 @@ return new class extends SettingsMigration
         foreach ([
             'default_timezone', 'request_page_url', 'hosted_page_enabled', 'requests_mode', 'requests_open_minutes_before',
             'max_requests_per_visitor', 'max_pending_requests', 'allow_custom_requests', 'show_public_list', 'allow_upvotes',
-            'show_pass_labels',
+            'show_pass_labels', 'show_tracklist', 'tracklist_per_page', 'tracklist_delay_minutes',
         ] as $name) {
             $this->migrator->delete("dj.{$name}");
         }

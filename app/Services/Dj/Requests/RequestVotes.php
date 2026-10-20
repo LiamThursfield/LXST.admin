@@ -28,7 +28,7 @@ class RequestVotes
         )->wasRecentlyCreated;
 
         if ($added && $item->songList->gig !== null) {
-            $this->cache->refreshRequests($item->songList->gig);
+            $this->cache->refreshGig($item->songList->gig);
         }
 
         return $added;

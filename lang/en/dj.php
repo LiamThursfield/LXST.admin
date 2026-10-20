@@ -279,6 +279,15 @@ return [
             'submit' => 'Request it',
             'another' => 'Request another',
         ],
+        'tracklist' => [
+            'now_playing' => 'Now playing',
+            'nothing_playing' => 'Nothing playing right now.',
+            'recent' => 'Recently played',
+            'empty' => 'Nothing played yet.',
+            'started' => 'Started :time',
+            'newer' => 'Newer',
+            'older' => 'Older',
+        ],
         'list' => [
             'title' => 'Already requested',
             'help' => 'Upvote what you\'d like to hear instead of asking again.',
@@ -321,6 +330,7 @@ return [
             'list_hidden' => 'The request list isn\'t shown for this gig.',
             'upvotes_off' => 'Upvotes are off for this gig.',
             'not_votable' => 'That request can\'t be voted for any more.',
+            'tracklist_hidden' => 'The tracklist isn\'t shown for this gig.',
         ],
         'fields' => [
             'song' => 'Song',
@@ -407,6 +417,10 @@ return [
             'show_public_list' => 'Show the request list publicly',
             'allow_upvotes' => 'Allow upvotes',
             'show_pass_labels' => 'Show guest pass labels on the request list',
+            'show_tracklist' => 'Show the tracklist (now playing and recently played)',
+            'tracklist_per_page' => 'Tracks per page of the tracklist',
+            'tracklist_delay_minutes' => 'Tracklist delay (minutes)',
+            'tracklist_delay_minutes_help' => 'Hold tracks back from the public tracklist for a while, e.g. to keep what\'s playing a surprise. 0 shows them straight away.',
         ],
     ],
 

@@ -17,6 +17,9 @@ const props = defineProps<{
         show_public_list: boolean;
         allow_upvotes: boolean;
         show_pass_labels: boolean;
+        show_tracklist: boolean;
+        tracklist_per_page: number;
+        tracklist_delay_minutes: number;
     };
     requestsModes: SelectItem[];
     canManage: boolean;
@@ -40,6 +43,11 @@ const toggles = [
     'show_public_list',
     'allow_upvotes',
     'show_pass_labels',
+    'show_tracklist',
+] as const;
+const tracklistNumbers = [
+    'tracklist_per_page',
+    'tracklist_delay_minutes',
 ] as const;
 
 function onSubmit() {
@@ -202,6 +210,28 @@ function onSubmit() {
                             >
                                 <UInput
                                     v-model="form.max_pending_requests"
+                                    type="number"
+                                    min="0"
+                                    class="w-full"
+                                />
+                            </UFormField>
+                            <UFormField
+                                v-for="field in tracklistNumbers"
+                                :key="field"
+                                :label="
+                                    trans(`dj.request_settings.fields.${field}`)
+                                "
+                                :help="
+                                    field === 'tracklist_delay_minutes'
+                                        ? trans(
+                                              'dj.request_settings.fields.tracklist_delay_minutes_help',
+                                          )
+                                        : undefined
+                                "
+                                :error="form.errors[field]"
+                            >
+                                <UInput
+                                    v-model="form[field]"
                                     type="number"
                                     min="0"
                                     class="w-full"

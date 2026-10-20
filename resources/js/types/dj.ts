@@ -187,6 +187,9 @@ export type GigRequestSettingsData = {
     show_public_list?: boolean | null;
     allow_upvotes?: boolean | null;
     show_pass_labels?: boolean | null;
+    show_tracklist?: boolean | null;
+    tracklist_per_page?: number | null;
+    tracklist_delay_minutes?: number | null;
 };
 
 /** The DJ settings' request defaults, as the gig form shows them. */
@@ -200,6 +203,9 @@ export type RequestDefaults = {
     show_public_list: boolean;
     allow_upvotes: boolean;
     show_pass_labels: boolean;
+    show_tracklist: boolean;
+    tracklist_per_page: number;
+    tracklist_delay_minutes: number;
 };
 
 /** A gig, as returned by `GigResource`. */
@@ -374,6 +380,18 @@ export type PublicGigData = {
             token: string;
         };
     };
+    tracklist: {
+        enabled: boolean;
+        now_playing: PublicTrackData | null;
+    };
+};
+
+/** A track on a gig's public tracklist (`PublicTrackResource`). */
+export type PublicTrackData = {
+    id: number;
+    title: string;
+    artist: string | null;
+    played_at: string | null;
 };
 
 /** A request on a gig's public list, as returned by the public API. */

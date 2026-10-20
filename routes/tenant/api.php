@@ -9,6 +9,7 @@ use App\Http\Controllers\Tenant\Api\V1\Crm\FormController;
 use App\Http\Controllers\Tenant\Api\V1\Crm\FormSubmissionController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\GigController as DjGigController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\GigRequestController;
+use App\Http\Controllers\Tenant\Api\V1\Dj\GigTracklistController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\GuestSetlistController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\GuestSetlistItemController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\GuestTokenController;
@@ -67,6 +68,9 @@ Route::prefix('v1')
 
             // What a request form needs: the current gig or a given one (by its public ID), and library search
             Route::get('gigs/current', [DjGigController::class, 'current'])->name('gigs.current');
+            // What's playing now, and what played before it, when the gig shows its tracklist
+            Route::get('gigs/current/tracklist', [GigTracklistController::class, 'current'])->name('gigs.current.tracklist');
+            Route::get('gigs/{gig:public_id}/tracklist', [GigTracklistController::class, 'show'])->name('gigs.tracklist');
             Route::get('gigs/{gig:public_id}', [DjGigController::class, 'show'])->name('gigs.show');
             // The public request list, and upvoting a request on it
             Route::get('gigs/{gig:public_id}/requests', [GigRequestController::class, 'index'])->name('gigs.requests.index');

@@ -237,6 +237,9 @@ test('DJ settings can be changed', function () {
         'allow_upvotes' => false,
         'show_pass_labels' => true,
         'hosted_page_enabled' => false,
+        'show_tracklist' => true,
+        'tracklist_per_page' => 20,
+        'tracklist_delay_minutes' => 5,
     ])->assertRedirect(route('admin.dj.settings.edit'));
 
     $settings = app(DjSettings::class)->refresh();
@@ -246,7 +249,10 @@ test('DJ settings can be changed', function () {
         ->and($settings->max_pending_requests)->toBe(40)
         ->and($settings->allow_custom_requests)->toBeFalse()
         ->and($settings->show_pass_labels)->toBeTrue()
-        ->and($settings->hosted_page_enabled)->toBeFalse();
+        ->and($settings->hosted_page_enabled)->toBeFalse()
+        ->and($settings->show_tracklist)->toBeTrue()
+        ->and($settings->tracklist_per_page)->toBe(20)
+        ->and($settings->tracklist_delay_minutes)->toBe(5);
 
     $this->get(route('admin.dj.gigs.create'))->assertInertia(fn (Assert $page) => $page->where('defaultTimezone', 'Europe/Berlin'));
 

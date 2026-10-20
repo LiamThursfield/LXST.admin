@@ -66,7 +66,7 @@ class NowPlayingRecorder
             ]);
 
             $requestsPlayed = $this->markRequestsPlayed($gig, $report, $song);
-            $this->cache->refreshRequests($gig);
+            $this->cache->refreshGig($gig);
 
             return ['play' => $play, 'duplicate' => false, 'requests_played' => $requestsPlayed];
         });

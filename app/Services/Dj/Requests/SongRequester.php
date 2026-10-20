@@ -91,7 +91,7 @@ class SongRequester
                 'is_do_not_play' => $this->isDoNotPlay($gig, $song),
             ]);
             $this->votes->add($item, $request->visitor_hash, $request->guest_pass);
-            $this->cache->refreshRequests($gig);
+            $this->cache->refreshGig($gig);
 
             return ['outcome' => RequestOutcome::Accepted, 'item' => $item];
         });
