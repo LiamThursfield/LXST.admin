@@ -11,8 +11,8 @@ use Illuminate\Support\Str;
 
 /**
  * Caches DJ API responses by the DJ content version, for a short time, as what's current changes
- * with the clock (a gig starting, or its requests opening) as well as with admin changes. A gig's
- * request list also has its own version, as visitors' requests and votes change it.
+ * with the clock (a gig starting, or its requests opening) as well as with admin changes. Each gig
+ * also has its own version, as visitors' requests and votes, and the tracks played, change it.
  */
 class DjApiCache
 {
@@ -33,33 +33,33 @@ class DjApiCache
     }
 
     /**
-     * Like remember(), and also refreshed by refreshRequests() for the gig
+     * Like remember(), and also refreshed by refreshGig() for the gig
      *
      * @template TValue
      *
      * @param  Closure(): TValue  $build
      * @return TValue
      */
-    public function rememberRequests(Gig $gig, string $name, Closure $build): mixed
+    public function rememberForGig(Gig $gig, string $name, Closure $build): mixed
     {
-        return $this->remember("requests|{$gig->id}|{$this->requestsVersion($gig)}|{$name}", $build);
+        return $this->remember("gig|{$gig->id}|{$this->gigVersion($gig)}|{$name}", $build);
     }
 
     /**
-     * Marks the gig's cached request list as stale, after a new request or vote
+     * Marks the gig's cached responses as stale, after a new request, vote or play
      */
-    public function refreshRequests(Gig $gig): void
+    public function refreshGig(Gig $gig): void
     {
-        Cache::forever($this->requestsVersionKey($gig), (string) Str::ulid());
+        Cache::forever($this->gigVersionKey($gig), (string) Str::ulid());
     }
 
-    protected function requestsVersion(Gig $gig): string
+    protected function gigVersion(Gig $gig): string
     {
-        return Cache::rememberForever($this->requestsVersionKey($gig), fn () => (string) Str::ulid());
+        return Cache::rememberForever($this->gigVersionKey($gig), fn () => (string) Str::ulid());
     }
 
-    protected function requestsVersionKey(Gig $gig): string
+    protected function gigVersionKey(Gig $gig): string
     {
-        return "dj-api:requests-version:{$gig->id}";
+        return "dj-api:gig-version:{$gig->id}";
     }
 }

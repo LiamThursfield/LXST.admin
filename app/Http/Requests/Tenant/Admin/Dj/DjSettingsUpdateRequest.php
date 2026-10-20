@@ -37,6 +37,9 @@ class DjSettingsUpdateRequest extends FormRequest
             'allow_upvotes' => ['required', 'boolean'],
             'hosted_page_enabled' => ['required', 'boolean'],
             'show_pass_labels' => ['required', 'boolean'],
+            'show_tracklist' => ['required', 'boolean'],
+            'tracklist_per_page' => ['required', 'integer', 'min:1', 'max:50'],
+            'tracklist_delay_minutes' => ['required', 'integer', 'min:0', 'max:60'],
         ];
     }
 
@@ -51,6 +54,8 @@ class DjSettingsUpdateRequest extends FormRequest
             'requests_open_minutes_before' => __('dj.request_settings.fields.requests_open_minutes_before'),
             'max_requests_per_visitor' => __('dj.request_settings.fields.max_requests_per_visitor'),
             'max_pending_requests' => __('dj.request_settings.fields.max_pending_requests'),
+            'tracklist_per_page' => __('dj.request_settings.fields.tracklist_per_page'),
+            'tracklist_delay_minutes' => __('dj.request_settings.fields.tracklist_delay_minutes'),
         ];
     }
 }

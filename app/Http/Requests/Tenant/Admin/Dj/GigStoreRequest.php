@@ -49,6 +49,9 @@ class GigStoreRequest extends FormRequest
             'request_settings.show_public_list' => ['nullable', 'boolean'],
             'request_settings.allow_upvotes' => ['nullable', 'boolean'],
             'request_settings.show_pass_labels' => ['nullable', 'boolean'],
+            'request_settings.show_tracklist' => ['nullable', 'boolean'],
+            'request_settings.tracklist_per_page' => ['nullable', 'integer', 'min:1', 'max:50'],
+            'request_settings.tracklist_delay_minutes' => ['nullable', 'integer', 'min:0', 'max:60'],
         ];
     }
 
@@ -68,6 +71,8 @@ class GigStoreRequest extends FormRequest
             'request_settings.requests_open_minutes_before' => __('dj.request_settings.fields.requests_open_minutes_before'),
             'request_settings.max_requests_per_visitor' => __('dj.request_settings.fields.max_requests_per_visitor'),
             'request_settings.max_pending_requests' => __('dj.request_settings.fields.max_pending_requests'),
+            'request_settings.tracklist_per_page' => __('dj.request_settings.fields.tracklist_per_page'),
+            'request_settings.tracklist_delay_minutes' => __('dj.request_settings.fields.tracklist_delay_minutes'),
         ];
     }
 

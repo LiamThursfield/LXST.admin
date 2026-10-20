@@ -44,6 +44,15 @@ class DjSettings extends Settings
     /** Whether the public request list shows the guest pass that made each request */
     public bool $show_pass_labels;
 
+    /** Whether the gig's tracklist (now playing and recently played) is public */
+    public bool $show_tracklist;
+
+    /** How many tracks a page of the public tracklist shows */
+    public int $tracklist_per_page;
+
+    /** How long a track is held back from the public tracklist, e.g. to keep the next track a surprise */
+    public int $tracklist_delay_minutes;
+
     public static function group(): string
     {
         return 'dj';

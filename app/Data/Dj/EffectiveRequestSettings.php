@@ -22,5 +22,10 @@ class EffectiveRequestSettings extends Data
         public bool $allow_upvotes,
         /** Whether the public request list shows the guest pass that made each request */
         public bool $show_pass_labels,
+        /** Whether the gig's tracklist (now playing and recently played) is public */
+        public bool $show_tracklist,
+        public int $tracklist_per_page,
+        /** How long a track is held back from the public tracklist */
+        public int $tracklist_delay_minutes,
     ) {}
 }

@@ -116,6 +116,8 @@ return [
 
     'now_playing' => [
         'duplicate_minutes' => (int) env('DJ_NOW_PLAYING_DUPLICATE_MINUTES', 5),
+        // The latest track counts as playing now for this long after it started (#125)
+        'current_minutes' => (int) env('DJ_NOW_PLAYING_CURRENT_MINUTES', 15),
     ],
 
     'matching' => [

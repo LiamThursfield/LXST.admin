@@ -24,6 +24,9 @@ class GigRequestSettings extends Data
         public ?bool $show_public_list = null,
         public ?bool $allow_upvotes = null,
         public ?bool $show_pass_labels = null,
+        public ?bool $show_tracklist = null,
+        public ?int $tracklist_per_page = null,
+        public ?int $tracklist_delay_minutes = null,
     ) {}
 
     /**
@@ -40,6 +43,9 @@ class GigRequestSettings extends Data
             show_public_list: $this->show_public_list ?? $defaults->show_public_list,
             allow_upvotes: $this->allow_upvotes ?? $defaults->allow_upvotes,
             show_pass_labels: $this->show_pass_labels ?? $defaults->show_pass_labels,
+            show_tracklist: $this->show_tracklist ?? $defaults->show_tracklist,
+            tracklist_per_page: $this->tracklist_per_page ?? $defaults->tracklist_per_page,
+            tracklist_delay_minutes: $this->tracklist_delay_minutes ?? $defaults->tracklist_delay_minutes,
         );
     }
 }

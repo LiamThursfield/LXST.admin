@@ -9,6 +9,7 @@ import { index as searchTracks } from '@/actions/App/Http/Controllers/Tenant/Api
 import PublicLayout from '@/layouts/PublicLayout.vue';
 import { PublicApiError, publicApi, useGuestToken } from '@/lib/publicApi';
 import { formatDateTime } from '@/lib/timezone';
+import GigTracklist from '@/tenant/components/dj/public/GigTracklist.vue';
 import GuestPassForm from '@/tenant/components/dj/public/GuestPassForm.vue';
 import PublicRequestList from '@/tenant/components/dj/public/PublicRequestList.vue';
 import type { PublicGigData, PublicSongData } from '@/types';
@@ -191,6 +192,12 @@ function another() {
                     {{ formatDateTime(gig.starts_at, gig.timezone) }}
                 </p>
             </div>
+
+            <GigTracklist
+                v-if="gig.tracklist.enabled"
+                :gig-id="gig.id"
+                :timezone="gig.timezone"
+            />
 
             <GuestPassForm
                 v-if="needsPass && gig.requests.list_id"

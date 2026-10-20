@@ -93,4 +93,25 @@ class HistoryPlay extends Model
     {
         return $this->song ?? $this->track?->canonicalTrack;
     }
+
+    /**
+     * What was played: the library track's title, the song's, or what was reported live when
+     * neither matched. Expects `track` and `song` loaded.
+     */
+    public function displayTitle(): string
+    {
+        return $this->track->title ?? $this->song->title ?? $this->title ?? (string) $this->source_track_id;
+    }
+
+    /**
+     * Who by: as for displayTitle(). Expects `track.artist` and `song.artist` loaded.
+     */
+    public function displayArtist(): ?string
+    {
+        if ($this->track !== null) {
+            return $this->track->artist?->name;
+        }
+
+        return $this->song->artist->name ?? $this->artist;
+    }
 }

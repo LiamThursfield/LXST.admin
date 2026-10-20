@@ -4,6 +4,7 @@ namespace App\Http\Resources\Tenant\Api\V1\Dj;
 
 use App\Enums\Dj\RequestsMode;
 use App\Enums\Dj\SongListKind;
+use App\Http\Queries\Tenant\Api\V1\Dj\GigTracklistQuery;
 use App\Models\Dj\Gig;
 use App\Models\Dj\GuestPass;
 use Carbon\CarbonImmutable;
@@ -28,6 +29,7 @@ class PublicGigResource extends JsonResource
         $now = CarbonImmutable::now();
         $settings = $gig->requestSettings();
         $scheduled = $settings->requests_mode === RequestsMode::Scheduled;
+        $nowPlaying = $settings->show_tracklist ? app(GigTracklistQuery::class)->nowPlaying($gig, $settings) : null;
 
         return [
             'id' => $gig->public_id,
@@ -55,6 +57,11 @@ class PublicGigResource extends JsonResource
                 'max_requests_per_visitor' => $settings->max_requests_per_visitor,
                 'show_public_list' => $settings->show_public_list,
                 'allow_upvotes' => $settings->allow_upvotes,
+            ],
+            // What's playing now, when the gig shows its tracklist (#125); the rest is at /tracklist
+            'tracklist' => [
+                'enabled' => $settings->show_tracklist,
+                'now_playing' => $nowPlaying === null ? null : (new PublicTrackResource($nowPlaying))->resolve($request),
             ],
         ];
     }

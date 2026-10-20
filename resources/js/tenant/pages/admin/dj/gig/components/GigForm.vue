@@ -43,10 +43,13 @@ const form = useForm({
         ),
         max_requests_per_visitor: toNumber(overrides.max_requests_per_visitor),
         max_pending_requests: toNumber(overrides.max_pending_requests),
+        tracklist_per_page: toNumber(overrides.tracklist_per_page),
+        tracklist_delay_minutes: toNumber(overrides.tracklist_delay_minutes),
         allow_custom_requests: toChoice(overrides.allow_custom_requests),
         show_public_list: toChoice(overrides.show_public_list),
         allow_upvotes: toChoice(overrides.allow_upvotes),
         show_pass_labels: toChoice(overrides.show_pass_labels),
+        show_tracklist: toChoice(overrides.show_tracklist),
     },
 });
 
@@ -83,6 +86,12 @@ const toggles = [
     'show_public_list',
     'allow_upvotes',
     'show_pass_labels',
+    'show_tracklist',
+] as const;
+
+const tracklistNumbers = [
+    'tracklist_per_page',
+    'tracklist_delay_minutes',
 ] as const;
 
 const scheduled = computed(
@@ -113,12 +122,19 @@ function onSubmit() {
             max_pending_requests: number(
                 data.request_settings.max_pending_requests,
             ),
+            tracklist_per_page: number(
+                data.request_settings.tracklist_per_page,
+            ),
+            tracklist_delay_minutes: number(
+                data.request_settings.tracklist_delay_minutes,
+            ),
             allow_custom_requests: choice(
                 data.request_settings.allow_custom_requests,
             ),
             show_public_list: choice(data.request_settings.show_public_list),
             allow_upvotes: choice(data.request_settings.allow_upvotes),
             show_pass_labels: choice(data.request_settings.show_pass_labels),
+            show_tracklist: choice(data.request_settings.show_tracklist),
         },
     })).submit(props.gig ? update(props.gig.id) : store(), {
         preserveScroll: true,
@@ -288,6 +304,27 @@ function onSubmit() {
                         :placeholder="
                             withDefault(limit(defaults.max_pending_requests))
                         "
+                    />
+                </UFormField>
+                <UFormField
+                    v-for="field in tracklistNumbers"
+                    :key="field"
+                    :label="trans(`dj.request_settings.fields.${field}`)"
+                    :help="
+                        field === 'tracklist_delay_minutes'
+                            ? trans(
+                                  'dj.request_settings.fields.tracklist_delay_minutes_help',
+                              )
+                            : undefined
+                    "
+                    :error="form.errors[`request_settings.${field}`]"
+                >
+                    <UInput
+                        v-model="form.request_settings[field]"
+                        type="number"
+                        min="0"
+                        class="w-full"
+                        :placeholder="withDefault(String(defaults[field]))"
                     />
                 </UFormField>
                 <UFormField

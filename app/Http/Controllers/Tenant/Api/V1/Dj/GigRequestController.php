@@ -47,7 +47,7 @@ class GigRequestController extends Controller
         $this->access->ensureAllowed($gig, $this->access->pass($request, $gig));
 
         /** @var array{requests: list<array<string, mixed>>, played: list<array<string, mixed>>} $list */
-        $list = $this->cache->rememberRequests($gig, 'list', fn (): array => $this->list($gig, $settings));
+        $list = $this->cache->rememberForGig($gig, 'list', fn (): array => $this->list($gig, $settings));
 
         $visitorHash = $request->visitorHash($gig->starts_at);
         $voted = $visitorHash === null ? [] : SongListItemVote::query()
