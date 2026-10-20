@@ -170,6 +170,7 @@ return [
     'history_source' => [
         'import' => 'Imported',
         'manual' => 'Added by hand',
+        'cli' => 'Live',
     ],
 
     'tenant_module' => [

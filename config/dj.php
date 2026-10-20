@@ -103,6 +103,21 @@ return [
         'lockout_minutes' => (int) env('DJ_GUEST_PASS_LOCKOUT_MINUTES', 15),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Now Playing
+    |--------------------------------------------------------------------------
+    |
+    | The CLI tool reports each track as it's played. The same track reported
+    | again within `duplicate_minutes` is ignored, so retries and both decks
+    | reporting don't add it twice.
+    |
+    */
+
+    'now_playing' => [
+        'duplicate_minutes' => (int) env('DJ_NOW_PLAYING_DUPLICATE_MINUTES', 5),
+    ],
+
     'matching' => [
         'suggestion_threshold' => (float) env('DJ_MATCHING_SUGGESTION_THRESHOLD', 0.85),
     ],

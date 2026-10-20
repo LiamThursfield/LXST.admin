@@ -16,4 +16,7 @@ enum HistorySource: string
 
     /** Plays added by hand to a gig, e.g. for gigs played on other gear */
     case Manual = 'manual';
+
+    /** Plays reported live by the Rekordbox CLI tool during a gig (#124) */
+    case Cli = 'cli';
 }

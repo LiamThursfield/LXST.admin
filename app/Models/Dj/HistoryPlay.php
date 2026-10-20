@@ -14,8 +14,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $history_session_id
  * @property int|null $library_track_id
- * @property int|null $canonical_track_id For plays added by hand, which name a song
+ * @property int|null $canonical_track_id The song, for plays added by hand or reported live
  * @property string|null $source_track_id Kept in case the track arrives in a later import
+ * @property string|null $artist As reported live, for plays that don't match a library track
+ * @property string|null $title As reported live, for plays that don't match a library track
  * @property int $position
  * @property CarbonImmutable|null $played_at (UTC)
  * @property CarbonImmutable $created_at
@@ -41,6 +43,8 @@ class HistoryPlay extends Model
         'library_track_id',
         'canonical_track_id',
         'source_track_id',
+        'artist',
+        'title',
         'position',
         'played_at',
     ];
