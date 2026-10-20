@@ -91,6 +91,8 @@ return [
         'gig_name' => 'Set on :date',
         'manual_session' => 'Added by hand',
         'live_session' => 'Live from Rekordbox',
+        'superseded' => 'Covered by the import',
+        'superseded_help' => 'An imported session covers this time, so these live plays aren\'t listed or counted again. Unlink the import to bring them back.',
         'filters' => [
             'linked' => 'Linked to a gig',
             'unlinked' => 'Not linked',
@@ -110,6 +112,7 @@ return [
             'links' => 'Played during a gig',
             'create_gig' => 'Create gig',
             'link' => 'Link to :gig',
+            'has_live_plays' => 'The gig has live plays for this time; linking hides them, so the set isn\'t listed twice.',
             'none' => 'Nothing to suggest.',
             'sessions' => ':count session|:count sessions',
             'show_all' => 'Show all :count',

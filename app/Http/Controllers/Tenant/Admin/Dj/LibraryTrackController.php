@@ -68,8 +68,8 @@ class LibraryTrackController extends Controller
             'tags',
             'canonicalTrack.artist',
             'canonicalTrack.libraryTracks.library',
-            'historyPlays' => fn ($plays) => $plays->with('session')->limit(50),
-        ])->loadCount('historyPlays');
+            'historyPlays' => fn ($plays) => $plays->counted()->with('session')->limit(50),
+        ])->loadCount(['historyPlays' => fn ($plays) => $plays->counted()]);
 
         return Inertia::render('admin/dj/track/Show', [
             'track' => new LibraryTrackDetailResource($track),

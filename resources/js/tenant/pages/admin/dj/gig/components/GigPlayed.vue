@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Link, useForm, useHttp } from '@inertiajs/vue3';
+// Imported explicitly, as the generated component types don't include UTooltip
+import UTooltip from '@nuxt/ui/components/Tooltip.vue';
 import { search as searchSongs } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/CanonicalTrackController';
 import {
     destroy as destroyPlay,
@@ -150,6 +152,19 @@ function add() {
                                 )
                             }}
                         </span>
+                        <UTooltip
+                            v-if="session.is_superseded"
+                            :text="trans('dj.history.superseded_help')"
+                        >
+                            <UBadge
+                                color="neutral"
+                                variant="subtle"
+                                size="sm"
+                                class="ms-1"
+                            >
+                                {{ trans('dj.history.superseded') }}
+                            </UBadge>
+                        </UTooltip>
                     </span>
                     <UButton
                         v-if="session.source !== 'manual'"

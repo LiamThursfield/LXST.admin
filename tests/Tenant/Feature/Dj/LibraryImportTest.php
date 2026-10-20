@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Dj\HistorySource;
 use App\Enums\Dj\ImportStatus;
 use App\Enums\Dj\LibrarySource;
 use App\Enums\Dj\MusicalKey;
@@ -135,6 +136,25 @@ test('short sessions are left out of stats, and a re-import keeps gig links and 
 
     expect(HistorySession::sole())->gig_id->toBe($gig->id)->include_in_stats->toBeTrue()
         ->and(HistorySession::sole()->plays()->count())->toBe(2);
+});
+
+test('a re-import works out again whether the gig\'s live session is covered by the imported one', function () {
+    runImport($this, $this->sampleRekordboxLibrary());
+    $gig = Gig::factory()->create(['starts_at' => '2025-09-26 17:00', 'ends_at' => '2025-09-26 23:00']);
+    HistorySession::sole()->update(['gig_id' => $gig->id]);
+    $live = HistorySession::factory()->create([
+        'gig_id' => $gig->id,
+        'source' => HistorySource::Cli,
+        'library_id' => null,
+        'started_at' => '2025-09-26 18:00',
+        'ended_at' => '2025-09-26 18:04',
+    ]);
+
+    expect($live->fresh()->is_superseded)->toBeFalse();
+
+    runImport($this, $this->sampleRekordboxLibrary());
+
+    expect($live->fresh()->is_superseded)->toBeTrue();
 });
 
 test('re-importing updates rather than duplicates, and reports what changed', function () {

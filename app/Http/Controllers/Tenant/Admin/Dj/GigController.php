@@ -95,10 +95,11 @@ class GigController extends Controller
             'requestPasses' => fn () => $request->user()?->can('create', [GuestPass::class, new SongList(['kind' => SongListKind::Requests])])
                 ? GuestPassResource::collection($gig->requestsList?->guestPasses()->withCount('items')->oldest()->get() ?? [])
                 : null,
-            // What was played: the plays of the sessions linked to this gig, in time order
+            // What was played: the plays of the sessions linked to this gig, in time order, leaving
+            // out a live session an import covers (#159)
             'played' => PlayedTrackResource::collection(
                 HistoryPlay::query()
-                    ->whereHas('session', fn ($sessions) => $sessions->where('gig_id', $gig->id))
+                    ->whereHas('session', fn ($sessions) => $sessions->where('gig_id', $gig->id)->counted())
                     ->with(['session', 'song.artist', 'track.artist', 'track.canonicalTrack'])
                     ->orderBy('played_at')
                     ->orderBy('position')

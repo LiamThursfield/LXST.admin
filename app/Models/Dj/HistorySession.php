@@ -5,6 +5,7 @@ namespace App\Models\Dj;
 use App\Enums\Dj\HistorySource;
 use Carbon\CarbonImmutable;
 use Database\Factories\Dj\HistorySessionFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $gig_id
  * @property HistorySource $source
  * @property bool $include_in_stats
+ * @property bool $is_superseded A live session covered by an imported one on the same gig, so its plays aren't listed or counted twice
  * @property string|null $source_history_id The session's ID in the source, unique per library
  * @property string $name e.g. "HISTORY 2025-12-05 (1)"
  * @property CarbonImmutable|null $started_at The first play (UTC)
@@ -47,6 +49,7 @@ class HistorySession extends Model
         'gig_id',
         'source',
         'include_in_stats',
+        'is_superseded',
         'source_history_id',
         'name',
         'started_at',
@@ -61,6 +64,7 @@ class HistorySession extends Model
         return [
             'source' => HistorySource::class,
             'include_in_stats' => 'boolean',
+            'is_superseded' => 'boolean',
             'started_at' => 'datetime',
             'ended_at' => 'datetime',
         ];
@@ -88,5 +92,15 @@ class HistorySession extends Model
     public function plays(): HasMany
     {
         return $this->hasMany(HistoryPlay::class)->orderBy('position');
+    }
+
+    /**
+     * Sessions whose plays count as what was played: all but live sessions covered by an import
+     *
+     * @param  Builder<HistorySession>  $query
+     */
+    public function scopeCounted(Builder $query): void
+    {
+        $query->where('is_superseded', false);
     }
 }

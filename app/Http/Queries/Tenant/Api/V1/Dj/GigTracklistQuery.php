@@ -11,7 +11,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * What a gig played, newest first, from all the history linked to it (live, imported and added by
- * hand, #118), held back by the gig's tracklist delay
+ * hand, #118), leaving out a live session an import covers (#159), held back by the gig's tracklist delay
  */
 class GigTracklistQuery
 {
@@ -49,7 +49,7 @@ class GigTracklistQuery
     protected function plays(Gig $gig, EffectiveRequestSettings $settings): Builder
     {
         return HistoryPlay::query()
-            ->whereHas('session', fn (Builder $sessions) => $sessions->where('gig_id', $gig->id))
+            ->whereHas('session', fn (Builder $sessions) => $sessions->where('gig_id', $gig->id)->counted())
             ->whereNotNull('played_at')
             ->where('played_at', '<=', CarbonImmutable::now()->subMinutes($settings->tracklist_delay_minutes));
     }

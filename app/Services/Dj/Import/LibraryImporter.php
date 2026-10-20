@@ -10,6 +10,7 @@ use App\Models\Dj\LibraryArtist;
 use App\Models\Dj\LibraryTag;
 use App\Models\Dj\LibraryTrack;
 use App\Services\Dj\Import\Data\TrackData;
+use App\Services\Dj\LiveHistoryCover;
 use App\Services\Dj\Matching\CanonicalMatcher;
 use Carbon\CarbonImmutable;
 use Closure;
@@ -23,7 +24,10 @@ use Illuminate\Support\Facades\DB;
  */
 class LibraryImporter
 {
-    public function __construct(protected CanonicalMatcher $matcher) {}
+    public function __construct(
+        protected CanonicalMatcher $matcher,
+        protected LiveHistoryCover $cover,
+    ) {}
 
     /** @var array<string, int> */
     protected array $counts = [];
@@ -219,6 +223,8 @@ class LibraryImporter
     {
         $trackIds = $library->tracks()->pluck('id', 'source_track_id');
 
+        $gigIds = [];
+
         foreach ($source->historySessions() as $data) {
             if ($data->plays === []) {
                 continue;
@@ -226,7 +232,7 @@ class LibraryImporter
 
             $playedAt = array_filter(array_column($data->plays, 'played_at'));
 
-            DB::transaction(function () use ($library, $data, $playedAt, $trackIds) {
+            DB::transaction(function () use ($library, $data, $playedAt, $trackIds, &$gigIds) {
                 $session = HistorySession::query()->firstOrNew(
                     ['library_id' => $library->id, 'source_history_id' => $data->sourceHistoryId],
                 );
@@ -242,6 +248,7 @@ class LibraryImporter
                     'ended_at' => $playedAt === [] ? null : max($playedAt),
                 ])->save();
 
+                $gigIds[] = $session->gig_id;
                 $session->plays()->delete();
 
                 $now = CarbonImmutable::now();
@@ -260,5 +267,8 @@ class LibraryImporter
             $this->counts['history_sessions']++;
             $this->counts['history_plays'] += count($data->plays);
         }
+
+        // A re-import can change the times of sessions linked to gigs, and so which live sessions they cover (#159)
+        $this->cover->refresh($gigIds);
     }
 }
