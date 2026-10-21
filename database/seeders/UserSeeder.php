@@ -14,6 +14,13 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        // Safe to re-run: the bulk users are only made once, alongside the role users
+        if (User::query()->whereNotIn('email', RoleUserSeeder::emails())->exists()) {
+            $this->command?->warn('Users already exist; skipping.');
+
+            return;
+        }
+
         foreach (RoleEnum::cases() as $roleEnum) {
             $role = Role::findByName($roleEnum->value);
 

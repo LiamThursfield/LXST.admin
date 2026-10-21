@@ -4,6 +4,8 @@ namespace App\Models\Dj;
 
 use App\Enums\Dj\CanonicalRecord;
 use Carbon\CarbonImmutable;
+use Database\Factories\Dj\MatchDismissalFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -19,6 +21,9 @@ use Illuminate\Database\Eloquent\Model;
  */
 class MatchDismissal extends Model
 {
+    /** @use HasFactory<MatchDismissalFactory> */
+    use HasFactory;
+
     protected $table = 'dj_match_dismissals';
 
     /**

@@ -6,6 +6,8 @@ use App\Enums\Dj\CanonicalRecord;
 use App\Enums\Dj\MergeAction;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Database\Factories\Dj\CanonicalMergeFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -27,6 +29,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class CanonicalMerge extends Model
 {
+    /** @use HasFactory<CanonicalMergeFactory> */
+    use HasFactory;
+
     protected $table = 'dj_canonical_merges';
 
     /**
