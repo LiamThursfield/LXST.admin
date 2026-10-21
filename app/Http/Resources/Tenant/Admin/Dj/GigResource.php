@@ -35,6 +35,11 @@ class GigResource extends JsonResource
                 ->icon('i-lucide-pencil');
         }
 
+        if ($user?->can('viewStats', $gig)) {
+            $actions[] = Action::make(__('dj.stats.title'), route('admin.dj.gigs.stats', $gig))
+                ->icon('i-lucide-chart-line');
+        }
+
         if ($user?->can('delete', $gig)) {
             $actions[] = Action::make(__('common.actions.delete'), route('admin.dj.gigs.destroy', $gig))
                 ->icon('i-lucide-trash')

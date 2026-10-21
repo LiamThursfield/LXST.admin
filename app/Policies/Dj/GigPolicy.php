@@ -41,6 +41,14 @@ class GigPolicy
     }
 
     /**
+     * Whether the user can see the given gig's stats (#126).
+     */
+    public function viewStats(User $user, Gig $gig): bool
+    {
+        return $user->can(DjPermission::ViewStats);
+    }
+
+    /**
      * Whether the user can delete the given gig.
      */
     public function delete(User $user, Gig $gig): bool
