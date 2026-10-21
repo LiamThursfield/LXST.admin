@@ -40,6 +40,7 @@ return [
     'setlists' => 'Setlists',
     'history' => 'History',
     'requests' => 'Requests',
+    'annual_drop' => 'The Annual Drop',
     'dj_settings' => 'Settings',
     'library' => 'Library',
     'songs' => 'Songs',

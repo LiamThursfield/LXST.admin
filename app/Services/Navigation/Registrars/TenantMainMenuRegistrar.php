@@ -334,6 +334,15 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         activePatterns: ['admin.dj.history.*'],
                     ))->gate(DjPermission::ViewGigs),
                     (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_ANNUAL_DROP,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_ANNUAL_DROP]),
+                        label: 'navigation.annual_drop',
+                        type: MenuItemType::LINK,
+                        to: 'admin.dj.annual-drop',
+                        icon: 'i-lucide-sparkles',
+                        activePatterns: ['admin.dj.annual-drop'],
+                    ))->gate(DjPermission::ViewStats),
+                    (new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_SETTINGS,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_SETTINGS]),
                         label: 'navigation.dj_settings',

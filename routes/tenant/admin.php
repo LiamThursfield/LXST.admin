@@ -14,6 +14,7 @@ use App\Http\Controllers\Tenant\Admin\Crm\FormSubmissionController;
 use App\Http\Controllers\Tenant\Admin\Crm\FormSubmissionSpamController;
 use App\Http\Controllers\Tenant\Admin\Crm\OrganisationUnitController;
 use App\Http\Controllers\Tenant\Admin\DashboardController;
+use App\Http\Controllers\Tenant\Admin\Dj\AnnualDropController;
 use App\Http\Controllers\Tenant\Admin\Dj\CanonicalArtistController;
 use App\Http\Controllers\Tenant\Admin\Dj\CanonicalMergeController;
 use App\Http\Controllers\Tenant\Admin\Dj\CanonicalTrackController;
@@ -129,6 +130,7 @@ Route::name('dj.')->prefix('dj')->middleware(['tenant.module:dj', 'content.chang
     Route::patch('requests/{item}/status', [RequestQueueController::class, 'updateStatus'])->name('requests.status');
     Route::patch('gigs/{gig}/requests-mode', [RequestQueueController::class, 'updateMode'])->name('gigs.requests-mode');
     Route::get('history', [HistoryController::class, 'index'])->name('history.index');
+    Route::get('annual-drop', [AnnualDropController::class, 'index'])->name('annual-drop');
     Route::post('history/bulk/link', [HistoryBulkController::class, 'link'])->name('history.bulk.link');
     Route::post('history/bulk/create-gig', [HistoryBulkController::class, 'createGig'])->name('history.bulk.create-gig');
     Route::post('history/bulk/unlink', [HistoryBulkController::class, 'unlink'])->name('history.bulk.unlink');
