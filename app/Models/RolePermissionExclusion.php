@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Database\Factories\RolePermissionExclusionFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Permission\Models\Permission;
@@ -12,6 +14,9 @@ use Spatie\Permission\Models\Role;
  */
 class RolePermissionExclusion extends Model
 {
+    /** @use HasFactory<RolePermissionExclusionFactory> */
+    use HasFactory;
+
     /**
      * The attributes that are mass assignable.
      *

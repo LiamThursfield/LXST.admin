@@ -4,7 +4,9 @@ namespace App\Models\Cms;
 
 use App\Enums\Cms\PublishStatus;
 use Carbon\CarbonImmutable;
+use Database\Factories\Cms\UrlFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
@@ -24,6 +26,9 @@ use Illuminate\Support\Carbon;
  */
 class Url extends Model
 {
+    /** @use HasFactory<UrlFactory> */
+    use HasFactory;
+
     protected $table = 'cms_urls';
 
     /**

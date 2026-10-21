@@ -3,6 +3,8 @@
 namespace App\Models\Dj;
 
 use Carbon\CarbonImmutable;
+use Database\Factories\Dj\SongListItemVoteFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -18,6 +20,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class SongListItemVote extends Model
 {
+    /** @use HasFactory<SongListItemVoteFactory> */
+    use HasFactory;
+
     public const ?string UPDATED_AT = null;
 
     protected $table = 'dj_song_list_item_votes';
