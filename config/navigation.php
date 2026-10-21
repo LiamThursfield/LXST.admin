@@ -104,6 +104,7 @@ return [
                 TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_GIGS => ['sortOrder' => 5],
                 TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_SETLISTS => ['sortOrder' => 6],
                 TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_HISTORY => ['sortOrder' => 7],
+                TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_ANNUAL_DROP => ['sortOrder' => 8],
                 TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_SETTINGS => ['sortOrder' => 90],
                 TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY => [
                     'sortOrder' => 10,
