@@ -7,9 +7,9 @@ use App\Models\Cms\Metadata;
 use App\Models\Cms\Page;
 use App\Models\User;
 use App\Support\UI\Action;
+use Carbon\CarbonInterface;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Carbon;
 
 class PageResource extends JsonResource
 {
@@ -90,7 +90,7 @@ class PageResource extends JsonResource
         ]);
     }
 
-    protected function localInput(?Carbon $date, Request $request): ?string
+    protected function localInput(?CarbonInterface $date, Request $request): ?string
     {
         $user = $request->user();
 

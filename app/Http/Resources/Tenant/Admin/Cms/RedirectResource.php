@@ -6,9 +6,9 @@ use App\Http\Resources\Traits\HasActions;
 use App\Models\Cms\Redirect;
 use App\Models\User;
 use App\Support\UI\Action;
+use Carbon\CarbonInterface;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Carbon;
 
 class RedirectResource extends JsonResource
 {
@@ -68,7 +68,7 @@ class RedirectResource extends JsonResource
         ]);
     }
 
-    protected function localInput(?Carbon $date, Request $request): ?string
+    protected function localInput(?CarbonInterface $date, Request $request): ?string
     {
         $user = $request->user();
 

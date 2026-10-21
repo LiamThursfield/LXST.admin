@@ -42,11 +42,16 @@ class TenantDatabaseSeeder extends Seeder
             $this->call(CrmSeeder::class);
         }
 
+        // After the CRM, as pages can show its forms and offices
+        if ($tenant->hasModule(TenantModule::Cms)) {
+            $this->call(CmsSeeder::class);
+        }
+
         if ($tenant->hasModule(TenantModule::Tracker)) {
             // Tracker data belongs to a user: the admin, so it's there when signing in as them
             $this->callWith(TrackerSeeder::class, ['user' => RoleUserSeeder::userFor(RoleEnum::Admin)]);
         }
 
-        // The CMS (#166), DJ (#167), File Manager and settings (#168) seeders are added here as they're built
+        // The DJ (#167), File Manager and settings (#168) seeders are added here as they're built
     }
 }
