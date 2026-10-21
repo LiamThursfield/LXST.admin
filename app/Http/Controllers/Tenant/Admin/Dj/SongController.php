@@ -61,7 +61,7 @@ class SongController extends Controller
         $song->load(['artist', 'libraryTracks' => fn ($tracks) => $tracks->with(['library', 'artist'])->orderBy('title')]);
         $trackIds = $song->libraryTracks->modelKeys();
 
-        $plays = HistoryPlay::query()->whereIn('library_track_id', $trackIds);
+        $plays = HistoryPlay::query()->counted()->whereIn('library_track_id', $trackIds);
 
         return Inertia::render('admin/dj/song/Show', [
             'song' => [

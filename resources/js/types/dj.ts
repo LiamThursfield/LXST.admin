@@ -277,12 +277,14 @@ export type SetlistItemData = {
 export type HistorySessionData = {
     id: number;
     name: string;
-    source: 'import' | 'manual';
+    source: 'import' | 'manual' | 'cli';
     library: string | null;
     started_at: string | null;
     ended_at: string | null;
     plays_count: number;
     include_in_stats: boolean;
+    /** A live session an imported one covers, whose plays aren't listed or counted. */
+    is_superseded: boolean;
     gig: { id: number; name: string; url: string } | null;
     url: string;
 };

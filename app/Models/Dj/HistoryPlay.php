@@ -4,6 +4,7 @@ namespace App\Models\Dj;
 
 use Carbon\CarbonImmutable;
 use Database\Factories\Dj\HistoryPlayFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -92,6 +93,17 @@ class HistoryPlay extends Model
     public function playedSong(): ?CanonicalTrack
     {
         return $this->song ?? $this->track?->canonicalTrack;
+    }
+
+    /**
+     * Plays that count as what was played, leaving out those in a live session covered by an
+     * import (#159)
+     *
+     * @param  Builder<HistoryPlay>  $query
+     */
+    public function scopeCounted(Builder $query): void
+    {
+        $query->whereHas('session', fn (Builder $sessions) => $sessions->where('is_superseded', false));
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant\Admin\Dj;
 
+use App\Enums\Dj\HistorySource;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Tenant\Admin\Dj\HistorySessionResource;
 use App\Http\Resources\Tenant\Admin\Dj\PlayedTrackResource;
@@ -59,7 +60,12 @@ class HistoryController extends Controller
             ])),
             'suggestedLinks' => Inertia::defer(fn () => $linker->suggestedLinks()->map(fn (array $suggestion) => [
                 'session' => (new HistorySessionResource($suggestion['session']))->resolve(),
-                'gig' => ['id' => $suggestion['gig']->id, 'name' => $suggestion['gig']->name],
+                'gig' => [
+                    'id' => $suggestion['gig']->id,
+                    'name' => $suggestion['gig']->name,
+                    // Linking an import hides the gig's live plays for that time, so the set isn't listed twice (#159)
+                    'has_live_plays' => $suggestion['gig']->historySessions()->where('source', HistorySource::Cli)->exists(),
+                ],
             ])),
             'gigs' => Gig::selectItems(),
             'timezone' => $settings->default_timezone,

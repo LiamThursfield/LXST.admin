@@ -19,14 +19,20 @@ use Illuminate\Support\Facades\DB;
  */
 class HistoryLinker
 {
-    public function __construct(protected DjSettings $settings) {}
+    public function __construct(
+        protected DjSettings $settings,
+        protected LiveHistoryCover $cover,
+    ) {}
 
     /**
      * @param  Collection<int, HistorySession>  $sessions
      */
     public function link(Collection $sessions, Gig $gig): void
     {
+        $affectedGigIds = [$gig->id, ...$this->gigIds($sessions)];
+
         HistorySession::query()->whereKey($sessions->modelKeys())->update(['gig_id' => $gig->id]);
+        $this->cover->refresh($affectedGigIds);
     }
 
     /**
@@ -34,7 +40,10 @@ class HistoryLinker
      */
     public function unlink(Collection $sessions): void
     {
+        $affectedGigIds = $this->gigIds($sessions);
+
         HistorySession::query()->whereKey($sessions->modelKeys())->update(['gig_id' => null]);
+        $this->cover->refresh($affectedGigIds);
     }
 
     /**
@@ -207,6 +216,17 @@ class HistoryLinker
         $endedAt = $session->ended_at ?? $startedAt->addMinute();
 
         return $gigs->first(fn (Gig $gig) => $gig->starts_at->lessThan($endedAt) && $gig->ends_at->greaterThan($startedAt));
+    }
+
+    /**
+     * The gigs the sessions are linked to now, from the database rather than the models, which can be stale
+     *
+     * @param  Collection<int, HistorySession>  $sessions
+     * @return list<int>
+     */
+    protected function gigIds(Collection $sessions): array
+    {
+        return array_values(HistorySession::query()->whereKey($sessions->modelKeys())->whereNotNull('gig_id')->distinct()->pluck('gig_id')->all());
     }
 
     protected function refreshTimes(HistorySession $session): void

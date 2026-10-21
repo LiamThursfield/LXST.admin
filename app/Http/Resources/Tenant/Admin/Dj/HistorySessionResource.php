@@ -31,6 +31,8 @@ class HistorySessionResource extends JsonResource
             'ended_at' => $session->ended_at?->toIso8601String(),
             'plays_count' => (int) $session->getAttribute('plays_count'),
             'include_in_stats' => $session->include_in_stats,
+            // A live session an imported one covers, whose plays aren't listed or counted (#159)
+            'is_superseded' => $session->is_superseded,
             'gig' => $gig === null ? null : ['id' => $gig->id, 'name' => $gig->name, 'url' => route('admin.dj.gigs.edit', $gig)],
             'url' => route('admin.dj.history.show', $session),
         ];

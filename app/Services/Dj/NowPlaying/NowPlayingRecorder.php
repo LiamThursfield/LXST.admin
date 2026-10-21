@@ -13,6 +13,7 @@ use App\Models\Dj\HistorySession;
 use App\Models\Dj\LibraryTrack;
 use App\Models\Dj\SongListItem;
 use App\Services\Dj\Api\DjApiCache;
+use App\Services\Dj\LiveHistoryCover;
 use App\Services\Dj\Matching\TrackNormaliser;
 use App\Services\Dj\Requests\SongKeys;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +28,7 @@ class NowPlayingRecorder
         protected TrackNormaliser $normaliser,
         protected SongKeys $keys,
         protected DjApiCache $cache,
+        protected LiveHistoryCover $cover,
     ) {}
 
     /**
@@ -65,6 +67,8 @@ class NowPlayingRecorder
                 'ended_at' => $session->plays()->max('played_at'),
             ]);
 
+            // A live session can start (or grow) into a time an imported session already covers
+            $this->cover->refresh([$gig->id]);
             $requestsPlayed = $this->markRequestsPlayed($gig, $report, $song);
             $this->cache->refreshGig($gig);
 

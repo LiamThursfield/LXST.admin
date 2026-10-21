@@ -33,7 +33,7 @@ const props = defineProps<{
     suggestedGigs?: SuggestedGig[];
     suggestedLinks?: Array<{
         session: HistorySessionData;
-        gig: { id: number; name: string };
+        gig: { id: number; name: string; has_live_plays: boolean };
     }>;
     gigs: SelectItem[];
     timezone: string;
@@ -232,6 +232,16 @@ function openCreate(ids: number[]) {
                                                     'dj.history.plays',
                                                     suggestion.session
                                                         .plays_count,
+                                                )
+                                            }}
+                                        </span>
+                                        <span
+                                            v-if="suggestion.gig.has_live_plays"
+                                            class="text-muted text-xs"
+                                        >
+                                            {{
+                                                trans(
+                                                    'dj.history.suggestions.has_live_plays',
                                                 )
                                             }}
                                         </span>

@@ -43,6 +43,8 @@ return [
     'history' => [
         'min_plays_for_stats' => (int) env('DJ_HISTORY_MIN_PLAYS_FOR_STATS', 5),
         'gig_gap_minutes' => (int) env('DJ_HISTORY_GIG_GAP_MINUTES', 60),
+        // A gig's live session is covered by an imported one within this many minutes of it (#159)
+        'live_overlap_minutes' => (int) env('DJ_HISTORY_LIVE_OVERLAP_MINUTES', 10),
     ],
 
     /*
