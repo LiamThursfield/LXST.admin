@@ -22,6 +22,7 @@ use App\Http\Controllers\Tenant\Admin\Dj\GigController;
 use App\Http\Controllers\Tenant\Admin\Dj\GigPinController;
 use App\Http\Controllers\Tenant\Admin\Dj\GigPlayController;
 use App\Http\Controllers\Tenant\Admin\Dj\GigQrCodeController;
+use App\Http\Controllers\Tenant\Admin\Dj\GigStatsController;
 use App\Http\Controllers\Tenant\Admin\Dj\GuestPassController;
 use App\Http\Controllers\Tenant\Admin\Dj\HistoryBulkController;
 use App\Http\Controllers\Tenant\Admin\Dj\HistoryController;
@@ -117,6 +118,7 @@ Route::name('dj.')->prefix('dj')->middleware(['tenant.module:dj', 'content.chang
     Route::post('gigs/{gig}/pin', [GigPinController::class, 'store'])->name('gigs.pin');
     Route::delete('gigs/{gig}/pin', [GigPinController::class, 'destroy'])->name('gigs.unpin');
     Route::get('gigs/{gig}/qr-code', [GigQrCodeController::class, 'show'])->name('gigs.qr-code');
+    Route::get('gigs/{gig}/stats', [GigStatsController::class, 'show'])->name('gigs.stats');
     Route::post('gigs/{gig}/plays', [GigPlayController::class, 'store'])->name('gigs.plays.store');
     Route::delete('gigs/{gig}/plays/{play}', [GigPlayController::class, 'destroy'])->name('gigs.plays.destroy');
 

@@ -6,6 +6,7 @@ import {
     store as pin,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/GigPinController';
 import { show as qrCode } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/GigQrCodeController';
+import { show as stats } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/GigStatsController';
 import { storeForGig as storeGuestPass } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/GuestPassController';
 import { store as storeSetlist } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/SetlistController';
 import GuestPassesCard from '@/tenant/components/dj/GuestPassesCard.vue';
@@ -35,6 +36,7 @@ const props = defineProps<{
     played: { data: PlayedTrackData[] };
     linkedSessions: { data: HistorySessionData[] };
     requestPasses?: { data: GuestPassData[] } | null;
+    canViewStats: boolean;
 }>();
 
 const { trans } = useTrans();
@@ -82,6 +84,15 @@ function newSetlist() {
                     <UDashboardSidebarCollapse as="button" :disabled="false" />
                 </template>
                 <template #right>
+                    <UButton
+                        v-if="canViewStats"
+                        as="Link"
+                        :href="stats.url(gig.id)"
+                        color="neutral"
+                        variant="ghost"
+                        icon="i-lucide-chart-line"
+                        :label="trans('dj.stats.title')"
+                    />
                     <UButton
                         color="neutral"
                         variant="outline"

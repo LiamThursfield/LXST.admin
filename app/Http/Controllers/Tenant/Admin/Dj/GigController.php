@@ -91,6 +91,7 @@ class GigController extends Controller
                     'url' => route('admin.dj.setlists.show', $setlist),
                 ]),
             'canCreateSetlist' => $request->user()?->can('create', SongList::class) ?? false,
+            'canViewStats' => $request->user()?->can('viewStats', $gig) ?? false,
             // Passes a guest needs to submit requests; with none, requests are open to anyone
             'requestPasses' => fn () => $request->user()?->can('create', [GuestPass::class, new SongList(['kind' => SongListKind::Requests])])
                 ? GuestPassResource::collection($gig->requestsList?->guestPasses()->withCount('items')->oldest()->get() ?? [])
