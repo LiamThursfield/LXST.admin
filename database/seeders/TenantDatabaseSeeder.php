@@ -52,6 +52,10 @@ class TenantDatabaseSeeder extends Seeder
             $this->callWith(TrackerSeeder::class, ['user' => RoleUserSeeder::userFor(RoleEnum::Admin)]);
         }
 
-        // The DJ (#167), File Manager and settings (#168) seeders are added here as they're built
+        if ($tenant->hasModule(TenantModule::Dj)) {
+            $this->call(DjSeeder::class);
+        }
+
+        // The File Manager and settings (#168) seeders are added here as they're built
     }
 }
