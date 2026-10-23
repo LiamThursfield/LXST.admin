@@ -20,6 +20,7 @@ use App\Models\Dj\LibraryTrack;
 use App\Models\Dj\MatchDismissal;
 use App\Models\Dj\SongList;
 use App\Models\Dj\SongListItem;
+use App\Models\Settings\DjSettings;
 use App\Services\Authorisation\Enums\DjPermission;
 use App\Services\Dj\CurrentGig;
 use App\Services\Dj\HistoryLinker;
@@ -62,6 +63,14 @@ test('the DJ seeder leaves match suggestions to review, and logs a dismissal, a 
         ->and(MatchDismissal::query()->where('record', CanonicalRecord::Track)->exists())->toBeTrue()
         ->and(CanonicalMerge::query()->where('action', MergeAction::Merge)->exists())->toBeTrue()
         ->and(CanonicalMerge::query()->where('action', MergeAction::Split)->exists())->toBeTrue();
+});
+
+test('the DJ seeder links requests to the hosted page, with the tracklist on', function () {
+    $settings = app(DjSettings::class);
+
+    expect($settings->request_page_url)->toBeNull()
+        ->and($settings->hosted_page_enabled)->toBeTrue()
+        ->and($settings->show_tracklist)->toBeTrue();
 });
 
 test('the DJ seeder hides songs, an artist and the backup library from requests', function () {
