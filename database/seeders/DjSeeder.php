@@ -49,8 +49,9 @@ use Illuminate\Database\Seeder;
  *   guest pass, one on now (pinned, requests open, now playing set) and an upcoming wedding
  * - Guest passes use the password GUEST_PASSWORD
  *
- * Run within a tenant, e.g. `php artisan tenants:seed --class=DjSeeder`. Safe to re-run: nothing is
- * seeded when the tenant has any libraries or gigs, so it never mixes with a real library.
+ * Run within a tenant, e.g. `php artisan tenants:seed --class=DjSeeder`. Safe to re-run: the DJ
+ * settings are updated in place, and nothing else is seeded when the tenant has any libraries or
+ * gigs, so it never mixes with a real library.
  */
 class DjSeeder extends Seeder
 {
@@ -99,13 +100,15 @@ class DjSeeder extends Seeder
         protected RequestVotes $votes,
         protected SongLists $songLists,
         protected CurrentGig $currentGig,
-        DjSettings $settings,
+        protected DjSettings $settings,
     ) {
         $this->timezone = $settings->default_timezone;
     }
 
     public function run(): void
     {
+        $this->seedSettings();
+
         if (Library::query()->exists() || Gig::query()->exists()) {
             return;
         }
@@ -128,6 +131,19 @@ class DjSeeder extends Seeder
         $this->seedSetlists($main);
 
         $this->linker->setIncludeInStats($this->sessions('practice'), false);
+    }
+
+    /**
+     * Request links use the hosted page (#123), with the tracklist on (#125). Updated in place, so
+     * a re-run keeps them as seeded.
+     */
+    protected function seedSettings(): void
+    {
+        $this->settings->fill([
+            'request_page_url' => null,
+            'hosted_page_enabled' => true,
+            'show_tracklist' => true,
+        ])->save();
     }
 
     /**

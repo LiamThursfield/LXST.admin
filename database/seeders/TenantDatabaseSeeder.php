@@ -9,7 +9,7 @@ use Illuminate\Database\Seeder;
 
 /**
  * Seeds a whole tenant with realistic data to test every feature (#164): roles, a known user per
- * role, more users, and each module the tenant has. Run within a tenant, e.g.
+ * role, more users, files, site settings, and each module the tenant has. Run within a tenant, e.g.
  * `php artisan tenants:refresh {tenant} --seed`, or `php artisan tenants:seed`.
  *
  * Every seeder it calls is safe to re-run, so running it again creates nothing new.
@@ -38,6 +38,12 @@ class TenantDatabaseSeeder extends Seeder
             return;
         }
 
+        // Before the settings and the CMS, which use its logo, favicon and images
+        $this->call([
+            FileManagerSeeder::class,
+            SiteSettingsSeeder::class,
+        ]);
+
         if ($tenant->hasModule(TenantModule::Crm)) {
             $this->call(CrmSeeder::class);
         }
@@ -54,8 +60,8 @@ class TenantDatabaseSeeder extends Seeder
 
         if ($tenant->hasModule(TenantModule::Dj)) {
             $this->call(DjSeeder::class);
+            // The CLI tool's token, for the admin, so it can report what's playing
+            $this->callWith(ApiTokenSeeder::class, ['user' => RoleUserSeeder::userFor(RoleEnum::Admin)]);
         }
-
-        // The File Manager and settings (#168) seeders are added here as they're built
     }
 }

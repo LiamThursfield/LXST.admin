@@ -1,15 +1,24 @@
 <?php
 
 use App\Enums\TenantModule;
+use App\Models\Cms\Metadata;
 use App\Models\Crm\Contact;
+use App\Models\FileManager\File;
+use App\Models\Settings\ThemeSettings;
 use App\Models\Tracker\TaskDefinition;
 use App\Models\User;
 use App\Services\Authorisation\Enums\Role as RoleEnum;
+use Database\Seeders\ApiTokenSeeder;
 use Database\Seeders\RoleUserSeeder;
 use Database\Seeders\TenantDatabaseSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
+
+beforeEach(function () {
+    Storage::fake('file_manager');
+});
 
 /**
  * How many rows each of the tenant's tables has
@@ -40,7 +49,11 @@ test('the tenant seeder makes a known user per role, more users, and each module
 
     expect(User::count())->toBeGreaterThan(count(RoleUserSeeder::USERS))
         ->and(Contact::count())->toBeGreaterThan(0)
-        ->and(TaskDefinition::ownedBy(RoleUserSeeder::userFor(RoleEnum::Admin))->count())->toBeGreaterThan(0);
+        ->and(TaskDefinition::ownedBy(RoleUserSeeder::userFor(RoleEnum::Admin))->count())->toBeGreaterThan(0)
+        // Files come first, so the theme and the CMS can use them
+        ->and(app(ThemeSettings::class)->logo_file_id)->toBe(File::query()->where('path', 'branding/logo.png')->value('id'))
+        ->and(Metadata::query()->whereNotNull('og_image_file_id')->exists())->toBeTrue()
+        ->and(ApiTokenSeeder::token()->tokenable->is(RoleUserSeeder::userFor(RoleEnum::Admin)))->toBeTrue();
 });
 
 test('running the tenant seeder again creates nothing new', function () {
