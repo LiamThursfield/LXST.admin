@@ -41,6 +41,15 @@ return [
         'title' => 'Home',
     ],
 
+    'editor' => [
+        'save' => 'Save changes',
+        'unsaved' => 'Unsaved changes',
+        'leave_title' => 'Leave without saving?',
+        'leave_description' => 'Your changes on this page haven\'t been saved, and will be lost.',
+        'leave' => 'Leave',
+        'stay' => 'Keep editing',
+    ],
+
     'footer' => [
         'built_by' => 'Built by LXST.digital • © :year',
     ],

@@ -12,6 +12,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     DeleteAccount: typeof import('./resources/js/components/settings/DeleteAccount.vue')['default']
+    EditorLayout: typeof import('./resources/js/components/EditorLayout.vue')['default']
     NotificationsSlideover: typeof import('./resources/js/components/NotificationsSlideover.vue')['default']
     RowActions: typeof import('./resources/js/components/RowActions.vue')['default']
     TextLink: typeof import('./resources/js/components/TextLink.vue')['default']

@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { useForm, useHttp } from '@inertiajs/vue3';
 import {
+    index,
     store,
     update,
     urlCheck,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Cms/PageController';
+import type { EditorTab } from '@/components/EditorLayout.vue';
 import ContentEditor from '@/tenant/components/cms/ContentEditor.vue';
 import {
     type CrmOptions,
@@ -17,6 +19,7 @@ import type {
     ContentValues,
     PageData,
     PageMetadata,
+    PublishStatus,
     TemplateData,
 } from '@/types';
 
@@ -146,195 +149,114 @@ watch(
     { immediate: !page },
 );
 
+const title = computed(() => {
+    if (!page) {
+        return trans('cms.pages.create.title');
+    }
+
+    return props.readonly
+        ? trans('cms.pages.show.title', { name: page.name })
+        : trans('cms.pages.edit.title', { name: page.name });
+});
+
+const breadcrumbs = computed(() => [
+    { label: trans('cms.pages.index.title'), to: index.url() },
+    { label: page?.name ?? trans('cms.pages.create.title') },
+]);
+
+const statusColors: Record<PublishStatus, 'success' | 'info' | 'neutral'> = {
+    published: 'success',
+    scheduled: 'info',
+    expired: 'neutral',
+    draft: 'neutral',
+};
+
+/** The metadata fields on each tab, for counting their errors. */
+const seoFields = ['title', 'description', 'keywords', 'canonical'];
+
+function errorCount(matches: (key: string) => boolean): number {
+    return Object.keys(errors.value).filter(
+        (key) => errors.value[key] && matches(key),
+    ).length;
+}
+
+const tabs = computed<EditorTab[]>(() => [
+    {
+        value: 'content',
+        label: trans('cms.pages.sections.content'),
+        errorCount: errorCount((key) => key.startsWith('content.')),
+    },
+    {
+        value: 'seo',
+        label: trans('cms.pages.sections.metadata'),
+        errorCount: errorCount((key) =>
+            seoFields.some((field) => key === `metadata.${field}`),
+        ),
+    },
+    {
+        value: 'social',
+        label: trans('cms.pages.sections.social'),
+        errorCount: errorCount((key) => key.startsWith('metadata.og_')),
+    },
+]);
+
+const tab = ref('content');
+
+/** The recommended lengths shown beside the metadata title and description. */
+const recommendedLength = { title: 60, description: 160 };
+
+function lengthHint(value: string | null, max: number): string | undefined {
+    return props.readonly
+        ? undefined
+        : trans('cms.pages.metadata.length', {
+              count: (value ?? '').length,
+              max,
+          });
+}
+
 function onSubmit() {
     if (props.readonly) return;
 
-    form.submit(page ? update({ page: page.id }) : store());
+    form.submit(page ? update({ page: page.id }) : store(), {
+        // Show the first tab with errors, unless the current tab has some
+        onError: () => {
+            const withErrors = tabs.value.filter((item) => item.errorCount);
+
+            if (
+                withErrors.length &&
+                !withErrors.some((item) => item.value === tab.value)
+            ) {
+                tab.value = withErrors[0].value;
+            }
+        },
+    });
 }
 </script>
 
 <template>
-    <form class="space-y-6" @submit.prevent="onSubmit">
-        <UPageCard
-            variant="subtle"
-            :title="trans('cms.pages.sections.details')"
-        >
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField
-                    :label="trans('cms.pages.fields.name')"
-                    :error="form.errors.name"
-                    required
-                >
-                    <UInput
-                        v-model="form.name"
-                        :disabled="readonly"
-                        class="w-full"
-                    />
-                </UFormField>
-
-                <UFormField
-                    :label="trans('cms.pages.fields.parent')"
-                    :error="form.errors.parent_id"
-                >
-                    <USelect
-                        v-model.nullable="form.parent_id"
-                        :items="parents"
-                        :disabled="readonly"
-                        :placeholder="
-                            trans('cms.pages.fields.parent_placeholder')
-                        "
-                        class="w-full"
-                    />
-                </UFormField>
-
-                <UFormField
-                    :label="trans('cms.pages.fields.slug')"
-                    :help="
-                        readonly
-                            ? undefined
-                            : trans('cms.pages.fields.slug_help')
-                    "
-                    :error="form.errors.slug"
-                >
-                    <UInput
-                        v-model="form.slug"
-                        :disabled="readonly"
-                        class="w-full font-mono"
-                        @update:model-value="slugEdited = true"
-                    />
-                </UFormField>
-
-                <UFormField :label="trans('cms.pages.fields.url')">
-                    <div class="flex h-8 items-center gap-2">
-                        <span class="truncate font-mono text-sm">
-                            {{ url?.url ?? page?.url ?? '' }}
-                        </span>
-                        <UBadge
-                            v-if="url && !readonly"
-                            :color="url.available ? 'success' : 'error'"
-                            variant="subtle"
-                            size="sm"
-                        >
-                            {{
-                                url.available
-                                    ? trans('cms.pages.fields.url_available')
-                                    : trans('cms.pages.fields.url_taken')
-                            }}
-                        </UBadge>
-                    </div>
-                </UFormField>
-
-                <UFormField
-                    :label="trans('cms.pages.fields.template')"
-                    :help="
-                        readonly || templates.length
-                            ? undefined
-                            : trans('cms.pages.fields.no_templates')
-                    "
-                    :error="form.errors.template_id"
-                    required
-                >
-                    <USelect
-                        v-model.nullable="form.template_id"
-                        :items="templateItems"
-                        :disabled="readonly"
-                        :placeholder="
-                            trans('cms.pages.fields.template_placeholder')
-                        "
-                        class="w-full"
-                    />
-                </UFormField>
-
-                <UFormField
-                    :label="trans('cms.pages.fields.layout')"
-                    :help="
-                        readonly || layouts.length
-                            ? undefined
-                            : trans('cms.pages.fields.no_layouts')
-                    "
-                    :error="form.errors.layout_id"
-                    required
-                >
-                    <USelect
-                        v-model.nullable="form.layout_id"
-                        :items="layouts"
-                        :disabled="readonly"
-                        :placeholder="
-                            trans('cms.pages.fields.layout_placeholder')
-                        "
-                        class="w-full"
-                    />
-                </UFormField>
-
-                <UAlert
-                    v-if="templateChanged"
-                    class="md:col-span-2"
-                    color="warning"
-                    variant="subtle"
-                    icon="i-lucide-triangle-alert"
-                    :description="trans('cms.pages.fields.template_changed')"
-                />
-            </div>
-        </UPageCard>
+    <EditorLayout
+        v-model:tab="tab"
+        :title="title"
+        :breadcrumbs="breadcrumbs"
+        :tabs="tabs"
+        :is-dirty="form.isDirty"
+        :processing="form.processing"
+        :readonly="readonly"
+        :submit-label="page ? undefined : trans('cms.pages.create.submit')"
+        @submit="onSubmit"
+    >
+        <template v-if="page?.status" #badges>
+            <UBadge
+                :color="statusColors[page.status]"
+                variant="subtle"
+                class="shrink-0"
+            >
+                {{ page.status_label }}
+            </UBadge>
+        </template>
 
         <UPageCard
-            variant="subtle"
-            :title="trans('cms.pages.sections.publishing')"
-        >
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField
-                    class="md:col-span-2"
-                    :help="
-                        readonly
-                            ? undefined
-                            : trans('cms.pages.fields.is_enabled_help')
-                    "
-                    :error="form.errors.is_enabled"
-                >
-                    <USwitch
-                        v-model="form.is_enabled"
-                        :disabled="readonly"
-                        :label="trans('cms.pages.fields.is_enabled')"
-                    />
-                </UFormField>
-
-                <UFormField
-                    :label="trans('cms.pages.fields.published_at')"
-                    :help="
-                        readonly
-                            ? undefined
-                            : trans('cms.pages.fields.published_at_help')
-                    "
-                    :error="form.errors.published_at"
-                >
-                    <UInput
-                        v-model="form.published_at"
-                        type="datetime-local"
-                        :disabled="readonly"
-                        class="w-full"
-                    />
-                </UFormField>
-
-                <UFormField
-                    :label="trans('cms.pages.fields.expired_at')"
-                    :help="
-                        readonly
-                            ? undefined
-                            : trans('cms.pages.fields.expired_at_help')
-                    "
-                    :error="form.errors.expired_at"
-                >
-                    <UInput
-                        v-model="form.expired_at"
-                        type="datetime-local"
-                        :disabled="readonly"
-                        class="w-full"
-                    />
-                </UFormField>
-            </div>
-        </UPageCard>
-
-        <UPageCard
+            v-show="tab === 'content'"
             variant="subtle"
             :title="trans('cms.pages.sections.content')"
         >
@@ -351,6 +273,7 @@ function onSubmit() {
         </UPageCard>
 
         <UPageCard
+            v-show="tab === 'seo'"
             variant="subtle"
             :title="trans('cms.pages.sections.metadata')"
         >
@@ -362,6 +285,9 @@ function onSubmit() {
                         readonly
                             ? undefined
                             : trans('cms.pages.metadata.title_help')
+                    "
+                    :hint="
+                        lengthHint(form.metadata.title, recommendedLength.title)
                     "
                     :error="errors['metadata.title']"
                 >
@@ -380,6 +306,12 @@ function onSubmit() {
                         readonly
                             ? undefined
                             : trans('cms.pages.metadata.description_help')
+                    "
+                    :hint="
+                        lengthHint(
+                            form.metadata.description,
+                            recommendedLength.description,
+                        )
                     "
                     :error="errors['metadata.description']"
                 >
@@ -423,7 +355,11 @@ function onSubmit() {
             </div>
         </UPageCard>
 
-        <UPageCard variant="subtle" :title="trans('cms.pages.sections.social')">
+        <UPageCard
+            v-show="tab === 'social'"
+            variant="subtle"
+            :title="trans('cms.pages.sections.social')"
+        >
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <UFormField
                     class="md:col-span-2"
@@ -498,17 +434,188 @@ function onSubmit() {
             </div>
         </UPageCard>
 
-        <div v-if="!readonly" class="flex justify-end gap-2">
-            <UButton
-                type="submit"
-                color="primary"
-                :loading="form.processing"
-                :label="
-                    page
-                        ? trans('cms.pages.edit.submit')
-                        : trans('cms.pages.create.submit')
-                "
-            />
-        </div>
-    </form>
+        <template #sidebar>
+            <UPageCard
+                variant="subtle"
+                :title="trans('cms.pages.sections.details')"
+            >
+                <div class="flex flex-col gap-4">
+                    <UFormField :label="trans('cms.pages.fields.url')">
+                        <div class="flex min-h-8 items-center gap-2">
+                            <span class="truncate font-mono text-sm">
+                                {{ url?.url ?? page?.url ?? '' }}
+                            </span>
+                            <UBadge
+                                v-if="url && !readonly"
+                                :color="url.available ? 'success' : 'error'"
+                                variant="subtle"
+                                size="sm"
+                                class="shrink-0"
+                            >
+                                {{
+                                    url.available
+                                        ? trans(
+                                              'cms.pages.fields.url_available',
+                                          )
+                                        : trans('cms.pages.fields.url_taken')
+                                }}
+                            </UBadge>
+                        </div>
+                    </UFormField>
+
+                    <UFormField
+                        :label="trans('cms.pages.fields.name')"
+                        :error="form.errors.name"
+                        required
+                    >
+                        <UInput
+                            v-model="form.name"
+                            :disabled="readonly"
+                            class="w-full"
+                        />
+                    </UFormField>
+
+                    <UFormField
+                        :label="trans('cms.pages.fields.slug')"
+                        :help="
+                            readonly
+                                ? undefined
+                                : trans('cms.pages.fields.slug_help')
+                        "
+                        :error="form.errors.slug"
+                    >
+                        <UInput
+                            v-model="form.slug"
+                            :disabled="readonly"
+                            class="w-full font-mono"
+                            @update:model-value="slugEdited = true"
+                        />
+                    </UFormField>
+
+                    <UFormField
+                        :label="trans('cms.pages.fields.parent')"
+                        :error="form.errors.parent_id"
+                    >
+                        <USelect
+                            v-model.nullable="form.parent_id"
+                            :items="parents"
+                            :disabled="readonly"
+                            :placeholder="
+                                trans('cms.pages.fields.parent_placeholder')
+                            "
+                            class="w-full"
+                        />
+                    </UFormField>
+
+                    <UFormField
+                        :label="trans('cms.pages.fields.template')"
+                        :help="
+                            readonly || templates.length
+                                ? undefined
+                                : trans('cms.pages.fields.no_templates')
+                        "
+                        :error="form.errors.template_id"
+                        required
+                    >
+                        <USelect
+                            v-model.nullable="form.template_id"
+                            :items="templateItems"
+                            :disabled="readonly"
+                            :placeholder="
+                                trans('cms.pages.fields.template_placeholder')
+                            "
+                            class="w-full"
+                        />
+                    </UFormField>
+
+                    <UAlert
+                        v-if="templateChanged"
+                        color="warning"
+                        variant="subtle"
+                        icon="i-lucide-triangle-alert"
+                        :description="
+                            trans('cms.pages.fields.template_changed')
+                        "
+                    />
+
+                    <UFormField
+                        :label="trans('cms.pages.fields.layout')"
+                        :help="
+                            readonly || layouts.length
+                                ? undefined
+                                : trans('cms.pages.fields.no_layouts')
+                        "
+                        :error="form.errors.layout_id"
+                        required
+                    >
+                        <USelect
+                            v-model.nullable="form.layout_id"
+                            :items="layouts"
+                            :disabled="readonly"
+                            :placeholder="
+                                trans('cms.pages.fields.layout_placeholder')
+                            "
+                            class="w-full"
+                        />
+                    </UFormField>
+                </div>
+            </UPageCard>
+
+            <UPageCard
+                variant="subtle"
+                :title="trans('cms.pages.sections.publishing')"
+            >
+                <div class="flex flex-col gap-4">
+                    <UFormField
+                        :help="
+                            readonly
+                                ? undefined
+                                : trans('cms.pages.fields.is_enabled_help')
+                        "
+                        :error="form.errors.is_enabled"
+                    >
+                        <USwitch
+                            v-model="form.is_enabled"
+                            :disabled="readonly"
+                            :label="trans('cms.pages.fields.is_enabled')"
+                        />
+                    </UFormField>
+
+                    <UFormField
+                        :label="trans('cms.pages.fields.published_at')"
+                        :help="
+                            readonly
+                                ? undefined
+                                : trans('cms.pages.fields.published_at_help')
+                        "
+                        :error="form.errors.published_at"
+                    >
+                        <UInput
+                            v-model="form.published_at"
+                            type="datetime-local"
+                            :disabled="readonly"
+                            class="w-full"
+                        />
+                    </UFormField>
+
+                    <UFormField
+                        :label="trans('cms.pages.fields.expired_at')"
+                        :help="
+                            readonly
+                                ? undefined
+                                : trans('cms.pages.fields.expired_at_help')
+                        "
+                        :error="form.errors.expired_at"
+                    >
+                        <UInput
+                            v-model="form.expired_at"
+                            type="datetime-local"
+                            :disabled="readonly"
+                            class="w-full"
+                        />
+                    </UFormField>
+                </div>
+            </UPageCard>
+        </template>
+    </EditorLayout>
 </template>

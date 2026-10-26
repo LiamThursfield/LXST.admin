@@ -181,6 +181,7 @@ return [
             'og_type' => 'Type',
             'og_type_placeholder' => 'e.g. website or article',
             'og_url' => 'URL',
+            'length' => ':count / :max',
         ],
         'content_choose_template' => 'Choose a template to add content.',
         'starts' => 'Starts :date',
