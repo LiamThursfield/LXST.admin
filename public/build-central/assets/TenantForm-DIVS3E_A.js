@@ -1,1 +1,0 @@
-import{_ as o}from"./TenantForm.vue_vue_type_script_setup_true_lang-BuBMXj2_.js";import"./app-ux3_Tx-2.js";/* empty css            */import"./Checkbox-f8gXGAIo.js";import"./FormField-rByH1sa4.js";import"./PageCard-cmPDWdFX.js";import"./usePrefix-DaKUvd1r.js";import"./TenantController-Bt_iqO2o.js";export{o as default};
