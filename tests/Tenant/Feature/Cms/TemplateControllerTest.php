@@ -1,10 +1,12 @@
 <?php
 
 use App\Enums\Cms\TemplateFieldType;
+use App\Enums\Cms\TemplateFieldWidth;
 use App\Enums\Cms\TemplateType;
 use App\Enums\TenantModule;
 use App\Models\Cms\Template;
 use App\Models\Cms\TemplateField;
+use App\Models\Cms\TemplateSection;
 use App\Services\Authorisation\Enums\CmsPermission;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -119,6 +121,92 @@ describe('managing', function () {
             ->and($first->refresh()->type)->toBe(TemplateFieldType::Textarea)
             ->and(TemplateField::query()->find($removed->id))->toBeNull();
     });
+
+    test('a template is created with sections, its fields placed in them in one order, and half widths kept', function () {
+        $this->post(route('admin.cms.templates.store'), templateData([
+            'fields' => [
+                ['type' => 'text', 'name' => 'Intro', 'slug' => 'intro'],
+            ],
+            'sections' => [
+                ['name' => 'Hero', 'description' => 'The banner', 'is_collapsed' => true, 'fields' => [
+                    ['type' => 'text', 'name' => 'Hero title', 'slug' => '', 'settings' => ['width' => 'half', 'max_length' => 80]],
+                    ['type' => 'image', 'name' => 'Hero image', 'slug' => 'hero_image', 'settings' => ['width' => 'full']],
+                ]],
+                ['name' => 'Body', 'fields' => [
+                    ['type' => 'wysiwyg', 'name' => 'Body', 'slug' => 'body'],
+                ]],
+            ],
+        ]))->assertSessionHasNoErrors();
+
+        $template = Template::query()->sole();
+        [$hero, $body] = $template->sections->all();
+        $fields = $template->fields->keyBy('slug');
+
+        expect($template->sections->pluck('name')->all())->toBe(['Hero', 'Body'])
+            ->and($hero->description)->toBe('The banner')
+            ->and($hero->is_collapsed)->toBeTrue()
+            ->and($body->is_collapsed)->toBeFalse()
+            ->and($template->fields->pluck('slug')->all())->toBe(['intro', 'hero_title', 'hero_image', 'body'])
+            ->and($template->fields->pluck('order')->all())->toBe([0, 1, 2, 3])
+            ->and($fields['intro']->section_id)->toBeNull()
+            ->and($fields['hero_title']->section_id)->toBe($hero->id)
+            ->and($fields['body']->section_id)->toBe($body->id)
+            ->and($fields['hero_title']->settings?->width)->toBe(TemplateFieldWidth::Half)
+            ->and($fields['hero_title']->settings?->max_length)->toBe(80)
+            // Full width is the default, so it isn't stored
+            ->and($fields['hero_image']->settings)->toBeNull();
+    });
+
+    test('updating syncs the sections: renamed, reordered, removed and added, with fields moved between them', function () {
+        $template = Template::factory()->create();
+        $hero = TemplateSection::factory()->for($template)->create(['name' => 'Hero', 'order' => 0]);
+        $body = TemplateSection::factory()->for($template)->create(['name' => 'Body', 'order' => 1]);
+        $removed = TemplateSection::factory()->for($template)->create(['name' => 'Old', 'order' => 2]);
+        $title = TemplateField::factory()->inSection($hero)->create(['slug' => 'title', 'order' => 0]);
+        $text = TemplateField::factory()->inSection($body)->create(['slug' => 'text', 'order' => 1]);
+        $kept = TemplateField::factory()->inSection($removed)->create(['slug' => 'kept', 'order' => 2]);
+
+        $field = fn (TemplateField $field) => ['id' => $field->id, 'type' => 'text', 'name' => $field->name, 'slug' => $field->slug];
+
+        $this->put(route('admin.cms.templates.update', $template), templateData([
+            'name' => $template->name,
+            'slug' => $template->slug,
+            // The removed section's field moves above the sections
+            'fields' => [$field($kept)],
+            'sections' => [
+                ['id' => $body->id, 'name' => 'Main', 'fields' => [$field($title)]],
+                ['id' => $hero->id, 'name' => 'Hero', 'fields' => []],
+                ['name' => 'Extra', 'fields' => [['type' => 'number', 'name' => 'Count', 'slug' => 'count']]],
+            ],
+        ]))->assertSessionHasNoErrors();
+
+        $sections = $template->sections()->get();
+        $fields = $template->fields()->get();
+
+        expect($sections->pluck('name')->all())->toBe(['Main', 'Hero', 'Extra'])
+            ->and($sections->take(2)->pluck('id')->all())->toBe([$body->id, $hero->id])
+            ->and(TemplateSection::query()->find($removed->id))->toBeNull()
+            ->and($fields->pluck('slug')->all())->toBe(['kept', 'title', 'count'])
+            ->and($kept->refresh()->section_id)->toBeNull()
+            ->and($title->refresh()->section_id)->toBe($body->id)
+            ->and($fields->last()->section_id)->toBe($sections->last()->id)
+            // Left out of the list, so deleted
+            ->and(TemplateField::query()->find($text->id))->toBeNull();
+    });
+
+    test('the builder gets the sections, and each field\'s section and width', function () {
+        $template = Template::factory()->create();
+        $section = TemplateSection::factory()->for($template)->collapsed()->create(['name' => 'Hero']);
+        TemplateField::factory()->inSection($section)->halfWidth()->create();
+
+        $this->get(route('admin.cms.templates.edit', $template))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('template.data.sections.0.name', 'Hero')
+                ->where('template.data.sections.0.is_collapsed', true)
+                ->where('template.data.fields.0.section_id', $section->id)
+                ->where('template.data.fields.0.settings.width', 'half')
+            );
+    });
 });
 
 describe('validation', function () {
@@ -142,6 +230,23 @@ describe('validation', function () {
                 ['type' => 'text', 'name' => 'title', 'slug' => ''],
             ],
         ]))->assertSessionHasErrors(['fields.1.slug' => __('cms.templates.validation.duplicate_field_slug')]);
+    });
+
+    test('field slugs are unique across sections, sections need a name, and widths must be full or half', function () {
+        $this->post(route('admin.cms.templates.store'), templateData([
+            'fields' => [['type' => 'text', 'name' => 'Title', 'slug' => '']],
+            'sections' => [
+                ['name' => '', 'fields' => [
+                    ['type' => 'text', 'name' => 'Title', 'slug' => '', 'settings' => ['width' => 'third']],
+                ]],
+            ],
+        ]))->assertSessionHasErrors([
+            'sections.0.name',
+            'sections.0.fields.0.slug' => __('cms.templates.validation.duplicate_field_slug'),
+            'sections.0.fields.0.settings.width',
+        ]);
+
+        expect(Template::query()->count())->toBe(0);
     });
 
     test('field types must be allowed in the template type', function () {

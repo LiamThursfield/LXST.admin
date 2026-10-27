@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import type { Component } from 'vue';
-import type { ContentValues, TemplateFieldData } from '@/types';
+import type {
+    ContentValues,
+    TemplateFieldData,
+    TemplateSectionData,
+} from '@/types';
 import ContentSection from './ContentSection.vue';
 import {
     provideContentState,
@@ -26,14 +30,19 @@ import { nestedTemplatesKey } from './nestedTemplates';
  * slug, and server errors are expected under the prefix, e.g. `content.{slug}`. Components and
  * repeaters nest another ContentEditor with a longer prefix, e.g. `content.slides.0`.
  *
- * The top editor is `sectioned`: its simple fields share a card, and each component, repeater
- * and rich text field gets a card of its own, each of which can be collapsed. It keeps which
- * cards and repeater rows are open, and after a failed save opens the ones with errors and
- * scrolls to the first.
+ * The top editor is `sectioned`. When the template has sections, the fields with no section share
+ * a card and each section gets a collapsible card of its own. Without sections, its simple fields
+ * share a card, and each component, repeater and rich text field gets one of its own. It keeps
+ * which cards and repeater rows are open, and after a failed save opens the ones with errors and
+ * scrolls to the first. Nested editors show sections as headed groups.
+ *
+ * Half-width fields sit side by side when the editor is wide enough.
  */
 const props = withDefaults(
     defineProps<{
         fields: TemplateFieldData[];
+        /** The template's sections, which fields are grouped in by `section_id`. */
+        sections?: TemplateSectionData[];
         prefix?: string;
         /** Where this editor's open cards and rows are remembered; rows use their `_key`, not their index. */
         stateKey?: string;
@@ -42,6 +51,7 @@ const props = withDefaults(
         sectioned?: boolean;
     }>(),
     {
+        sections: () => [],
         prefix: 'content',
         stateKey: undefined,
         errors: () => ({}),
@@ -122,18 +132,55 @@ function editorFor(field: TemplateFieldData): Component | undefined {
 
 const hasFields = computed(() => props.fields.length > 0);
 
-/** A card in a sectioned editor, or all the fields when it isn't sectioned. */
+/**
+ * A group of fields and how it's shown: a collapsible card, a plain card (fields with no section,
+ * above the sections), a heading (a section in a nested editor), or just the fields.
+ */
 type FieldGroup = {
     key: string;
     fields: TemplateFieldData[];
     /** Fields in their own card are titled by the card, so they go without a label. */
     labelled: boolean;
+    kind: 'section' | 'card' | 'heading' | 'bare';
     section?: InstanceType<typeof ContentSection>['$props'];
+    heading?: { title: string; description: string | null };
 };
 
+/** The template's sections that have fields, in order. */
+const usedSections = computed(() =>
+    props.sections.filter((section) =>
+        props.fields.some((field) => field.section_id === section.id),
+    ),
+);
+
+function firstErrorIn(fields: TemplateFieldData[]): string | undefined {
+    return fields
+        .map((field) => firstErrorUnder(`${props.prefix}.${field.slug}`))
+        .find(Boolean);
+}
+
+/** What a collapsed card of several fields says is in it: its first text, or how many fields. */
+function fieldsSummary(fields: TemplateFieldData[]): string {
+    return (
+        textValues(fields, values.value)[0] ??
+        transChoice('cms.content.summary.fields', fields.length)
+    );
+}
+
 const groups = computed<FieldGroup[]>(() => {
+    if (usedSections.value.length) {
+        return sectionGroups();
+    }
+
     if (!props.sectioned) {
-        return [{ key: 'fields', fields: props.fields, labelled: true }];
+        return [
+            {
+                key: 'fields',
+                fields: props.fields,
+                labelled: true,
+                kind: 'bare',
+            },
+        ];
     }
 
     const shared = props.fields.filter(
@@ -150,22 +197,12 @@ const groups = computed<FieldGroup[]>(() => {
                       key: 'fields',
                       fields: shared,
                       labelled: true,
+                      kind: 'section' as const,
                       section: {
                           title: trans('cms.content.sections.fields'),
                           stateKey: `${baseStateKey.value}:fields`,
-                          summary:
-                              textValues(shared, values.value)[0] ??
-                              transChoice(
-                                  'cms.content.summary.fields',
-                                  shared.length,
-                              ),
-                          error: shared
-                              .map((field) =>
-                                  firstErrorUnder(
-                                      `${props.prefix}.${field.slug}`,
-                                  ),
-                              )
-                              .find(Boolean),
+                          summary: fieldsSummary(shared),
+                          error: firstErrorIn(shared),
                       },
                   },
               ]
@@ -174,6 +211,7 @@ const groups = computed<FieldGroup[]>(() => {
             key: field.slug,
             fields: [field],
             labelled: false,
+            kind: 'section' as const,
             section: {
                 title: field.name,
                 stateKey: `${baseStateKey.value}.${field.slug}`,
@@ -185,6 +223,82 @@ const groups = computed<FieldGroup[]>(() => {
         })),
     ];
 });
+
+/** The fields with no section first, then a group for each of the template's sections. */
+function sectionGroups(): FieldGroup[] {
+    const sectionIds = usedSections.value.map((section) => section.id);
+    const unsectioned = props.fields.filter(
+        (field) => !sectionIds.includes(field.section_id ?? null),
+    );
+
+    return [
+        ...(unsectioned.length
+            ? [
+                  {
+                      key: 'fields',
+                      fields: unsectioned,
+                      labelled: true,
+                      kind: props.sectioned
+                          ? ('card' as const)
+                          : ('bare' as const),
+                  },
+              ]
+            : []),
+        ...usedSections.value.map((section) => {
+            const fields = props.fields.filter(
+                (field) => field.section_id === section.id,
+            );
+
+            return props.sectioned
+                ? {
+                      key: `section-${section.id}`,
+                      fields,
+                      labelled: true,
+                      kind: 'section' as const,
+                      section: {
+                          title: section.name,
+                          stateKey: `${baseStateKey.value}:section-${section.id}`,
+                          description: section.description,
+                          summary: fieldsSummary(fields),
+                          error: firstErrorIn(fields),
+                          openByDefault: !section.is_collapsed,
+                      },
+                  }
+                : {
+                      key: `section-${section.id}`,
+                      fields,
+                      labelled: true,
+                      kind: 'heading' as const,
+                      heading: {
+                          title: section.name,
+                          description: section.description,
+                      },
+                  };
+        }),
+    ];
+}
+
+/** The props for a group's wrapper, by how it's shown. */
+function wrapperFor(group: FieldGroup) {
+    if (group.kind === 'section') {
+        return { is: ContentSection, props: group.section };
+    }
+
+    return {
+        is: 'div',
+        props: {
+            class:
+                group.kind === 'card'
+                    ? 'bg-elevated/50 ring-default rounded-lg p-4 ring sm:p-6'
+                    : 'flex flex-col gap-3',
+        },
+    };
+}
+
+/** Half-width fields share a row; a field in a card of its own always takes the full width. */
+function isHalfWidth(field: TemplateFieldData, group: FieldGroup): boolean {
+    return group.labelled && field.settings.width === 'half';
+}
 
 /** What a collapsed card for a component, repeater or rich text field says is in it. */
 function summaryFor(field: TemplateFieldData): string {
@@ -283,40 +397,54 @@ watch(
         </div>
 
         <component
-            :is="group.section ? ContentSection : 'div'"
+            :is="wrapperFor(group).is"
             v-for="group in groups"
             :key="group.key"
-            v-bind="group.section"
+            v-bind="wrapperFor(group).props"
         >
-            <div class="flex flex-col gap-4">
-                <UFormField
-                    v-for="field in group.fields"
-                    :key="field.slug"
-                    :label="group.labelled ? field.name : undefined"
-                    :help="
-                        group.labelled
-                            ? (field.description ?? undefined)
-                            : undefined
-                    "
-                    :error="errorFor(field)"
-                    :required="group.labelled && field.is_required"
-                >
-                    <component
-                        :is="editorFor(field)"
-                        v-if="editorFor(field)"
-                        v-model="values[field.slug]"
-                        :field="field"
-                        :disabled="readonly"
-                        v-bind="nestedProps(field)"
-                    />
-                    <p v-else class="text-muted text-sm">
-                        {{
-                            trans('cms.content.unsupported', {
-                                type: field.type_label ?? field.type,
-                            })
-                        }}
-                    </p>
-                </UFormField>
+            <div v-if="group.heading">
+                <h3 class="text-highlighted font-semibold">
+                    {{ group.heading.title }}
+                </h3>
+                <p v-if="group.heading.description" class="text-muted text-sm">
+                    {{ group.heading.description }}
+                </p>
+            </div>
+
+            <div class="@container">
+                <div class="@xl:grid-cols-2 grid grid-cols-1 gap-4">
+                    <UFormField
+                        v-for="field in group.fields"
+                        :key="field.slug"
+                        :class="{
+                            '@xl:col-span-2': !isHalfWidth(field, group),
+                        }"
+                        :label="group.labelled ? field.name : undefined"
+                        :help="
+                            group.labelled
+                                ? (field.description ?? undefined)
+                                : undefined
+                        "
+                        :error="errorFor(field)"
+                        :required="group.labelled && field.is_required"
+                    >
+                        <component
+                            :is="editorFor(field)"
+                            v-if="editorFor(field)"
+                            v-model="values[field.slug]"
+                            :field="field"
+                            :disabled="readonly"
+                            v-bind="nestedProps(field)"
+                        />
+                        <p v-else class="text-muted text-sm">
+                            {{
+                                trans('cms.content.unsupported', {
+                                    type: field.type_label ?? field.type,
+                                })
+                            }}
+                        </p>
+                    </UFormField>
+                </div>
             </div>
         </component>
     </div>

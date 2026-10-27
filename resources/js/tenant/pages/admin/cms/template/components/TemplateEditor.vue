@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
+import { VueDraggable } from 'vue-draggable-plus';
 import {
     store,
     update,
@@ -11,6 +12,7 @@ import type {
     TemplateData,
     TemplateFieldData,
     TemplateFieldTypeOption,
+    TemplateSectionData,
     TemplateType,
 } from '@/types';
 import TemplateFieldEditor from './TemplateFieldEditor.vue';
@@ -38,6 +40,12 @@ const { trans } = useTrans();
 /** A field in the builder, with a client-side key so the list can be reordered. */
 type BuilderField = TemplateFieldData & { uid: number };
 
+/** A section in the builder, holding its fields, with a client-side key so it can be reordered. */
+type BuilderSection = TemplateSectionData & {
+    uid: number;
+    fields: BuilderField[];
+};
+
 let nextUid = 0;
 
 function toBuilderField(field: TemplateFieldData): BuilderField {
@@ -46,15 +54,28 @@ function toBuilderField(field: TemplateFieldData): BuilderField {
 
 const template = props.template;
 
+/** The saved fields in a section, or with no section (null). */
+function fieldsIn(sectionId: number | null): BuilderField[] {
+    return (template?.fields ?? [])
+        .filter((field) => (field.section_id ?? null) === sectionId)
+        .map(toBuilderField);
+}
+
 const form = useForm({
     type: (template?.type ?? 'page') as TemplateType,
     name: template?.name ?? '',
     slug: template?.slug ?? '',
     description: template?.description ?? '',
-    fields: (template?.fields ?? []).map(toBuilderField) as BuilderField[],
+    /** The fields with no section, which sit above the first section. */
+    fields: fieldsIn(null) as BuilderField[],
+    sections: (template?.sections ?? []).map((section) => ({
+        ...section,
+        uid: nextUid++,
+        fields: fieldsIn(section.id),
+    })) as BuilderSection[],
 });
 
-/** Server validation errors, including nested ones such as `fields.0.name`. */
+/** Server validation errors, including nested ones such as `sections.0.fields.1.name`. */
 const errors = computed(
     () => form.errors as Record<string, string | undefined>,
 );
@@ -64,31 +85,85 @@ const allowedFieldTypes = computed(() =>
     props.fieldTypes.filter((type) => type.templateTypes.includes(form.type)),
 );
 
-function addField() {
-    form.fields.push(
-        toBuilderField({
-            id: null,
-            type:
-                allowedFieldTypes.value.find(
-                    (type) => type.isAvailable && !type.needsModule,
-                )?.value ?? 'text',
-            name: '',
-            slug: '',
-            description: '',
-            is_required: false,
-            settings: {},
-        }),
-    );
+/** A template can't nest itself. */
+const nestedTemplateOptions = computed(() =>
+    props.nestedTemplates.filter((item) => item.id !== template?.id),
+);
+
+function newField(): BuilderField {
+    return toBuilderField({
+        id: null,
+        type:
+            allowedFieldTypes.value.find(
+                (type) => type.isAvailable && !type.needsModule,
+            )?.value ?? 'text',
+        name: '',
+        slug: '',
+        description: '',
+        is_required: false,
+        settings: {},
+    });
 }
 
-function removeField(index: number) {
-    form.fields.splice(index, 1);
+function addSection() {
+    form.sections.push({
+        id: null,
+        uid: nextUid++,
+        name: '',
+        description: null,
+        is_collapsed: false,
+        fields: [],
+    });
+}
+
+/** The section being removed while the user decides what happens to its fields. */
+const removingSection = ref<BuilderSection | null>(null);
+
+const isRemoveSectionOpen = computed({
+    get: () => removingSection.value !== null,
+    set: (open: boolean) => {
+        if (!open) {
+            removingSection.value = null;
+        }
+    },
+});
+
+/** A section with fields asks first whether to keep them (above the sections) or delete them. */
+function removeSection(section: BuilderSection) {
+    if (section.fields.length) {
+        removingSection.value = section;
+
+        return;
+    }
+
+    form.sections = form.sections.filter((item) => item !== section);
+}
+
+function confirmRemoveSection(keepFields: boolean) {
+    const section = removingSection.value;
+
+    if (!section) {
+        return;
+    }
+
+    if (keepFields) {
+        form.fields.push(...section.fields);
+    }
+
+    form.sections = form.sections.filter((item) => item !== section);
+    removingSection.value = null;
 }
 
 function withoutUid({ uid, ...field }: BuilderField): TemplateFieldData {
     void uid;
 
     return field;
+}
+
+function sectionWithoutUid({ uid, fields, ...section }: BuilderSection) {
+    void uid;
+
+    return { ...section, fields: fields.map(withoutUid) };
 }
 
 function onSubmit() {
@@ -98,6 +173,7 @@ function onSubmit() {
     form.transform((data) => ({
         ...data,
         fields: data.fields.map(withoutUid),
+        sections: data.sections.map(sectionWithoutUid),
     }));
 
     form.submit(template ? update({ template: template.id }) : store());
@@ -181,31 +257,184 @@ function onSubmit() {
                 readonly ? undefined : trans('cms.templates.builder.intro')
             "
         >
-            <BuilderFieldList
-                v-model="form.fields"
-                :empty-text="trans('cms.templates.builder.empty')"
-                :add-label="trans('cms.templates.builder.add')"
-                :error="errors.fields"
-                :readonly="readonly"
-                @add="addField"
-            >
-                <template #default="{ index }">
-                    <TemplateFieldEditor
-                        v-model="form.fields[index]"
-                        :index="index"
-                        :field-types="allowedFieldTypes"
-                        :nested-templates="
-                            nestedTemplates.filter(
-                                (item) => item.id !== template?.id,
-                            )
-                        "
-                        :organisation-unit-types="organisationUnitTypes"
-                        :errors="errors"
-                        :readonly="readonly"
-                        @remove="removeField(index)"
-                    />
-                </template>
-            </BuilderFieldList>
+            <div class="flex flex-col gap-6">
+                <BuilderFieldList
+                    v-model="form.fields"
+                    group="template-fields"
+                    :empty-text="
+                        form.sections.length
+                            ? trans('cms.templates.builder.empty_unsectioned')
+                            : trans('cms.templates.builder.empty')
+                    "
+                    :add-label="trans('cms.templates.builder.add')"
+                    :error="errors.fields"
+                    :readonly="readonly"
+                    @add="form.fields.push(newField())"
+                >
+                    <template #default="{ index }">
+                        <TemplateFieldEditor
+                            v-model="form.fields[index]"
+                            :error-prefix="`fields.${index}`"
+                            :field-types="allowedFieldTypes"
+                            :nested-templates="nestedTemplateOptions"
+                            :organisation-unit-types="organisationUnitTypes"
+                            :errors="errors"
+                            :readonly="readonly"
+                            @remove="form.fields.splice(index, 1)"
+                        />
+                    </template>
+                </BuilderFieldList>
+
+                <VueDraggable
+                    v-model="form.sections"
+                    :disabled="readonly"
+                    group="template-sections"
+                    handle=".section-drag-handle"
+                    :animation="150"
+                    class="flex flex-col gap-6"
+                >
+                    <UCard
+                        v-for="(section, sectionIndex) in form.sections"
+                        :key="section.uid"
+                        variant="subtle"
+                        :ui="{ header: 'p-4 sm:p-4', body: 'p-4 sm:p-4' }"
+                    >
+                        <template #header>
+                            <div class="flex gap-3">
+                                <UButton
+                                    v-if="!readonly"
+                                    class="section-drag-handle cursor-grab self-start"
+                                    color="neutral"
+                                    variant="ghost"
+                                    icon="i-lucide-grip-vertical"
+                                    :aria-label="
+                                        trans(
+                                            'cms.templates.builder.section_drag',
+                                        )
+                                    "
+                                />
+
+                                <div
+                                    class="grid flex-1 grid-cols-1 gap-4 md:grid-cols-2"
+                                >
+                                    <UFormField
+                                        :label="
+                                            trans(
+                                                'cms.templates.builder.section_name',
+                                            )
+                                        "
+                                        :error="
+                                            errors[
+                                                `sections.${sectionIndex}.name`
+                                            ]
+                                        "
+                                        required
+                                    >
+                                        <UInput
+                                            v-model="section.name"
+                                            :disabled="readonly"
+                                            class="w-full"
+                                        />
+                                    </UFormField>
+
+                                    <UFormField
+                                        :label="
+                                            trans(
+                                                'cms.templates.builder.section_description',
+                                            )
+                                        "
+                                        :error="
+                                            errors[
+                                                `sections.${sectionIndex}.description`
+                                            ]
+                                        "
+                                    >
+                                        <UInput
+                                            v-model.nullable="
+                                                section.description
+                                            "
+                                            :disabled="readonly"
+                                            class="w-full"
+                                        />
+                                    </UFormField>
+
+                                    <UFormField
+                                        class="md:col-span-2"
+                                        :help="
+                                            readonly
+                                                ? undefined
+                                                : trans(
+                                                      'cms.templates.builder.section_collapsed_help',
+                                                  )
+                                        "
+                                    >
+                                        <USwitch
+                                            v-model="section.is_collapsed"
+                                            :disabled="readonly"
+                                            :label="
+                                                trans(
+                                                    'cms.templates.builder.section_collapsed',
+                                                )
+                                            "
+                                        />
+                                    </UFormField>
+                                </div>
+
+                                <UButton
+                                    v-if="!readonly"
+                                    class="self-start"
+                                    color="neutral"
+                                    variant="ghost"
+                                    icon="i-lucide-trash"
+                                    :aria-label="
+                                        trans(
+                                            'cms.templates.builder.section_remove',
+                                        )
+                                    "
+                                    @click="removeSection(section)"
+                                />
+                            </div>
+                        </template>
+
+                        <BuilderFieldList
+                            v-model="section.fields"
+                            group="template-fields"
+                            :empty-text="
+                                trans('cms.templates.builder.section_empty')
+                            "
+                            :add-label="trans('cms.templates.builder.add')"
+                            :error="errors[`sections.${sectionIndex}.fields`]"
+                            :readonly="readonly"
+                            @add="section.fields.push(newField())"
+                        >
+                            <template #default="{ index }">
+                                <TemplateFieldEditor
+                                    v-model="section.fields[index]"
+                                    :error-prefix="`sections.${sectionIndex}.fields.${index}`"
+                                    :field-types="allowedFieldTypes"
+                                    :nested-templates="nestedTemplateOptions"
+                                    :organisation-unit-types="
+                                        organisationUnitTypes
+                                    "
+                                    :errors="errors"
+                                    :readonly="readonly"
+                                    @remove="section.fields.splice(index, 1)"
+                                />
+                            </template>
+                        </BuilderFieldList>
+                    </UCard>
+                </VueDraggable>
+
+                <UButton
+                    v-if="!readonly"
+                    class="w-fit"
+                    color="neutral"
+                    variant="outline"
+                    icon="i-lucide-rows-3"
+                    :label="trans('cms.templates.builder.section_add')"
+                    @click="addSection"
+                />
+            </div>
         </UPageCard>
 
         <div v-if="!readonly" class="flex justify-end gap-2">
@@ -220,5 +449,45 @@ function onSubmit() {
                 "
             />
         </div>
+
+        <UModal
+            v-model:open="isRemoveSectionOpen"
+            :title="
+                trans('cms.templates.builder.section_remove_title', {
+                    name:
+                        removingSection?.name ||
+                        trans('cms.templates.builder.section_untitled'),
+                })
+            "
+            :description="
+                trans('cms.templates.builder.section_remove_description')
+            "
+        >
+            <template #body>
+                <div class="flex flex-wrap justify-end gap-2">
+                    <UButton
+                        color="neutral"
+                        variant="ghost"
+                        :label="trans('common.actions.cancel')"
+                        @click="removingSection = null"
+                    />
+                    <UButton
+                        color="neutral"
+                        variant="subtle"
+                        :label="
+                            trans('cms.templates.builder.section_keep_fields')
+                        "
+                        @click="confirmRemoveSection(true)"
+                    />
+                    <UButton
+                        color="error"
+                        :label="
+                            trans('cms.templates.builder.section_delete_fields')
+                        "
+                        @click="confirmRemoveSection(false)"
+                    />
+                </div>
+            </template>
+        </UModal>
     </form>
 </template>

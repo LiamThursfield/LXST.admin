@@ -213,7 +213,7 @@ class PageController extends Controller
     protected function templates(array $types): AnonymousResourceCollection
     {
         return TemplateResource::collection(
-            Template::query()->whereIn('type', $types)->with('fields')->orderBy('name')->get()
+            Template::query()->whereIn('type', $types)->with(['fields', 'sections'])->orderBy('name')->get()
         );
     }
 }

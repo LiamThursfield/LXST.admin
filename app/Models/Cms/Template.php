@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $description
  * @property-read Collection<int, TemplateField> $fields
  * @property-read int|null $fields_count
+ * @property-read Collection<int, TemplateSection> $sections
  */
 class Template extends Model
 {
@@ -58,6 +59,16 @@ class Template extends Model
     public function fields(): HasMany
     {
         return $this->hasMany(TemplateField::class)->orderBy('order');
+    }
+
+    /**
+     * The named groups its fields are shown in. Fields with no section sit above the first.
+     *
+     * @return HasMany<TemplateSection, $this>
+     */
+    public function sections(): HasMany
+    {
+        return $this->hasMany(TemplateSection::class)->orderBy('order');
     }
 
     /**

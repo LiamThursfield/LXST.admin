@@ -4,18 +4,23 @@ namespace App\Http\Requests\Tenant\Admin\Cms\Concerns;
 
 use App\Data\Cms\TemplateFieldSettings;
 use App\Enums\Cms\TemplateFieldType;
+use App\Enums\Cms\TemplateFieldWidth;
 use App\Enums\Cms\TemplateType;
 use App\Enums\Crm\OrganisationUnitType;
 use App\Models\Cms\Template;
 use Closure;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 trait ValidatesTemplate
 {
+    /** The most fields a template can have, across all its sections */
+    protected const int MAX_FIELDS = 100;
+
     /**
-     * Fill in a blank template slug from its name, and blank field slugs from the field names,
-     * so they can be checked for duplicates
+     * Fill in a blank template slug from its name, and blank field slugs (in sections too) from the
+     * field names, so they can be checked for duplicates
      */
     protected function prepareForValidation(): void
     {
@@ -25,19 +30,38 @@ trait ValidatesTemplate
 
         $fields = $this->input('fields');
 
-        if (! is_array($fields)) {
-            return;
+        if (is_array($fields)) {
+            $this->merge(['fields' => $this->withFieldSlugs($fields)]);
         }
 
-        $this->merge([
-            'fields' => array_map(function (mixed $field) {
-                if (is_array($field) && blank($field['slug'] ?? null) && is_string($field['name'] ?? null)) {
-                    $field['slug'] = Str::slug($field['name'], '_');
-                }
+        $sections = $this->input('sections');
 
-                return $field;
-            }, $fields),
-        ]);
+        if (is_array($sections)) {
+            $this->merge([
+                'sections' => array_map(function (mixed $section) {
+                    if (is_array($section) && is_array($section['fields'] ?? null)) {
+                        $section['fields'] = $this->withFieldSlugs($section['fields']);
+                    }
+
+                    return $section;
+                }, $sections),
+            ]);
+        }
+    }
+
+    /**
+     * @param  array<mixed>  $fields
+     * @return array<mixed>
+     */
+    protected function withFieldSlugs(array $fields): array
+    {
+        return array_map(function (mixed $field) {
+            if (is_array($field) && blank($field['slug'] ?? null) && is_string($field['name'] ?? null)) {
+                $field['slug'] = Str::slug($field['name'], '_');
+            }
+
+            return $field;
+        }, $fields);
     }
 
     /**
@@ -66,23 +90,46 @@ trait ValidatesTemplate
             ],
             'description' => ['nullable', 'string', 'max:1000'],
 
-            'fields' => ['nullable', 'array', 'max:100'],
-            'fields.*' => ['array'],
-            'fields.*.id' => ['nullable', 'integer', Rule::exists('cms_template_fields', 'id')->where('template_id', $template->id ?? 0)],
-            'fields.*.type' => ['required', Rule::enum(TemplateFieldType::class), $this->fieldTypeAllowedRule($type)],
-            'fields.*.name' => ['required', 'string', 'max:120'],
-            'fields.*.slug' => ['required', 'string', 'max:120', 'alpha_dash', 'distinct'],
-            'fields.*.description' => ['nullable', 'string', 'max:500'],
-            'fields.*.is_required' => ['boolean'],
-            'fields.*.settings' => ['nullable', 'array'],
-            'fields.*.settings.max_length' => ['nullable', 'integer', 'min:1', 'max:65535'],
-            'fields.*.settings.rows' => ['nullable', 'integer', 'min:1', 'max:50'],
-            'fields.*.settings.min' => ['nullable', 'numeric'],
-            'fields.*.settings.max' => ['nullable', 'numeric', $this->maxNotBelowMinRule()],
-            'fields.*.settings.template_id' => ['required_if:fields.*.type,component,repeater', 'nullable', 'integer', $this->nestedTemplateRule($template)],
-            'fields.*.settings.min_items' => ['nullable', 'integer', 'min:0', 'max:100'],
-            'fields.*.settings.max_items' => ['nullable', 'integer', 'min:1', 'max:100', $this->maxItemsNotBelowMinRule()],
-            'fields.*.settings.organisation_unit_type' => ['nullable', Rule::enum(OrganisationUnitType::class)],
+            'fields' => ['nullable', 'array', 'max:'.self::MAX_FIELDS],
+            ...$this->fieldRules('fields', $type, $template),
+
+            'sections' => ['nullable', 'array', 'max:50'],
+            'sections.*' => ['array'],
+            'sections.*.id' => ['nullable', 'integer', Rule::exists('cms_template_sections', 'id')->where('template_id', $template->id ?? 0)],
+            'sections.*.name' => ['required', 'string', 'max:120'],
+            'sections.*.description' => ['nullable', 'string', 'max:500'],
+            'sections.*.is_collapsed' => ['boolean'],
+            'sections.*.fields' => ['nullable', 'array', 'max:'.self::MAX_FIELDS],
+            ...$this->fieldRules('sections.*.fields', $type, $template),
+        ];
+    }
+
+    /**
+     * The rules for a list of fields, either the fields with no section or a section's fields
+     *
+     * @param  string  $list  e.g. `fields` or `sections.*.fields`
+     * @return array<string, mixed>
+     */
+    protected function fieldRules(string $list, ?TemplateType $type, ?Template $template): array
+    {
+        return [
+            "{$list}.*" => ['array'],
+            "{$list}.*.id" => ['nullable', 'integer', Rule::exists('cms_template_fields', 'id')->where('template_id', $template->id ?? 0)],
+            "{$list}.*.type" => ['required', Rule::enum(TemplateFieldType::class), $this->fieldTypeAllowedRule($type)],
+            "{$list}.*.name" => ['required', 'string', 'max:120'],
+            "{$list}.*.slug" => ['required', 'string', 'max:120', 'alpha_dash'],
+            "{$list}.*.description" => ['nullable', 'string', 'max:500'],
+            "{$list}.*.is_required" => ['boolean'],
+            "{$list}.*.settings" => ['nullable', 'array'],
+            "{$list}.*.settings.max_length" => ['nullable', 'integer', 'min:1', 'max:65535'],
+            "{$list}.*.settings.rows" => ['nullable', 'integer', 'min:1', 'max:50'],
+            "{$list}.*.settings.min" => ['nullable', 'numeric'],
+            "{$list}.*.settings.max" => ['nullable', 'numeric', $this->maxNotBelowMinRule()],
+            "{$list}.*.settings.template_id" => ["required_if:{$list}.*.type,component,repeater", 'nullable', 'integer', $this->nestedTemplateRule($template)],
+            "{$list}.*.settings.min_items" => ['nullable', 'integer', 'min:0', 'max:100'],
+            "{$list}.*.settings.max_items" => ['nullable', 'integer', 'min:1', 'max:100', $this->maxItemsNotBelowMinRule()],
+            "{$list}.*.settings.organisation_unit_type" => ['nullable', Rule::enum(OrganisationUnitType::class)],
+            "{$list}.*.settings.width" => ['nullable', Rule::enum(TemplateFieldWidth::class)],
         ];
     }
 
@@ -93,8 +140,65 @@ trait ValidatesTemplate
     {
         return [
             'slug.unique' => __('cms.templates.validation.slug_taken'),
-            'fields.*.slug.distinct' => __('cms.templates.validation.duplicate_field_slug'),
         ];
+    }
+
+    /**
+     * Content is keyed by field slug, so each slug must be unique across the whole template, sections
+     * included, and the template can only have so many fields in all
+     *
+     * @return list<Closure(Validator): void>
+     */
+    public function after(): array
+    {
+        return [
+            function (Validator $validator): void {
+                $paths = $this->fieldPaths();
+
+                if (count($paths) > self::MAX_FIELDS) {
+                    $validator->errors()->add('fields', __('cms.templates.validation.too_many_fields', ['max' => self::MAX_FIELDS]));
+                }
+
+                $seen = [];
+
+                foreach ($paths as $path) {
+                    $slug = $this->input("{$path}.slug");
+
+                    if (! is_string($slug) || $slug === '') {
+                        continue;
+                    }
+
+                    if (isset($seen[$slug]) && ! $validator->errors()->has("{$path}.slug")) {
+                        $validator->errors()->add("{$path}.slug", __('cms.templates.validation.duplicate_field_slug'));
+                    }
+
+                    $seen[$slug] = true;
+                }
+            },
+        ];
+    }
+
+    /**
+     * Where each submitted field is, in template order: the fields with no section first, e.g.
+     * `fields.0`, then each section's, e.g. `sections.1.fields.2`
+     *
+     * @return list<string>
+     */
+    protected function fieldPaths(): array
+    {
+        $paths = [];
+
+        foreach (array_keys((array) $this->input('fields', [])) as $index) {
+            $paths[] = "fields.{$index}";
+        }
+
+        foreach ((array) $this->input('sections', []) as $sectionIndex => $section) {
+            foreach (array_keys(is_array($section) ? (array) ($section['fields'] ?? []) : []) as $index) {
+                $paths[] = "sections.{$sectionIndex}.fields.{$index}";
+            }
+        }
+
+        return $paths;
     }
 
     /**
@@ -206,45 +310,97 @@ trait ValidatesTemplate
     }
 
     /**
-     * The validated template attributes, without the fields
+     * The validated template attributes, without the fields or sections
      *
      * @return array<string, mixed>
      */
     public function templateAttributes(): array
     {
-        return $this->safe()->except('fields');
+        return $this->safe()->except(['fields', 'sections']);
     }
 
     /**
-     * The validated fields in their submitted order, with only the settings that apply to each type
+     * The validated sections in their submitted order, without their fields
      *
-     * @return list<array{id: int|null, type: TemplateFieldType, name: string, slug: string, description: string|null, is_required: bool, order: int, settings: TemplateFieldSettings|null}>
+     * @return list<array{id: int|null, name: string, description: string|null, is_collapsed: bool, order: int}>
      */
-    public function fieldsAttributes(): array
+    public function sectionsAttributes(): array
+    {
+        /** @var list<array<string, mixed>> $sections */
+        $sections = $this->validated('sections') ?? [];
+
+        return array_map(fn (array $section, int $order) => [
+            'id' => isset($section['id']) ? (int) $section['id'] : null,
+            'name' => (string) $section['name'],
+            'description' => filled($section['description'] ?? null) ? (string) $section['description'] : null,
+            'is_collapsed' => (bool) ($section['is_collapsed'] ?? false),
+            'order' => $order,
+        ], $sections, array_keys($sections));
+    }
+
+    /**
+     * The validated fields in template order (the fields with no section, then each section's), with
+     * the section each is in and only the settings that apply to its type
+     *
+     * @param  list<int>  $sectionIds  The saved sections' ids, in their submitted order
+     * @return list<array{id: int|null, section_id: int|null, type: TemplateFieldType, name: string, slug: string, description: string|null, is_required: bool, order: int, settings: TemplateFieldSettings|null}>
+     */
+    public function fieldsAttributes(array $sectionIds = []): array
     {
         /** @var list<array<string, mixed>> $fields */
         $fields = $this->validated('fields') ?? [];
+        /** @var list<array<string, mixed>> $sections */
+        $sections = $this->validated('sections') ?? [];
 
-        return array_map(function (array $field, int $order) {
-            $type = TemplateFieldType::from((string) $field['type']);
+        $placed = array_map(fn (array $field) => [$field, null], $fields);
 
-            /** @var array<string, mixed> $settings */
-            $settings = is_array($field['settings'] ?? null) ? $field['settings'] : [];
-            $settings = array_filter(
-                array_intersect_key($settings, array_flip($type->settingKeys())),
-                fn (mixed $value) => $value !== null && $value !== '',
-            );
+        foreach ($sections as $index => $section) {
+            /** @var list<array<string, mixed>> $sectionFields */
+            $sectionFields = $section['fields'] ?? [];
 
-            return [
-                'id' => isset($field['id']) ? (int) $field['id'] : null,
-                'type' => $type,
-                'name' => (string) $field['name'],
-                'slug' => (string) $field['slug'],
-                'description' => filled($field['description'] ?? null) ? (string) $field['description'] : null,
-                'is_required' => (bool) ($field['is_required'] ?? false),
-                'order' => $order,
-                'settings' => $settings === [] ? null : TemplateFieldSettings::from($settings),
-            ];
-        }, $fields, array_keys($fields));
+            foreach ($sectionFields as $field) {
+                $placed[] = [$field, $sectionIds[$index] ?? null];
+            }
+        }
+
+        return array_map(
+            fn (array $place, int $order) => $this->fieldAttributes($place[0], $place[1], $order),
+            $placed,
+            array_keys($placed),
+        );
+    }
+
+    /**
+     * @param  array<string, mixed>  $field
+     * @return array{id: int|null, section_id: int|null, type: TemplateFieldType, name: string, slug: string, description: string|null, is_required: bool, order: int, settings: TemplateFieldSettings|null}
+     */
+    protected function fieldAttributes(array $field, ?int $sectionId, int $order): array
+    {
+        $type = TemplateFieldType::from((string) $field['type']);
+
+        /** @var array<string, mixed> $settings */
+        $settings = is_array($field['settings'] ?? null) ? $field['settings'] : [];
+        $width = TemplateFieldWidth::tryFrom((string) ($settings['width'] ?? ''));
+        $settings = array_filter(
+            array_intersect_key($settings, array_flip($type->settingKeys())),
+            fn (mixed $value) => $value !== null && $value !== '',
+        );
+
+        // Full width is the default, so only half width is kept
+        if ($width === TemplateFieldWidth::Half) {
+            $settings['width'] = $width;
+        }
+
+        return [
+            'id' => isset($field['id']) ? (int) $field['id'] : null,
+            'section_id' => $sectionId,
+            'type' => $type,
+            'name' => (string) $field['name'],
+            'slug' => (string) $field['slug'],
+            'description' => filled($field['description'] ?? null) ? (string) $field['description'] : null,
+            'is_required' => (bool) ($field['is_required'] ?? false),
+            'order' => $order,
+            'settings' => $settings === [] ? null : TemplateFieldSettings::from($settings),
+        ];
     }
 }

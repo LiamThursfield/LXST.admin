@@ -263,6 +263,7 @@ function onSubmit() {
                 v-if="template"
                 v-model="form.content"
                 :fields="template.fields ?? []"
+                :sections="template.sections ?? []"
                 :errors="errors"
                 :readonly="readonly"
                 sectioned

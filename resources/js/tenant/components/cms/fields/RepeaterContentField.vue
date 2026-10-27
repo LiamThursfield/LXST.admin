@@ -163,6 +163,7 @@ function removeRow(index: number) {
                 :key="row._key"
                 v-model="rows[index]"
                 :fields="template?.fields ?? []"
+                :sections="template?.sections ?? []"
                 :index="index"
                 :count="rows.length"
                 :prefix="`${prefix}.${index}`"

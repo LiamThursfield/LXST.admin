@@ -2,9 +2,12 @@
 
 namespace Database\Factories\Cms;
 
+use App\Data\Cms\TemplateFieldSettings;
 use App\Enums\Cms\TemplateFieldType;
+use App\Enums\Cms\TemplateFieldWidth;
 use App\Models\Cms\Template;
 use App\Models\Cms\TemplateField;
+use App\Models\Cms\TemplateSection;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -56,6 +59,34 @@ class TemplateFieldFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'type' => $template->type->value === 'repeater' ? TemplateFieldType::Repeater : TemplateFieldType::Component,
             'settings' => ['template_id' => $template->id],
+        ]);
+    }
+
+    /**
+     * A field in the given section, of the section's template
+     */
+    public function inSection(TemplateSection $section): static
+    {
+        return $this->state([
+            'template_id' => $section->template_id,
+            'section_id' => $section->id,
+        ]);
+    }
+
+    /**
+     * A field that takes half the content editor's width, keeping any other settings
+     */
+    public function halfWidth(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'settings' => TemplateFieldSettings::from([
+                ...match (true) {
+                    $attributes['settings'] instanceof TemplateFieldSettings => $attributes['settings']->toArray(),
+                    is_array($attributes['settings']) => $attributes['settings'],
+                    default => [],
+                },
+                'width' => TemplateFieldWidth::Half,
+            ]),
         ]);
     }
 }
