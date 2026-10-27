@@ -70,8 +70,9 @@ class DjSeeder extends Seeder
      * @var array<string, array{0: int, 1: string, 2: int, 3: int}>
      */
     protected const array SETS = [
-        // Linked to the past gig, which a live session also covers
-        'rooftop' => [21, '21:30', 40, 4],
+        // Linked to the past gig, which a live session also covers. It starts late enough to pass
+        // midnight however the gaps between plays fall.
+        'rooftop' => [21, '22:00', 40, 4],
         // During the private party, left for its link suggestion
         'engagement' => [49, '19:30', 30, 5],
         // Unlinked and past midnight, so it's suggested as a new gig

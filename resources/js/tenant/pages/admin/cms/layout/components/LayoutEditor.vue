@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
 import {
+    index,
     store,
     update,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Cms/LayoutController';
@@ -47,6 +48,9 @@ const form = useForm({
     content: { ...(layout?.content ?? {}) } as ContentValues,
 });
 
+// The content fields fill in empty values and key repeater rows as they mount, so count changes from there
+onMounted(() => form.defaults());
+
 /** Server validation errors, including nested ones such as `content.hero_title`. */
 const errors = computed(
     () => form.errors as Record<string, string | undefined>,
@@ -68,6 +72,21 @@ const templateChanged = computed(
     () => !!layout && form.template_id !== layout.template_id,
 );
 
+const title = computed(() => {
+    if (!layout) {
+        return trans('cms.layouts.create.title');
+    }
+
+    return props.readonly
+        ? trans('cms.layouts.show.title', { name: layout.name })
+        : trans('cms.layouts.edit.title', { name: layout.name });
+});
+
+const breadcrumbs = computed(() => [
+    { label: trans('cms.layouts.index.title'), to: index.url() },
+    { label: layout?.name ?? trans('cms.layouts.create.title') },
+]);
+
 function onSubmit() {
     if (props.readonly) return;
 
@@ -76,75 +95,15 @@ function onSubmit() {
 </script>
 
 <template>
-    <form class="space-y-6" @submit.prevent="onSubmit">
-        <UPageCard
-            variant="subtle"
-            :title="trans('cms.layouts.sections.details')"
-        >
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField
-                    :label="trans('cms.layouts.fields.name')"
-                    :error="form.errors.name"
-                    required
-                >
-                    <UInput
-                        v-model="form.name"
-                        :disabled="readonly"
-                        class="w-full"
-                    />
-                </UFormField>
-
-                <UFormField
-                    :label="trans('cms.layouts.fields.slug')"
-                    :help="
-                        readonly
-                            ? undefined
-                            : trans('cms.layouts.fields.slug_help')
-                    "
-                    :error="form.errors.slug"
-                >
-                    <UInput
-                        v-model="form.slug"
-                        :disabled="readonly"
-                        class="w-full font-mono"
-                    />
-                </UFormField>
-
-                <UFormField
-                    class="md:col-span-2"
-                    :label="trans('cms.layouts.fields.template')"
-                    :help="
-                        readonly
-                            ? undefined
-                            : templates.length
-                              ? trans('cms.layouts.fields.template_help')
-                              : trans('cms.layouts.fields.no_templates')
-                    "
-                    :error="form.errors.template_id"
-                    required
-                >
-                    <USelect
-                        v-model.nullable="form.template_id"
-                        :items="templateItems"
-                        :disabled="readonly"
-                        :placeholder="
-                            trans('cms.layouts.fields.template_placeholder')
-                        "
-                        class="w-full md:w-1/2"
-                    />
-                </UFormField>
-
-                <UAlert
-                    v-if="templateChanged"
-                    class="md:col-span-2"
-                    color="warning"
-                    variant="subtle"
-                    icon="i-lucide-triangle-alert"
-                    :description="trans('cms.layouts.fields.template_changed')"
-                />
-            </div>
-        </UPageCard>
-
+    <EditorLayout
+        :title="title"
+        :breadcrumbs="breadcrumbs"
+        :is-dirty="form.isDirty"
+        :processing="form.processing"
+        :readonly="readonly"
+        :submit-label="layout ? undefined : trans('cms.layouts.create.submit')"
+        @submit="onSubmit"
+    >
         <UPageCard
             variant="subtle"
             :title="trans('cms.layouts.sections.content')"
@@ -161,17 +120,74 @@ function onSubmit() {
             </p>
         </UPageCard>
 
-        <div v-if="!readonly" class="flex justify-end gap-2">
-            <UButton
-                type="submit"
-                color="primary"
-                :loading="form.processing"
-                :label="
-                    layout
-                        ? trans('cms.layouts.edit.submit')
-                        : trans('cms.layouts.create.submit')
-                "
-            />
-        </div>
-    </form>
+        <template #sidebar>
+            <UPageCard
+                variant="subtle"
+                :title="trans('cms.layouts.sections.details')"
+            >
+                <div class="flex flex-col gap-4">
+                    <UFormField
+                        :label="trans('cms.layouts.fields.name')"
+                        :error="form.errors.name"
+                        required
+                    >
+                        <UInput
+                            v-model="form.name"
+                            :disabled="readonly"
+                            class="w-full"
+                        />
+                    </UFormField>
+
+                    <UFormField
+                        :label="trans('cms.layouts.fields.slug')"
+                        :help="
+                            readonly
+                                ? undefined
+                                : trans('cms.layouts.fields.slug_help')
+                        "
+                        :error="form.errors.slug"
+                    >
+                        <UInput
+                            v-model="form.slug"
+                            :disabled="readonly"
+                            class="w-full font-mono"
+                        />
+                    </UFormField>
+
+                    <UFormField
+                        :label="trans('cms.layouts.fields.template')"
+                        :help="
+                            readonly
+                                ? undefined
+                                : templates.length
+                                  ? trans('cms.layouts.fields.template_help')
+                                  : trans('cms.layouts.fields.no_templates')
+                        "
+                        :error="form.errors.template_id"
+                        required
+                    >
+                        <USelect
+                            v-model.nullable="form.template_id"
+                            :items="templateItems"
+                            :disabled="readonly"
+                            :placeholder="
+                                trans('cms.layouts.fields.template_placeholder')
+                            "
+                            class="w-full"
+                        />
+                    </UFormField>
+
+                    <UAlert
+                        v-if="templateChanged"
+                        color="warning"
+                        variant="subtle"
+                        icon="i-lucide-triangle-alert"
+                        :description="
+                            trans('cms.layouts.fields.template_changed')
+                        "
+                    />
+                </div>
+            </UPageCard>
+        </template>
+    </EditorLayout>
 </template>

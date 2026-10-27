@@ -318,6 +318,7 @@ declare global {
   const useTour: typeof import('./node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/composables/useTour').useTour
   const useTrans: typeof import('./resources/js/composables/useTrans').useTrans
   const useTransition: typeof import('@vueuse/core').useTransition
+  const useUnsavedChanges: typeof import('./resources/js/composables/useUnsavedChanges').useUnsavedChanges
   const useUrlSearchParams: typeof import('@vueuse/core').useUrlSearchParams
   const useUserMedia: typeof import('@vueuse/core').useUserMedia
   const useVModel: typeof import('@vueuse/core').useVModel
@@ -660,6 +661,7 @@ declare module 'vue' {
     readonly useTour: UnwrapRef<typeof import('./node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/composables/useTour')['useTour']>
     readonly useTrans: UnwrapRef<typeof import('./resources/js/composables/useTrans')['useTrans']>
     readonly useTransition: UnwrapRef<typeof import('@vueuse/core')['useTransition']>
+    readonly useUnsavedChanges: UnwrapRef<typeof import('./resources/js/composables/useUnsavedChanges')['useUnsavedChanges']>
     readonly useUrlSearchParams: UnwrapRef<typeof import('@vueuse/core')['useUrlSearchParams']>
     readonly useUserMedia: UnwrapRef<typeof import('@vueuse/core')['useUserMedia']>
     readonly useVModel: UnwrapRef<typeof import('@vueuse/core')['useVModel']>
