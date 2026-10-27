@@ -258,22 +258,25 @@ function onSubmit() {
             </UBadge>
         </template>
 
-        <UPageCard
-            v-show="tab === 'content'"
-            variant="subtle"
-            :title="trans('cms.pages.sections.content')"
-        >
+        <div v-show="tab === 'content'">
             <ContentEditor
                 v-if="template"
                 v-model="form.content"
                 :fields="template.fields ?? []"
                 :errors="errors"
                 :readonly="readonly"
+                sectioned
             />
-            <p v-else class="text-muted text-sm">
-                {{ trans('cms.pages.content_choose_template') }}
-            </p>
-        </UPageCard>
+            <UPageCard
+                v-else
+                variant="subtle"
+                :title="trans('cms.pages.sections.content')"
+            >
+                <p class="text-muted text-sm">
+                    {{ trans('cms.pages.content_choose_template') }}
+                </p>
+            </UPageCard>
+        </div>
 
         <UPageCard
             v-show="tab === 'seo'"

@@ -104,18 +104,20 @@ function onSubmit() {
         :submit-label="layout ? undefined : trans('cms.layouts.create.submit')"
         @submit="onSubmit"
     >
+        <ContentEditor
+            v-if="template"
+            v-model="form.content"
+            :fields="template.fields ?? []"
+            :errors="errors"
+            :readonly="readonly"
+            sectioned
+        />
         <UPageCard
+            v-else
             variant="subtle"
             :title="trans('cms.layouts.sections.content')"
         >
-            <ContentEditor
-                v-if="template"
-                v-model="form.content"
-                :fields="template.fields ?? []"
-                :errors="errors"
-                :readonly="readonly"
-            />
-            <p v-else class="text-muted text-sm">
+            <p class="text-muted text-sm">
                 {{ trans('cms.layouts.content_choose_template') }}
             </p>
         </UPageCard>

@@ -263,6 +263,20 @@ return [
     'content' => [
         'empty' => 'This template has no fields yet.',
         'unsupported' => ':type fields can\'t be edited yet.',
+        'expand_all' => 'Expand all',
+        'collapse_all' => 'Collapse all',
+        'sections' => [
+            'fields' => 'Fields',
+        ],
+        'summary' => [
+            'empty' => 'Empty',
+            'sections' => ':count section|:count sections',
+            'fields' => ':count field|:count fields',
+            'items' => '{0} No items|{1} 1 item|[2,*] :count items',
+            'items_of' => ':count of :max items',
+            'words' => ':count word|:count words',
+            'rich_text' => ':words · “:opening”',
+        ],
         'rich_text' => [
             'placeholder' => 'Start writing…',
             'invalid' => 'This rich text couldn\'t be read. Try editing it again.',
@@ -305,11 +319,17 @@ return [
             'off' => 'CRM is switched off for this site, so this field is hidden from the site. Its value is kept.',
         ],
         'repeater' => [
-            'empty' => 'No rows yet.',
-            'add' => 'Add row',
-            'remove' => 'Remove row',
+            'empty' => 'No items yet.',
+            'add' => 'Add item',
+            'item' => 'Item :number',
+            'actions' => 'Actions for :item',
+            'duplicate' => 'Duplicate',
+            'move_up' => 'Move up',
+            'move_down' => 'Move down',
+            'add_below' => 'Add item below',
+            'remove' => 'Remove',
             'drag' => 'Drag to reorder',
-            'row' => 'Row :number',
+            'remaining' => '{0} No more allowed|{1} 1 more allowed|[2,*] :count more allowed',
         ],
         'image' => [
             'alt' => 'Alt text',
