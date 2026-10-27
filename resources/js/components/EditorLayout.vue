@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import type { BreadcrumbItem, TabsItem } from '@nuxt/ui';
+import type { BreadcrumbItem, NavigationMenuItem } from '@nuxt/ui';
 // Imported explicitly: the central app doesn't use these yet, so its generated component types lack them.
 import UBreadcrumb from '@nuxt/ui/components/Breadcrumb.vue';
 import UKbd from '@nuxt/ui/components/Kbd.vue';
-import UTabs from '@nuxt/ui/components/Tabs.vue';
 
 /** A tab in the toolbar, with a count of its fields' server errors. */
 export type EditorTab = {
@@ -60,10 +59,14 @@ defineSlots<{
 
 const { trans } = useTrans();
 
-const tabItems = computed<TabsItem[]>(() =>
+/** The tabs as a menu, the same as the settings pages' tabs. */
+const tabItems = computed<NavigationMenuItem[]>(() =>
     props.tabs.map((item) => ({
-        value: item.value,
         label: item.label,
+        active: tab.value === item.value,
+        onSelect: () => {
+            tab.value = item.value;
+        },
         badge: item.errorCount
             ? {
                   label: String(item.errorCount),
@@ -138,12 +141,11 @@ const { isConfirmOpen, leave, stay } = useUnsavedChanges(
             </UDashboardNavbar>
 
             <UDashboardToolbar v-if="tabs.length">
-                <UTabs
-                    v-model="tab"
+                <!-- NOTE: The `-mx-1` class is used to align with the `DashboardSidebarCollapse` button here. -->
+                <UNavigationMenu
                     :items="tabItems"
-                    :content="false"
-                    variant="link"
-                    class="-mx-1 w-full"
+                    highlight
+                    class="-mx-1 flex-1"
                 />
             </UDashboardToolbar>
         </template>

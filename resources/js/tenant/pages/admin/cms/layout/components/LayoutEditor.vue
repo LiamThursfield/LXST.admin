@@ -48,6 +48,9 @@ const form = useForm({
     content: { ...(layout?.content ?? {}) } as ContentValues,
 });
 
+// The content fields fill in empty values and key repeater rows as they mount, so count changes from there
+onMounted(() => form.defaults());
+
 /** Server validation errors, including nested ones such as `content.hero_title`. */
 const errors = computed(
     () => form.errors as Record<string, string | undefined>,
