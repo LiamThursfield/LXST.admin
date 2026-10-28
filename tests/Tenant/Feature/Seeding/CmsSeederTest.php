@@ -17,9 +17,13 @@ use App\Models\Cms\Url;
 use App\Services\Authorisation\Enums\CmsPermission;
 use Database\Seeders\CmsSeeder;
 use Database\Seeders\CrmSeeder;
+use Database\Seeders\FileManagerSeeder;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     tenant()->update(['modules' => TenantModule::cases()]);
+    Storage::fake('file_manager');
+    $this->seed(FileManagerSeeder::class);
     $this->seed(CrmSeeder::class);
     $this->seed(CmsSeeder::class);
 });
@@ -44,6 +48,17 @@ test('the CMS seeder lays the standard page template out in sections, with half-
         ->and($fields['body']->settings?->width)->toBeNull();
 });
 
+test('the CMS seeder lays the call to action component out in sections too, for nested editors', function () {
+    $template = Template::query()->where('slug', 'call-to-action')->sole();
+    $fields = $template->fields->keyBy('slug');
+
+    expect($template->sections->pluck('name')->all())->toBe(['Message', 'Button'])
+        ->and($fields['heading']->section_id)->toBe($template->sections->first()->id)
+        ->and($fields['button_url']->section_id)->toBe($template->sections->last()->id)
+        ->and($fields['button_label']->settings?->width)->toBe(TemplateFieldWidth::Half)
+        ->and($fields['button_label']->settings?->max_length)->toBe(40);
+});
+
 test('the CMS seeder makes pages in every publish status, nested, with their content', function () {
     foreach (PublishStatus::cases() as $status) {
         expect(Url::query()->withStatus($status)->exists())->toBeTrue("No {$status->value} page");
@@ -57,6 +72,8 @@ test('the CMS seeder makes pages in every publish status, nested, with their con
         ->and($home->contentValues())
         ->toHaveKeys(['hero_title', 'body', 'features', 'call_to_action'])
         ->and($home->contentValues()['features'])->toHaveCount(3)
+        // Each feature has its own photo, for the repeater rows' thumbnails
+        ->and(collect($home->contentValues()['features'])->pluck('image.file_id')->filter()->unique())->toHaveCount(3)
         ->and($home->contentValues()['body']['html'])->toContain('<p>')
         ->and(Page::query()->where('slug', 'contact')->sole()->contentValues()['contact_form'])->not->toBeNull()
         ->and($home->metadata->title)->toContain('Home');

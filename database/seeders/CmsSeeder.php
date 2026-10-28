@@ -25,8 +25,8 @@ use Illuminate\Support\Str;
 
 /**
  * A small, realistic website to test the CMS admin and the headless API with (#166): templates
- * using every field type (one laid out in sections, with half-width fields), two layouts, nested menus, pages in every publish status, redirects, and
- * a few weeks of page views.
+ * using every field type (a page and a component laid out in sections, with half-width fields),
+ * two layouts, nested menus, pages in every publish status, redirects, and a few weeks of page views.
  *
  * Run within a tenant, e.g. `php artisan tenants:seed --class=CmsSeeder`. Safe to re-run: each kind
  * of data is only seeded when none exists yet.
@@ -67,6 +67,10 @@ class CmsSeeder extends Seeder
             ['button_label', TemplateFieldType::Text, 'Button label', false, ['max_length' => 40]],
             ['button_url', TemplateFieldType::Text, 'Button link', false],
         ]);
+        $this->sections($cta, [
+            ['Message', null, false, ['heading', 'message']],
+            ['Button', 'Where the button takes visitors.', false, ['button_label', 'button_url']],
+        ], halfWidth: ['button_label', 'button_url']);
 
         $feature = $template('feature', TemplateType::Repeater, 'Feature', 'One item in a list of features.', [
             ['title', TemplateFieldType::Text, 'Title', true],
@@ -200,10 +204,16 @@ class CmsSeeder extends Seeder
             'body' => $this->richText($paragraphs),
             ...$extra,
         ];
+        // Each feature's image, from the File Manager seeder's gig photos (null without them)
+        $featureImage = function (string $path, string $alt): ?array {
+            $id = File::query()->where('path', $path)->value('id');
+
+            return $id === null ? null : ['file_id' => $id, 'alt' => $alt];
+        };
         $features = fn () => [
-            ['title' => 'Weddings', 'description' => 'From the first dance to the last song, planned with you.', 'image' => null],
-            ['title' => 'Parties', 'description' => 'Birthdays, anniversaries and everything in between.', 'image' => null],
-            ['title' => 'Club nights', 'description' => 'House, disco and edits, mixed live all night.', 'image' => null],
+            ['title' => 'Weddings', 'description' => 'From the first dance to the last song, planned with you.', 'image' => $featureImage('images/gigs/wedding-barn.jpg', 'A barn wedding reception')],
+            ['title' => 'Parties', 'description' => 'Birthdays, anniversaries and everything in between.', 'image' => $featureImage('images/gigs/rooftop-party.jpg', 'A rooftop party at sunset')],
+            ['title' => 'Club nights', 'description' => 'House, disco and edits, mixed live all night.', 'image' => $featureImage('images/gigs/club-night.jpg', 'The DJ booth at a club night')],
         ];
         $cta = ['heading' => 'Planning an event?', 'message' => 'Tell us the date and we\'ll let you know if we\'re free.', 'button_label' => 'Get in touch', 'button_url' => '/contact'];
 
