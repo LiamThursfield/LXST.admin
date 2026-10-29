@@ -3,6 +3,7 @@ import { useForm } from '@inertiajs/vue3';
 import { reactive } from 'vue';
 import * as z from 'zod';
 import {
+    index,
     store,
     update,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Tracker/HolidayController';
@@ -54,6 +55,33 @@ const form = useForm({
     ends_on: state.ends_on,
 });
 
+// The fields are the UForm's state, only copied into the Inertia form on submit
+const { isDirty } = useIsDirty(() => state);
+
+const formRef = useTemplateRef<{ submit: () => Promise<void> }>('formRef');
+
+const title = computed(() => {
+    if (props.create || !props.holiday) {
+        return trans('tracker.holidays.create.title');
+    }
+
+    return trans(
+        props.readonly
+            ? 'tracker.holidays.show.title'
+            : 'tracker.holidays.edit.title',
+    );
+});
+
+const breadcrumbs = computed(() => [
+    { label: trans('tracker.holidays.index.title'), to: index.url() },
+    {
+        label: props.holiday
+            ? props.holiday.label ||
+              `${props.holiday.starts_on} – ${props.holiday.ends_on}`
+            : trans('tracker.holidays.create.title'),
+    },
+]);
+
 async function onSubmit() {
     if (props.readonly) return;
 
@@ -71,63 +99,74 @@ async function onSubmit() {
 </script>
 
 <template>
-    <UForm :schema="schema" :state="state" class="space-y-6" @submit="onSubmit">
-        <UPageCard variant="subtle">
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField
-                    class="md:col-span-2"
-                    :label="trans('tracker.holidays.fields.label')"
-                    name="label"
-                >
-                    <UInput
-                        v-model="state.label!"
-                        :disabled="readonly"
-                        class="w-full"
-                        :placeholder="
-                            trans('tracker.holidays.fields.label_placeholder')
-                        "
-                    />
-                </UFormField>
+    <EditorLayout
+        :title="title"
+        :breadcrumbs="breadcrumbs"
+        :is-dirty="isDirty"
+        :processing="form.processing"
+        :readonly="readonly"
+        :submit-label="
+            create ? trans('tracker.holidays.create.submit') : undefined
+        "
+        narrow
+        own-form
+        @submit="formRef?.submit()"
+    >
+        <UForm
+            ref="formRef"
+            :schema="schema"
+            :state="state"
+            @submit="onSubmit"
+            class="flex flex-col gap-6"
+        >
+            <UPageCard variant="subtle">
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <UFormField
+                        class="md:col-span-2"
+                        :label="trans('tracker.holidays.fields.label')"
+                        name="label"
+                    >
+                        <UInput
+                            v-model="state.label!"
+                            :disabled="readonly"
+                            class="w-full"
+                            :placeholder="
+                                trans(
+                                    'tracker.holidays.fields.label_placeholder',
+                                )
+                            "
+                        />
+                    </UFormField>
 
-                <UFormField
-                    :label="trans('tracker.holidays.fields.starts_on')"
-                    name="starts_on"
-                    required
-                >
-                    <UInput
-                        v-model="state.starts_on"
-                        :disabled="readonly"
-                        class="w-full"
-                        type="date"
-                    />
-                </UFormField>
+                    <UFormField
+                        :label="trans('tracker.holidays.fields.starts_on')"
+                        name="starts_on"
+                        required
+                    >
+                        <UInput
+                            v-model="state.starts_on"
+                            :disabled="readonly"
+                            class="w-full"
+                            type="date"
+                        />
+                    </UFormField>
 
-                <UFormField
-                    :label="trans('tracker.holidays.fields.ends_on')"
-                    name="ends_on"
-                    required
-                >
-                    <UInput
-                        v-model="state.ends_on"
-                        :disabled="readonly"
-                        class="w-full"
-                        type="date"
-                    />
-                </UFormField>
-            </div>
-        </UPageCard>
+                    <UFormField
+                        :label="trans('tracker.holidays.fields.ends_on')"
+                        name="ends_on"
+                        required
+                    >
+                        <UInput
+                            v-model="state.ends_on"
+                            :disabled="readonly"
+                            class="w-full"
+                            type="date"
+                        />
+                    </UFormField>
+                </div>
+            </UPageCard>
 
-        <div v-if="!readonly" class="flex justify-end gap-2">
-            <UButton
-                :loading="form.processing"
-                color="primary"
-                :label="
-                    create
-                        ? trans('tracker.holidays.create.submit')
-                        : trans('tracker.save_changes')
-                "
-                type="submit"
-            />
-        </div>
-    </UForm>
+            <SubmitOnEnter />
+        </UForm>
+    </EditorLayout>
 </template>

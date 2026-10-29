@@ -136,6 +136,7 @@ return [
         ],
         'sections' => [
             'details' => 'Details',
+            'settings' => 'Settings',
             'after_submit' => 'After submitting',
         ],
         'builder' => [

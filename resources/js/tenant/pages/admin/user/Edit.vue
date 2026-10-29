@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
 import UserForm from './components/UserForm.vue';
-
-const { trans } = useTrans();
 
 defineProps<{
     user: {
@@ -19,32 +16,5 @@ defineProps<{
 </script>
 
 <template>
-    <UDashboardPanel>
-        <template #header>
-            <UDashboardNavbar
-                :title="
-                    trans('users.edit.title', {
-                        name: `${user.data.first_name} ${user.data.last_name}`,
-                    })
-                "
-            >
-                <template #leading>
-                    <UDashboardSidebarCollapse as="button" :disabled="false" />
-                </template>
-            </UDashboardNavbar>
-        </template>
-
-        <template #body>
-            <Head
-                :title="
-                    trans('users.edit.title', {
-                        name: `${user.data.first_name} ${user.data.last_name}`,
-                    })
-                "
-            />
-            <div class="w-full max-w-4xl">
-                <UserForm :user="user.data" :roles="roles" :readonly="false" />
-            </div>
-        </template>
-    </UDashboardPanel>
+    <UserForm :user="user.data" :roles="roles" :readonly="false" />
 </template>

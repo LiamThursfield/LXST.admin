@@ -209,7 +209,7 @@ const tabs = computed<EditorTab[]>(() => [
     },
     {
         value: 'details',
-        label: trans('crm.forms.sections.details'),
+        label: trans('crm.forms.sections.settings'),
         errorCount: Object.entries(errors.value).filter(
             ([key, message]) => message && !key.startsWith('fields'),
         ).length,

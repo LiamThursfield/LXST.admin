@@ -1,17 +1,43 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
 import {
+    index,
     store,
     update,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/GigController';
+import type { EditorTab } from '@/components/EditorLayout.vue';
 import { timezoneOptions } from '@/lib/timezone';
 import type { GigData, RequestDefaults, SelectItem } from '@/types';
 
-const props = defineProps<{
-    gig?: GigData;
-    defaultTimezone?: string;
-    defaults: RequestDefaults;
-    requestsModes: SelectItem[];
+/**
+ * Creates or edits a gig, on the editor layout: its Details and Requests tabs hold the form, and
+ * the gig's page can add tabs of its own (e.g. Sharing, Setlists) through `extraTabs` and a
+ * `tab-{value}` slot for each.
+ */
+const props = withDefaults(
+    defineProps<{
+        gig?: GigData;
+        defaultTimezone?: string;
+        defaults: RequestDefaults;
+        requestsModes: SelectItem[];
+        /** More tabs after Details and Requests, each filled by its `tab-{value}` slot. */
+        extraTabs?: EditorTab[];
+    }>(),
+    {
+        gig: undefined,
+        defaultTimezone: undefined,
+        extraTabs: () => [],
+    },
+);
+
+defineSlots<{
+    /** Badges beside the breadcrumbs, e.g. whether requests are open. */
+    badges?(): unknown;
+    /** Navbar actions before Save, e.g. Pin. */
+    actions?(): unknown;
+    /** Above every tab, e.g. a warning about overlapping gigs. */
+    notice?(): unknown;
+    [tab: `tab-${string}`]: (() => unknown) | undefined;
 }>();
 
 const { trans } = useTrans();
@@ -101,6 +127,33 @@ const scheduled = computed(
             props.defaults.requests_mode === 'scheduled'),
 );
 
+function errorCount(matches: (key: string) => boolean): number {
+    return Object.keys(form.errors).filter(matches).length;
+}
+
+const tabs = computed<EditorTab[]>(() => [
+    {
+        value: 'details',
+        label: trans('dj.gigs.sections.details'),
+        errorCount: errorCount((key) => !key.startsWith('request_settings')),
+    },
+    {
+        value: 'requests',
+        label: trans('dj.gigs.sections.requests'),
+        errorCount: errorCount((key) => key.startsWith('request_settings')),
+    },
+    ...props.extraTabs,
+]);
+
+const tab = ref('details');
+
+const title = computed(() => props.gig?.name ?? trans('dj.gigs.create'));
+
+const breadcrumbs = computed(() => [
+    { label: trans('dj.gigs.title'), to: index.url() },
+    { label: props.gig?.name ?? trans('dj.gigs.create') },
+]);
+
 function onSubmit() {
     const choice = (value: string) =>
         value === 'yes' ? true : value === 'no' ? false : null;
@@ -138,13 +191,47 @@ function onSubmit() {
         },
     })).submit(props.gig ? update(props.gig.id) : store(), {
         preserveScroll: true,
+        // Show the first tab with errors, unless the current tab has some
+        onError: () => {
+            const withErrors = tabs.value.filter((item) => item.errorCount);
+
+            if (
+                withErrors.length &&
+                !withErrors.some((item) => item.value === tab.value)
+            ) {
+                tab.value = withErrors[0].value;
+            }
+        },
     });
 }
 </script>
 
 <template>
-    <form class="flex flex-col gap-6" @submit.prevent="onSubmit">
-        <UPageCard :title="trans('dj.gigs.sections.details')" variant="subtle">
+    <EditorLayout
+        v-model:tab="tab"
+        :title="title"
+        :breadcrumbs="breadcrumbs"
+        :tabs="tabs"
+        :is-dirty="form.isDirty"
+        :processing="form.processing"
+        :submit-label="gig ? undefined : trans('dj.gigs.create_submit')"
+        narrow
+        @submit="onSubmit"
+    >
+        <template v-if="$slots.badges" #badges>
+            <slot name="badges" />
+        </template>
+        <template v-if="$slots.actions" #actions>
+            <slot name="actions" />
+        </template>
+
+        <slot name="notice" />
+
+        <UPageCard
+            v-show="tab === 'details'"
+            :title="trans('dj.gigs.sections.details')"
+            variant="subtle"
+        >
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <UFormField
                     :label="trans('dj.gigs.fields.name')"
@@ -214,6 +301,7 @@ function onSubmit() {
         </UPageCard>
 
         <UPageCard
+            v-show="tab === 'requests'"
             :title="trans('dj.gigs.sections.requests')"
             :description="trans('dj.gigs.sections.requests_help')"
             variant="subtle"
@@ -342,12 +430,13 @@ function onSubmit() {
             </div>
         </UPageCard>
 
-        <div class="flex justify-end">
-            <UButton
-                type="submit"
-                :loading="form.processing"
-                :label="trans('dj.gigs.save')"
-            />
+        <div
+            v-for="extra in extraTabs"
+            v-show="tab === extra.value"
+            :key="extra.value"
+            class="flex flex-col gap-6"
+        >
+            <slot :name="`tab-${extra.value}`" />
         </div>
-    </form>
+    </EditorLayout>
 </template>

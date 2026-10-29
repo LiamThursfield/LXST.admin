@@ -3,6 +3,7 @@ import { useForm } from '@inertiajs/vue3';
 import { computed, watch } from 'vue';
 import * as z from 'zod';
 import {
+    index,
     store,
     update,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Crm/OrganisationUnitController';
@@ -28,7 +29,7 @@ const props = withDefaults(
     },
 );
 
-const { trans } = useTrans();
+const { trans, transChoice } = useTrans();
 
 const schema = z.object({
     type: z.string().min(1),
@@ -108,6 +109,43 @@ const errors = computed(
     () => form.errors as Record<string, string | undefined>,
 );
 
+/** How many social links are filled in, for the collapsed Socials card. */
+const socialsSummary = computed(() => {
+    const count = Object.values(form.socials).filter(
+        (url) => url.trim() !== '',
+    ).length;
+
+    return count
+        ? transChoice('crm.organisation_units.socials_summary', count)
+        : trans('crm.organisation_units.socials_none');
+});
+
+const hasSocialErrors = computed(() =>
+    Object.keys(errors.value).some(
+        (key) => key.startsWith('socials.') && errors.value[key],
+    ),
+);
+
+const formRef = useTemplateRef<{ submit: () => Promise<void> }>('formRef');
+
+const title = computed(() => {
+    if (props.create || !unit) {
+        return trans('crm.organisation_units.create.title');
+    }
+
+    return trans(
+        props.readonly
+            ? 'crm.organisation_units.show.title'
+            : 'crm.organisation_units.edit.title',
+        { name: unit.name },
+    );
+});
+
+const breadcrumbs = computed(() => [
+    { label: trans('crm.organisation_units.index.title'), to: index.url() },
+    { label: unit?.name ?? trans('crm.organisation_units.create.title') },
+]);
+
 function addNotificationEmail() {
     form.notification_emails.push('');
 }
@@ -129,47 +167,32 @@ function onSubmit() {
 </script>
 
 <template>
-    <UForm :schema="schema" :state="form" class="space-y-6" @submit="onSubmit">
-        <UPageCard
-            variant="subtle"
-            :title="trans('crm.organisation_units.sections.details')"
+    <!-- The form wraps the whole layout, so the sidebar's fields are in it too -->
+    <UForm
+        ref="formRef"
+        :schema="schema"
+        :state="form"
+        class="contents"
+        @submit="onSubmit"
+    >
+        <EditorLayout
+            :title="title"
+            :breadcrumbs="breadcrumbs"
+            :is-dirty="form.isDirty"
+            :processing="form.processing"
+            :readonly="readonly"
+            :submit-label="
+                create
+                    ? trans('crm.organisation_units.create.submit')
+                    : undefined
+            "
+            own-form
+            @submit="formRef?.submit()"
         >
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField
-                    :label="trans('crm.organisation_units.fields.type')"
-                    name="type"
-                    :error="form.errors.type"
-                    required
-                >
-                    <USelect
-                        v-model="form.type"
-                        :disabled="readonly"
-                        :items="types"
-                        class="w-full"
-                    />
-                </UFormField>
-
-                <UFormField
-                    v-if="allowedParentTypes.length"
-                    :label="trans('crm.organisation_units.fields.parent')"
-                    :help="readonly ? undefined : parentHelp"
-                    name="parent_id"
-                    :error="form.errors.parent_id"
-                    required
-                >
-                    <USelect
-                        v-model.nullable="form.parent_id"
-                        :disabled="readonly"
-                        :items="parentItems"
-                        :placeholder="
-                            trans(
-                                'crm.organisation_units.fields.parent_placeholder',
-                            )
-                        "
-                        class="w-full"
-                    />
-                </UFormField>
-
+            <UPageCard
+                variant="subtle"
+                :title="trans('crm.organisation_units.sections.details')"
+            >
                 <UFormField
                     :label="trans('crm.organisation_units.fields.name')"
                     name="name"
@@ -182,185 +205,232 @@ function onSubmit() {
                         class="w-full"
                     />
                 </UFormField>
+            </UPageCard>
 
-                <UFormField
-                    :label="trans('crm.organisation_units.fields.slug')"
-                    :help="
-                        readonly
-                            ? undefined
-                            : trans('crm.organisation_units.fields.slug_help')
-                    "
-                    name="slug"
-                    :error="form.errors.slug"
-                >
-                    <UInput
-                        v-model="form.slug"
-                        :disabled="readonly"
-                        class="w-full"
-                    />
-                </UFormField>
-            </div>
-        </UPageCard>
-
-        <UPageCard
-            variant="subtle"
-            :title="trans('crm.organisation_units.sections.contact')"
-        >
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField
-                    class="md:col-span-2"
-                    :label="trans('crm.organisation_units.fields.email')"
-                    name="email"
-                    :error="form.errors.email"
-                    required
-                >
-                    <UInput
-                        v-model="form.email"
-                        :disabled="readonly"
-                        class="w-full"
-                        type="email"
-                    />
-                </UFormField>
-
-                <UFormField
-                    :label="trans('crm.organisation_units.fields.telephone')"
-                    name="telephone"
-                    :error="form.errors.telephone"
-                >
-                    <UInput
-                        v-model="form.telephone"
-                        :disabled="readonly"
-                        class="w-full"
-                        type="tel"
-                    />
-                </UFormField>
-
-                <UFormField
-                    :label="trans('crm.organisation_units.fields.mobile_phone')"
-                    name="mobile_phone"
-                    :error="form.errors.mobile_phone"
-                >
-                    <UInput
-                        v-model="form.mobile_phone"
-                        :disabled="readonly"
-                        class="w-full"
-                        type="tel"
-                    />
-                </UFormField>
-
-                <UFormField
-                    class="md:col-span-2"
-                    :label="
-                        trans(
-                            'crm.organisation_units.fields.notification_emails',
-                        )
-                    "
-                    :help="
-                        readonly
-                            ? undefined
-                            : trans(
-                                  'crm.organisation_units.fields.notification_emails_help',
-                              )
-                    "
-                    name="notification_emails"
-                    :error="form.errors.notification_emails"
-                >
-                    <div class="flex flex-col gap-2">
-                        <div
-                            v-for="(_, index) in form.notification_emails"
-                            :key="index"
-                            class="flex flex-col gap-1"
-                        >
-                            <div class="flex gap-2">
-                                <UInput
-                                    v-model="form.notification_emails[index]"
-                                    :disabled="readonly"
-                                    :placeholder="
-                                        trans(
-                                            'crm.organisation_units.fields.notification_email_placeholder',
-                                        )
-                                    "
-                                    class="w-full"
-                                    type="email"
-                                />
-                                <UButton
-                                    v-if="!readonly"
-                                    color="neutral"
-                                    variant="ghost"
-                                    icon="i-lucide-x"
-                                    :aria-label="
-                                        trans(
-                                            'crm.organisation_units.fields.remove_notification_email',
-                                        )
-                                    "
-                                    @click="removeNotificationEmail(index)"
-                                />
-                            </div>
-                            <p
-                                v-if="errors[`notification_emails.${index}`]"
-                                class="text-error text-sm"
-                            >
-                                {{ errors[`notification_emails.${index}`] }}
-                            </p>
-                        </div>
-
-                        <UButton
-                            v-if="!readonly"
-                            class="w-fit"
-                            color="neutral"
-                            variant="subtle"
-                            icon="i-lucide-plus"
-                            :label="
-                                trans(
-                                    'crm.organisation_units.fields.add_notification_email',
-                                )
-                            "
-                            @click="addNotificationEmail"
+            <UPageCard
+                variant="subtle"
+                :title="trans('crm.organisation_units.sections.contact')"
+            >
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <UFormField
+                        class="md:col-span-2"
+                        :label="trans('crm.organisation_units.fields.email')"
+                        name="email"
+                        :error="form.errors.email"
+                        required
+                    >
+                        <UInput
+                            v-model="form.email"
+                            :disabled="readonly"
+                            class="w-full"
+                            type="email"
                         />
-                    </div>
-                </UFormField>
-            </div>
-        </UPageCard>
+                    </UFormField>
 
-        <UPageCard
-            variant="subtle"
-            :title="trans('crm.organisation_units.sections.socials')"
-        >
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField
-                    v-for="social in socialMedia"
-                    :key="social.value"
-                    :label="social.label"
-                    :name="`socials.${social.value}`"
-                    :error="errors[`socials.${social.value}`]"
-                >
-                    <UInput
-                        v-model="form.socials[social.value]"
-                        :disabled="readonly"
-                        class="w-full"
-                        type="url"
-                    />
-                </UFormField>
-            </div>
-        </UPageCard>
+                    <UFormField
+                        :label="
+                            trans('crm.organisation_units.fields.telephone')
+                        "
+                        name="telephone"
+                        :error="form.errors.telephone"
+                    >
+                        <UInput
+                            v-model="form.telephone"
+                            :disabled="readonly"
+                            class="w-full"
+                            type="tel"
+                        />
+                    </UFormField>
 
-        <AddressFields
-            v-model="form.address"
-            :errors="errors"
-            :readonly="readonly"
-        />
+                    <UFormField
+                        :label="
+                            trans('crm.organisation_units.fields.mobile_phone')
+                        "
+                        name="mobile_phone"
+                        :error="form.errors.mobile_phone"
+                    >
+                        <UInput
+                            v-model="form.mobile_phone"
+                            :disabled="readonly"
+                            class="w-full"
+                            type="tel"
+                        />
+                    </UFormField>
 
-        <div v-if="!readonly" class="flex justify-end gap-2">
-            <UButton
-                :loading="form.processing"
-                color="primary"
-                :label="
-                    create
-                        ? trans('crm.organisation_units.create.submit')
-                        : trans('crm.save_changes')
-                "
-                type="submit"
+                    <UFormField
+                        class="md:col-span-2"
+                        :label="
+                            trans(
+                                'crm.organisation_units.fields.notification_emails',
+                            )
+                        "
+                        :help="
+                            readonly
+                                ? undefined
+                                : trans(
+                                      'crm.organisation_units.fields.notification_emails_help',
+                                  )
+                        "
+                        name="notification_emails"
+                        :error="form.errors.notification_emails"
+                    >
+                        <div class="flex flex-col gap-2">
+                            <div
+                                v-for="(_, index) in form.notification_emails"
+                                :key="index"
+                                class="flex flex-col gap-1"
+                            >
+                                <div class="flex gap-2">
+                                    <UInput
+                                        v-model="
+                                            form.notification_emails[index]
+                                        "
+                                        :disabled="readonly"
+                                        :placeholder="
+                                            trans(
+                                                'crm.organisation_units.fields.notification_email_placeholder',
+                                            )
+                                        "
+                                        class="w-full"
+                                        type="email"
+                                    />
+                                    <UButton
+                                        v-if="!readonly"
+                                        color="neutral"
+                                        variant="ghost"
+                                        icon="i-lucide-x"
+                                        :aria-label="
+                                            trans(
+                                                'crm.organisation_units.fields.remove_notification_email',
+                                            )
+                                        "
+                                        @click="removeNotificationEmail(index)"
+                                    />
+                                </div>
+                                <p
+                                    v-if="
+                                        errors[`notification_emails.${index}`]
+                                    "
+                                    class="text-error text-sm"
+                                >
+                                    {{ errors[`notification_emails.${index}`] }}
+                                </p>
+                            </div>
+
+                            <UButton
+                                v-if="!readonly"
+                                class="w-fit"
+                                color="neutral"
+                                variant="subtle"
+                                icon="i-lucide-plus"
+                                :label="
+                                    trans(
+                                        'crm.organisation_units.fields.add_notification_email',
+                                    )
+                                "
+                                @click="addNotificationEmail"
+                            />
+                        </div>
+                    </UFormField>
+                </div>
+            </UPageCard>
+
+            <CollapsibleCard
+                :title="trans('crm.organisation_units.sections.socials')"
+                :summary="socialsSummary"
+                :has-error="hasSocialErrors"
+                :default-open="false"
+            >
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <UFormField
+                        v-for="social in socialMedia"
+                        :key="social.value"
+                        :label="social.label"
+                        :name="`socials.${social.value}`"
+                        :error="errors[`socials.${social.value}`]"
+                    >
+                        <UInput
+                            v-model="form.socials[social.value]"
+                            :disabled="readonly"
+                            class="w-full"
+                            type="url"
+                        />
+                    </UFormField>
+                </div>
+            </CollapsibleCard>
+
+            <AddressFields
+                v-model="form.address"
+                :errors="errors"
+                :readonly="readonly"
             />
-        </div>
+
+            <SubmitOnEnter />
+
+            <template #sidebar>
+                <UPageCard
+                    variant="subtle"
+                    :title="trans('crm.organisation_units.sections.structure')"
+                >
+                    <div class="flex flex-col gap-4">
+                        <UFormField
+                            :label="trans('crm.organisation_units.fields.type')"
+                            name="type"
+                            :error="form.errors.type"
+                            required
+                        >
+                            <USelect
+                                v-model="form.type"
+                                :disabled="readonly"
+                                :items="types"
+                                class="w-full"
+                            />
+                        </UFormField>
+
+                        <UFormField
+                            v-if="allowedParentTypes.length"
+                            :label="
+                                trans('crm.organisation_units.fields.parent')
+                            "
+                            :help="readonly ? undefined : parentHelp"
+                            name="parent_id"
+                            :error="form.errors.parent_id"
+                            required
+                        >
+                            <USelect
+                                v-model.nullable="form.parent_id"
+                                :disabled="readonly"
+                                :items="parentItems"
+                                :placeholder="
+                                    trans(
+                                        'crm.organisation_units.fields.parent_placeholder',
+                                    )
+                                "
+                                class="w-full"
+                            />
+                        </UFormField>
+
+                        <UFormField
+                            :label="trans('crm.organisation_units.fields.slug')"
+                            :help="
+                                readonly
+                                    ? undefined
+                                    : trans(
+                                          'crm.organisation_units.fields.slug_help',
+                                      )
+                            "
+                            name="slug"
+                            :error="form.errors.slug"
+                        >
+                            <UInput
+                                v-model="form.slug"
+                                :disabled="readonly"
+                                class="w-full"
+                            />
+                        </UFormField>
+                    </div>
+                </UPageCard>
+            </template>
+        </EditorLayout>
     </UForm>
 </template>

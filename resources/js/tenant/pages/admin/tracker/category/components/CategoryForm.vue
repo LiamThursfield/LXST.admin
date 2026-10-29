@@ -3,6 +3,7 @@ import { useForm } from '@inertiajs/vue3';
 import { reactive } from 'vue';
 import * as z from 'zod';
 import {
+    index,
     store,
     update,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Tracker/CategoryController';
@@ -48,12 +49,37 @@ const state = reactive<Partial<Schema>>({
     is_public: props.category?.is_public ?? false,
 });
 
+// The fields are the UForm's state, only copied into the Inertia form on submit
+const { isDirty } = useIsDirty(() => state);
+
+const formRef = useTemplateRef<{ submit: () => Promise<void> }>('formRef');
+
 const form = useForm<Partial<Schema>>({
     name: '',
     colour: '',
     icon: '',
     is_public: false,
 });
+
+const title = computed(() => {
+    if (props.create || !props.category) {
+        return trans('tracker.categories.create.title');
+    }
+
+    return trans(
+        props.readonly
+            ? 'tracker.categories.show.title'
+            : 'tracker.categories.edit.title',
+        { name: props.category.name },
+    );
+});
+
+const breadcrumbs = computed(() => [
+    { label: trans('tracker.categories.index.title'), to: index.url() },
+    {
+        label: props.category?.name ?? trans('tracker.categories.create.title'),
+    },
+]);
 
 async function onSubmit() {
     if (props.readonly) return;
@@ -73,71 +99,85 @@ async function onSubmit() {
 </script>
 
 <template>
-    <UForm :schema="schema" :state="state" class="space-y-6" @submit="onSubmit">
-        <UPageCard variant="subtle">
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField
-                    class="md:col-span-2"
-                    :label="trans('tracker.categories.fields.name')"
-                    name="name"
-                    required
-                >
-                    <UInput
-                        v-model="state.name"
-                        :disabled="readonly"
-                        class="w-full"
-                    />
-                </UFormField>
+    <EditorLayout
+        :title="title"
+        :breadcrumbs="breadcrumbs"
+        :is-dirty="isDirty"
+        :processing="form.processing"
+        :readonly="readonly"
+        :submit-label="
+            create ? trans('tracker.categories.create.submit') : undefined
+        "
+        own-form
+        narrow
+        @submit="formRef?.submit()"
+    >
+        <UForm
+            ref="formRef"
+            :schema="schema"
+            :state="state"
+            class="flex flex-col gap-6"
+            @submit="onSubmit"
+        >
+            <UPageCard variant="subtle">
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <UFormField
+                        class="md:col-span-2"
+                        :label="trans('tracker.categories.fields.name')"
+                        name="name"
+                        required
+                    >
+                        <UInput
+                            v-model="state.name"
+                            :disabled="readonly"
+                            class="w-full"
+                        />
+                    </UFormField>
 
-                <UFormField
-                    :label="trans('tracker.categories.fields.colour')"
-                    name="colour"
-                >
-                    <UInput
-                        v-model="state.colour!"
-                        :disabled="readonly"
-                        class="w-full"
-                        placeholder="#4f46e5"
-                    />
-                </UFormField>
+                    <UFormField
+                        :label="trans('tracker.categories.fields.colour')"
+                        name="colour"
+                    >
+                        <UInput
+                            v-model="state.colour!"
+                            :disabled="readonly"
+                            class="w-full"
+                            placeholder="#4f46e5"
+                        />
+                    </UFormField>
 
-                <UFormField
-                    :label="trans('tracker.categories.fields.icon')"
-                    name="icon"
-                >
-                    <UInput
-                        v-model="state.icon!"
-                        :disabled="readonly"
-                        class="w-full"
-                        placeholder="i-lucide-tag"
-                    />
-                </UFormField>
+                    <UFormField
+                        :label="trans('tracker.categories.fields.icon')"
+                        name="icon"
+                    >
+                        <UInput
+                            v-model="state.icon!"
+                            :disabled="readonly"
+                            class="w-full"
+                            placeholder="i-lucide-tag"
+                        />
+                    </UFormField>
 
-                <UFormField
-                    v-if="canManagePublic"
-                    class="md:col-span-2"
-                    :label="trans('tracker.categories.fields.is_public')"
-                    name="is_public"
-                    :description="
-                        trans('tracker.categories.fields.is_public_description')
-                    "
-                >
-                    <USwitch v-model="state.is_public!" :disabled="readonly" />
-                </UFormField>
-            </div>
-        </UPageCard>
+                    <UFormField
+                        v-if="canManagePublic"
+                        class="md:col-span-2"
+                        :label="trans('tracker.categories.fields.is_public')"
+                        name="is_public"
+                        :description="
+                            trans(
+                                'tracker.categories.fields.is_public_description',
+                            )
+                        "
+                    >
+                        <USwitch
+                            v-model="state.is_public!"
+                            :disabled="readonly"
+                        />
+                    </UFormField>
+                </div>
+            </UPageCard>
 
-        <div v-if="!readonly" class="flex justify-end gap-2">
-            <UButton
-                :loading="form.processing"
-                color="primary"
-                :label="
-                    create
-                        ? trans('tracker.categories.create.submit')
-                        : trans('tracker.save_changes')
-                "
-                type="submit"
-            />
-        </div>
-    </UForm>
+            <SubmitOnEnter />
+        </UForm>
+    </EditorLayout>
 </template>

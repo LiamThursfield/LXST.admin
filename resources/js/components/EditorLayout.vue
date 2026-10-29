@@ -22,6 +22,10 @@ export type EditorTab = {
  * The body is a `<form>`, so Enter in a field submits. ⌘S / Ctrl+S submits too, and leaving with
  * unsaved changes asks first. Render each tab's fields in the default slot, shown with `v-show`
  * against the `tab` model so every field stays mounted.
+ *
+ * A page with a form of its own (e.g. a `UForm`, for its client-side checks) passes `ownForm`, so
+ * the body isn't a form as well; Save and ⌘S still emit `submit`, for it to submit its own form.
+ * Put a `SubmitOnEnter` in that form, so Enter submits it.
  */
 const props = withDefaults(
     defineProps<{
@@ -34,6 +38,10 @@ const props = withDefaults(
         processing?: boolean;
         readonly?: boolean;
         submitLabel?: string;
+        /** The page renders its own `<form>` in the default slot, so the body isn't one. */
+        ownForm?: boolean;
+        /** A short form without a sidebar, kept to a readable width. */
+        narrow?: boolean;
     }>(),
     {
         tabs: () => [],
@@ -41,6 +49,8 @@ const props = withDefaults(
         processing: false,
         readonly: false,
         submitLabel: undefined,
+        ownForm: false,
+        narrow: false,
     },
 );
 
@@ -85,6 +95,12 @@ const tabItems = computed<NavigationMenuItem[]>(() =>
     })),
 );
 
+/** The body's own form submitting, e.g. from Enter in a field. */
+function onFormSubmit(event: Event) {
+    event.preventDefault();
+    submit();
+}
+
 function submit() {
     if (props.readonly || props.processing) {
         return;
@@ -116,7 +132,13 @@ const { isConfirmOpen, leave, stay } = useUnsavedChanges(
                 <template #title>
                     <div class="flex min-w-0 items-center gap-2">
                         <UBreadcrumb :items="breadcrumbs" class="min-w-0" />
-                        <slot name="badges" />
+                        <!-- Hidden on phones, where the breadcrumbs need the room -->
+                        <div
+                            v-if="$slots.badges"
+                            class="hidden shrink-0 items-center gap-2 sm:flex"
+                        >
+                            <slot name="badges" />
+                        </div>
                     </div>
                 </template>
 
@@ -161,11 +183,16 @@ const { isConfirmOpen, leave, stay } = useUnsavedChanges(
         <template #body>
             <Head :title="title" />
 
-            <form
+            <!-- A page with its own form gets no listener here, as its submit event bubbles up -->
+            <component
+                :is="ownForm ? 'div' : 'form'"
                 class="flex flex-col gap-6 lg:flex-row lg:items-start"
-                @submit.prevent="submit"
+                v-on="ownForm ? {} : { submit: onFormSubmit }"
             >
-                <div class="flex min-w-0 flex-1 flex-col gap-6">
+                <div
+                    class="flex min-w-0 flex-1 flex-col gap-6"
+                    :class="{ 'max-w-4xl': narrow }"
+                >
                     <slot />
                 </div>
 
@@ -176,14 +203,8 @@ const { isConfirmOpen, leave, stay } = useUnsavedChanges(
                     <slot name="sidebar" />
                 </aside>
 
-                <!-- Lets Enter in a field submit the form, as the Save button is outside it -->
-                <button
-                    type="submit"
-                    class="sr-only"
-                    aria-hidden="true"
-                    tabindex="-1"
-                />
-            </form>
+                <SubmitOnEnter v-if="!ownForm" />
+            </component>
 
             <UModal
                 v-model:open="isConfirmOpen"

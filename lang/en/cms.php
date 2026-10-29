@@ -68,7 +68,8 @@ return [
             'empty' => 'No items yet.',
             'add' => 'Add item',
             'add_child' => 'Add item under this one',
-            'edit' => 'Edit item',
+            'choose' => 'Choose an item to edit its settings.',
+            'no_page' => 'No page chosen',
             'remove' => 'Remove item',
             'drag' => 'Drag to move',
             'new' => 'New item',
@@ -92,7 +93,6 @@ return [
             'rel' => 'Rel',
             'rel_help' => 'e.g. nofollow',
             'custom_class' => 'CSS class',
-            'done' => 'Done',
         ],
         'confirm_delete' => 'Delete the :name menu?',
         'flash' => [
