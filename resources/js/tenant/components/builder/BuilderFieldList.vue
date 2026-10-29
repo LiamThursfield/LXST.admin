@@ -4,7 +4,8 @@ import { VueDraggable } from 'vue-draggable-plus';
 /**
  * The reorderable list of fields in a field builder (CRM forms, CMS templates). Each item needs a
  * client-side `uid` so it keeps its identity while being dragged. Render each item through the
- * default slot, with a `.drag-handle` element to drag it by.
+ * default slot, with a `.drag-handle` element to drag it by. Lists sharing a `group` can drag
+ * fields between them, e.g. between a template's sections; an empty one stays a place to drop.
  */
 withDefaults(
     defineProps<{
@@ -13,10 +14,13 @@ withDefaults(
         /** An error for the list as a whole, e.g. too many fields. */
         error?: string;
         readonly?: boolean;
+        /** Lists with the same group can drag fields between them. */
+        group?: string;
     }>(),
     {
         error: undefined,
         readonly: false,
+        group: undefined,
     },
 );
 
@@ -37,21 +41,35 @@ defineSlots<{
             {{ error }}
         </p>
 
-        <p v-if="!items.length" class="text-muted text-sm">
+        <p v-if="!items.length && !group" class="text-muted text-sm">
             {{ emptyText }}
         </p>
 
-        <VueDraggable
-            v-model="items"
-            :disabled="readonly"
-            handle=".drag-handle"
-            :animation="150"
-            class="flex flex-col gap-3"
-        >
-            <div v-for="(item, index) in items" :key="item.uid">
-                <slot :item="item" :index="index" />
-            </div>
-        </VueDraggable>
+        <div class="relative">
+            <VueDraggable
+                v-model="items"
+                :disabled="readonly"
+                :group="group"
+                handle=".drag-handle"
+                :animation="150"
+                class="flex flex-col gap-3"
+                :class="{
+                    'border-default min-h-12 rounded-md border border-dashed':
+                        group && !items.length,
+                }"
+            >
+                <div v-for="(item, index) in items" :key="item.uid">
+                    <slot :item="item" :index="index" />
+                </div>
+            </VueDraggable>
+
+            <p
+                v-if="group && !items.length"
+                class="text-muted pointer-events-none absolute inset-0 flex items-center justify-center px-3 text-center text-sm"
+            >
+                {{ emptyText }}
+            </p>
+        </div>
 
         <UButton
             v-if="!readonly"

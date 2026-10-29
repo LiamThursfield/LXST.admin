@@ -5,12 +5,13 @@ import type {
     TemplateFieldData,
     TemplateFieldSettingKey,
     TemplateFieldTypeOption,
+    TemplateFieldWidth,
 } from '@/types';
 
 const props = withDefaults(
     defineProps<{
-        /** The field's position in the list, used for server error keys like `fields.0.name`. */
-        index: number;
+        /** Where its server errors are, e.g. `fields.0` or `sections.1.fields.2`. */
+        errorPrefix: string;
         /** The field types this type of template allows. */
         fieldTypes: TemplateFieldTypeOption[];
         /** The templates component and repeater fields can use. */
@@ -74,8 +75,21 @@ const nestedTemplateItems = computed(() =>
 );
 
 function error(key: string): string | undefined {
-    return props.errors[`fields.${props.index}.${key}`];
+    return props.errors[`${props.errorPrefix}.${key}`];
 }
+
+const widthItems = computed(() => [
+    { label: trans('cms.templates.builder.width_full'), value: 'full' },
+    { label: trans('cms.templates.builder.width_half'), value: 'half' },
+]);
+
+/** Full width is the default, so it's saved as no width at all. */
+const width = computed({
+    get: (): TemplateFieldWidth => field.value.settings.width ?? 'full',
+    set: (value: TemplateFieldWidth) => {
+        field.value.settings.width = value === 'half' ? 'half' : null;
+    },
+});
 </script>
 
 <template>
@@ -150,6 +164,24 @@ function error(key: string): string | undefined {
 
                 <UFormField :label="trans('cms.templates.builder.is_required')">
                     <USwitch v-model="field.is_required" :disabled="readonly" />
+                </UFormField>
+
+                <UFormField
+                    :label="trans('cms.templates.builder.width')"
+                    :help="
+                        readonly
+                            ? undefined
+                            : trans('cms.templates.builder.width_help')
+                    "
+                    :error="error('settings.width')"
+                >
+                    <URadioGroup
+                        v-model="width"
+                        :items="widthItems"
+                        :disabled="readonly"
+                        orientation="horizontal"
+                        variant="table"
+                    />
                 </UFormField>
 
                 <UFormField

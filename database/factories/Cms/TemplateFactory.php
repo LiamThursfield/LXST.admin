@@ -4,6 +4,7 @@ namespace Database\Factories\Cms;
 
 use App\Enums\Cms\TemplateType;
 use App\Models\Cms\Template;
+use App\Models\Cms\TemplateSection;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -34,5 +35,16 @@ class TemplateFactory extends Factory
     public function ofType(TemplateType $type): static
     {
         return $this->state(['type' => $type]);
+    }
+
+    /**
+     * A template with the given number of (empty) sections, in order
+     */
+    public function withSections(int $count = 2): static
+    {
+        return $this->has(
+            TemplateSection::factory()->count($count)->sequence(fn ($sequence) => ['order' => $sequence->index]),
+            'sections',
+        );
     }
 }

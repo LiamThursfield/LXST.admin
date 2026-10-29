@@ -2,11 +2,12 @@
 
 namespace App\Data\Cms;
 
+use App\Enums\Cms\TemplateFieldWidth;
 use Spatie\LaravelData\Data;
 
 /**
- * The type-specific settings of a CMS template field. Only some settings apply to each type
- * (see TemplateFieldType::settingKeys()); the rest are always null.
+ * The settings of a CMS template field. Only some settings apply to each type (see
+ * TemplateFieldType::settingKeys()); the rest are always null. The width applies to every type.
  */
 class TemplateFieldSettings extends Data
 {
@@ -27,5 +28,7 @@ class TemplateFieldSettings extends Data
         public ?int $max_items = null,
         /** Only offer organisation units of this type, e.g. "location" (crm_organisation_unit) */
         public ?string $organisation_unit_type = null,
+        /** How wide it is in the content editor; null is full width (every type) */
+        public ?TemplateFieldWidth $width = null,
     ) {}
 }

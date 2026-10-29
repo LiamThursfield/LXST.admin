@@ -10,6 +10,7 @@ use App\Models\Cms\Page;
 use App\Models\Cms\Redirect;
 use App\Models\Cms\Template;
 use App\Models\Cms\TemplateField;
+use App\Models\Cms\TemplateSection;
 use App\Models\Crm\Form;
 use App\Models\Crm\OrganisationUnit;
 use App\Models\FileManager\File;
@@ -74,6 +75,17 @@ describe('pages', function () {
             ->assertJsonPath('data.layout.content.site_title', 'Acme')
             ->assertJsonPath('data.content.heading', 'About us')
             ->assertJsonPath('data.content.count', 3);
+    });
+
+    test('sections and field widths don\'t change the content', function () {
+        $page = apiPage('about', [['type' => TemplateFieldType::Text, 'slug' => 'heading'], ['type' => TemplateFieldType::Number, 'slug' => 'count']], ['heading' => 'About us', 'count' => 3]);
+        $before = getPage('/about')->json('data.content');
+
+        $section = TemplateSection::factory()->for($page->template)->create();
+        $page->template->fields()->update(['section_id' => $section->id, 'settings' => ['width' => 'half']]);
+
+        expect(getPage('/about')->json('data.content'))->toBe($before)
+            ->and($before)->toBe(['heading' => 'About us', 'count' => 3]);
     });
 
     test('pages that are drafts, scheduled or expired aren\'t found', function () {

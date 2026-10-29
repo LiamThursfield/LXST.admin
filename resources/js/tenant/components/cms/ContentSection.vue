@@ -16,17 +16,20 @@ const props = withDefaults(
         /** The first error inside, shown while collapsed. */
         error?: string | null;
         required?: boolean;
+        /** Whether it's open until the user opens or closes it. */
+        openByDefault?: boolean;
     }>(),
     {
         description: null,
         summary: null,
         error: null,
         required: false,
+        openByDefault: true,
     },
 );
 
 const { open, toggle } = useCollapsible(() => props.stateKey, {
-    openByDefault: true,
+    openByDefault: props.openByDefault,
     hasError: () => !!props.error,
 });
 

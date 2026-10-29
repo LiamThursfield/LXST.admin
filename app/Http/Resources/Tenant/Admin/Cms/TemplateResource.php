@@ -5,6 +5,7 @@ namespace App\Http\Resources\Tenant\Admin\Cms;
 use App\Http\Resources\Traits\HasActions;
 use App\Models\Cms\Template;
 use App\Models\Cms\TemplateField;
+use App\Models\Cms\TemplateSection;
 use App\Support\UI\Action;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -63,6 +64,7 @@ class TemplateResource extends JsonResource
             'fields_count' => $this->whenCounted('fields'),
             'fields' => $this->whenLoaded('fields', fn () => $template->fields->map(fn (TemplateField $field) => [
                 'id' => $field->id,
+                'section_id' => $field->section_id,
                 'type' => $field->type->value,
                 'type_label' => $field->type->label(),
                 'name' => $field->name,
@@ -73,6 +75,12 @@ class TemplateResource extends JsonResource
                     $field->settings?->toArray() ?? [],
                     fn (mixed $value) => $value !== null,
                 ),
+            ])->values()),
+            'sections' => $this->whenLoaded('sections', fn () => $template->sections->map(fn (TemplateSection $section) => [
+                'id' => $section->id,
+                'name' => $section->name,
+                'description' => $section->description,
+                'is_collapsed' => $section->is_collapsed,
             ])->values()),
         ]);
     }

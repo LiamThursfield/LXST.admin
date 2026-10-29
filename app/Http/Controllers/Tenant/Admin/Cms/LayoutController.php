@@ -139,7 +139,7 @@ class LayoutController extends Controller
         return TemplateResource::collection(
             Template::query()
                 ->where('type', TemplateType::Layout)
-                ->when($withFields, fn ($query) => $query->with('fields'))
+                ->when($withFields, fn ($query) => $query->with(['fields', 'sections']))
                 ->orderBy('name')
                 ->get()
         );
@@ -153,7 +153,7 @@ class LayoutController extends Controller
         return TemplateResource::collection(
             Template::query()
                 ->whereIn('type', [TemplateType::Component, TemplateType::Repeater])
-                ->with('fields')
+                ->with(['fields', 'sections'])
                 ->orderBy('name')
                 ->get()
         );

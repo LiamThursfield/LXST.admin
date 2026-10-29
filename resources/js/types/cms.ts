@@ -53,8 +53,13 @@ export type TemplateFieldTypeOption = {
     needsModule: boolean;
 };
 
+/** How wide a field is in the content editor (see backend `TemplateFieldWidth`); full by default. */
+export type TemplateFieldWidth = 'full' | 'half';
+
 export type TemplateFieldData = {
     id: number | null;
+    /** The section it's shown in, or null to sit above the first section. */
+    section_id?: number | null;
     type: string;
     type_label?: string;
     name: string;
@@ -66,7 +71,19 @@ export type TemplateFieldData = {
             Exclude<TemplateFieldSettingKey, 'organisation_unit_type'>,
             number | null
         >
-    > & { organisation_unit_type?: string | null };
+    > & {
+        organisation_unit_type?: string | null;
+        width?: TemplateFieldWidth | null;
+    };
+};
+
+/** A named group of a template's fields, shown as one collapsible card when editing content. */
+export type TemplateSectionData = {
+    id: number | null;
+    name: string;
+    description: string | null;
+    /** Whether it starts collapsed in the content editor. */
+    is_collapsed: boolean;
 };
 
 /** A template, as returned by `TemplateResource`. */
@@ -79,6 +96,7 @@ export type TemplateData = {
     description: string | null;
     fields_count?: number;
     fields?: TemplateFieldData[];
+    sections?: TemplateSectionData[];
     actions?: any[];
 };
 

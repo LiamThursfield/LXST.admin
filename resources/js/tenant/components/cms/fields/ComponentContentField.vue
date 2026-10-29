@@ -40,6 +40,7 @@ const template = useNestedTemplate(() => props.field.settings.template_id);
             v-if="template && value"
             v-model="value"
             :fields="template.fields ?? []"
+            :sections="template.sections ?? []"
             :prefix="prefix"
             :state-key="stateKey"
             :errors="errors"

@@ -2,6 +2,7 @@
 
 use App\Enums\Cms\PublishStatus;
 use App\Enums\Cms\TemplateFieldType;
+use App\Enums\Cms\TemplateFieldWidth;
 use App\Enums\Cms\TemplateType;
 use App\Enums\TenantModule;
 use App\Models\Cms\Layout;
@@ -11,13 +12,18 @@ use App\Models\Cms\PageView;
 use App\Models\Cms\Redirect;
 use App\Models\Cms\Template;
 use App\Models\Cms\TemplateField;
+use App\Models\Cms\TemplateSection;
 use App\Models\Cms\Url;
 use App\Services\Authorisation\Enums\CmsPermission;
 use Database\Seeders\CmsSeeder;
 use Database\Seeders\CrmSeeder;
+use Database\Seeders\FileManagerSeeder;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     tenant()->update(['modules' => TenantModule::cases()]);
+    Storage::fake('file_manager');
+    $this->seed(FileManagerSeeder::class);
     $this->seed(CrmSeeder::class);
     $this->seed(CmsSeeder::class);
 });
@@ -27,6 +33,30 @@ test('the CMS seeder makes templates of every type using every field type', func
         ->toEqualCanonicalizing(TemplateType::cases())
         ->and(TemplateField::query()->pluck('type')->unique()->values()->all())
         ->toEqualCanonicalizing(TemplateFieldType::cases());
+});
+
+test('the CMS seeder lays the standard page template out in sections, with half-width fields', function () {
+    $template = Template::query()->where('slug', 'standard-page')->sole();
+    $fields = $template->fields->keyBy('slug');
+
+    expect($template->sections->pluck('name')->all())->toBe(['Hero', 'Body', 'Features', 'Call to action'])
+        ->and($template->sections->last()->is_collapsed)->toBeTrue()
+        ->and($fields['hero_image']->section_id)->toBe($template->sections->first()->id)
+        ->and($fields['contact_form']->section_id)->toBe($template->sections->last()->id)
+        ->and($fields['hero_title']->settings?->width)->toBe(TemplateFieldWidth::Half)
+        ->and($fields['hero_title']->settings?->max_length)->toBe(80)
+        ->and($fields['body']->settings?->width)->toBeNull();
+});
+
+test('the CMS seeder lays the call to action component out in sections too, for nested editors', function () {
+    $template = Template::query()->where('slug', 'call-to-action')->sole();
+    $fields = $template->fields->keyBy('slug');
+
+    expect($template->sections->pluck('name')->all())->toBe(['Message', 'Button'])
+        ->and($fields['heading']->section_id)->toBe($template->sections->first()->id)
+        ->and($fields['button_url']->section_id)->toBe($template->sections->last()->id)
+        ->and($fields['button_label']->settings?->width)->toBe(TemplateFieldWidth::Half)
+        ->and($fields['button_label']->settings?->max_length)->toBe(40);
 });
 
 test('the CMS seeder makes pages in every publish status, nested, with their content', function () {
@@ -42,6 +72,8 @@ test('the CMS seeder makes pages in every publish status, nested, with their con
         ->and($home->contentValues())
         ->toHaveKeys(['hero_title', 'body', 'features', 'call_to_action'])
         ->and($home->contentValues()['features'])->toHaveCount(3)
+        // Each feature has its own photo, for the repeater rows' thumbnails
+        ->and(collect($home->contentValues()['features'])->pluck('image.file_id')->filter()->unique())->toHaveCount(3)
         ->and($home->contentValues()['body']['html'])->toContain('<p>')
         ->and(Page::query()->where('slug', 'contact')->sole()->contentValues()['contact_form'])->not->toBeNull()
         ->and($home->metadata->title)->toContain('Home');
@@ -75,7 +107,7 @@ test('the CMS admin pages load with the seeded data, including scheduled and exp
 });
 
 test('running the CMS seeder again creates nothing new', function () {
-    $counts = fn () => [Template::count(), TemplateField::count(), Layout::count(), Menu::count(), Page::count(), Url::count(), Redirect::count(), PageView::count()];
+    $counts = fn () => [Template::count(), TemplateSection::count(), TemplateField::count(), Layout::count(), Menu::count(), Page::count(), Url::count(), Redirect::count(), PageView::count()];
     $first = $counts();
 
     $this->seed(CmsSeeder::class);

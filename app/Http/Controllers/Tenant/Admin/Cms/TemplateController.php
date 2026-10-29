@@ -6,6 +6,7 @@ use App\Enums\Cms\TemplateFieldType;
 use App\Enums\Cms\TemplateType;
 use App\Enums\Crm\OrganisationUnitType;
 use App\Http\Controllers\Concerns\SyncsBuilderFields;
+use App\Http\Controllers\Concerns\SyncsBuilderSections;
 use App\Http\Controllers\Controller;
 use App\Http\Queries\Tenant\Admin\Cms\TemplateIndexQuery;
 use App\Http\Requests\Tenant\Admin\Cms\TemplateIndexRequest;
@@ -23,6 +24,7 @@ use Inertia\Response;
 class TemplateController extends Controller
 {
     use SyncsBuilderFields;
+    use SyncsBuilderSections;
 
     public function index(TemplateIndexRequest $request, TemplateIndexQuery $query): Response
     {
@@ -61,7 +63,7 @@ class TemplateController extends Controller
         DB::transaction(function () use ($request) {
             $template = Template::create($request->templateAttributes());
 
-            $this->syncBuilderFields($template->fields(), $request->fieldsAttributes());
+            $this->syncTemplateFields($template, $request);
         });
 
         return redirect()->route('admin.cms.templates.index')
@@ -73,7 +75,7 @@ class TemplateController extends Controller
         Gate::authorize('view', $template);
 
         return Inertia::render('admin/cms/template/Show', [
-            'template' => new TemplateResource($template->load('fields')),
+            'template' => new TemplateResource($template->load(['fields', 'sections'])),
             ...$this->builderOptions(),
         ]);
     }
@@ -83,7 +85,7 @@ class TemplateController extends Controller
         Gate::authorize('update', $template);
 
         return Inertia::render('admin/cms/template/Edit', [
-            'template' => new TemplateResource($template->load('fields')),
+            'template' => new TemplateResource($template->load(['fields', 'sections'])),
             'isInUse' => $template->isInUse(),
             ...$this->builderOptions(),
         ]);
@@ -94,7 +96,7 @@ class TemplateController extends Controller
         DB::transaction(function () use ($request, $template) {
             $template->update($request->templateAttributes());
 
-            $this->syncBuilderFields($template->fields(), $request->fieldsAttributes());
+            $this->syncTemplateFields($template, $request);
         });
 
         return redirect()->route('admin.cms.templates.index')
@@ -114,6 +116,16 @@ class TemplateController extends Controller
         $template->delete();
 
         return redirect()->back()->with('success', __('cms.templates.flash.deleted'));
+    }
+
+    /**
+     * Saves the sections first, so the fields can be placed in them
+     */
+    protected function syncTemplateFields(Template $template, TemplateStoreRequest|TemplateUpdateRequest $request): void
+    {
+        $sectionIds = $this->syncBuilderSections($template->sections(), $request->sectionsAttributes());
+
+        $this->syncBuilderFields($template->fields(), $request->fieldsAttributes($sectionIds));
     }
 
     /**

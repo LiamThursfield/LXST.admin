@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Data\Cms\MenuItemData;
 use App\Data\Cms\TemplateFieldSettings;
 use App\Enums\Cms\TemplateFieldType;
+use App\Enums\Cms\TemplateFieldWidth;
 use App\Enums\Cms\TemplateType;
 use App\Enums\Crm\OrganisationUnitType;
 use App\Enums\TenantModule;
@@ -24,8 +25,8 @@ use Illuminate\Support\Str;
 
 /**
  * A small, realistic website to test the CMS admin and the headless API with (#166): templates
- * using every field type, two layouts, nested menus, pages in every publish status, redirects, and
- * a few weeks of page views.
+ * using every field type (a page and a component laid out in sections, with half-width fields),
+ * two layouts, nested menus, pages in every publish status, redirects, and a few weeks of page views.
  *
  * Run within a tenant, e.g. `php artisan tenants:seed --class=CmsSeeder`. Safe to re-run: each kind
  * of data is only seeded when none exists yet.
@@ -66,6 +67,10 @@ class CmsSeeder extends Seeder
             ['button_label', TemplateFieldType::Text, 'Button label', false, ['max_length' => 40]],
             ['button_url', TemplateFieldType::Text, 'Button link', false],
         ]);
+        $this->sections($cta, [
+            ['Message', null, false, ['heading', 'message']],
+            ['Button', 'Where the button takes visitors.', false, ['button_label', 'button_url']],
+        ], halfWidth: ['button_label', 'button_url']);
 
         $feature = $template('feature', TemplateType::Repeater, 'Feature', 'One item in a list of features.', [
             ['title', TemplateFieldType::Text, 'Title', true],
@@ -90,6 +95,12 @@ class CmsSeeder extends Seeder
             ['call_to_action', TemplateFieldType::Component, 'Call to action', false, ['template_id' => $cta->id]],
             ...($crm ? [['contact_form', TemplateFieldType::CrmForm, 'Contact form', false]] : []),
         ]);
+        $this->sections($standard, [
+            ['Hero', 'The banner at the top of the page.', false, ['hero_title', 'hero_image']],
+            ['Body', null, false, ['body']],
+            ['Features', 'What we offer, as a list.', false, ['features']],
+            ['Call to action', 'Where the page asks visitors to get in touch.', true, ['call_to_action', 'contact_form']],
+        ], halfWidth: ['hero_title', 'hero_image']);
 
         $landing = $template('landing-page', TemplateType::Page, 'Landing page', 'A short page with a headline number, e.g. for a campaign.', [
             ['headline', TemplateFieldType::Text, 'Headline', true],
@@ -193,10 +204,16 @@ class CmsSeeder extends Seeder
             'body' => $this->richText($paragraphs),
             ...$extra,
         ];
+        // Each feature's image, from the File Manager seeder's gig photos (null without them)
+        $featureImage = function (string $path, string $alt): ?array {
+            $id = File::query()->where('path', $path)->value('id');
+
+            return $id === null ? null : ['file_id' => $id, 'alt' => $alt];
+        };
         $features = fn () => [
-            ['title' => 'Weddings', 'description' => 'From the first dance to the last song, planned with you.', 'image' => null],
-            ['title' => 'Parties', 'description' => 'Birthdays, anniversaries and everything in between.', 'image' => null],
-            ['title' => 'Club nights', 'description' => 'House, disco and edits, mixed live all night.', 'image' => null],
+            ['title' => 'Weddings', 'description' => 'From the first dance to the last song, planned with you.', 'image' => $featureImage('images/gigs/wedding-barn.jpg', 'A barn wedding reception')],
+            ['title' => 'Parties', 'description' => 'Birthdays, anniversaries and everything in between.', 'image' => $featureImage('images/gigs/rooftop-party.jpg', 'A rooftop party at sunset')],
+            ['title' => 'Club nights', 'description' => 'House, disco and edits, mixed live all night.', 'image' => $featureImage('images/gigs/club-night.jpg', 'The DJ booth at a club night')],
         ];
         $cta = ['heading' => 'Planning an event?', 'message' => 'Tell us the date and we\'ll let you know if we\'re free.', 'button_label' => 'Get in touch', 'button_url' => '/contact'];
 
@@ -387,6 +404,39 @@ class CmsSeeder extends Seeder
         }
 
         return $template;
+    }
+
+    /**
+     * Groups a template's fields into sections (name, description, whether it starts collapsed, and
+     * its fields' slugs) and makes some fields half width. Only done while the template has no
+     * sections, so re-running changes nothing, and a template seeded before sections gets them.
+     *
+     * @param  list<array{0: string, 1: string|null, 2: bool, 3: list<string>}>  $sections
+     * @param  list<string>  $halfWidth
+     */
+    protected function sections(Template $template, array $sections, array $halfWidth = []): void
+    {
+        if ($template->sections()->exists()) {
+            return;
+        }
+
+        foreach ($sections as $order => [$name, $description, $isCollapsed, $slugs]) {
+            $section = $template->sections()->create([
+                'name' => $name,
+                'description' => $description,
+                'is_collapsed' => $isCollapsed,
+                'order' => $order,
+            ]);
+
+            $template->fields()->whereIn('slug', $slugs)->update(['section_id' => $section->id]);
+        }
+
+        foreach ($template->fields()->whereIn('slug', $halfWidth)->get() as $field) {
+            $field->update(['settings' => TemplateFieldSettings::from([
+                ...($field->settings?->toArray() ?? []),
+                'width' => TemplateFieldWidth::Half,
+            ])]);
+        }
     }
 
     /**

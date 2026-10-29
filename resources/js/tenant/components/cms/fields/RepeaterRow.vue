@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui';
 import { useFileDetails } from '@/tenant/components/file-manager/useFileDetails';
-import type { ContentValues, TemplateFieldData } from '@/types';
+import type {
+    ContentValues,
+    TemplateFieldData,
+    TemplateSectionData,
+} from '@/types';
 import ContentEditor from '../ContentEditor.vue';
 import { useCollapsible } from '../contentState';
 import { textValues } from '../contentSummary';
@@ -14,6 +18,8 @@ import { textValues } from '../contentSummary';
 const props = defineProps<{
     /** The repeater template's fields. */
     fields: TemplateFieldData[];
+    /** The repeater template's sections. */
+    sections?: TemplateSectionData[];
     index: number;
     count: number;
     /** Where this row's errors are, e.g. `content.slides.2`. */
@@ -186,6 +192,7 @@ const menuItems = computed<DropdownMenuItem[][]>(() => [
             <ContentEditor
                 v-model="row"
                 :fields="fields"
+                :sections="sections"
                 :prefix="prefix"
                 :state-key="stateKey"
                 :errors="errors"

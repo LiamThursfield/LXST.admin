@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $template_id
+ * @property int|null $section_id
  * @property TemplateFieldType $type
  * @property string $name
  * @property string $slug
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $order
  * @property TemplateFieldSettings|null $settings
  * @property-read Template $template
+ * @property-read TemplateSection|null $section
  */
 class TemplateField extends Model
 {
@@ -37,6 +39,7 @@ class TemplateField extends Model
      */
     protected $fillable = [
         'template_id',
+        'section_id',
         'type',
         'name',
         'slug',
@@ -67,5 +70,15 @@ class TemplateField extends Model
     public function template(): BelongsTo
     {
         return $this->belongsTo(Template::class);
+    }
+
+    /**
+     * The section it's shown in, or null to sit above the first section
+     *
+     * @return BelongsTo<TemplateSection, $this>
+     */
+    public function section(): BelongsTo
+    {
+        return $this->belongsTo(TemplateSection::class);
     }
 }
