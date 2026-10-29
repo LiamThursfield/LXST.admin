@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
 import type {
     NestedTemplateOption,
     SelectItem,
@@ -8,7 +7,7 @@ import type {
 } from '@/types';
 import TemplateEditor from './components/TemplateEditor.vue';
 
-const props = defineProps<{
+defineProps<{
     template: { data: TemplateData };
     isInUse: boolean;
     types: SelectItem[];
@@ -16,36 +15,15 @@ const props = defineProps<{
     nestedTemplates: NestedTemplateOption[];
     organisationUnitTypes: SelectItem[];
 }>();
-
-const { trans } = useTrans();
-
-const title = computed(() =>
-    trans('cms.templates.edit.title', { name: props.template.data.name }),
-);
 </script>
 
 <template>
-    <UDashboardPanel>
-        <template #header>
-            <UDashboardNavbar :title="title">
-                <template #leading>
-                    <UDashboardSidebarCollapse as="button" :disabled="false" />
-                </template>
-            </UDashboardNavbar>
-        </template>
-
-        <template #body>
-            <Head :title="title" />
-            <div class="w-full max-w-4xl">
-                <TemplateEditor
-                    :types="types"
-                    :field-types="fieldTypes"
-                    :nested-templates="nestedTemplates"
-                    :organisation-unit-types="organisationUnitTypes"
-                    :template="template.data"
-                    :is-in-use="isInUse"
-                />
-            </div>
-        </template>
-    </UDashboardPanel>
+    <TemplateEditor
+        :template="template.data"
+        :is-in-use="isInUse"
+        :types="types"
+        :field-types="fieldTypes"
+        :nested-templates="nestedTemplates"
+        :organisation-unit-types="organisationUnitTypes"
+    />
 </template>

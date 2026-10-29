@@ -144,6 +144,33 @@ trait ValidatesTemplate
     }
 
     /**
+     * Fields and sections named as in the builder, e.g. "The Name field is required" rather than
+     * "The sections.0.fields.1.name field is required"
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        $attributes = [
+            'sections.*.name' => __('cms.templates.builder.section_name'),
+            'sections.*.description' => __('cms.templates.builder.section_description'),
+        ];
+
+        $keys = ['name', 'slug', 'type', 'description', ...array_map(
+            fn (string $setting) => "settings.{$setting}",
+            ['max_length', 'rows', 'min', 'max', 'template_id', 'min_items', 'max_items', 'organisation_unit_type', 'width'],
+        )];
+
+        foreach (['fields', 'sections.*.fields'] as $list) {
+            foreach ($keys as $key) {
+                $attributes["{$list}.*.{$key}"] = __('cms.templates.builder.'.str_replace('settings.', '', $key));
+            }
+        }
+
+        return $attributes;
+    }
+
+    /**
      * Content is keyed by field slug, so each slug must be unique across the whole template, sections
      * included, and the template can only have so many fields in all
      *

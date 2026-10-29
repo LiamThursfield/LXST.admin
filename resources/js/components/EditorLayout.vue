@@ -5,11 +5,13 @@ import type { BreadcrumbItem, NavigationMenuItem } from '@nuxt/ui';
 import UBreadcrumb from '@nuxt/ui/components/Breadcrumb.vue';
 import UKbd from '@nuxt/ui/components/Kbd.vue';
 
-/** A tab in the toolbar, with a count of its fields' server errors. */
+/** A tab in the toolbar, with a count of its fields' server errors, or of what's in it. */
 export type EditorTab = {
     value: string;
     label: string;
     errorCount?: number;
+    /** Shown when there are no errors, e.g. how many fields a template has. */
+    count?: number;
 };
 
 /**
@@ -73,7 +75,13 @@ const tabItems = computed<NavigationMenuItem[]>(() =>
                   color: 'error',
                   variant: 'subtle',
               }
-            : undefined,
+            : item.count !== undefined
+              ? {
+                    label: String(item.count),
+                    color: 'neutral',
+                    variant: 'subtle',
+                }
+              : undefined,
     })),
 );
 

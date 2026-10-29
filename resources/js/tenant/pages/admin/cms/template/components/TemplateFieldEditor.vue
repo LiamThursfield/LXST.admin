@@ -8,6 +8,10 @@ import type {
     TemplateFieldWidth,
 } from '@/types';
 
+/**
+ * The chosen field's settings in the template builder's panel: its name, slug, type, width, help
+ * text and whether it's required, then the settings its type has.
+ */
 const props = withDefaults(
     defineProps<{
         /** Where its server errors are, e.g. `fields.0` or `sections.1.fields.2`. */
@@ -28,10 +32,6 @@ const props = withDefaults(
         readonly: false,
     },
 );
-
-defineEmits<{
-    remove: [];
-}>();
 
 const field = defineModel<TemplateFieldData>({ required: true });
 
@@ -67,6 +67,14 @@ const settingKeys = computed(() =>
     ),
 );
 
+const typeLabel = computed(
+    () =>
+        props.fieldTypes.find((type) => type.value === field.value.type)
+            ?.label ?? field.value.type,
+);
+
+const hasTypeSettings = computed(() => typeSettingKeys.value.length > 0);
+
 /** Component and repeater fields choose a template of the same type. */
 const nestedTemplateItems = computed(() =>
     props.nestedTemplates
@@ -93,97 +101,119 @@ const width = computed({
 </script>
 
 <template>
-    <UCard :ui="{ body: 'p-4 sm:p-4' }">
-        <div class="flex gap-3">
-            <UButton
-                v-if="!readonly"
-                class="drag-handle cursor-grab self-start"
-                color="neutral"
-                variant="ghost"
-                icon="i-lucide-grip-vertical"
-                :aria-label="trans('cms.templates.builder.drag')"
+    <div class="flex flex-col gap-6">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <UFormField
+                :label="trans('cms.templates.builder.name')"
+                :error="error('name')"
+                required
+            >
+                <UInput
+                    v-model="field.name"
+                    :disabled="readonly"
+                    class="w-full"
+                />
+            </UFormField>
+
+            <UFormField
+                :label="trans('cms.templates.builder.slug')"
+                :help="
+                    readonly
+                        ? undefined
+                        : trans('cms.templates.builder.slug_help')
+                "
+                :error="error('slug')"
+            >
+                <UInput
+                    v-model="field.slug"
+                    :disabled="readonly"
+                    class="w-full font-mono"
+                />
+            </UFormField>
+
+            <UFormField
+                :label="trans('cms.templates.builder.type')"
+                :error="error('type')"
+                required
+            >
+                <USelect
+                    v-model="field.type"
+                    :disabled="readonly"
+                    :items="typeItems"
+                    class="w-full"
+                />
+            </UFormField>
+
+            <UFormField
+                :label="trans('cms.templates.builder.width')"
+                :help="
+                    readonly
+                        ? undefined
+                        : trans('cms.templates.builder.width_help')
+                "
+                :error="error('settings.width')"
+            >
+                <URadioGroup
+                    v-model="width"
+                    :items="widthItems"
+                    :disabled="readonly"
+                    orientation="horizontal"
+                    variant="table"
+                />
+            </UFormField>
+
+            <UFormField
+                class="sm:col-span-2"
+                :label="trans('cms.templates.builder.description')"
+                :help="
+                    readonly
+                        ? undefined
+                        : trans('cms.templates.builder.description_help')
+                "
+                :error="error('description')"
+            >
+                <UInput
+                    v-model.nullable="field.description"
+                    :disabled="readonly"
+                    class="w-full"
+                />
+            </UFormField>
+        </div>
+
+        <div
+            class="border-default flex items-center justify-between gap-3 rounded-md border p-3"
+        >
+            <div>
+                <p class="text-highlighted text-sm font-medium">
+                    {{ trans('cms.templates.builder.is_required') }}
+                </p>
+                <p class="text-muted text-sm">
+                    {{ trans('cms.templates.builder.is_required_help') }}
+                </p>
+            </div>
+            <USwitch
+                v-model="field.is_required"
+                :disabled="readonly"
+                :aria-label="trans('cms.templates.builder.is_required')"
             />
+        </div>
 
-            <div class="grid flex-1 grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField
-                    :label="trans('cms.templates.builder.type')"
-                    :error="error('type')"
-                    required
-                >
-                    <USelect
-                        v-model="field.type"
-                        :disabled="readonly"
-                        :items="typeItems"
-                        class="w-full"
-                    />
-                </UFormField>
+        <div class="flex flex-col gap-3">
+            <h3
+                class="text-muted text-xs font-semibold uppercase tracking-wide"
+            >
+                {{
+                    trans('cms.templates.builder.type_settings', {
+                        type: typeLabel,
+                    })
+                }}
+            </h3>
 
-                <UFormField
-                    :label="trans('cms.templates.builder.name')"
-                    :error="error('name')"
-                    required
-                >
-                    <UInput
-                        v-model="field.name"
-                        :disabled="readonly"
-                        class="w-full"
-                    />
-                </UFormField>
+            <p v-if="!hasTypeSettings" class="text-muted text-sm">
+                {{ trans('cms.templates.builder.no_type_settings') }}
+            </p>
 
-                <UFormField
-                    :label="trans('cms.templates.builder.slug')"
-                    :help="
-                        readonly
-                            ? undefined
-                            : trans('cms.templates.builder.slug_help')
-                    "
-                    :error="error('slug')"
-                >
-                    <UInput
-                        v-model="field.slug"
-                        :disabled="readonly"
-                        class="w-full font-mono"
-                    />
-                </UFormField>
-
-                <UFormField
-                    :label="trans('cms.templates.builder.description')"
-                    :help="
-                        readonly
-                            ? undefined
-                            : trans('cms.templates.builder.description_help')
-                    "
-                    :error="error('description')"
-                >
-                    <UInput
-                        v-model.nullable="field.description"
-                        :disabled="readonly"
-                        class="w-full"
-                    />
-                </UFormField>
-
-                <UFormField :label="trans('cms.templates.builder.is_required')">
-                    <USwitch v-model="field.is_required" :disabled="readonly" />
-                </UFormField>
-
-                <UFormField
-                    :label="trans('cms.templates.builder.width')"
-                    :help="
-                        readonly
-                            ? undefined
-                            : trans('cms.templates.builder.width_help')
-                    "
-                    :error="error('settings.width')"
-                >
-                    <URadioGroup
-                        v-model="width"
-                        :items="widthItems"
-                        :disabled="readonly"
-                        orientation="horizontal"
-                        variant="table"
-                    />
-                </UFormField>
-
+            <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <UFormField
                     v-if="typeSettingKeys.includes('template_id')"
                     :label="trans('cms.templates.builder.template_id')"
@@ -193,11 +223,7 @@ const width = computed({
                             : trans(
                                   'cms.templates.builder.no_nested_templates',
                                   {
-                                      type:
-                                          fieldTypes.find(
-                                              (type) =>
-                                                  type.value === field.type,
-                                          )?.label ?? field.type,
+                                      type: typeLabel,
                                   },
                               )
                     "
@@ -251,16 +277,6 @@ const width = computed({
                     />
                 </UFormField>
             </div>
-
-            <UButton
-                v-if="!readonly"
-                class="self-start"
-                color="neutral"
-                variant="ghost"
-                icon="i-lucide-trash"
-                :aria-label="trans('cms.templates.builder.remove')"
-                @click="$emit('remove')"
-            />
         </div>
-    </UCard>
+    </div>
 </template>

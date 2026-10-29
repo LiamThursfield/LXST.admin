@@ -92,6 +92,16 @@ describe('store', function () {
         $this->post(route('admin.crm.forms.store'), $data)->assertSessionHasErrors('fields.1.slug');
     });
 
+    test('field errors name the field as the builder does', function () {
+        $data = validFormData(['fields' => [
+            ['id' => null, 'type' => 'text', 'name' => '', 'slug' => 'message', 'is_required' => false, 'settings' => []],
+        ]]);
+
+        $this->post(route('admin.crm.forms.store'), $data)->assertSessionHasErrors([
+            'fields.0.name' => __('validation.required', ['attribute' => __('crm.forms.builder.name')]),
+        ]);
+    });
+
     test('field keys used by the form itself are reserved', function () {
         foreach (['website_url', 'form_token', 'marketing_email'] as $reserved) {
             $data = validFormData(['fields' => [
