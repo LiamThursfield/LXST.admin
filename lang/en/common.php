@@ -25,6 +25,18 @@ return [
         'view' => 'View',
     ],
 
+    'builder' => [
+        'drag' => 'Drag to reorder',
+        'untitled' => 'Untitled',
+        'has_errors' => 'Has errors',
+        'picker' => [
+            'title' => 'Add a field',
+            'description' => 'Choose the type of field. You can change it later.',
+            'search' => 'Search field types',
+            'none' => 'No field types match your search.',
+        ],
+    ],
+
     'confirmation' => [
         'default' => 'Are you sure you want to perform this action?',
         'title' => 'Confirm :action',

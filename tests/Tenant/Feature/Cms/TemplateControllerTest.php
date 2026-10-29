@@ -249,6 +249,21 @@ describe('validation', function () {
         expect(Template::query()->count())->toBe(0);
     });
 
+    test('field and section errors name them as the builder does', function () {
+        $this->post(route('admin.cms.templates.store'), templateData([
+            'fields' => [['type' => 'text', 'name' => '', 'slug' => 'intro']],
+            'sections' => [['name' => '', 'fields' => [['type' => 'repeater', 'name' => 'Rows', 'slug' => 'rows']]]],
+        ]))->assertSessionHasErrors([
+            'fields.0.name' => __('validation.required', ['attribute' => __('cms.templates.builder.name')]),
+            'sections.0.name' => __('validation.required', ['attribute' => __('cms.templates.builder.section_name')]),
+            'sections.0.fields.0.settings.template_id' => __('validation.required_if', [
+                'attribute' => __('cms.templates.builder.template_id'),
+                'other' => __('cms.templates.builder.type'),
+                'value' => 'repeater',
+            ]),
+        ]);
+    });
+
     test('field types must be allowed in the template type', function () {
         $this->post(route('admin.cms.templates.store'), templateData([
             'type' => 'repeater',

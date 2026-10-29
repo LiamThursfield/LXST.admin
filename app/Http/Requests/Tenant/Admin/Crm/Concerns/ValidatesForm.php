@@ -90,6 +90,23 @@ trait ValidatesForm
     }
 
     /**
+     * Fields named as in the builder, e.g. "The Label field is required" rather than "The
+     * fields.0.name field is required"
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        $attributes = [];
+
+        foreach (['name', 'slug', 'type', 'settings.max_length', 'settings.rows', 'settings.min', 'settings.max'] as $key) {
+            $attributes["fields.*.{$key}"] = __('crm.forms.builder.'.str_replace('settings.', '', $key));
+        }
+
+        return $attributes;
+    }
+
+    /**
      * A number field's maximum cannot be below its minimum (either can be left blank)
      */
     protected function maxNotBelowMinRule(): Closure

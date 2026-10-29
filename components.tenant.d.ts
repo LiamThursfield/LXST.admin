@@ -13,6 +13,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AddressFields: typeof import('./resources/js/tenant/components/crm/AddressFields.vue')['default']
     BuilderFieldList: typeof import('./resources/js/tenant/components/builder/BuilderFieldList.vue')['default']
+    BuilderFieldPanel: typeof import('./resources/js/tenant/components/builder/BuilderFieldPanel.vue')['default']
     BulkAssignModal: typeof import('./resources/js/tenant/components/dj/BulkAssignModal.vue')['default']
     CanonicalMergeModal: typeof import('./resources/js/tenant/components/dj/CanonicalMergeModal.vue')['default']
     ComponentContentField: typeof import('./resources/js/tenant/components/cms/fields/ComponentContentField.vue')['default']
@@ -22,6 +23,7 @@ declare module 'vue' {
     CrmOrganisationUnitContentField: typeof import('./resources/js/tenant/components/cms/fields/CrmOrganisationUnitContentField.vue')['default']
     DeleteAccount: typeof import('./resources/js/components/settings/DeleteAccount.vue')['default']
     EditorLayout: typeof import('./resources/js/components/EditorLayout.vue')['default']
+    FieldTypePicker: typeof import('./resources/js/tenant/components/builder/FieldTypePicker.vue')['default']
     FileField: typeof import('./resources/js/tenant/components/file-manager/FileField.vue')['default']
     FilePickerModal: typeof import('./resources/js/tenant/components/file-manager/FilePickerModal.vue')['default']
     GigTracklist: typeof import('./resources/js/tenant/components/dj/public/GigTracklist.vue')['default']
