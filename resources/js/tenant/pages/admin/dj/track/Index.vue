@@ -50,8 +50,7 @@ const { trans } = useTrans();
 const isTrue = (value: unknown) =>
     value === true || value === '1' || value === 'true';
 
-const sortField = ref(props.sort.replace(/^-/, ''));
-const sortDescending = ref(props.sort.startsWith('-'));
+const sort = ref(props.sort);
 
 const showMoreFilters = ref(
     Boolean(
@@ -65,7 +64,7 @@ const showMoreFilters = ref(
     ),
 );
 
-const sortItems = [
+const sortOptions = [
     'title',
     'artist',
     'bpm',
@@ -121,9 +120,7 @@ const { filters, hasFilters, chips, remove, clear, goToPage } = useListFilters({
         missing: { label: trans('dj.tracks.filters.missing') },
         hidden: { label: trans('dj.requests_visibility.filter') },
     },
-    extra: () => ({
-        sort: `${sortDescending.value ? '-' : ''}${sortField.value}`,
-    }),
+    extra: () => ({ sort: sort.value }),
 });
 
 // Keys that mix well only mean something alongside a key
@@ -182,6 +179,9 @@ const selectedArtistCount = computed(
         :has-filters="hasFilters"
         :selectable="canManageMatching"
         :empty-title="trans('dj.tracks.empty')"
+        v-model:sort="sort"
+        v-model:more-open="showMoreFilters"
+        :sort-options="sortOptions"
         @remove-filter="remove"
         @clear-filters="clear"
         @page="goToPage"
@@ -202,52 +202,17 @@ const selectedArtistCount = computed(
                     :placeholder="trans('dj.tracks.filters.key')"
                 />
                 <UTooltip :text="trans('dj.tracks.filters.compatible_help')">
-                    <UCheckbox
+                    <ListFilterToggle
                         v-model="filters.compatible"
                         :disabled="!filters.key"
                         :label="trans('dj.tracks.filters.compatible')"
                     />
                 </UTooltip>
             </div>
-            <UButton
-                color="neutral"
-                variant="ghost"
-                size="sm"
-                icon="i-lucide-sliders-horizontal"
-                :label="trans('dj.tracks.filters.more')"
-                @click="showMoreFilters = !showMoreFilters"
-            />
-            <div class="ms-auto flex items-center gap-1">
-                <span class="text-muted hidden text-sm sm:inline">
-                    {{ trans('dj.tracks.filters.sort') }}
-                </span>
-                <USelect
-                    v-model="sortField"
-                    class="w-36"
-                    size="sm"
-                    :items="sortItems"
-                    :aria-label="trans('dj.tracks.filters.sort')"
-                />
-                <UButton
-                    color="neutral"
-                    variant="ghost"
-                    size="sm"
-                    :icon="
-                        sortDescending
-                            ? 'i-lucide-arrow-down-wide-narrow'
-                            : 'i-lucide-arrow-up-narrow-wide'
-                    "
-                    :aria-label="trans('dj.tracks.filters.sort')"
-                    @click="sortDescending = !sortDescending"
-                />
-            </div>
         </template>
 
-        <template v-if="showMoreFilters" #notice>
-            <div
-                v-if="showMoreFilters"
-                class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4"
-            >
+        <template #more-filters>
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <UFormField :label="trans('dj.tracks.filters.genre')">
                     <USelect
                         v-model="filters.genre"
@@ -293,13 +258,13 @@ const selectedArtistCount = computed(
                     </div>
                 </UFormField>
                 <UFormField label="&nbsp;">
-                    <USwitch
+                    <ListFilterToggle
                         v-model="filters.missing"
                         :label="trans('dj.tracks.filters.missing')"
                     />
                 </UFormField>
                 <UFormField label="&nbsp;">
-                    <USwitch
+                    <ListFilterToggle
                         v-model="filters.hidden"
                         :label="trans('dj.requests_visibility.filter')"
                     />

@@ -3,6 +3,8 @@ import { Head } from '@inertiajs/vue3';
 import type { DropdownMenuItem } from '@nuxt/ui';
 // Imported explicitly: the central app doesn't use these yet, so its generated component types lack them.
 import UEmpty from '@nuxt/ui/components/Empty.vue';
+import UFieldGroup from '@nuxt/ui/components/FieldGroup.vue';
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import type { ListFilterChip } from '@/composables/useListFilters';
 
 /** A list's page of results, as Laravel's paginated resources give it. */
@@ -15,11 +17,17 @@ export type ListPagination = {
 
 /**
  * The page around an admin list: a navbar with the title, a count and the create action; a toolbar
- * with search, the page's filters and a Columns menu; chips for the active filters; a floating bar
- * of bulk actions while rows are ticked; the table, which scrolls sideways in its own box; a footer saying
+ * with search, the page's filters, the sort and a Columns menu; chips for the active filters; a
+ * floating bar of bulk actions while rows are ticked; the table, which scrolls sideways in its own box; a footer saying
  * which rows are showing, with previous and next; and empty states for "nothing yet" and "no
  * matches". Each column's cells can be customised with the table's `{column}-cell` slots, and the
  * default slot is for anything else on the page, e.g. a modal.
+ *
+ * The toolbar fits the width: on wide screens one row, with search and filters on the left (they
+ * wrap among themselves) and the sort and Columns fixed on the right; at mid widths search and
+ * those view controls on top, with the filters on a row below; on phones search, a Filters button
+ * that opens a sheet holding the filters and sort, and Columns. Rarely used filters can go in
+ * `more-filters`, behind a More filters button (always in the sheet on phones).
  */
 const props = withDefaults(
     defineProps<{
@@ -47,6 +55,12 @@ const props = withDefaults(
         /** The create action, in the navbar and the "nothing yet" empty state. */
         createLabel?: string;
         createHref?: string;
+        /** The fields the list can be sorted by; `descending` ones start from the highest. */
+        sortOptions?: Array<{
+            value: string;
+            label: string;
+            descending?: boolean;
+        }>;
     }>(),
     {
         rowKey: 'id' as never,
@@ -59,6 +73,7 @@ const props = withDefaults(
         emptyDescription: undefined,
         createLabel: undefined,
         createHref: undefined,
+        sortOptions: () => [],
     },
 );
 
@@ -70,6 +85,12 @@ const emit = defineEmits<{
 
 const search = defineModel<string>('search', { default: '' });
 
+/** The sort, e.g. `title`, or `-title` for descending. */
+const sort = defineModel<string>('sort', { default: '' });
+
+/** Whether the More filters are showing, on wide screens. */
+const moreOpen = defineModel<boolean>('moreOpen', { default: false });
+
 /** The ticked rows' keys. */
 const selected = defineModel<Array<string | number>>('selected', {
     default: () => [],
@@ -80,7 +101,14 @@ const slots = useSlots();
 const { trans, transChoice } = useTrans();
 
 /** The slots this layout uses itself; the rest go to the table. */
-const ownSlots = ['default', 'actions', 'filters', 'bulk-actions', 'notice'];
+const ownSlots = [
+    'default',
+    'actions',
+    'filters',
+    'more-filters',
+    'bulk-actions',
+    'notice',
+];
 
 const tableSlots = computed(() =>
     Object.keys(slots).filter((name) => !ownSlots.includes(name)),
@@ -172,6 +200,41 @@ const showing = computed(() => {
 });
 
 const total = computed(() => props.pagination?.total ?? props.rows.length);
+
+const breakpoints = useBreakpoints(breakpointsTailwind);
+
+/** One toolbar row, with the filters inline (the sidebar takes room below this). */
+const isWide = breakpoints.greaterOrEqual('xl');
+
+/** The filters and sort in a sheet, behind a Filters button. */
+const isPhone = breakpoints.smaller('md');
+
+const hasFilterControls = computed(
+    () => !!slots.filters || !!slots['more-filters'],
+);
+
+const hasToolbar = computed(
+    () =>
+        !!props.searchPlaceholder ||
+        hasFilterControls.value ||
+        props.sortOptions.length > 0 ||
+        hideableColumns.value.length > 1,
+);
+
+const sheetOpen = ref(false);
+
+const sortField = computed(() => sort.value.replace(/^-/, ''));
+const sortDescending = computed(() => sort.value.startsWith('-'));
+
+function chooseSort(field: string) {
+    const option = props.sortOptions.find((item) => item.value === field);
+
+    sort.value = option?.descending ? `-${field}` : field;
+}
+
+function toggleSortDirection() {
+    sort.value = sortDescending.value ? sortField.value : `-${sortField.value}`;
+}
 </script>
 
 <template>
@@ -211,42 +274,131 @@ const total = computed(() => props.pagination?.total ?? props.rows.length);
             </UDashboardNavbar>
 
             <UDashboardToolbar
-                v-if="
-                    searchPlaceholder ||
-                    $slots.filters ||
-                    hideableColumns.length > 1
-                "
-                :ui="{
-                    root: 'flex-wrap overflow-visible py-2',
-                    left: 'min-w-0 flex-1 flex-wrap',
-                }"
+                v-if="hasToolbar"
+                :ui="{ root: 'min-h-0 overflow-visible py-2' }"
             >
-                <template #left>
-                    <UInput
-                        v-if="searchPlaceholder"
-                        v-model="search"
-                        icon="i-lucide-search"
-                        :placeholder="searchPlaceholder"
-                        :aria-label="searchPlaceholder"
-                        class="w-full sm:w-64"
-                    />
-                    <slot name="filters" />
-                </template>
+                <div class="flex w-full flex-col gap-2">
+                    <div class="flex items-start gap-2">
+                        <div
+                            class="flex min-w-0 flex-1 items-start gap-2 xl:flex-wrap"
+                        >
+                            <UInput
+                                v-if="searchPlaceholder"
+                                v-model="search"
+                                icon="i-lucide-search"
+                                :placeholder="searchPlaceholder"
+                                :aria-label="searchPlaceholder"
+                                class="min-w-0 flex-1 xl:w-72 xl:flex-none"
+                            />
 
-                <template #right>
-                    <UDropdownMenu
-                        v-if="hideableColumns.length > 1"
-                        :items="columnItems"
-                        :content="{ align: 'end' }"
+                            <template v-if="isWide">
+                                <slot name="filters" />
+                                <UButton
+                                    v-if="$slots['more-filters']"
+                                    color="neutral"
+                                    variant="ghost"
+                                    icon="i-lucide-sliders-horizontal"
+                                    :label="trans('common.list.more_filters')"
+                                    :aria-expanded="moreOpen"
+                                    @click="moreOpen = !moreOpen"
+                                />
+                            </template>
+
+                            <UButton
+                                v-if="
+                                    isPhone &&
+                                    (hasFilterControls || sortOptions.length)
+                                "
+                                color="neutral"
+                                variant="outline"
+                                icon="i-lucide-sliders-horizontal"
+                                class="shrink-0"
+                                :label="trans('common.list.filters')"
+                                @click="sheetOpen = true"
+                            >
+                                <template v-if="chips.length" #trailing>
+                                    <UBadge
+                                        color="neutral"
+                                        size="sm"
+                                        class="rounded-full"
+                                        :label="String(chips.length)"
+                                    />
+                                </template>
+                            </UButton>
+                        </div>
+
+                        <div class="flex shrink-0 items-center gap-2">
+                            <UFieldGroup v-if="sortOptions.length && !isPhone">
+                                <USelect
+                                    :model-value="sortField"
+                                    :items="sortOptions"
+                                    :aria-label="trans('common.list.sort')"
+                                    :ui="{ base: 'ps-12' }"
+                                    class="w-48"
+                                    @update:model-value="
+                                        (field) => chooseSort(String(field))
+                                    "
+                                >
+                                    <template #leading>
+                                        <span class="text-muted text-sm">
+                                            {{ trans('common.list.sort_by') }}
+                                        </span>
+                                    </template>
+                                </USelect>
+                                <UButton
+                                    color="neutral"
+                                    variant="outline"
+                                    :icon="
+                                        sortDescending
+                                            ? 'i-lucide-arrow-down-wide-narrow'
+                                            : 'i-lucide-arrow-up-narrow-wide'
+                                    "
+                                    :aria-label="
+                                        sortDescending
+                                            ? trans(
+                                                  'common.list.sort_descending',
+                                              )
+                                            : trans(
+                                                  'common.list.sort_ascending',
+                                              )
+                                    "
+                                    @click="toggleSortDirection"
+                                />
+                            </UFieldGroup>
+
+                            <UDropdownMenu
+                                v-if="hideableColumns.length > 1"
+                                :items="columnItems"
+                                :content="{ align: 'end' }"
+                            >
+                                <UButton
+                                    color="neutral"
+                                    variant="outline"
+                                    icon="i-lucide-columns-3"
+                                    :label="trans('common.list.columns')"
+                                    :aria-label="trans('common.list.columns')"
+                                    :ui="{ label: 'hidden lg:inline' }"
+                                />
+                            </UDropdownMenu>
+                        </div>
+                    </div>
+
+                    <div
+                        v-if="!isWide && !isPhone && hasFilterControls"
+                        class="flex flex-wrap items-center gap-2"
                     >
+                        <slot name="filters" />
                         <UButton
+                            v-if="$slots['more-filters']"
                             color="neutral"
-                            variant="outline"
-                            icon="i-lucide-columns-3"
-                            :label="trans('common.list.columns')"
+                            variant="ghost"
+                            icon="i-lucide-sliders-horizontal"
+                            :label="trans('common.list.more_filters')"
+                            :aria-expanded="moreOpen"
+                            @click="moreOpen = !moreOpen"
                         />
-                    </UDropdownMenu>
-                </template>
+                    </div>
+                </div>
             </UDashboardToolbar>
         </template>
 
@@ -256,9 +408,14 @@ const total = computed(() => props.pagination?.total ?? props.rows.length);
             <div class="flex flex-col gap-4">
                 <slot name="notice" />
 
+                <div v-if="moreOpen && !isPhone && $slots['more-filters']">
+                    <slot name="more-filters" />
+                </div>
+
+                <!-- One row that scrolls sideways on phones -->
                 <div
                     v-if="chips.length"
-                    class="flex flex-wrap items-center gap-2"
+                    class="-mx-1 flex items-center gap-2 overflow-x-auto px-1 md:flex-wrap"
                 >
                     <UButton
                         v-for="chip in chips"
@@ -266,7 +423,7 @@ const total = computed(() => props.pagination?.total ?? props.rows.length);
                         color="neutral"
                         variant="soft"
                         size="xs"
-                        class="rounded-full"
+                        class="shrink-0 rounded-full"
                         trailing-icon="i-lucide-x"
                         :label="chip.label"
                         :aria-label="
@@ -425,6 +582,74 @@ const total = computed(() => props.pagination?.total ?? props.rows.length);
                     </div>
                 </div>
             </div>
+
+            <USlideover
+                v-if="isPhone"
+                v-model:open="sheetOpen"
+                side="bottom"
+                :title="trans('common.list.filters')"
+            >
+                <template #body>
+                    <div class="flex flex-col gap-4 *:w-full">
+                        <slot name="filters" />
+                        <slot name="more-filters" />
+
+                        <UFormField
+                            v-if="sortOptions.length"
+                            :label="trans('common.list.sort_by')"
+                        >
+                            <UFieldGroup class="w-full">
+                                <USelect
+                                    :model-value="sortField"
+                                    :items="sortOptions"
+                                    :aria-label="trans('common.list.sort')"
+                                    class="flex-1"
+                                    @update:model-value="
+                                        (field) => chooseSort(String(field))
+                                    "
+                                />
+                                <UButton
+                                    color="neutral"
+                                    variant="outline"
+                                    :icon="
+                                        sortDescending
+                                            ? 'i-lucide-arrow-down-wide-narrow'
+                                            : 'i-lucide-arrow-up-narrow-wide'
+                                    "
+                                    :aria-label="
+                                        sortDescending
+                                            ? trans(
+                                                  'common.list.sort_descending',
+                                              )
+                                            : trans(
+                                                  'common.list.sort_ascending',
+                                              )
+                                    "
+                                    @click="toggleSortDirection"
+                                />
+                            </UFieldGroup>
+                        </UFormField>
+                    </div>
+                </template>
+
+                <template #footer>
+                    <div class="flex w-full gap-2">
+                        <UButton
+                            color="neutral"
+                            variant="outline"
+                            size="lg"
+                            :label="trans('common.list.clear_filters')"
+                            @click="emit('clearFilters')"
+                        />
+                        <UButton
+                            size="lg"
+                            class="flex-1 justify-center"
+                            :label="trans('common.list.show_results')"
+                            @click="sheetOpen = false"
+                        />
+                    </div>
+                </template>
+            </USlideover>
 
             <slot />
         </template>

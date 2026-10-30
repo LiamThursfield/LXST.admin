@@ -69,6 +69,12 @@ return [
     'list' => [
         'columns' => 'Columns',
         'sort' => 'Sort by',
+        'sort_by' => 'Sort',
+        'sort_ascending' => 'Ascending, switch to descending',
+        'sort_descending' => 'Descending, switch to ascending',
+        'filters' => 'Filters',
+        'more_filters' => 'More filters',
+        'show_results' => 'Show results',
         'clear_filters' => 'Clear filters',
         'remove_filter' => 'Remove filter: :filter',
         'selected' => '{1} 1 selected|[2,*] :count selected',

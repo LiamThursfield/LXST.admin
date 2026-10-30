@@ -14,6 +14,7 @@ declare module 'vue' {
     CollapsibleCard: typeof import('./resources/js/components/CollapsibleCard.vue')['default']
     DeleteAccount: typeof import('./resources/js/components/settings/DeleteAccount.vue')['default']
     EditorLayout: typeof import('./resources/js/components/EditorLayout.vue')['default']
+    ListFilterToggle: typeof import('./resources/js/components/ListFilterToggle.vue')['default']
     ListLayout: typeof import('./resources/js/components/ListLayout.vue')['default']
     ListRecordLink: typeof import('./resources/js/components/ListRecordLink.vue')['default']
     NotificationsSlideover: typeof import('./resources/js/components/NotificationsSlideover.vue')['default']

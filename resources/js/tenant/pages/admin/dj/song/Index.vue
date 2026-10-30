@@ -40,10 +40,9 @@ const { trans } = useTrans();
 const isTrue = (value: unknown) =>
     value === true || value === '1' || value === 'true';
 
-const sortField = ref(props.sort.replace(/^-/, ''));
-const sortDescending = ref(props.sort.startsWith('-'));
+const sort = ref(props.sort);
 
-const sortItems = ['title', 'artist', 'bpm', 'library_tracks_count'].map(
+const sortOptions = ['title', 'artist', 'bpm', 'library_tracks_count'].map(
     (value) => ({
         value,
         label: trans(`dj.songs.sorts.${value}`),
@@ -82,9 +81,7 @@ const { filters, hasFilters, chips, remove, clear, goToPage } = useListFilters({
         orphaned: { label: trans('dj.songs.filters.orphaned') },
         hidden: { label: trans('dj.requests_visibility.filter') },
     },
-    extra: () => ({
-        sort: `${sortDescending.value ? '-' : ''}${sortField.value}`,
-    }),
+    extra: () => ({ sort: sort.value }),
 });
 
 const cleanupOpen = ref(false);
@@ -118,6 +115,8 @@ function runCleanup() {
         :chips="chips"
         :has-filters="hasFilters"
         :empty-title="trans('dj.songs.empty')"
+        v-model:sort="sort"
+        :sort-options="sortOptions"
         @remove-filter="remove"
         @clear-filters="clear"
         @page="goToPage"
@@ -165,42 +164,18 @@ function runCleanup() {
                 :items="verifiedItems"
                 :placeholder="trans('dj.songs.filters.verified')"
             />
-            <UCheckbox
+            <ListFilterToggle
                 v-model="filters.shared"
                 :label="trans('dj.songs.filters.shared')"
             />
-            <UCheckbox
+            <ListFilterToggle
                 v-model="filters.orphaned"
                 :label="trans('dj.songs.filters.orphaned')"
             />
-            <UCheckbox
+            <ListFilterToggle
                 v-model="filters.hidden"
                 :label="trans('dj.requests_visibility.filter')"
             />
-            <div class="ms-auto flex items-center gap-1">
-                <span class="text-muted hidden text-sm sm:inline">
-                    {{ trans('dj.tracks.filters.sort') }}
-                </span>
-                <USelect
-                    v-model="sortField"
-                    class="w-36"
-                    size="sm"
-                    :items="sortItems"
-                    :aria-label="trans('dj.tracks.filters.sort')"
-                />
-                <UButton
-                    color="neutral"
-                    variant="ghost"
-                    size="sm"
-                    :icon="
-                        sortDescending
-                            ? 'i-lucide-arrow-down-wide-narrow'
-                            : 'i-lucide-arrow-up-narrow-wide'
-                    "
-                    :aria-label="trans('dj.tracks.filters.sort')"
-                    @click="sortDescending = !sortDescending"
-                />
-            </div>
         </template>
 
         <template #title-cell="{ row }">

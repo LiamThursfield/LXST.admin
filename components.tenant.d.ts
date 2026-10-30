@@ -31,6 +31,7 @@ declare module 'vue' {
     GuestPassesCard: typeof import('./resources/js/tenant/components/dj/GuestPassesCard.vue')['default']
     GuestPassForm: typeof import('./resources/js/tenant/components/dj/public/GuestPassForm.vue')['default']
     ImageContentField: typeof import('./resources/js/tenant/components/cms/fields/ImageContentField.vue')['default']
+    ListFilterToggle: typeof import('./resources/js/components/ListFilterToggle.vue')['default']
     ListLayout: typeof import('./resources/js/components/ListLayout.vue')['default']
     ListRecordLink: typeof import('./resources/js/components/ListRecordLink.vue')['default']
     MenuContentField: typeof import('./resources/js/tenant/components/cms/fields/MenuContentField.vue')['default']

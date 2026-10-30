@@ -25,15 +25,17 @@ const props = defineProps<{
 
 const { trans } = useTrans();
 
-const sortItems = [
+const sortOptions = [
     { value: 'name', label: trans('dj.canonical_artists.sorts.name') },
     {
-        value: '-tracks_count',
+        value: 'tracks_count',
         label: trans('dj.canonical_artists.sorts.tracks_count'),
+        descending: true,
     },
     {
-        value: '-library_artists_count',
+        value: 'library_artists_count',
         label: trans('dj.canonical_artists.sorts.library_artists_count'),
+        descending: true,
     },
 ];
 const sort = ref(props.sort);
@@ -75,6 +77,8 @@ const { filters, hasFilters, chips, remove, clear, goToPage } = useListFilters({
         :chips="chips"
         :has-filters="hasFilters"
         :empty-title="trans('dj.canonical_artists.empty')"
+        v-model:sort="sort"
+        :sort-options="sortOptions"
         @remove-filter="remove"
         @clear-filters="clear"
         @page="goToPage"
@@ -92,19 +96,13 @@ const { filters, hasFilters, chips, remove, clear, goToPage } = useListFilters({
                 :items="verifiedItems"
                 :placeholder="trans('dj.songs.filters.verified')"
             />
-            <UCheckbox
+            <ListFilterToggle
                 v-model="filters.orphaned"
                 :label="trans('dj.canonical_artists.filters.orphaned')"
             />
-            <UCheckbox
+            <ListFilterToggle
                 v-model="filters.hidden"
                 :label="trans('dj.requests_visibility.filter')"
-            />
-            <USelect
-                v-model="sort"
-                class="w-full sm:ms-auto sm:w-44"
-                :items="sortItems"
-                :aria-label="trans('dj.tracks.filters.sort')"
             />
         </template>
 

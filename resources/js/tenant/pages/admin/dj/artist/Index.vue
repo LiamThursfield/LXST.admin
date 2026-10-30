@@ -31,9 +31,13 @@ const props = defineProps<{
 
 const { trans } = useTrans();
 
-const sortItems = [
+const sortOptions = [
     { value: 'name', label: trans('dj.artists.columns.name') },
-    { value: '-tracks_count', label: trans('dj.artists.columns.tracks') },
+    {
+        value: 'tracks_count',
+        label: trans('dj.artists.columns.tracks'),
+        descending: true,
+    },
 ];
 const sort = ref(props.sort);
 
@@ -98,6 +102,8 @@ const selectedArtists = computed(() =>
         :has-filters="hasFilters"
         :selectable="canManageMatching"
         :empty-title="trans('dj.artists.empty')"
+        v-model:sort="sort"
+        :sort-options="sortOptions"
         @remove-filter="remove"
         @clear-filters="clear"
         @page="goToPage"
@@ -109,15 +115,9 @@ const selectedArtists = computed(() =>
                 :items="libraries"
                 :placeholder="trans('dj.artists.columns.library')"
             />
-            <UCheckbox
+            <ListFilterToggle
                 v-model="filters.hidden"
                 :label="trans('dj.requests_visibility.filter')"
-            />
-            <USelect
-                v-model="sort"
-                class="w-full sm:w-40"
-                :items="sortItems"
-                :aria-label="trans('common.list.sort')"
             />
         </template>
 

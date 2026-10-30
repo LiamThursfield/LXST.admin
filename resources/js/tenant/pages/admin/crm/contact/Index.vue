@@ -93,7 +93,7 @@ const showDeleted = computed({
                 :items="spamItems"
                 :aria-label="trans('crm.contacts.filters.spam')"
             />
-            <USwitch
+            <ListFilterToggle
                 v-model="showDeleted"
                 :label="trans('crm.contacts.filters.show_deleted')"
             />
