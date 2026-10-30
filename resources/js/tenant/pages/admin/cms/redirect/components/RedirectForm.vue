@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
 import {
+    index,
     store,
     update,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Cms/RedirectController';
@@ -21,6 +22,17 @@ const form = useForm({
     expired_at: props.redirect?.expired_at_local ?? '',
 });
 
+const title = computed(() =>
+    props.redirect
+        ? trans('cms.redirects.edit.title')
+        : trans('cms.redirects.create.title'),
+);
+
+const breadcrumbs = computed(() => [
+    { label: trans('cms.redirects.index.title'), to: index.url() },
+    { label: props.redirect?.url_from ?? trans('cms.redirects.create.title') },
+]);
+
 function onSubmit() {
     form.submit(
         props.redirect ? update({ redirect: props.redirect.id }) : store(),
@@ -29,7 +41,17 @@ function onSubmit() {
 </script>
 
 <template>
-    <form class="space-y-6" @submit.prevent="onSubmit">
+    <EditorLayout
+        :title="title"
+        :breadcrumbs="breadcrumbs"
+        :is-dirty="form.isDirty"
+        :processing="form.processing"
+        :submit-label="
+            redirect ? undefined : trans('cms.redirects.create.submit')
+        "
+        narrow
+        @submit="onSubmit"
+    >
         <UPageCard
             variant="subtle"
             :title="trans('cms.redirects.sections.urls')"
@@ -120,18 +142,5 @@ function onSubmit() {
                 </UFormField>
             </div>
         </UPageCard>
-
-        <div class="flex justify-end gap-2">
-            <UButton
-                type="submit"
-                color="primary"
-                :loading="form.processing"
-                :label="
-                    redirect
-                        ? trans('cms.redirects.edit.submit')
-                        : trans('cms.redirects.create.submit')
-                "
-            />
-        </div>
-    </form>
+    </EditorLayout>
 </template>

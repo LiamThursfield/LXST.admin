@@ -3,6 +3,7 @@ import { useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import * as z from 'zod';
 import {
+    index,
     store,
     update,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Crm/ContactController';
@@ -80,6 +81,28 @@ function removeAddress(index: number) {
     form.addresses.splice(index, 1);
 }
 
+const formRef = useTemplateRef<{ submit: () => Promise<void> }>('formRef');
+
+const contactName = computed(() =>
+    contact ? contact.name_with_title || contact.email || '' : '',
+);
+
+const title = computed(() => {
+    if (props.create || !contact) {
+        return trans('crm.contacts.create.title');
+    }
+
+    return trans(
+        props.readonly ? 'crm.contacts.show.title' : 'crm.contacts.edit.title',
+        { name: contactName.value },
+    );
+});
+
+const breadcrumbs = computed(() => [
+    { label: trans('crm.contacts.index.title'), to: index.url() },
+    { label: contactName.value || trans('crm.contacts.create.title') },
+]);
+
 function onSubmit() {
     if (props.readonly) return;
 
@@ -93,172 +116,184 @@ function onSubmit() {
 </script>
 
 <template>
-    <UForm :schema="schema" :state="form" class="space-y-6" @submit="onSubmit">
-        <UPageCard variant="subtle">
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-6">
-                <UFormField
-                    class="md:col-span-1"
-                    :label="trans('crm.contacts.fields.title')"
-                    name="title"
-                    :error="form.errors.title"
-                >
-                    <UInput
-                        v-model="form.title"
-                        :disabled="readonly"
-                        :placeholder="
+    <EditorLayout
+        :title="title"
+        :breadcrumbs="breadcrumbs"
+        :is-dirty="form.isDirty"
+        :processing="form.processing"
+        :readonly="readonly"
+        :submit-label="create ? trans('crm.contacts.create.submit') : undefined"
+        narrow
+        own-form
+        @submit="formRef?.submit()"
+    >
+        <UForm
+            ref="formRef"
+            :schema="schema"
+            :state="form"
+            @submit="onSubmit"
+            class="flex flex-col gap-6"
+        >
+            <UPageCard variant="subtle">
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-6">
+                    <UFormField
+                        class="md:col-span-1"
+                        :label="trans('crm.contacts.fields.title')"
+                        name="title"
+                        :error="form.errors.title"
+                    >
+                        <UInput
+                            v-model="form.title"
+                            :disabled="readonly"
+                            :placeholder="
+                                readonly
+                                    ? undefined
+                                    : trans(
+                                          'crm.contacts.fields.title_placeholder',
+                                      )
+                            "
+                            class="w-full"
+                        />
+                    </UFormField>
+
+                    <UFormField
+                        class="md:col-span-2"
+                        :label="trans('crm.contacts.fields.first_name')"
+                        name="first_name"
+                        :error="form.errors.first_name"
+                        required
+                    >
+                        <UInput
+                            v-model="form.first_name"
+                            :disabled="readonly"
+                            class="w-full"
+                        />
+                    </UFormField>
+
+                    <UFormField
+                        class="md:col-span-3"
+                        :label="trans('crm.contacts.fields.last_name')"
+                        name="last_name"
+                        :error="form.errors.last_name"
+                        required
+                    >
+                        <UInput
+                            v-model="form.last_name"
+                            :disabled="readonly"
+                            class="w-full"
+                        />
+                    </UFormField>
+
+                    <UFormField
+                        class="md:col-span-3"
+                        :label="trans('crm.contacts.fields.email')"
+                        name="email"
+                        :error="form.errors.email"
+                        required
+                    >
+                        <UInput
+                            v-model="form.email"
+                            :disabled="readonly"
+                            class="w-full"
+                            type="email"
+                        />
+                    </UFormField>
+
+                    <UFormField
+                        class="md:col-span-3"
+                        :label="trans('crm.contacts.fields.telephone')"
+                        name="telephone"
+                        :error="form.errors.telephone"
+                    >
+                        <UInput
+                            v-model="form.telephone"
+                            :disabled="readonly"
+                            class="w-full"
+                            type="tel"
+                        />
+                    </UFormField>
+
+                    <UFormField
+                        class="md:col-span-6"
+                        :label="trans('crm.contacts.fields.is_spam')"
+                        :help="
                             readonly
                                 ? undefined
-                                : trans('crm.contacts.fields.title_placeholder')
+                                : trans('crm.contacts.fields.is_spam_help')
                         "
-                        class="w-full"
-                    />
-                </UFormField>
+                        name="is_spam"
+                        :error="form.errors.is_spam"
+                    >
+                        <USwitch v-model="form.is_spam" :disabled="readonly" />
+                    </UFormField>
+                </div>
+            </UPageCard>
 
-                <UFormField
-                    class="md:col-span-2"
-                    :label="trans('crm.contacts.fields.first_name')"
-                    name="first_name"
-                    :error="form.errors.first_name"
-                    required
-                >
-                    <UInput
-                        v-model="form.first_name"
-                        :disabled="readonly"
-                        class="w-full"
-                    />
-                </UFormField>
-
-                <UFormField
-                    class="md:col-span-3"
-                    :label="trans('crm.contacts.fields.last_name')"
-                    name="last_name"
-                    :error="form.errors.last_name"
-                    required
-                >
-                    <UInput
-                        v-model="form.last_name"
-                        :disabled="readonly"
-                        class="w-full"
-                    />
-                </UFormField>
-
-                <UFormField
-                    class="md:col-span-3"
-                    :label="trans('crm.contacts.fields.email')"
-                    name="email"
-                    :error="form.errors.email"
-                    required
-                >
-                    <UInput
-                        v-model="form.email"
-                        :disabled="readonly"
-                        class="w-full"
-                        type="email"
-                    />
-                </UFormField>
-
-                <UFormField
-                    class="md:col-span-3"
-                    :label="trans('crm.contacts.fields.telephone')"
-                    name="telephone"
-                    :error="form.errors.telephone"
-                >
-                    <UInput
-                        v-model="form.telephone"
-                        :disabled="readonly"
-                        class="w-full"
-                        type="tel"
-                    />
-                </UFormField>
-
-                <UFormField
-                    class="md:col-span-6"
-                    :label="trans('crm.contacts.fields.is_spam')"
-                    :help="
-                        readonly
-                            ? undefined
-                            : trans('crm.contacts.fields.is_spam_help')
-                    "
-                    name="is_spam"
-                    :error="form.errors.is_spam"
-                >
-                    <USwitch v-model="form.is_spam" :disabled="readonly" />
-                </UFormField>
-            </div>
-        </UPageCard>
-
-        <UPageCard
-            variant="subtle"
-            :title="trans('crm.contacts.marketing.title')"
-            :description="trans('crm.contacts.marketing.description')"
-        >
-            <div class="flex flex-wrap gap-6">
-                <UCheckbox
-                    v-for="field in marketingFields"
-                    :key="field"
-                    v-model="form[field]"
-                    :disabled="readonly"
-                    :label="trans(`crm.contacts.marketing.${field}`)"
-                    :name="field"
-                />
-            </div>
-        </UPageCard>
-
-        <div class="space-y-4">
-            <div class="flex items-center justify-between">
-                <h2 class="font-semibold">
-                    {{ trans('crm.contacts.addresses.title') }}
-                </h2>
-                <UButton
-                    v-if="!readonly"
-                    color="neutral"
-                    variant="subtle"
-                    icon="i-lucide-plus"
-                    :label="trans('crm.contacts.addresses.add')"
-                    @click="addAddress"
-                />
-            </div>
-
-            <p v-if="errors.addresses" class="text-error text-sm">
-                {{ errors.addresses }}
-            </p>
-
-            <p v-if="!form.addresses.length" class="text-muted text-sm">
-                {{ trans('crm.contacts.addresses.empty') }}
-            </p>
-
-            <AddressFields
-                v-for="(_, index) in form.addresses"
-                :key="index"
-                v-model="form.addresses[index]"
-                :path="`addresses.${index}`"
-                :title="`${trans('crm.address.title')} ${index + 1}`"
-                :errors="errors"
-                :readonly="readonly"
+            <UPageCard
+                variant="subtle"
+                :title="trans('crm.contacts.marketing.title')"
+                :description="trans('crm.contacts.marketing.description')"
             >
-                <template v-if="!readonly" #footer>
-                    <UButton
-                        color="neutral"
-                        variant="ghost"
-                        icon="i-lucide-trash"
-                        :label="trans('crm.contacts.addresses.remove')"
-                        @click="removeAddress(index)"
+                <div class="flex flex-wrap gap-6">
+                    <UCheckbox
+                        v-for="field in marketingFields"
+                        :key="field"
+                        v-model="form[field]"
+                        :disabled="readonly"
+                        :label="trans(`crm.contacts.marketing.${field}`)"
+                        :name="field"
                     />
-                </template>
-            </AddressFields>
-        </div>
+                </div>
+            </UPageCard>
 
-        <div v-if="!readonly" class="flex justify-end gap-2">
-            <UButton
-                :loading="form.processing"
-                color="primary"
-                :label="
-                    create
-                        ? trans('crm.contacts.create.submit')
-                        : trans('crm.save_changes')
-                "
-                type="submit"
-            />
-        </div>
-    </UForm>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="font-semibold">
+                        {{ trans('crm.contacts.addresses.title') }}
+                    </h2>
+                    <UButton
+                        v-if="!readonly"
+                        color="neutral"
+                        variant="subtle"
+                        icon="i-lucide-plus"
+                        :label="trans('crm.contacts.addresses.add')"
+                        @click="addAddress"
+                    />
+                </div>
+
+                <p v-if="errors.addresses" class="text-error text-sm">
+                    {{ errors.addresses }}
+                </p>
+
+                <p v-if="!form.addresses.length" class="text-muted text-sm">
+                    {{ trans('crm.contacts.addresses.empty') }}
+                </p>
+
+                <AddressFields
+                    v-for="(_, index) in form.addresses"
+                    :key="index"
+                    v-model="form.addresses[index]"
+                    :path="`addresses.${index}`"
+                    :title="`${trans('crm.address.title')} ${index + 1}`"
+                    :errors="errors"
+                    :readonly="readonly"
+                >
+                    <template v-if="!readonly" #footer>
+                        <UButton
+                            color="neutral"
+                            variant="ghost"
+                            icon="i-lucide-trash"
+                            :label="trans('crm.contacts.addresses.remove')"
+                            @click="removeAddress(index)"
+                        />
+                    </template>
+                </AddressFields>
+            </div>
+
+            <SubmitOnEnter />
+        </UForm>
+
+        <!-- More cards after the form, e.g. the contact's submissions on its page -->
+        <slot />
+    </EditorLayout>
 </template>

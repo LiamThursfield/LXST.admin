@@ -3,11 +3,12 @@ import { useForm } from '@inertiajs/vue3';
 import { computed, reactive } from 'vue';
 import * as z from 'zod';
 import {
+    index,
     store,
     update,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Tracker/TaskDefinitionController';
 import { todayIn, userTimezone } from '@/lib/timezone';
-import { daysOfWeek, monthsOfYear } from '@/lib/tracker';
+import { daysOfWeek, formatValue, monthsOfYear } from '@/lib/tracker';
 import type { SelectItem, TaskDefinitionData } from '@/types';
 
 const { trans } = useTrans();
@@ -118,6 +119,82 @@ const form = useForm({
     },
 });
 
+// The fields are the UForm's state, only copied into the Inertia form on submit
+const { isDirty } = useIsDirty(() => state);
+
+const formRef = useTemplateRef<{ submit: () => Promise<void> }>('formRef');
+
+function labelOf(items: SelectItem[], value: unknown): string {
+    return String(items.find((item) => item.value === value)?.label ?? value);
+}
+
+/** e.g. "Clock time · Max · 06:30", for the collapsed Measurement card. */
+const measurementSummary = computed(() =>
+    [
+        labelOf(props.measures, state.measure),
+        labelOf(props.comparators, state.comparator),
+        ...(showMin.value && state.target_min !== null
+            ? [formatValue(state.target_min, state.unit)]
+            : []),
+        ...(showMax.value && state.target_max !== null
+            ? [formatValue(state.target_max, state.unit)]
+            : []),
+    ].join(' · '),
+);
+
+/** e.g. "Weekly · Monday, Wednesday, Friday", for the collapsed Schedule card. */
+const scheduleSummary = computed(() =>
+    [
+        labelOf(props.periods, state.period),
+        ...(state.days_of_week.length
+            ? [
+                  daysOfWeek()
+                      .filter((day) =>
+                          state.days_of_week.includes(Number(day.value)),
+                      )
+                      .map((day) => day.label)
+                      .join(', '),
+              ]
+            : []),
+        ...(state.months_of_year.length
+            ? [
+                  monthsOfYear()
+                      .filter((month) =>
+                          state.months_of_year.includes(Number(month.value)),
+                      )
+                      .map((month) => month.label)
+                      .join(', '),
+              ]
+            : []),
+    ].join(' · '),
+);
+
+function hasErrorIn(keys: string[]): boolean {
+    return keys.some((key) =>
+        Object.keys(form.errors).some(
+            (errorKey) => errorKey === key || errorKey.startsWith(`${key}.`),
+        ),
+    );
+}
+
+const title = computed(() => {
+    if (props.create || !props.task) {
+        return trans('tracker.tasks.create.title');
+    }
+
+    return trans(
+        props.readonly
+            ? 'tracker.tasks.show.title'
+            : 'tracker.tasks.edit.title',
+        { title: props.task.title },
+    );
+});
+
+const breadcrumbs = computed(() => [
+    { label: trans('tracker.tasks.index.title'), to: index.url() },
+    { label: props.task?.title ?? trans('tracker.tasks.create.title') },
+]);
+
 async function onSubmit() {
     if (props.readonly) return;
 
@@ -151,247 +228,276 @@ async function onSubmit() {
 </script>
 
 <template>
-    <UForm :schema="schema" :state="state" class="space-y-6" @submit="onSubmit">
-        <UPageCard variant="subtle">
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField
-                    class="md:col-span-2"
-                    :label="trans('tracker.tasks.fields.title')"
-                    name="title"
-                    required
-                >
-                    <UInput
-                        v-model="state.title"
-                        :disabled="readonly"
-                        class="w-full"
-                    />
-                </UFormField>
-
-                <UFormField
-                    class="md:col-span-2"
-                    :label="trans('tracker.tasks.fields.description')"
-                    name="description"
-                >
-                    <UTextarea
-                        v-model="state.description!"
-                        :disabled="readonly"
-                        class="w-full"
-                    />
-                </UFormField>
-
-                <UFormField
-                    :label="trans('tracker.tasks.fields.category')"
-                    name="category_id"
-                >
-                    <USelect
-                        v-model="state.category_id!"
-                        :disabled="readonly"
-                        :items="categories"
-                        class="w-full"
-                    />
-                </UFormField>
-
-                <UFormField
-                    :label="trans('tracker.tasks.fields.status')"
-                    name="status"
-                    required
-                >
-                    <USelect
-                        v-model="state.status"
-                        :disabled="readonly"
-                        :items="statuses"
-                        class="w-full"
-                    />
-                </UFormField>
-            </div>
-        </UPageCard>
-
-        <UPageCard
-            variant="subtle"
-            :title="trans('tracker.tasks.sections.measurement')"
+    <!-- The form wraps the whole layout, so the sidebar's fields are in it too -->
+    <UForm
+        ref="formRef"
+        :schema="schema"
+        :state="state"
+        class="contents"
+        @submit="onSubmit"
+    >
+        <EditorLayout
+            :title="title"
+            :breadcrumbs="breadcrumbs"
+            :is-dirty="isDirty"
+            :processing="form.processing"
+            :readonly="readonly"
+            :submit-label="
+                create ? trans('tracker.tasks.create.submit') : undefined
+            "
+            own-form
+            @submit="formRef?.submit()"
         >
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField
-                    :label="trans('tracker.tasks.fields.measure')"
-                    name="measure"
-                    required
-                >
-                    <USelect
-                        v-model="state.measure"
-                        :disabled="readonly"
-                        :items="measures"
-                        class="w-full"
-                    />
-                </UFormField>
+            <UPageCard variant="subtle">
+                <div class="flex flex-col gap-4">
+                    <UFormField
+                        :label="trans('tracker.tasks.fields.title')"
+                        name="title"
+                        required
+                    >
+                        <UInput
+                            v-model="state.title"
+                            :disabled="readonly"
+                            class="w-full"
+                        />
+                    </UFormField>
 
-                <UFormField
-                    :label="trans('tracker.tasks.fields.unit')"
-                    name="unit"
-                    required
-                >
-                    <USelect
-                        v-model="state.unit"
-                        :disabled="readonly"
-                        :items="units"
-                        class="w-full"
-                    />
-                </UFormField>
+                    <UFormField
+                        :label="trans('tracker.tasks.fields.description')"
+                        name="description"
+                    >
+                        <UTextarea
+                            v-model="state.description!"
+                            :disabled="readonly"
+                            class="w-full"
+                        />
+                    </UFormField>
+                </div>
+            </UPageCard>
 
-                <UFormField
-                    :label="trans('tracker.tasks.fields.comparator')"
-                    name="comparator"
-                    required
-                >
-                    <USelect
-                        v-model="state.comparator"
-                        :disabled="readonly"
-                        :items="comparators"
-                        class="w-full"
-                    />
-                </UFormField>
-
-                <UFormField
-                    :label="trans('tracker.tasks.fields.aggregation')"
-                    name="aggregation"
-                    required
-                >
-                    <USelect
-                        v-model="state.aggregation"
-                        :disabled="readonly"
-                        :items="aggregations"
-                        class="w-full"
-                    />
-                </UFormField>
-
-                <UFormField
-                    v-if="showMin"
-                    :label="trans('tracker.tasks.fields.target_min')"
-                    name="target_min"
-                >
-                    <UInput
-                        v-model.number="state.target_min!"
-                        :disabled="readonly"
-                        class="w-full"
-                        type="number"
-                    />
-                </UFormField>
-
-                <UFormField
-                    v-if="showMax"
-                    :label="trans('tracker.tasks.fields.target_max')"
-                    name="target_max"
-                >
-                    <UInput
-                        v-model.number="state.target_max!"
-                        :disabled="readonly"
-                        class="w-full"
-                        type="number"
-                    />
-                </UFormField>
-
-                <UFormField
-                    :label="trans('tracker.tasks.fields.stepped')"
-                    name="stepped"
-                >
-                    <USwitch v-model="state.stepped" :disabled="readonly" />
-                </UFormField>
-
-                <UFormField
-                    :label="trans('tracker.tasks.fields.counts_during_holiday')"
-                    name="counts_during_holiday"
-                >
-                    <USwitch
-                        v-model="state.counts_during_holiday"
-                        :disabled="readonly"
-                    />
-                </UFormField>
-            </div>
-        </UPageCard>
-
-        <UPageCard
-            variant="subtle"
-            :title="trans('tracker.tasks.sections.schedule')"
-        >
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField
-                    :label="trans('tracker.tasks.fields.period')"
-                    name="period"
-                    required
-                >
-                    <USelect
-                        v-model="state.period"
-                        :disabled="readonly"
-                        :items="periods"
-                        class="w-full"
-                    />
-                </UFormField>
-
-                <div class="hidden md:block" />
-
-                <UFormField
-                    :label="trans('tracker.tasks.fields.active_from')"
-                    name="active_from"
-                    required
-                >
-                    <UInput
-                        v-model="state.active_from"
-                        :disabled="readonly"
-                        class="w-full"
-                        type="date"
-                    />
-                </UFormField>
-
-                <UFormField
-                    :label="trans('tracker.tasks.fields.active_to')"
-                    name="active_to"
-                >
-                    <UInput
-                        v-model="state.active_to!"
-                        :disabled="readonly"
-                        class="w-full"
-                        type="date"
-                    />
-                </UFormField>
-
-                <UFormField
-                    :label="trans('tracker.tasks.fields.days_of_week')"
-                    name="days_of_week"
-                >
-                    <USelect
-                        v-model="state.days_of_week"
-                        :disabled="readonly"
-                        :items="daysOfWeek()"
-                        class="w-full"
-                        multiple
-                    />
-                </UFormField>
-
-                <UFormField
-                    :label="trans('tracker.tasks.fields.months_of_year')"
-                    name="months_of_year"
-                >
-                    <USelect
-                        v-model="state.months_of_year"
-                        :disabled="readonly"
-                        :items="monthsOfYear()"
-                        class="w-full"
-                        multiple
-                    />
-                </UFormField>
-            </div>
-        </UPageCard>
-
-        <div v-if="!readonly" class="flex justify-end gap-2">
-            <UButton
-                :loading="form.processing"
-                color="primary"
-                :label="
-                    create
-                        ? trans('tracker.tasks.create.submit')
-                        : trans('tracker.save_changes')
+            <CollapsibleCard
+                :title="trans('tracker.tasks.sections.measurement')"
+                :summary="measurementSummary"
+                :has-error="
+                    hasErrorIn([
+                        'measure',
+                        'unit',
+                        'comparator',
+                        'aggregation',
+                        'target_min',
+                        'target_max',
+                        'stepped',
+                    ])
                 "
-                type="submit"
-            />
-        </div>
+            >
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <UFormField
+                        :label="trans('tracker.tasks.fields.measure')"
+                        name="measure"
+                        required
+                    >
+                        <USelect
+                            v-model="state.measure"
+                            :disabled="readonly"
+                            :items="measures"
+                            class="w-full"
+                        />
+                    </UFormField>
+
+                    <UFormField
+                        :label="trans('tracker.tasks.fields.unit')"
+                        name="unit"
+                        required
+                    >
+                        <USelect
+                            v-model="state.unit"
+                            :disabled="readonly"
+                            :items="units"
+                            class="w-full"
+                        />
+                    </UFormField>
+
+                    <UFormField
+                        :label="trans('tracker.tasks.fields.comparator')"
+                        name="comparator"
+                        required
+                    >
+                        <USelect
+                            v-model="state.comparator"
+                            :disabled="readonly"
+                            :items="comparators"
+                            class="w-full"
+                        />
+                    </UFormField>
+
+                    <UFormField
+                        :label="trans('tracker.tasks.fields.aggregation')"
+                        name="aggregation"
+                        required
+                    >
+                        <USelect
+                            v-model="state.aggregation"
+                            :disabled="readonly"
+                            :items="aggregations"
+                            class="w-full"
+                        />
+                    </UFormField>
+
+                    <UFormField
+                        v-if="showMin"
+                        :label="trans('tracker.tasks.fields.target_min')"
+                        name="target_min"
+                    >
+                        <UInput
+                            v-model.number="state.target_min!"
+                            :disabled="readonly"
+                            class="w-full"
+                            type="number"
+                        />
+                    </UFormField>
+
+                    <UFormField
+                        v-if="showMax"
+                        :label="trans('tracker.tasks.fields.target_max')"
+                        name="target_max"
+                    >
+                        <UInput
+                            v-model.number="state.target_max!"
+                            :disabled="readonly"
+                            class="w-full"
+                            type="number"
+                        />
+                    </UFormField>
+
+                    <UFormField
+                        :label="trans('tracker.tasks.fields.stepped')"
+                        name="stepped"
+                    >
+                        <USwitch v-model="state.stepped" :disabled="readonly" />
+                    </UFormField>
+                </div>
+            </CollapsibleCard>
+
+            <CollapsibleCard
+                :title="trans('tracker.tasks.sections.schedule')"
+                :summary="scheduleSummary"
+                :has-error="hasErrorIn(['period', 'schedule'])"
+            >
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <UFormField
+                        :label="trans('tracker.tasks.fields.period')"
+                        name="period"
+                        required
+                    >
+                        <USelect
+                            v-model="state.period"
+                            :disabled="readonly"
+                            :items="periods"
+                            class="w-full"
+                        />
+                    </UFormField>
+
+                    <div class="hidden md:block" />
+
+                    <UFormField
+                        :label="trans('tracker.tasks.fields.days_of_week')"
+                        name="days_of_week"
+                    >
+                        <USelect
+                            v-model="state.days_of_week"
+                            :disabled="readonly"
+                            :items="daysOfWeek()"
+                            class="w-full"
+                            multiple
+                        />
+                    </UFormField>
+
+                    <UFormField
+                        :label="trans('tracker.tasks.fields.months_of_year')"
+                        name="months_of_year"
+                    >
+                        <USelect
+                            v-model="state.months_of_year"
+                            :disabled="readonly"
+                            :items="monthsOfYear()"
+                            class="w-full"
+                            multiple
+                        />
+                    </UFormField>
+                </div>
+            </CollapsibleCard>
+
+            <SubmitOnEnter />
+
+            <template #sidebar>
+                <UPageCard variant="subtle">
+                    <div class="flex flex-col gap-4">
+                        <UFormField
+                            :label="trans('tracker.tasks.fields.category')"
+                            name="category_id"
+                        >
+                            <USelect
+                                v-model="state.category_id!"
+                                :disabled="readonly"
+                                :items="categories"
+                                class="w-full"
+                            />
+                        </UFormField>
+
+                        <UFormField
+                            :label="trans('tracker.tasks.fields.status')"
+                            name="status"
+                            required
+                        >
+                            <USelect
+                                v-model="state.status"
+                                :disabled="readonly"
+                                :items="statuses"
+                                class="w-full"
+                            />
+                        </UFormField>
+
+                        <UFormField
+                            :label="trans('tracker.tasks.fields.active_from')"
+                            name="active_from"
+                            required
+                        >
+                            <UInput
+                                v-model="state.active_from"
+                                :disabled="readonly"
+                                class="w-full"
+                                type="date"
+                            />
+                        </UFormField>
+
+                        <UFormField
+                            :label="trans('tracker.tasks.fields.active_to')"
+                            name="active_to"
+                        >
+                            <UInput
+                                v-model="state.active_to!"
+                                :disabled="readonly"
+                                class="w-full"
+                                type="date"
+                            />
+                        </UFormField>
+
+                        <UFormField
+                            :label="
+                                trans(
+                                    'tracker.tasks.fields.counts_during_holiday',
+                                )
+                            "
+                            name="counts_during_holiday"
+                        >
+                            <USwitch
+                                v-model="state.counts_during_holiday"
+                                :disabled="readonly"
+                            />
+                        </UFormField>
+                    </div>
+                </UPageCard>
+            </template>
+        </EditorLayout>
     </UForm>
 </template>

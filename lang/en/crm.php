@@ -136,6 +136,7 @@ return [
         ],
         'sections' => [
             'details' => 'Details',
+            'settings' => 'Settings',
             'after_submit' => 'After submitting',
         ],
         'builder' => [
@@ -271,6 +272,8 @@ return [
     ],
 
     'organisation_units' => [
+        'socials_summary' => '{1} 1 link|[2,*] :count links',
+        'socials_none' => 'No links yet',
         'columns' => [
             'name' => 'Name',
             'type' => 'Type',
@@ -301,6 +304,7 @@ return [
             'details' => 'Details',
             'contact' => 'Contact',
             'socials' => 'Social media',
+            'structure' => 'Structure',
         ],
         'filters' => [
             'name' => 'Name',
@@ -321,6 +325,7 @@ return [
             'title' => 'Organisation Unit: :name',
         ],
         'validation' => [
+            'name_required' => 'Name is required',
             'email_invalid' => 'Invalid email address',
             'parent_type' => 'A :type must be part of a :parents.',
             'type_has_children' => 'The type cannot be changed while other units are part of this one.',

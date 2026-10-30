@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
 import {
+    index,
     store,
     update,
 } from '@/actions/App/Http/Controllers/Central/Admin/UserController';
@@ -19,13 +20,36 @@ const form = useForm({
     email: props.user?.email ?? '',
 });
 
+const userName = computed(() =>
+    props.user ? `${props.user.first_name} ${props.user.last_name}` : '',
+);
+
+const title = computed(() =>
+    props.user
+        ? trans('users.edit.title', { name: userName.value })
+        : trans('users.create.title'),
+);
+
+const breadcrumbs = computed(() => [
+    { label: trans('users.index.title'), to: index.url() },
+    { label: userName.value || trans('users.create.title') },
+]);
+
 function onSubmit() {
     form.submit(props.user ? update({ user: props.user.id }) : store());
 }
 </script>
 
 <template>
-    <form class="space-y-6" @submit.prevent="onSubmit">
+    <EditorLayout
+        :title="title"
+        :breadcrumbs="breadcrumbs"
+        :is-dirty="form.isDirty"
+        :processing="form.processing"
+        :submit-label="user ? undefined : trans('users.create.submit')"
+        narrow
+        @submit="onSubmit"
+    >
         <UPageCard
             variant="subtle"
             :description="
@@ -59,18 +83,5 @@ function onSubmit() {
                 </UFormField>
             </div>
         </UPageCard>
-
-        <div class="flex justify-end">
-            <UButton
-                type="submit"
-                color="primary"
-                :loading="form.processing"
-                :label="
-                    user
-                        ? trans('users.edit.submit')
-                        : trans('users.create.submit')
-                "
-            />
-        </div>
-    </form>
+    </EditorLayout>
 </template>

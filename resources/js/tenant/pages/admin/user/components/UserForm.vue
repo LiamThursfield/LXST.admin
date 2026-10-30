@@ -3,6 +3,7 @@ import { useForm } from '@inertiajs/vue3';
 import { reactive } from 'vue';
 import * as z from 'zod';
 import {
+    index,
     store,
     update,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/UserController';
@@ -57,6 +58,30 @@ const form = useForm<Partial<Schema>>({
     roles: [],
 });
 
+// The fields are the UForm's state, only copied into the Inertia form on submit
+const { isDirty } = useIsDirty(() => state);
+
+const formRef = useTemplateRef<{ submit: () => Promise<void> }>('formRef');
+
+const userName = computed(() =>
+    props.user ? `${props.user.first_name} ${props.user.last_name}` : '',
+);
+
+const title = computed(() => {
+    if (props.create || !props.user) {
+        return trans('users.create.title');
+    }
+
+    return trans(props.readonly ? 'users.show.title' : 'users.edit.title', {
+        name: userName.value,
+    });
+});
+
+const breadcrumbs = computed(() => [
+    { label: trans('users.index.title'), to: index.url() },
+    { label: userName.value || trans('users.create.title') },
+]);
+
 async function onSubmit() {
     if (props.readonly) return;
 
@@ -77,78 +102,85 @@ async function onSubmit() {
 </script>
 
 <template>
-    <UForm :schema="schema" :state="state" class="space-y-6" @submit="onSubmit">
-        <UPageCard variant="subtle">
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField
-                    :label="trans('users.fields.first_name')"
-                    name="first_name"
-                    required
-                >
-                    <UInput
-                        v-model="state.first_name"
-                        :disabled="readonly"
-                        class="w-full"
-                    />
-                </UFormField>
+    <EditorLayout
+        :title="title"
+        :breadcrumbs="breadcrumbs"
+        :is-dirty="isDirty"
+        :processing="form.processing"
+        :readonly="readonly"
+        :submit-label="create ? trans('users.create.submit') : undefined"
+        narrow
+        own-form
+        @submit="formRef?.submit()"
+    >
+        <UForm
+            ref="formRef"
+            :schema="schema"
+            :state="state"
+            @submit="onSubmit"
+            class="flex flex-col gap-6"
+        >
+            <UPageCard variant="subtle">
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <UFormField
+                        :label="trans('users.fields.first_name')"
+                        name="first_name"
+                        required
+                    >
+                        <UInput
+                            v-model="state.first_name"
+                            :disabled="readonly"
+                            class="w-full"
+                        />
+                    </UFormField>
 
-                <UFormField
-                    :label="trans('users.fields.last_name')"
-                    name="last_name"
-                    required
-                >
-                    <UInput
-                        v-model="state.last_name"
-                        :disabled="readonly"
-                        class="w-full"
-                    />
-                </UFormField>
+                    <UFormField
+                        :label="trans('users.fields.last_name')"
+                        name="last_name"
+                        required
+                    >
+                        <UInput
+                            v-model="state.last_name"
+                            :disabled="readonly"
+                            class="w-full"
+                        />
+                    </UFormField>
 
-                <UFormField
-                    class="md:col-span-2"
-                    :label="trans('users.fields.email')"
-                    name="email"
-                    required
-                >
-                    <UInput
-                        v-model="state.email"
-                        :disabled="readonly"
-                        class="w-full"
-                        type="email"
-                    />
-                </UFormField>
+                    <UFormField
+                        class="md:col-span-2"
+                        :label="trans('users.fields.email')"
+                        name="email"
+                        required
+                    >
+                        <UInput
+                            v-model="state.email"
+                            :disabled="readonly"
+                            class="w-full"
+                            type="email"
+                        />
+                    </UFormField>
 
-                <UFormField
-                    class="md:col-span-2"
-                    :label="trans('users.fields.roles')"
-                    name="roles"
-                >
-                    <USelect
-                        v-model="state.roles!"
-                        :disabled="readonly"
-                        :items="roles"
-                        class="w-full"
-                        multiple
-                    />
-                </UFormField>
-            </div>
-        </UPageCard>
+                    <UFormField
+                        class="md:col-span-2"
+                        :label="trans('users.fields.roles')"
+                        name="roles"
+                    >
+                        <USelect
+                            v-model="state.roles!"
+                            :disabled="readonly"
+                            :items="roles"
+                            class="w-full"
+                            multiple
+                        />
+                    </UFormField>
+                </div>
+            </UPageCard>
 
-        <p v-if="create" class="text-muted text-sm">
-            {{ trans('users.create.password_email_notice') }}
-        </p>
+            <p v-if="create" class="text-muted text-sm">
+                {{ trans('users.create.password_email_notice') }}
+            </p>
 
-        <div v-if="!readonly" class="flex justify-end gap-2">
-            <UButton
-                :loading="form.processing"
-                color="primary"
-                :label="
-                    create
-                        ? trans('users.create.submit')
-                        : trans('users.edit.submit')
-                "
-                type="submit"
-            />
-        </div>
-    </UForm>
+            <SubmitOnEnter />
+        </UForm>
+    </EditorLayout>
 </template>

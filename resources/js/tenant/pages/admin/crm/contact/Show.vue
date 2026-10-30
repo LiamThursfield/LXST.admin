@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import {
     index as submissionsIndex,
     show as showSubmission,
@@ -18,12 +18,6 @@ const props = defineProps<{
 const { trans } = useTrans();
 const timezone = userTimezone(useAuth().value.user);
 
-const title = computed(() =>
-    trans('crm.contacts.show.title', {
-        name: props.contact.data.name_with_title || props.contact.data.email,
-    }),
-);
-
 const allSubmissionsUrl = computed(() =>
     submissionsIndex.url({
         query: { 'filter[contact_id]': String(props.contact.data.id) },
@@ -32,84 +26,59 @@ const allSubmissionsUrl = computed(() =>
 </script>
 
 <template>
-    <UDashboardPanel>
-        <template #header>
-            <UDashboardNavbar :title="title">
-                <template #leading>
-                    <UDashboardSidebarCollapse as="button" :disabled="false" />
-                </template>
-            </UDashboardNavbar>
-        </template>
+    <ContactForm :contact="contact.data" :readonly="true">
+        <UPageCard
+            v-if="submissions"
+            variant="subtle"
+            :title="trans('crm.submissions.contact_list.title')"
+        >
+            <p v-if="!submissions.data.length" class="text-muted text-sm">
+                {{ trans('crm.submissions.contact_list.empty') }}
+            </p>
 
-        <template #body>
-            <Head :title="title" />
-            <div class="flex w-full max-w-4xl flex-col gap-6">
-                <ContactForm :contact="contact.data" :readonly="true" />
-
-                <UPageCard
-                    v-if="submissions"
-                    variant="subtle"
-                    :title="trans('crm.submissions.contact_list.title')"
-                >
-                    <p
-                        v-if="!submissions.data.length"
-                        class="text-muted text-sm"
+            <ul v-else class="divide-default divide-y text-sm">
+                <li v-for="submission in submissions.data" :key="submission.id">
+                    <Link
+                        :href="showSubmission.url(submission.id)"
+                        class="hover:bg-elevated/50 -mx-2 flex items-center justify-between gap-4 rounded-md px-2 py-2"
                     >
-                        {{ trans('crm.submissions.contact_list.empty') }}
-                    </p>
-
-                    <ul v-else class="divide-default divide-y text-sm">
-                        <li
-                            v-for="submission in submissions.data"
-                            :key="submission.id"
-                        >
-                            <Link
-                                :href="showSubmission.url(submission.id)"
-                                class="hover:bg-elevated/50 -mx-2 flex items-center justify-between gap-4 rounded-md px-2 py-2"
+                        <span>{{ submission.form.name }}</span>
+                        <span class="flex items-center gap-3">
+                            <UBadge
+                                v-if="submission.is_spam"
+                                color="error"
+                                variant="subtle"
                             >
-                                <span>{{ submission.form.name }}</span>
-                                <span class="flex items-center gap-3">
-                                    <UBadge
-                                        v-if="submission.is_spam"
-                                        color="error"
-                                        variant="subtle"
-                                    >
-                                        {{
-                                            trans('crm.submissions.status.spam')
-                                        }}
-                                    </UBadge>
-                                    <span class="text-muted">
-                                        {{
-                                            formatDateTime(
-                                                submission.submitted_at,
-                                                timezone,
-                                            )
-                                        }}
-                                    </span>
-                                </span>
-                            </Link>
-                        </li>
-                    </ul>
+                                {{ trans('crm.submissions.status.spam') }}
+                            </UBadge>
+                            <span class="text-muted">
+                                {{
+                                    formatDateTime(
+                                        submission.submitted_at,
+                                        timezone,
+                                    )
+                                }}
+                            </span>
+                        </span>
+                    </Link>
+                </li>
+            </ul>
 
-                    <template
-                        v-if="
-                            submissionsCount &&
-                            submissionsCount > submissions.data.length
-                        "
-                        #footer
-                    >
-                        <UButton
-                            as="Link"
-                            :href="allSubmissionsUrl"
-                            color="neutral"
-                            variant="subtle"
-                            :label="
-                                trans('crm.submissions.contact_list.view_all')
-                            "
-                        />
-                    </template>
-                </UPageCard>
-            </div>
-        </template>
-    </UDashboardPanel>
+            <template
+                v-if="
+                    submissionsCount &&
+                    submissionsCount > submissions.data.length
+                "
+                #footer
+            >
+                <UButton
+                    as="Link"
+                    :href="allSubmissionsUrl"
+                    color="neutral"
+                    variant="subtle"
+                    :label="trans('crm.submissions.contact_list.view_all')"
+                />
+            </template>
+        </UPageCard>
+    </ContactForm>
 </template>

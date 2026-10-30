@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
 import {
+    index,
     store,
     update,
 } from '@/actions/App/Http/Controllers/Central/Admin/TenantController';
@@ -32,6 +33,17 @@ function toggleModule(value: string, enabled: boolean | 'indeterminate') {
             : form.modules.filter((module) => module !== value);
 }
 
+const title = computed(() =>
+    props.tenant
+        ? trans('tenants.edit.title', { name: props.tenant.name })
+        : trans('tenants.create.title'),
+);
+
+const breadcrumbs = computed(() => [
+    { label: trans('tenants.index.title'), to: index.url() },
+    { label: props.tenant?.name ?? trans('tenants.create.title') },
+]);
+
 function onSubmit() {
     if (props.tenant) {
         form.transform((data) => ({
@@ -47,7 +59,15 @@ function onSubmit() {
 </script>
 
 <template>
-    <form class="space-y-6" @submit.prevent="onSubmit">
+    <EditorLayout
+        :title="title"
+        :breadcrumbs="breadcrumbs"
+        :is-dirty="form.isDirty"
+        :processing="form.processing"
+        :submit-label="tenant ? undefined : trans('tenants.create.submit')"
+        narrow
+        @submit="onSubmit"
+    >
         <UPageCard variant="subtle" :title="trans('tenants.sections.tenant')">
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <UFormField
@@ -135,21 +155,5 @@ function onSubmit() {
                 </UFormField>
             </div>
         </UPageCard>
-
-        <div class="flex items-center justify-end gap-4">
-            <p v-if="!tenant && form.processing" class="text-muted text-sm">
-                {{ trans('tenants.create.provisioning') }}
-            </p>
-            <UButton
-                type="submit"
-                color="primary"
-                :loading="form.processing"
-                :label="
-                    tenant
-                        ? trans('tenants.edit.submit')
-                        : trans('tenants.create.submit')
-                "
-            />
-        </div>
-    </form>
+    </EditorLayout>
 </template>
