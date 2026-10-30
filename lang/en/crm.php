@@ -230,6 +230,11 @@ return [
             'to' => 'To',
             'contact' => 'Contact: :name',
             'clear_contact' => 'Show all contacts',
+            'form_label' => 'Form',
+            'spam_label' => 'Spam',
+            'from_chip' => 'From :date',
+            'to_chip' => 'To :date',
+            'a_contact' => 'One contact',
         ],
         'show' => [
             'title' => 'Submission',
@@ -255,6 +260,7 @@ return [
         ],
         'index' => [
             'title' => 'Submissions',
+            'empty' => 'No submissions yet.',
         ],
         'mail' => [
             'subject' => 'New submission: :form',

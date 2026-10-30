@@ -16,6 +16,7 @@ return [
         'description' => 'Requests, setlists and stats hang off gigs. Request pages always point at the current gig.',
         'create' => 'New gig',
         'create_submit' => 'Create gig',
+        'when_label' => 'When',
         'edit' => 'Edit gig',
         'empty' => 'No gigs here yet.',
         'search' => 'Search gigs or venues...',

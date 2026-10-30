@@ -68,6 +68,7 @@ return [
 
     'list' => [
         'columns' => 'Columns',
+        'sort' => 'Sort by',
         'clear_filters' => 'Clear filters',
         'remove_filter' => 'Remove filter: :filter',
         'selected' => '{1} 1 selected|[2,*] :count selected',

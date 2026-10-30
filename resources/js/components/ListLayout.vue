@@ -15,10 +15,11 @@ export type ListPagination = {
 
 /**
  * The page around an admin list: a navbar with the title, a count and the create action; a toolbar
- * with search, the page's filters and a Columns menu; chips for the active filters; a bar of bulk
- * actions while rows are ticked; the table, which scrolls sideways in its own box; a footer saying
+ * with search, the page's filters and a Columns menu; chips for the active filters; a floating bar
+ * of bulk actions while rows are ticked; the table, which scrolls sideways in its own box; a footer saying
  * which rows are showing, with previous and next; and empty states for "nothing yet" and "no
- * matches". Each column's cells can be customised with the table's `{column}-cell` slots.
+ * matches". Each column's cells can be customised with the table's `{column}-cell` slots, and the
+ * default slot is for anything else on the page, e.g. a modal.
  */
 const props = withDefaults(
     defineProps<{
@@ -79,7 +80,7 @@ const slots = useSlots();
 const { trans, transChoice } = useTrans();
 
 /** The slots this layout uses itself; the rest go to the table. */
-const ownSlots = ['actions', 'filters', 'bulk-actions', 'notice'];
+const ownSlots = ['default', 'actions', 'filters', 'bulk-actions', 'notice'];
 
 const tableSlots = computed(() =>
     Object.keys(slots).filter((name) => !ownSlots.includes(name)),
@@ -284,27 +285,6 @@ const total = computed(() => props.pagination?.total ?? props.rows.length);
                     />
                 </div>
 
-                <div
-                    v-if="selectable && selected.length"
-                    class="bg-elevated flex flex-wrap items-center gap-2 rounded-md px-3 py-2"
-                >
-                    <span class="text-sm font-medium">
-                        {{
-                            transChoice('common.list.selected', selected.length)
-                        }}
-                    </span>
-                    <slot name="bulk-actions" />
-                    <UButton
-                        color="neutral"
-                        variant="ghost"
-                        size="sm"
-                        icon="i-lucide-x"
-                        class="ms-auto"
-                        :aria-label="trans('common.list.clear_selection')"
-                        @click="selected = []"
-                    />
-                </div>
-
                 <UEmpty
                     v-if="!rows.length && hasFilters"
                     icon="i-lucide-search-x"
@@ -391,6 +371,28 @@ const total = computed(() => props.pagination?.total ?? props.rows.length);
                     </UTable>
                 </div>
 
+                <!-- Below the table, floating, so ticking rows never moves the rows -->
+                <div
+                    v-if="selectable && selected.length"
+                    class="bg-default ring-default sticky bottom-4 z-10 flex flex-wrap items-center gap-2 rounded-lg px-3 py-2 shadow-lg ring"
+                >
+                    <span class="text-sm font-medium">
+                        {{
+                            transChoice('common.list.selected', selected.length)
+                        }}
+                    </span>
+                    <slot name="bulk-actions" />
+                    <UButton
+                        color="neutral"
+                        variant="ghost"
+                        size="sm"
+                        icon="i-lucide-x"
+                        class="ms-auto"
+                        :aria-label="trans('common.list.clear_selection')"
+                        @click="selected = []"
+                    />
+                </div>
+
                 <div
                     v-if="showing && rows.length"
                     class="flex flex-wrap items-center justify-between gap-3"
@@ -423,6 +425,8 @@ const total = computed(() => props.pagination?.total ?? props.rows.length);
                     </div>
                 </div>
             </div>
+
+            <slot />
         </template>
     </UDashboardPanel>
 </template>
