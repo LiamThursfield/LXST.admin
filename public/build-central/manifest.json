@@ -1,171 +1,179 @@
 {
-  "_AuthLayout.vue_vue_type_script_setup_true_lang-DEnXwjuw.js": {
-    "file": "assets/AuthLayout.vue_vue_type_script_setup_true_lang-DEnXwjuw.js",
+  "_AuthLayout.vue_vue_type_script_setup_true_lang-rYE0R3io.js": {
+    "file": "assets/AuthLayout.vue_vue_type_script_setup_true_lang-rYE0R3io.js",
     "name": "AuthLayout.vue_vue_type_script_setup_true_lang",
     "imports": [
-      "_PageCard-BQxeZA3Q.js",
+      "_PageCard-ngin4Qkj.js",
       "resources/js/central/app.ts"
     ]
   },
-  "_Checkbox-85DZn6zA.js": {
-    "file": "assets/Checkbox-85DZn6zA.js",
+  "_Checkbox-B6hwaeTZ.js": {
+    "file": "assets/Checkbox-B6hwaeTZ.js",
     "name": "Checkbox",
     "imports": [
       "resources/js/central/app.ts",
-      "_FormField-CViwczM7.js",
-      "_useFormControl-Cm5tSTgx.js",
-      "_VisuallyHiddenInput-Dj5R9sTN.js",
-      "_FieldRoot-D4gmlQDC.js"
+      "_FormField-DK9yra_-.js",
+      "_VisuallyHiddenInput-BfYgBQ1U.js"
     ]
   },
-  "_DashboardSidebarCollapse-D7HD3eLU.js": {
-    "file": "assets/DashboardSidebarCollapse-D7HD3eLU.js",
+  "_DashboardSidebarCollapse-BwW-0dcK.js": {
+    "file": "assets/DashboardSidebarCollapse-BwW-0dcK.js",
     "name": "DashboardSidebarCollapse",
     "imports": [
       "resources/js/central/app.ts"
     ]
   },
-  "_FieldRoot-D4gmlQDC.js": {
-    "file": "assets/FieldRoot-D4gmlQDC.js",
-    "name": "FieldRoot",
+  "_DashboardToolbar-7EZNGGxt.js": {
+    "file": "assets/DashboardToolbar-7EZNGGxt.js",
+    "name": "DashboardToolbar",
     "imports": [
       "resources/js/central/app.ts"
     ]
   },
-  "_FormField-CViwczM7.js": {
-    "file": "assets/FormField-CViwczM7.js",
+  "_EditorLayout.vue_vue_type_script_setup_true_lang-BQwTDGQw.js": {
+    "file": "assets/EditorLayout.vue_vue_type_script_setup_true_lang-BQwTDGQw.js",
+    "name": "EditorLayout.vue_vue_type_script_setup_true_lang",
+    "imports": [
+      "_DashboardSidebarCollapse-BwW-0dcK.js",
+      "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Modal.vue",
+      "resources/js/central/app.ts",
+      "_DashboardToolbar-7EZNGGxt.js"
+    ]
+  },
+  "_FormField-DK9yra_-.js": {
+    "file": "assets/FormField-DK9yra_-.js",
     "name": "FormField",
     "imports": [
       "resources/js/central/app.ts"
     ]
   },
-  "_PageCard-BQxeZA3Q.js": {
-    "file": "assets/PageCard-BQxeZA3Q.js",
+  "_PageCard-ngin4Qkj.js": {
+    "file": "assets/PageCard-ngin4Qkj.js",
     "name": "PageCard",
     "imports": [
       "resources/js/central/app.ts"
     ]
   },
-  "_RowActions.vue_vue_type_script_setup_true_lang-CMV69ELz.js": {
-    "file": "assets/RowActions.vue_vue_type_script_setup_true_lang-CMV69ELz.js",
-    "name": "RowActions.vue_vue_type_script_setup_true_lang",
-    "imports": [
-      "resources/js/central/app.ts",
-      "_index-B2qzDn9T.js",
-      "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Modal.vue"
-    ]
-  },
-  "_Separator-bKiuCBI-.js": {
-    "file": "assets/Separator-bKiuCBI-.js",
+  "_Separator-DsbWGMvY.js": {
+    "file": "assets/Separator-DsbWGMvY.js",
     "name": "Separator",
     "imports": [
       "resources/js/central/app.ts"
     ]
   },
-  "_SettingsSubLayout.vue_vue_type_script_setup_true_lang-DL3zxbEl.js": {
-    "file": "assets/SettingsSubLayout.vue_vue_type_script_setup_true_lang-DL3zxbEl.js",
+  "_SettingsSubLayout.vue_vue_type_script_setup_true_lang-CyQvV7Lj.js": {
+    "file": "assets/SettingsSubLayout.vue_vue_type_script_setup_true_lang-CyQvV7Lj.js",
     "name": "SettingsSubLayout.vue_vue_type_script_setup_true_lang",
     "imports": [
-      "_DashboardSidebarCollapse-D7HD3eLU.js",
+      "_DashboardSidebarCollapse-BwW-0dcK.js",
+      "_DashboardToolbar-7EZNGGxt.js",
       "resources/js/central/app.ts"
     ]
   },
-  "_TenantController-T6Y0trx7.js": {
-    "file": "assets/TenantController-T6Y0trx7.js",
+  "_TenantController-DRegD1YH.js": {
+    "file": "assets/TenantController-DRegD1YH.js",
     "name": "TenantController",
     "imports": [
       "resources/js/central/app.ts"
     ]
   },
-  "_TenantDomains.vue_vue_type_script_setup_true_lang-Br6l05j0.js": {
-    "file": "assets/TenantDomains.vue_vue_type_script_setup_true_lang-Br6l05j0.js",
+  "_TenantDomains.vue_vue_type_script_setup_true_lang-DldKmm_U.js": {
+    "file": "assets/TenantDomains.vue_vue_type_script_setup_true_lang-DldKmm_U.js",
     "name": "TenantDomains.vue_vue_type_script_setup_true_lang",
     "imports": [
       "resources/js/central/app.ts",
       "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Modal.vue",
-      "_FormField-CViwczM7.js"
+      "_FormField-DK9yra_-.js"
     ]
   },
-  "_TenantForm.vue_vue_type_script_setup_true_lang-CxFcZqKS.js": {
-    "file": "assets/TenantForm.vue_vue_type_script_setup_true_lang-CxFcZqKS.js",
+  "_TenantForm.vue_vue_type_script_setup_true_lang-BHnHDqnA.js": {
+    "file": "assets/TenantForm.vue_vue_type_script_setup_true_lang-BHnHDqnA.js",
     "name": "TenantForm.vue_vue_type_script_setup_true_lang",
     "imports": [
+      "_EditorLayout.vue_vue_type_script_setup_true_lang-BQwTDGQw.js",
+      "_Checkbox-B6hwaeTZ.js",
+      "_PageCard-ngin4Qkj.js",
+      "_FormField-DK9yra_-.js",
       "resources/js/central/app.ts",
-      "_Checkbox-85DZn6zA.js",
-      "_PageCard-BQxeZA3Q.js",
-      "_FormField-CViwczM7.js",
-      "_TenantController-T6Y0trx7.js"
+      "_TenantController-DRegD1YH.js"
     ]
   },
-  "_TextLink.vue_vue_type_script_setup_true_lang-CKYbaJSA.js": {
-    "file": "assets/TextLink.vue_vue_type_script_setup_true_lang-CKYbaJSA.js",
+  "_TextLink.vue_vue_type_script_setup_true_lang-CwxU_QvC.js": {
+    "file": "assets/TextLink.vue_vue_type_script_setup_true_lang-CwxU_QvC.js",
     "name": "TextLink.vue_vue_type_script_setup_true_lang",
     "imports": [
       "resources/js/central/app.ts"
     ]
   },
-  "_UserController-D6npXfeo.js": {
-    "file": "assets/UserController-D6npXfeo.js",
+  "_UserController-ge6JyRhr.js": {
+    "file": "assets/UserController-ge6JyRhr.js",
     "name": "UserController",
     "imports": [
       "resources/js/central/app.ts"
     ]
   },
-  "_UserForm.vue_vue_type_script_setup_true_lang-MGPP7lYL.js": {
-    "file": "assets/UserForm.vue_vue_type_script_setup_true_lang-MGPP7lYL.js",
+  "_UserForm.vue_vue_type_script_setup_true_lang-BP9qhocG.js": {
+    "file": "assets/UserForm.vue_vue_type_script_setup_true_lang-BP9qhocG.js",
     "name": "UserForm.vue_vue_type_script_setup_true_lang",
     "imports": [
+      "_EditorLayout.vue_vue_type_script_setup_true_lang-BQwTDGQw.js",
+      "_PageCard-ngin4Qkj.js",
+      "_FormField-DK9yra_-.js",
       "resources/js/central/app.ts",
-      "_PageCard-BQxeZA3Q.js",
-      "_FormField-CViwczM7.js",
-      "_UserController-D6npXfeo.js"
+      "_UserController-ge6JyRhr.js"
     ]
   },
-  "_VisuallyHiddenInput-Dj5R9sTN.js": {
-    "file": "assets/VisuallyHiddenInput-Dj5R9sTN.js",
+  "_VisuallyHiddenInput-BfYgBQ1U.js": {
+    "file": "assets/VisuallyHiddenInput-BfYgBQ1U.js",
     "name": "VisuallyHiddenInput",
     "imports": [
       "resources/js/central/app.ts"
     ]
   },
-  "_index-B2qzDn9T.js": {
-    "file": "assets/index-B2qzDn9T.js",
+  "_index-D5atbEGO.js": {
+    "file": "assets/index-D5atbEGO.js",
     "name": "index",
     "imports": [
       "resources/js/central/app.ts"
     ]
   },
-  "_timezone-D2h0B5I6.js": {
-    "file": "assets/timezone-D2h0B5I6.js",
+  "_timezone-DYOYwrLl.js": {
+    "file": "assets/timezone-DYOYwrLl.js",
     "name": "timezone",
     "imports": [
       "resources/js/central/app.ts"
     ]
   },
-  "_useFormControl-Cm5tSTgx.js": {
-    "file": "assets/useFormControl-Cm5tSTgx.js",
-    "name": "useFormControl",
+  "_useListFilters-j61KtUlq.js": {
+    "file": "assets/useListFilters-j61KtUlq.js",
+    "name": "useListFilters",
     "imports": [
-      "resources/js/central/app.ts"
+      "_DashboardSidebarCollapse-BwW-0dcK.js",
+      "resources/js/central/app.ts",
+      "_FormField-DK9yra_-.js",
+      "_index-D5atbEGO.js",
+      "_Checkbox-B6hwaeTZ.js",
+      "_DashboardToolbar-7EZNGGxt.js",
+      "_VisuallyHiddenInput-BfYgBQ1U.js",
+      "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Modal.vue"
     ]
   },
   "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/CommandPalette.vue": {
-    "file": "assets/CommandPalette-vzGPMNwl.js",
+    "file": "assets/CommandPalette-CsqpbiQJ.js",
     "name": "CommandPalette",
     "src": "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/CommandPalette.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/central/app.ts",
-      "_useFormControl-Cm5tSTgx.js",
-      "_VisuallyHiddenInput-Dj5R9sTN.js",
-      "_index-B2qzDn9T.js"
+      "_VisuallyHiddenInput-BfYgBQ1U.js",
+      "_index-D5atbEGO.js"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Drawer.vue": {
-    "file": "assets/Drawer-U4UJNClL.js",
+    "file": "assets/Drawer-DDgVjSfZ.js",
     "name": "Drawer",
     "src": "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Drawer.vue",
     "isDynamicEntry": true,
@@ -173,11 +181,11 @@
       "resources/js/central/app.ts"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Modal.vue": {
-    "file": "assets/Modal-DAlbarLS.js",
+    "file": "assets/Modal-D0bRvz5n.js",
     "name": "Modal",
     "src": "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Modal.vue",
     "isDynamicEntry": true,
@@ -185,11 +193,11 @@
       "resources/js/central/app.ts"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Toast.vue": {
-    "file": "assets/Toast-BaSFQYGJ.js",
+    "file": "assets/Toast-BA-H31qp.js",
     "name": "Toast",
     "src": "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Toast.vue",
     "isDynamicEntry": true,
@@ -197,11 +205,11 @@
       "resources/js/central/app.ts"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "resources/css/central/app.css": {
-    "file": "assets/app-DazftLwU.css",
+    "file": "assets/app-YppGaph7.css",
     "src": "resources/css/central/app.css",
     "isEntry": true,
     "name": "app",
@@ -210,7 +218,7 @@
     ]
   },
   "resources/js/central/app.ts": {
-    "file": "assets/app-CJFT8kPI.js",
+    "file": "assets/app-e43PyG1Z.js",
     "name": "app",
     "src": "resources/js/central/app.ts",
     "isEntry": true,
@@ -240,332 +248,352 @@
       "resources/js/central/pages/auth/VerifyEmail.vue"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "resources/js/central/pages/Welcome.vue": {
-    "file": "assets/Welcome-DAPSS1J4.js",
+    "file": "assets/Welcome-BWoqloqe.js",
     "name": "Welcome",
     "src": "resources/js/central/pages/Welcome.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/central/app.ts",
-      "_Separator-bKiuCBI-.js"
+      "_Separator-DsbWGMvY.js"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "resources/js/central/pages/admin/Dashboard.vue": {
-    "file": "assets/Dashboard-De2PUfL5.js",
+    "file": "assets/Dashboard-kjPYwe6Z.js",
     "name": "Dashboard",
     "src": "resources/js/central/pages/admin/Dashboard.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_DashboardSidebarCollapse-D7HD3eLU.js",
+      "_DashboardSidebarCollapse-BwW-0dcK.js",
       "resources/js/central/app.ts"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "resources/js/central/pages/admin/settings/Profile.vue": {
-    "file": "assets/Profile-Hc0WPc1v.js",
+    "file": "assets/Profile-C5fSTuJ8.js",
     "name": "Profile",
     "src": "resources/js/central/pages/admin/settings/Profile.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/central/app.ts",
-      "_TextLink.vue_vue_type_script_setup_true_lang-CKYbaJSA.js",
-      "_Separator-bKiuCBI-.js",
-      "_FormField-CViwczM7.js",
-      "_PageCard-BQxeZA3Q.js",
-      "_SettingsSubLayout.vue_vue_type_script_setup_true_lang-DL3zxbEl.js",
-      "_DashboardSidebarCollapse-D7HD3eLU.js"
+      "_TextLink.vue_vue_type_script_setup_true_lang-CwxU_QvC.js",
+      "_Separator-DsbWGMvY.js",
+      "_FormField-DK9yra_-.js",
+      "_PageCard-ngin4Qkj.js",
+      "_SettingsSubLayout.vue_vue_type_script_setup_true_lang-CyQvV7Lj.js",
+      "_DashboardSidebarCollapse-BwW-0dcK.js",
+      "_DashboardToolbar-7EZNGGxt.js"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "resources/js/central/pages/admin/settings/Security.vue": {
-    "file": "assets/Security-D9vPCO7u.js",
+    "file": "assets/Security-RoYSsyf9.js",
     "name": "Security",
     "src": "resources/js/central/pages/admin/settings/Security.vue",
     "isDynamicEntry": true,
     "imports": [
       "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Modal.vue",
-      "_FormField-CViwczM7.js",
+      "_FormField-DK9yra_-.js",
       "resources/js/central/app.ts",
-      "_PageCard-BQxeZA3Q.js",
-      "_SettingsSubLayout.vue_vue_type_script_setup_true_lang-DL3zxbEl.js",
-      "_DashboardSidebarCollapse-D7HD3eLU.js"
+      "_PageCard-ngin4Qkj.js",
+      "_SettingsSubLayout.vue_vue_type_script_setup_true_lang-CyQvV7Lj.js",
+      "_DashboardSidebarCollapse-BwW-0dcK.js",
+      "_DashboardToolbar-7EZNGGxt.js"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "resources/js/central/pages/admin/tenant/Create.vue": {
-    "file": "assets/Create-BEhIsGGn.js",
+    "file": "assets/Create-DHBKnrd5.js",
     "name": "Create",
     "src": "resources/js/central/pages/admin/tenant/Create.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_DashboardSidebarCollapse-D7HD3eLU.js",
+      "_TenantForm.vue_vue_type_script_setup_true_lang-BHnHDqnA.js",
       "resources/js/central/app.ts",
-      "_TenantForm.vue_vue_type_script_setup_true_lang-CxFcZqKS.js",
-      "_Checkbox-85DZn6zA.js",
-      "_FormField-CViwczM7.js",
-      "_useFormControl-Cm5tSTgx.js",
-      "_VisuallyHiddenInput-Dj5R9sTN.js",
-      "_FieldRoot-D4gmlQDC.js",
-      "_PageCard-BQxeZA3Q.js",
-      "_TenantController-T6Y0trx7.js"
+      "_EditorLayout.vue_vue_type_script_setup_true_lang-BQwTDGQw.js",
+      "_DashboardSidebarCollapse-BwW-0dcK.js",
+      "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Modal.vue",
+      "_DashboardToolbar-7EZNGGxt.js",
+      "_Checkbox-B6hwaeTZ.js",
+      "_FormField-DK9yra_-.js",
+      "_VisuallyHiddenInput-BfYgBQ1U.js",
+      "_PageCard-ngin4Qkj.js",
+      "_TenantController-DRegD1YH.js"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "resources/js/central/pages/admin/tenant/Edit.vue": {
-    "file": "assets/Edit-CipPOpr4.js",
+    "file": "assets/Edit-CUt5r6-4.js",
     "name": "Edit",
     "src": "resources/js/central/pages/admin/tenant/Edit.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_DashboardSidebarCollapse-D7HD3eLU.js",
+      "_TenantForm.vue_vue_type_script_setup_true_lang-BHnHDqnA.js",
       "resources/js/central/app.ts",
-      "_TenantForm.vue_vue_type_script_setup_true_lang-CxFcZqKS.js",
-      "_Checkbox-85DZn6zA.js",
-      "_FormField-CViwczM7.js",
-      "_useFormControl-Cm5tSTgx.js",
-      "_VisuallyHiddenInput-Dj5R9sTN.js",
-      "_FieldRoot-D4gmlQDC.js",
-      "_PageCard-BQxeZA3Q.js",
-      "_TenantController-T6Y0trx7.js"
+      "_EditorLayout.vue_vue_type_script_setup_true_lang-BQwTDGQw.js",
+      "_DashboardSidebarCollapse-BwW-0dcK.js",
+      "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Modal.vue",
+      "_DashboardToolbar-7EZNGGxt.js",
+      "_Checkbox-B6hwaeTZ.js",
+      "_FormField-DK9yra_-.js",
+      "_VisuallyHiddenInput-BfYgBQ1U.js",
+      "_PageCard-ngin4Qkj.js",
+      "_TenantController-DRegD1YH.js"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "resources/js/central/pages/admin/tenant/Index.vue": {
-    "file": "assets/Index-BRwXNVTa.js",
+    "file": "assets/Index-DBCUuUrA.js",
     "name": "Index",
     "src": "resources/js/central/pages/admin/tenant/Index.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_DashboardSidebarCollapse-D7HD3eLU.js",
-      "_RowActions.vue_vue_type_script_setup_true_lang-CMV69ELz.js",
+      "_useListFilters-j61KtUlq.js",
       "resources/js/central/app.ts",
-      "_useFormControl-Cm5tSTgx.js",
-      "_FieldRoot-D4gmlQDC.js",
-      "_TenantController-T6Y0trx7.js",
-      "_timezone-D2h0B5I6.js",
-      "_index-B2qzDn9T.js",
+      "_TenantController-DRegD1YH.js",
+      "_timezone-DYOYwrLl.js",
+      "_DashboardSidebarCollapse-BwW-0dcK.js",
+      "_FormField-DK9yra_-.js",
+      "_index-D5atbEGO.js",
+      "_Checkbox-B6hwaeTZ.js",
+      "_VisuallyHiddenInput-BfYgBQ1U.js",
+      "_DashboardToolbar-7EZNGGxt.js",
       "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Modal.vue"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "resources/js/central/pages/admin/tenant/Show.vue": {
-    "file": "assets/Show-DpTCXzIm.js",
+    "file": "assets/Show-DSGMfZN6.js",
     "name": "Show",
     "src": "resources/js/central/pages/admin/tenant/Show.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_DashboardSidebarCollapse-D7HD3eLU.js",
-      "_FormField-CViwczM7.js",
+      "_DashboardSidebarCollapse-BwW-0dcK.js",
+      "_FormField-DK9yra_-.js",
       "resources/js/central/app.ts",
       "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Modal.vue",
-      "_TenantDomains.vue_vue_type_script_setup_true_lang-Br6l05j0.js",
-      "_TenantController-T6Y0trx7.js",
-      "_timezone-D2h0B5I6.js"
+      "_TenantDomains.vue_vue_type_script_setup_true_lang-DldKmm_U.js",
+      "_TenantController-DRegD1YH.js",
+      "_timezone-DYOYwrLl.js"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "resources/js/central/pages/admin/tenant/components/TenantDomains.vue": {
-    "file": "assets/TenantDomains-2LCMbKu3.js",
+    "file": "assets/TenantDomains-CGts_N34.js",
     "name": "TenantDomains",
     "src": "resources/js/central/pages/admin/tenant/components/TenantDomains.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_TenantDomains.vue_vue_type_script_setup_true_lang-Br6l05j0.js",
+      "_TenantDomains.vue_vue_type_script_setup_true_lang-DldKmm_U.js",
       "resources/js/central/app.ts",
       "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Modal.vue",
-      "_FormField-CViwczM7.js"
+      "_FormField-DK9yra_-.js"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "resources/js/central/pages/admin/tenant/components/TenantForm.vue": {
-    "file": "assets/TenantForm-ChoDyn5r.js",
+    "file": "assets/TenantForm-COzZVm6H.js",
     "name": "TenantForm",
     "src": "resources/js/central/pages/admin/tenant/components/TenantForm.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_TenantForm.vue_vue_type_script_setup_true_lang-CxFcZqKS.js",
+      "_TenantForm.vue_vue_type_script_setup_true_lang-BHnHDqnA.js",
+      "_EditorLayout.vue_vue_type_script_setup_true_lang-BQwTDGQw.js",
+      "_DashboardSidebarCollapse-BwW-0dcK.js",
       "resources/js/central/app.ts",
-      "_Checkbox-85DZn6zA.js",
-      "_FormField-CViwczM7.js",
-      "_useFormControl-Cm5tSTgx.js",
-      "_VisuallyHiddenInput-Dj5R9sTN.js",
-      "_FieldRoot-D4gmlQDC.js",
-      "_PageCard-BQxeZA3Q.js",
-      "_TenantController-T6Y0trx7.js"
+      "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Modal.vue",
+      "_DashboardToolbar-7EZNGGxt.js",
+      "_Checkbox-B6hwaeTZ.js",
+      "_FormField-DK9yra_-.js",
+      "_VisuallyHiddenInput-BfYgBQ1U.js",
+      "_PageCard-ngin4Qkj.js",
+      "_TenantController-DRegD1YH.js"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "resources/js/central/pages/admin/user/Create.vue": {
-    "file": "assets/Create-KIFIA7FU.js",
+    "file": "assets/Create-CkWrnkz7.js",
     "name": "Create",
     "src": "resources/js/central/pages/admin/user/Create.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_DashboardSidebarCollapse-D7HD3eLU.js",
+      "_UserForm.vue_vue_type_script_setup_true_lang-BP9qhocG.js",
       "resources/js/central/app.ts",
-      "_UserForm.vue_vue_type_script_setup_true_lang-MGPP7lYL.js",
-      "_PageCard-BQxeZA3Q.js",
-      "_FormField-CViwczM7.js",
-      "_UserController-D6npXfeo.js"
+      "_EditorLayout.vue_vue_type_script_setup_true_lang-BQwTDGQw.js",
+      "_DashboardSidebarCollapse-BwW-0dcK.js",
+      "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Modal.vue",
+      "_DashboardToolbar-7EZNGGxt.js",
+      "_PageCard-ngin4Qkj.js",
+      "_FormField-DK9yra_-.js",
+      "_UserController-ge6JyRhr.js"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "resources/js/central/pages/admin/user/Edit.vue": {
-    "file": "assets/Edit-SRgrJ7vC.js",
+    "file": "assets/Edit-BUNscdKI.js",
     "name": "Edit",
     "src": "resources/js/central/pages/admin/user/Edit.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_DashboardSidebarCollapse-D7HD3eLU.js",
+      "_UserForm.vue_vue_type_script_setup_true_lang-BP9qhocG.js",
       "resources/js/central/app.ts",
-      "_UserForm.vue_vue_type_script_setup_true_lang-MGPP7lYL.js",
-      "_PageCard-BQxeZA3Q.js",
-      "_FormField-CViwczM7.js",
-      "_UserController-D6npXfeo.js"
+      "_EditorLayout.vue_vue_type_script_setup_true_lang-BQwTDGQw.js",
+      "_DashboardSidebarCollapse-BwW-0dcK.js",
+      "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Modal.vue",
+      "_DashboardToolbar-7EZNGGxt.js",
+      "_PageCard-ngin4Qkj.js",
+      "_FormField-DK9yra_-.js",
+      "_UserController-ge6JyRhr.js"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "resources/js/central/pages/admin/user/Index.vue": {
-    "file": "assets/Index-zebr5Uaz.js",
+    "file": "assets/Index-8alncS89.js",
     "name": "Index",
     "src": "resources/js/central/pages/admin/user/Index.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_DashboardSidebarCollapse-D7HD3eLU.js",
-      "_RowActions.vue_vue_type_script_setup_true_lang-CMV69ELz.js",
+      "_useListFilters-j61KtUlq.js",
       "resources/js/central/app.ts",
-      "_UserController-D6npXfeo.js",
-      "_index-B2qzDn9T.js",
+      "_UserController-ge6JyRhr.js",
+      "_DashboardSidebarCollapse-BwW-0dcK.js",
+      "_FormField-DK9yra_-.js",
+      "_index-D5atbEGO.js",
+      "_Checkbox-B6hwaeTZ.js",
+      "_VisuallyHiddenInput-BfYgBQ1U.js",
+      "_DashboardToolbar-7EZNGGxt.js",
       "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Modal.vue"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "resources/js/central/pages/admin/user/components/UserForm.vue": {
-    "file": "assets/UserForm-HvAeH1T7.js",
+    "file": "assets/UserForm-CzCjOnf3.js",
     "name": "UserForm",
     "src": "resources/js/central/pages/admin/user/components/UserForm.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_UserForm.vue_vue_type_script_setup_true_lang-MGPP7lYL.js",
+      "_UserForm.vue_vue_type_script_setup_true_lang-BP9qhocG.js",
+      "_EditorLayout.vue_vue_type_script_setup_true_lang-BQwTDGQw.js",
+      "_DashboardSidebarCollapse-BwW-0dcK.js",
       "resources/js/central/app.ts",
-      "_PageCard-BQxeZA3Q.js",
-      "_FormField-CViwczM7.js",
-      "_UserController-D6npXfeo.js"
+      "node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Modal.vue",
+      "_DashboardToolbar-7EZNGGxt.js",
+      "_PageCard-ngin4Qkj.js",
+      "_FormField-DK9yra_-.js",
+      "_UserController-ge6JyRhr.js"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "resources/js/central/pages/auth/ConfirmPassword.vue": {
-    "file": "assets/ConfirmPassword-c82L09vA.js",
+    "file": "assets/ConfirmPassword-DRByQJ4Y.js",
     "name": "ConfirmPassword",
     "src": "resources/js/central/pages/auth/ConfirmPassword.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/central/app.ts",
-      "_FormField-CViwczM7.js",
-      "_AuthLayout.vue_vue_type_script_setup_true_lang-DEnXwjuw.js",
-      "_PageCard-BQxeZA3Q.js"
+      "_FormField-DK9yra_-.js",
+      "_AuthLayout.vue_vue_type_script_setup_true_lang-rYE0R3io.js",
+      "_PageCard-ngin4Qkj.js"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "resources/js/central/pages/auth/ForgotPassword.vue": {
-    "file": "assets/ForgotPassword-D0OHWU76.js",
+    "file": "assets/ForgotPassword-DXo7nvfr.js",
     "name": "ForgotPassword",
     "src": "resources/js/central/pages/auth/ForgotPassword.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_TextLink.vue_vue_type_script_setup_true_lang-CKYbaJSA.js",
+      "_TextLink.vue_vue_type_script_setup_true_lang-CwxU_QvC.js",
       "resources/js/central/app.ts",
-      "_FormField-CViwczM7.js",
-      "_AuthLayout.vue_vue_type_script_setup_true_lang-DEnXwjuw.js",
-      "_PageCard-BQxeZA3Q.js"
+      "_FormField-DK9yra_-.js",
+      "_AuthLayout.vue_vue_type_script_setup_true_lang-rYE0R3io.js",
+      "_PageCard-ngin4Qkj.js"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "resources/js/central/pages/auth/Login.vue": {
-    "file": "assets/Login-CUiPFBKR.js",
+    "file": "assets/Login-CmU-JdFg.js",
     "name": "Login",
     "src": "resources/js/central/pages/auth/Login.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/central/app.ts",
-      "_Checkbox-85DZn6zA.js",
-      "_TextLink.vue_vue_type_script_setup_true_lang-CKYbaJSA.js",
-      "_FormField-CViwczM7.js",
-      "_AuthLayout.vue_vue_type_script_setup_true_lang-DEnXwjuw.js",
-      "_useFormControl-Cm5tSTgx.js",
-      "_VisuallyHiddenInput-Dj5R9sTN.js",
-      "_FieldRoot-D4gmlQDC.js",
-      "_PageCard-BQxeZA3Q.js"
+      "_Checkbox-B6hwaeTZ.js",
+      "_TextLink.vue_vue_type_script_setup_true_lang-CwxU_QvC.js",
+      "_FormField-DK9yra_-.js",
+      "_AuthLayout.vue_vue_type_script_setup_true_lang-rYE0R3io.js",
+      "_VisuallyHiddenInput-BfYgBQ1U.js",
+      "_PageCard-ngin4Qkj.js"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "resources/js/central/pages/auth/ResetPassword.vue": {
-    "file": "assets/ResetPassword-f9dMRmIh.js",
+    "file": "assets/ResetPassword-BPVQVntJ.js",
     "name": "ResetPassword",
     "src": "resources/js/central/pages/auth/ResetPassword.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_TextLink.vue_vue_type_script_setup_true_lang-CKYbaJSA.js",
+      "_TextLink.vue_vue_type_script_setup_true_lang-CwxU_QvC.js",
       "resources/js/central/app.ts",
-      "_FormField-CViwczM7.js",
-      "_AuthLayout.vue_vue_type_script_setup_true_lang-DEnXwjuw.js",
-      "_PageCard-BQxeZA3Q.js"
+      "_FormField-DK9yra_-.js",
+      "_AuthLayout.vue_vue_type_script_setup_true_lang-rYE0R3io.js",
+      "_PageCard-ngin4Qkj.js"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   },
   "resources/js/central/pages/auth/VerifyEmail.vue": {
-    "file": "assets/VerifyEmail-a8azdbGx.js",
+    "file": "assets/VerifyEmail-CxPhZEB0.js",
     "name": "VerifyEmail",
     "src": "resources/js/central/pages/auth/VerifyEmail.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_TextLink.vue_vue_type_script_setup_true_lang-CKYbaJSA.js",
+      "_TextLink.vue_vue_type_script_setup_true_lang-CwxU_QvC.js",
       "resources/js/central/app.ts",
-      "_AuthLayout.vue_vue_type_script_setup_true_lang-DEnXwjuw.js",
-      "_PageCard-BQxeZA3Q.js"
+      "_AuthLayout.vue_vue_type_script_setup_true_lang-rYE0R3io.js",
+      "_PageCard-ngin4Qkj.js"
     ],
     "css": [
-      "assets/app-DazftLwU.css"
+      "assets/app-YppGaph7.css"
     ]
   }
 }
