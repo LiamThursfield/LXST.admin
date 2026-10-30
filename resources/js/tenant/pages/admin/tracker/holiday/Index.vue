@@ -32,100 +32,46 @@ const props = defineProps<{
     };
 }>();
 
-const searchFilter = ref({
-    label: props.filter?.label || '',
+const { filters, hasFilters, chips, remove, clear, goToPage } = useListFilters({
+    url: () => index.url(),
+    initial: {
+        label: props.filter?.label || '',
+    },
 });
-
-const search = useDebounceFn((page: number = 1) => {
-    const query = new URLSearchParams();
-    const filter: Record<string, string> = {};
-
-    const newValue = searchFilter.value;
-
-    if (newValue.label.length) {
-        query.append('filter[label]', newValue.label);
-        filter.label = newValue.label;
-    }
-
-    let url = `${window.location.pathname}`;
-    if (query.size > 0) {
-        url += `?${query.toString()}`;
-    }
-    window.history.pushState({}, '', url);
-
-    router.get(
-        index.url(),
-        {
-            page,
-            filter,
-        },
-        { preserveState: true, replace: true },
-    );
-}, 300);
-
-watch(searchFilter, () => search(), { deep: true });
 </script>
 
 <template>
-    <UDashboardPanel>
-        <template #header>
-            <UDashboardNavbar :title="trans('tracker.holidays.index.title')">
-                <template #leading>
-                    <UDashboardSidebarCollapse as="button" :disabled="false" />
-                </template>
-
-                <template #right>
-                    <UButton as="Link" :href="create.url()" color="primary">
-                        <UIcon name="i-lucide-plus" />
-                        {{ trans('tracker.holidays.index.create') }}
-                    </UButton>
-                </template>
-            </UDashboardNavbar>
+    <ListLayout
+        v-model:search="filters.label"
+        :title="trans('tracker.holidays.index.title')"
+        :columns="columns"
+        link-column="label"
+        :rows="holidays.data"
+        :pagination="holidays.meta"
+        :search-placeholder="trans('tracker.holidays.fields.label')"
+        :chips="chips"
+        :has-filters="hasFilters"
+        :empty-title="trans('tracker.holidays.index.empty')"
+        :create-label="trans('tracker.holidays.index.create')"
+        :create-href="create.url()"
+        @remove-filter="remove"
+        @clear-filters="clear"
+        @page="goToPage"
+    >
+        <template #label-cell="{ row }">
+            <ListRecordLink :actions="row.original.actions">
+                {{
+                    row.original.label ||
+                    `${row.original.starts_on} – ${row.original.ends_on}`
+                }}
+            </ListRecordLink>
         </template>
 
-        <template #body>
-            <div class="flex flex-col gap-8">
-                <div
-                    class="flex flex-wrap items-center justify-between gap-8 px-2 py-4"
-                >
-                    <div class="flex flex-1 items-center gap-4">
-                        <UInput
-                            class="max-w-48"
-                            :placeholder="
-                                trans('tracker.holidays.fields.label')
-                            "
-                            v-model="searchFilter.label"
-                        />
-                    </div>
-                </div>
-
-                <UTable :columns="columns" :data="holidays.data">
-                    <template #label-cell="{ row }">
-                        <span v-if="row.original.label">{{
-                            row.original.label
-                        }}</span>
-                        <span v-else class="text-gray-400">-</span>
-                    </template>
-
-                    <template #actions-cell="{ row }">
-                        <RowActions
-                            v-if="row.original.actions"
-                            :actions="row.original.actions"
-                        />
-                    </template>
-                </UTable>
-
-                <template v-if="holidays.meta.last_page > 1">
-                    <div class="mt-4 flex justify-end">
-                        <UPagination
-                            :items-per-page="holidays.meta.per_page"
-                            :page="holidays.meta.current_page"
-                            :total="holidays.meta.total"
-                            @update:page="(page: any) => search(page)"
-                        />
-                    </div>
-                </template>
-            </div>
+        <template #actions-cell="{ row }">
+            <RowActions
+                v-if="row.original.actions"
+                :actions="row.original.actions"
+            />
         </template>
-    </UDashboardPanel>
+    </ListLayout>
 </template>

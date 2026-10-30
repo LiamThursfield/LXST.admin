@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
 import {
     create,
     index,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Cms/PageController';
 import RowActions from '@/components/RowActions.vue';
-import { recordUrl } from '@/lib/list';
 import { formatDateTime, userTimezone } from '@/lib/timezone';
 import type { PageData, PublishStatus, SelectItem } from '@/types';
 
@@ -99,14 +97,9 @@ const { filters, hasFilters, chips, remove, clear, goToPage } = useListFilters({
                     "
                     class="text-muted size-4 shrink-0"
                 />
-                <Link
-                    v-if="recordUrl(row.original.actions)"
-                    :href="recordUrl(row.original.actions)!"
-                    class="text-highlighted font-medium hover:underline"
-                >
+                <ListRecordLink :actions="row.original.actions">
                     {{ row.original.name }}
-                </Link>
-                <span v-else>{{ row.original.name }}</span>
+                </ListRecordLink>
             </span>
         </template>
 

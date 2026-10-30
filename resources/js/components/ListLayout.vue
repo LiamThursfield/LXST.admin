@@ -36,6 +36,11 @@ const props = withDefaults(
         hasFilters?: boolean;
         /** Rows can be ticked, for the bulk actions. */
         selectable?: boolean;
+        /**
+         * The column whose cells link to the record, from each row's actions (its edit page when the
+         * user can edit it). A page with its own cells for this column links them itself.
+         */
+        linkColumn?: string;
         emptyTitle: string;
         emptyDescription?: string;
         /** The create action, in the navbar and the "nothing yet" empty state. */
@@ -49,6 +54,7 @@ const props = withDefaults(
         chips: () => [],
         hasFilters: false,
         selectable: false,
+        linkColumn: 'name',
         emptyDescription: undefined,
         createLabel: undefined,
         createHref: undefined,
@@ -78,6 +84,11 @@ const ownSlots = ['actions', 'filters', 'bulk-actions', 'notice'];
 const tableSlots = computed(() =>
     Object.keys(slots).filter((name) => !ownSlots.includes(name)),
 );
+
+const linkSlot = computed(() => `${props.linkColumn}-cell`);
+
+/** The link column's cells, unless the page renders them itself. */
+const linksRecords = computed(() => !slots[linkSlot.value]);
 
 // A new page of rows starts with none ticked
 watch(
@@ -362,6 +373,12 @@ const total = computed(() => props.pagination?.total ?? props.rows.length);
                                         toggleRow(row.original, checked)
                                 "
                             />
+                        </template>
+
+                        <template v-if="linksRecords" #[linkSlot]="{ row }">
+                            <ListRecordLink :actions="row.original.actions">
+                                {{ row.original[linkColumn] }}
+                            </ListRecordLink>
                         </template>
 
                         <template

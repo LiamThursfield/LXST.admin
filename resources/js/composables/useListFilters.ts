@@ -1,13 +1,15 @@
 import type { MaybeRefOrGetter } from 'vue';
 
-/** A filter value: text or a chosen option (blank when off), or a tick box. */
-type FilterValue = string | boolean;
+/** A filter value: text or a chosen option (blank when off), a tick box, or several chosen options. */
+type FilterValue = string | boolean | string[];
 
 /** How an active filter reads as a chip, e.g. "Status: Published", or just "Hidden" for a tick box. */
 export type ListFilterLabel = {
     label: string;
     /** The options, to show the chosen one's label rather than its value. */
     items?: MaybeRefOrGetter<Array<{ value: unknown; label?: string }>>;
+    /** The whole chip text, when "Label: value" doesn't read well. */
+    format?: (value: string | string[]) => string;
 };
 
 /** An active filter, shown as a chip that removes it. */
@@ -18,8 +20,9 @@ export type ListFilterChip = {
 
 /**
  * The filters (and search) of a list page, kept in the URL as `filter[...]`. Changing one reloads
- * the list from the first page, after a pause for typing. Blank text and unticked boxes are left
- * out, and ticked boxes are sent as `1`. `extra` adds other query values, e.g. the sort.
+ * the list from the first page, after a pause for typing. Blank text, unticked boxes and empty
+ * choices are left out, and ticked boxes are sent as `1`. `extra` adds other query values, e.g.
+ * the sort.
  */
 export function useListFilters<T extends Record<string, FilterValue>>(options: {
     url: () => string;
@@ -27,17 +30,44 @@ export function useListFilters<T extends Record<string, FilterValue>>(options: {
     initial: T;
     /** Each filter's chip label; filters without one (e.g. search) get no chip. */
     labels?: Partial<Record<keyof T, ListFilterLabel>>;
+    /** Values that mean a filter is off when it isn't blank, e.g. an "Any" option's `any`. */
+    blanks?: Partial<T>;
     extra?: () => Record<string, unknown>;
 }) {
     const filters = ref({ ...options.initial }) as Ref<T>;
 
+    /** The value that turns a filter off. */
+    function blankOf(key: string): FilterValue {
+        const blank = options.blanks?.[key as keyof T];
+
+        if (blank !== undefined) {
+            return blank as FilterValue;
+        }
+
+        const current = filters.value[key];
+
+        return typeof current === 'boolean'
+            ? false
+            : Array.isArray(current)
+              ? []
+              : '';
+    }
+
+    function isOff(key: string, value: FilterValue): boolean {
+        const blank = blankOf(key);
+
+        return Array.isArray(value)
+            ? value.length === 0
+            : value === blank || value === '' || value === false;
+    }
+
     /** The filters as they're sent: only those set, ticked boxes as `1`. */
-    function activeFilters(): Record<string, string> {
+    function activeFilters(): Record<string, string | string[]> {
         return Object.fromEntries(
             Object.entries(filters.value)
-                .filter(([, value]) => value !== '' && value !== false)
+                .filter(([key, value]) => !isOff(key, value))
                 .map(([key, value]) => [key, value === true ? '1' : value]),
-        ) as Record<string, string>;
+        ) as Record<string, string | string[]>;
     }
 
     function load(page: number) {
@@ -66,24 +96,28 @@ export function useListFilters<T extends Record<string, FilterValue>>(options: {
                 return [];
             }
 
+            if (label.format) {
+                return [{ key, label: label.format(value) }];
+            }
+
             if (filters.value[key] === true) {
                 return [{ key, label: label.label }];
             }
 
-            const item = toValue(label.items ?? []).find(
-                (option) => String(option.value) === value,
+            const items = toValue(label.items ?? []);
+            const chosen = (Array.isArray(value) ? value : [value]).map(
+                (one) =>
+                    items.find((option) => String(option.value) === one)
+                        ?.label ?? one,
             );
 
-            return [{ key, label: `${label.label}: ${item?.label ?? value}` }];
+            return [{ key, label: `${label.label}: ${chosen.join(', ')}` }];
         }),
     );
 
     /** Turns one filter off, e.g. from its chip. */
     function remove(key: string) {
-        const current = filters.value[key];
-
-        (filters.value as Record<string, FilterValue>)[key] =
-            typeof current === 'boolean' ? false : '';
+        (filters.value as Record<string, FilterValue>)[key] = blankOf(key);
     }
 
     /** Turns every filter off, search included. */

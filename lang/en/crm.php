@@ -76,6 +76,7 @@ return [
         'index' => [
             'title' => 'Contacts',
             'create' => 'New contact',
+            'empty' => 'No contacts yet.',
         ],
         'create' => [
             'title' => 'Create Contact',
@@ -183,6 +184,7 @@ return [
         'index' => [
             'title' => 'Forms',
             'create' => 'New form',
+            'empty' => 'No forms yet.',
         ],
         'create' => [
             'title' => 'Create Form',
@@ -313,6 +315,7 @@ return [
         'index' => [
             'title' => 'Organisation Units',
             'create' => 'New organisation unit',
+            'empty' => 'No organisation units yet.',
         ],
         'create' => [
             'title' => 'Create Organisation Unit',

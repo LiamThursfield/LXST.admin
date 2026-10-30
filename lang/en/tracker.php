@@ -54,6 +54,7 @@ return [
         'index' => [
             'title' => 'Tasks',
             'create' => 'New task',
+            'empty' => 'No tasks yet.',
         ],
         'create' => [
             'title' => 'Create Task',
@@ -102,6 +103,7 @@ return [
         'index' => [
             'title' => 'Categories',
             'create' => 'New category',
+            'empty' => 'No categories yet.',
         ],
         'create' => [
             'title' => 'Create Category',
@@ -139,6 +141,7 @@ return [
         'index' => [
             'title' => 'Holidays',
             'create' => 'New holiday',
+            'empty' => 'No holidays yet.',
         ],
         'create' => [
             'title' => 'Create Holiday',

@@ -40,154 +40,83 @@ const props = defineProps<{
     }>;
 }>();
 
-const searchFilter = ref({
-    first_name: props.filter?.first_name || '',
-    last_name: props.filter?.last_name || '',
-    email: props.filter?.email || '',
-    role: props.filter?.role || [],
-});
-
-const search = useDebounceFn((page: number = 1) => {
-    console.log('searching page:', page, searchFilter.value);
-    const query = new URLSearchParams();
-    const filter: Record<string, string | string[]> = {};
-
-    const newValue = searchFilter.value;
-
-    if (newValue.first_name.length) {
-        query.append('filter[first_name]', newValue.first_name);
-    }
-
-    if (newValue.last_name.length) {
-        query.append('filter[last_name]', newValue.last_name);
-    }
-
-    if (newValue.email.length) {
-        query.append('filter[email]', newValue.email);
-    }
-
-    if (newValue.role.length) {
-        // add a filter for each role
-        newValue.role.forEach((role) => {
-            query.append('filter[role][]', role);
-        });
-    }
-
-    let url = `${window.location.pathname}`;
-    if (query.size > 0) {
-        url += `?${query.toString()}`;
-    }
-    console.log(url);
-    window.history.pushState({}, '', url);
-
-    for (const [key, value] of Object.entries(searchFilter.value)) {
-        if (value.length) {
-            filter[key] = value;
-        }
-    }
-
-    router.get(
-        index.url(),
-        {
-            page,
-            filter,
+const { filters, hasFilters, chips, remove, clear, goToPage } = useListFilters({
+    url: () => index.url(),
+    initial: {
+        first_name: props.filter?.first_name || '',
+        last_name: props.filter?.last_name || '',
+        email: props.filter?.email || '',
+        role: props.filter?.role || [],
+    },
+    labels: {
+        role: {
+            label: trans('users.fields.role'),
+            items: () => props.roles,
         },
-        { preserveState: true, replace: true },
-    );
-}, 300);
-
-watch(searchFilter, () => search(), { deep: true });
+    },
+});
 </script>
 
 <template>
-    <UDashboardPanel>
-        <template #header>
-            <UDashboardNavbar :title="trans('users.index.title')">
-                <template #leading>
-                    <UDashboardSidebarCollapse as="button" :disabled="false" />
-                </template>
-
-                <template #right>
-                    <UButton as="Link" :href="create.url()" color="primary">
-                        <UIcon name="i-lucide-plus" />
-                        {{ trans('users.index.create') }}
-                    </UButton>
-                </template>
-            </UDashboardNavbar>
+    <ListLayout
+        v-model:search="filters.first_name"
+        :title="trans('users.index.title')"
+        :columns="columns"
+        link-column="first_name"
+        :rows="users.data"
+        :pagination="users.meta"
+        :search-placeholder="trans('users.fields.first_name')"
+        :chips="chips"
+        :has-filters="hasFilters"
+        :empty-title="trans('users.index.empty')"
+        :create-label="trans('users.index.create')"
+        :create-href="create.url()"
+        @remove-filter="remove"
+        @clear-filters="clear"
+        @page="goToPage"
+    >
+        <template #filters>
+            <UInput
+                class="max-w-48"
+                :placeholder="trans('users.fields.last_name')"
+                v-model="filters.last_name"
+            />
+            <UInput
+                class="max-w-48"
+                :placeholder="trans('users.fields.email')"
+                v-model="filters.email"
+            />
+            <USelect
+                class="w-full max-w-32"
+                :items="roles"
+                multiple
+                :placeholder="trans('users.fields.role')"
+                v-model="filters.role"
+            />
         </template>
 
-        <template #body>
-            <div class="flex flex-col gap-8">
-                <div
-                    class="flex flex-wrap items-center justify-between gap-8 px-2 py-4"
+        <template #roles-cell="{ row }">
+            <div
+                v-if="row.original.roles && row.original.roles.length"
+                class="flex gap-2"
+            >
+                <UBadge
+                    v-for="role in row.original.roles"
+                    :key="role"
+                    color="primary"
+                    variant="subtle"
                 >
-                    <div class="flex flex-1 items-center gap-4">
-                        <UInput
-                            class="max-w-48"
-                            :placeholder="trans('users.fields.first_name')"
-                            v-model="searchFilter.first_name"
-                        />
-                        <UInput
-                            class="max-w-48"
-                            :placeholder="trans('users.fields.last_name')"
-                            v-model="searchFilter.last_name"
-                        />
-
-                        <UInput
-                            class="max-w-48"
-                            :placeholder="trans('users.fields.email')"
-                            v-model="searchFilter.email"
-                        />
-
-                        <USelect
-                            class="w-full max-w-32"
-                            :items="roles"
-                            multiple
-                            :placeholder="trans('users.fields.role')"
-                            v-model="searchFilter.role"
-                        />
-                    </div>
-                </div>
-
-                <UTable :columns="columns" :data="users.data">
-                    <template #roles-cell="{ row }">
-                        <div
-                            v-if="
-                                row.original.roles && row.original.roles.length
-                            "
-                            class="flex gap-2"
-                        >
-                            <UBadge
-                                v-for="role in row.original.roles"
-                                :key="role"
-                                color="primary"
-                                variant="subtle"
-                            >
-                                {{ role }}
-                            </UBadge>
-                        </div>
-                        <span v-else class="text-gray-400">-</span>
-                    </template>
-
-                    <template #actions-cell="{ row }">
-                        <RowActions
-                            v-if="row.original.actions"
-                            :actions="row.original.actions"
-                        />
-                    </template>
-                </UTable>
-
-                <template v-if="users.meta.last_page > 1">
-                    <div class="mt-4 flex justify-end">
-                        <UPagination
-                            :items-per-page="users.meta.per_page"
-                            :page="users.meta.current_page"
-                            :total="users.meta.total"
-                            @update:page="(page: any) => search(page)"
-                        />
-                    </div>
-                </template>
+                    {{ role }}
+                </UBadge>
             </div>
+            <span v-else class="text-gray-400">-</span>
         </template>
-    </UDashboardPanel>
+
+        <template #actions-cell="{ row }">
+            <RowActions
+                v-if="row.original.actions"
+                :actions="row.original.actions"
+            />
+        </template>
+    </ListLayout>
 </template>
