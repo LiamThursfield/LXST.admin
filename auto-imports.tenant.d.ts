@@ -234,6 +234,7 @@ declare global {
   const useKbd: typeof import('./node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/composables/useKbd').useKbd
   const useKeyModifier: typeof import('@vueuse/core').useKeyModifier
   const useLastChanged: typeof import('@vueuse/core').useLastChanged
+  const useListFilters: typeof import('./resources/js/composables/useListFilters').useListFilters
   const useLocalStorage: typeof import('@vueuse/core').useLocalStorage
   const useLocale: typeof import('./node_modules/.pnpm/@nuxt+ui@4.5.1_@inertiajs+vue3@3.6.1_vue@3.5.30_typescript@5.9.3___@tiptap+extensions@3_7aac20b583bf824a84ea87864ae3c89b/node_modules/@nuxt/ui/dist/runtime/composables/useLocale.js').useLocale
   const useMagicKeys: typeof import('@vueuse/core').useMagicKeys
@@ -365,6 +366,9 @@ declare global {
   // @ts-ignore
   export type { UseInitialsReturn } from './resources/js/composables/useInitials'
   import('./resources/js/composables/useInitials')
+  // @ts-ignore
+  export type { ListFilterLabel, ListFilterChip } from './resources/js/composables/useListFilters'
+  import('./resources/js/composables/useListFilters')
   // @ts-ignore
   export type { UseTransReturn } from './resources/js/composables/useTrans'
   import('./resources/js/composables/useTrans')
@@ -580,6 +584,7 @@ declare module 'vue' {
     readonly useKbd: UnwrapRef<typeof import('./node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/composables/useKbd')['useKbd']>
     readonly useKeyModifier: UnwrapRef<typeof import('@vueuse/core')['useKeyModifier']>
     readonly useLastChanged: UnwrapRef<typeof import('@vueuse/core')['useLastChanged']>
+    readonly useListFilters: UnwrapRef<typeof import('./resources/js/composables/useListFilters')['useListFilters']>
     readonly useLocalStorage: UnwrapRef<typeof import('@vueuse/core')['useLocalStorage']>
     readonly useMagicKeys: UnwrapRef<typeof import('@vueuse/core')['useMagicKeys']>
     readonly useManualRefHistory: UnwrapRef<typeof import('@vueuse/core')['useManualRefHistory']>

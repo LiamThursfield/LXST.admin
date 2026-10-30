@@ -66,6 +66,21 @@ return [
         'built_by' => 'Built by LXST.digital • © :year',
     ],
 
+    'list' => [
+        'columns' => 'Columns',
+        'clear_filters' => 'Clear filters',
+        'remove_filter' => 'Remove filter: :filter',
+        'selected' => '{1} 1 selected|[2,*] :count selected',
+        'clear_selection' => 'Clear selection',
+        'select_all' => 'Select all',
+        'select_row' => 'Select row',
+        'showing' => 'Showing :from–:to of :total',
+        'previous' => 'Previous',
+        'next' => 'Next',
+        'no_matches' => 'Nothing matches these filters',
+        'no_matches_description' => 'Try another search, or clear the filters.',
+    ],
+
     'notifications' => [
         'title' => 'Notifications',
         'empty' => "You currently don't have any notifications.",
