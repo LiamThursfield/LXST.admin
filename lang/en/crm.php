@@ -76,6 +76,7 @@ return [
         'index' => [
             'title' => 'Contacts',
             'create' => 'New contact',
+            'empty' => 'No contacts yet.',
         ],
         'create' => [
             'title' => 'Create Contact',
@@ -183,6 +184,7 @@ return [
         'index' => [
             'title' => 'Forms',
             'create' => 'New form',
+            'empty' => 'No forms yet.',
         ],
         'create' => [
             'title' => 'Create Form',
@@ -228,6 +230,11 @@ return [
             'to' => 'To',
             'contact' => 'Contact: :name',
             'clear_contact' => 'Show all contacts',
+            'form_label' => 'Form',
+            'spam_label' => 'Spam',
+            'from_chip' => 'From :date',
+            'to_chip' => 'To :date',
+            'a_contact' => 'One contact',
         ],
         'show' => [
             'title' => 'Submission',
@@ -253,6 +260,7 @@ return [
         ],
         'index' => [
             'title' => 'Submissions',
+            'empty' => 'No submissions yet.',
         ],
         'mail' => [
             'subject' => 'New submission: :form',
@@ -313,6 +321,7 @@ return [
         'index' => [
             'title' => 'Organisation Units',
             'create' => 'New organisation unit',
+            'empty' => 'No organisation units yet.',
         ],
         'create' => [
             'title' => 'Create Organisation Unit',

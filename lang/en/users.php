@@ -28,6 +28,7 @@ return [
     'index' => [
         'title' => 'Users',
         'create' => 'New user',
+        'empty' => 'No users yet.',
     ],
 
     'create' => [
