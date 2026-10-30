@@ -77,17 +77,17 @@ const { filters, hasFilters, chips, remove, clear, goToPage } = useListFilters({
     >
         <template #filters>
             <UInput
-                class="max-w-48"
+                class="w-full sm:w-48"
                 :placeholder="trans('users.fields.last_name')"
                 v-model="filters.last_name"
             />
             <UInput
-                class="max-w-48"
+                class="w-full sm:w-48"
                 :placeholder="trans('users.fields.email')"
                 v-model="filters.email"
             />
             <USelect
-                class="w-full max-w-32"
+                class="w-full sm:w-32"
                 :items="roles"
                 multiple
                 :placeholder="trans('users.fields.role')"

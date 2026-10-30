@@ -66,7 +66,7 @@ const { filters, hasFilters, chips, remove, clear, goToPage } = useListFilters({
     >
         <template #filters>
             <USelect
-                class="w-full max-w-40"
+                class="w-full sm:w-40"
                 :items="types"
                 :placeholder="trans('cms.templates.filters.type')"
                 v-model="filters.type"

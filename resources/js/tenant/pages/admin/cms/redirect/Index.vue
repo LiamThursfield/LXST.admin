@@ -76,7 +76,7 @@ const { filters, hasFilters, chips, remove, clear, goToPage } = useListFilters({
     >
         <template #filters>
             <USelect
-                class="w-full max-w-40"
+                class="w-full sm:w-40"
                 :items="statuses"
                 :placeholder="trans('cms.redirects.filters.status')"
                 v-model="filters.status"

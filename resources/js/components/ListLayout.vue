@@ -218,7 +218,7 @@ const total = computed(() => props.pagination?.total ?? props.rows.length);
                 "
                 :ui="{
                     root: 'flex-wrap overflow-visible py-2',
-                    left: 'flex-wrap',
+                    left: 'min-w-0 flex-1 flex-wrap',
                 }"
             >
                 <template #left>
