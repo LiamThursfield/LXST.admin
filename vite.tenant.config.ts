@@ -59,6 +59,25 @@ export default defineConfig({
                     primary: 'amber',
                     neutral: 'zinc'
                 },
+                // Solid primary takes its own colours, so its text is readable (see app.css)
+                button: {
+                    compoundVariants: [
+                        {
+                            color: 'primary',
+                            variant: 'solid',
+                            class: 'text-(--ui-primary-solid-text) bg-(--ui-primary-solid) hover:bg-(--ui-primary-solid)/75 active:bg-(--ui-primary-solid)/75 disabled:bg-(--ui-primary-solid) aria-disabled:bg-(--ui-primary-solid)'
+                        }
+                    ]
+                },
+                badge: {
+                    compoundVariants: [
+                        {
+                            color: 'primary',
+                            variant: 'solid',
+                            class: 'text-(--ui-primary-solid-text) bg-(--ui-primary-solid)'
+                        }
+                    ]
+                },
                 input: {
                     variants: {
                         size: {
