@@ -1,1 +1,0 @@
-import{q as s}from"./app-BrpGuznl.js";const t=o=>({url:t.url(o),method:"post"});t.definition={methods:["post"],url:"/admin/dj/matching/merges"};t.url=o=>t.definition.url+s(o);t.post=o=>({url:t.url(o),method:"post"});const r=o=>({action:t.url(o),method:"post"});r.post=o=>({action:t.url(o),method:"post"});t.form=r;export{t as s};
