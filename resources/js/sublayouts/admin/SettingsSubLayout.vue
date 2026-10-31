@@ -39,9 +39,7 @@ const links = [
         </template>
 
         <template #body>
-            <div
-                class="mx-auto flex w-full flex-col gap-4 sm:gap-6 lg:max-w-2xl lg:gap-12"
-            >
+            <div class="mx-auto flex w-full max-w-4xl flex-col gap-6">
                 <slot />
             </div>
         </template>

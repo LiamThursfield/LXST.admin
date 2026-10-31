@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import * as z from 'zod';
 import { update } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/GeneralSettingsController';
 import SiteSettingsSubLayout from '@/sublayouts/admin/SiteSettingsSubLayout.vue';
@@ -24,6 +24,11 @@ const form = useForm({
     site_name: props.settings.site_name,
 });
 
+function discard() {
+    form.reset();
+    form.clearErrors();
+}
+
 function onSubmit() {
     if (!props.canManage) return;
 
@@ -39,49 +44,38 @@ function onSubmit() {
 
 <template>
     <SiteSettingsSubLayout>
-        <Head :title="trans('site_settings.general.title')" />
-
-        <UForm
-            id="general-settings"
-            :schema="schema"
-            :state="form"
-            :disabled="!canManage"
-            @submit="onSubmit"
+        <SettingsPage
+            :title="trans('site_settings.general.title')"
+            :description="trans('site_settings.general.description')"
+            :readonly="!canManage"
+            form-id="general-settings"
+            :is-dirty="form.isDirty"
+            :processing="form.processing"
+            @discard="discard"
         >
-            <UPageCard
-                class="mb-4"
-                :title="trans('site_settings.general.title')"
-                :description="
-                    canManage
-                        ? trans('site_settings.general.description')
-                        : trans('site_settings.read_only')
-                "
-                orientation="horizontal"
-                variant="naked"
+            <UForm
+                id="general-settings"
+                :schema="schema"
+                :state="form"
+                :disabled="!canManage"
+                @submit="onSubmit"
             >
-                <UButton
-                    v-if="canManage"
-                    class="w-fit lg:ms-auto"
-                    color="primary"
-                    form="general-settings"
-                    type="submit"
-                    :loading="form.processing"
-                    :label="trans('site_settings.save_changes')"
-                />
-            </UPageCard>
-
-            <UPageCard variant="subtle">
-                <UFormField
-                    class="flex items-start justify-between gap-4 max-sm:flex-col"
+                <SettingsRow
                     :label="trans('site_settings.general.site_name')"
-                    :help="trans('site_settings.general.site_name_help')"
-                    name="site_name"
-                    :error="form.errors.site_name"
+                    :description="trans('site_settings.general.site_name_help')"
                     required
                 >
-                    <UInput v-model="form.site_name" class="w-64" />
-                </UFormField>
-            </UPageCard>
-        </UForm>
+                    <UFormField name="site_name" :error="form.errors.site_name">
+                        <UInput
+                            v-model="form.site_name"
+                            :aria-label="
+                                trans('site_settings.general.site_name')
+                            "
+                            class="w-full sm:w-80"
+                        />
+                    </UFormField>
+                </SettingsRow>
+            </UForm>
+        </SettingsPage>
     </SiteSettingsSubLayout>
 </template>

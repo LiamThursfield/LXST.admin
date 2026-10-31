@@ -7,6 +7,8 @@ use App\Models\Dj\Gig;
 use App\Models\Settings\DjSettings;
 use App\Services\Authorisation\Enums\DjPermission;
 use App\Services\Dj\CurrentGig;
+use App\Services\Navigation\Constants\TenantMenu;
+use App\Services\Navigation\NavigationService;
 use Carbon\CarbonImmutable;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -220,12 +222,30 @@ test('each gig has a request link and QR code once the request page address is s
         ->assertHeader('Content-Disposition', 'attachment; filename="fabric-night-requests.svg"');
 });
 
-test('DJ settings can be changed', function () {
-    $this->get(route('admin.dj.settings.edit'))
-        ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page->component('admin/dj/settings/Edit')->where('canManage', true));
+test('DJ settings are a site settings tab, and the old address redirects there', function () {
+    $user = $this->createUserWithPermissions([DjPermission::ViewGigs]);
+    $this->actingAs($user);
 
-    $this->put(route('admin.dj.settings.update'), [
+    $this->get('/admin/dj/settings')->assertRedirect('/admin/site-settings/dj');
+
+    $menuHasDjSettings = fn () => str_contains(
+        json_encode(app(NavigationService::class)->resolveMenuForUser(TenantMenu::MENU_MAIN, $user)->toArray(), JSON_UNESCAPED_SLASHES),
+        '"key":"'.TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_DJ.'"'
+    );
+
+    expect($menuHasDjSettings())->toBeTrue();
+
+    tenant()->update(['modules' => [TenantModule::Cms]]);
+
+    expect($menuHasDjSettings())->toBeFalse();
+});
+
+test('DJ settings can be changed', function () {
+    $this->get(route('admin.site-settings.dj.edit'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page->component('admin/site-settings/Dj')->where('canManage', true));
+
+    $this->put(route('admin.site-settings.dj.update'), [
         'default_timezone' => 'Europe/Berlin',
         'request_page_url' => 'https://mydjsite.com/request',
         'requests_mode' => 'open',
@@ -240,7 +260,7 @@ test('DJ settings can be changed', function () {
         'show_tracklist' => true,
         'tracklist_per_page' => 20,
         'tracklist_delay_minutes' => 5,
-    ])->assertRedirect(route('admin.dj.settings.edit'));
+    ])->assertRedirect(route('admin.site-settings.dj.edit'));
 
     $settings = app(DjSettings::class)->refresh();
 
@@ -256,7 +276,7 @@ test('DJ settings can be changed', function () {
 
     $this->get(route('admin.dj.gigs.create'))->assertInertia(fn (Assert $page) => $page->where('defaultTimezone', 'Europe/Berlin'));
 
-    $this->put(route('admin.dj.settings.update'), ['default_timezone' => 'Nowhere', 'request_page_url' => 'not a url'])
+    $this->put(route('admin.site-settings.dj.update'), ['default_timezone' => 'Nowhere', 'request_page_url' => 'not a url'])
         ->assertSessionHasErrors(['default_timezone', 'request_page_url', 'requests_mode']);
 });
 
@@ -265,21 +285,22 @@ test('users who can only view gigs cannot change them or the settings', function
     $gig = Gig::factory()->create();
 
     $this->get(route('admin.dj.gigs.index'))->assertOk()->assertInertia(fn (Assert $page) => $page->where('canCreate', false));
-    $this->get(route('admin.dj.settings.edit'))->assertOk()->assertInertia(fn (Assert $page) => $page->where('canManage', false));
+    $this->get(route('admin.site-settings.dj.edit'))->assertOk()->assertInertia(fn (Assert $page) => $page->where('canManage', false));
     $this->get(route('admin.dj.gigs.create'))->assertForbidden();
     $this->post(route('admin.dj.gigs.store'), [])->assertForbidden();
     $this->get(route('admin.dj.gigs.edit', $gig))->assertForbidden();
     $this->put(route('admin.dj.gigs.update', $gig), [])->assertForbidden();
     $this->delete(route('admin.dj.gigs.destroy', $gig))->assertForbidden();
     $this->post(route('admin.dj.gigs.pin', $gig))->assertForbidden();
-    $this->put(route('admin.dj.settings.update'), [])->assertForbidden();
+    $this->put(route('admin.site-settings.dj.update'), [])->assertForbidden();
 });
 
 test('gigs are not found without gig permissions or the DJ module', function () {
     $this->actingAs($this->createUserWithPermissions([]));
     $this->get(route('admin.dj.gigs.index'))->assertForbidden();
-    $this->get(route('admin.dj.settings.edit'))->assertForbidden();
+    $this->get(route('admin.site-settings.dj.edit'))->assertForbidden();
 
     tenant()->update(['modules' => [TenantModule::Cms]]);
     $this->get(route('admin.dj.gigs.index'))->assertNotFound();
+    $this->get(route('admin.site-settings.dj.edit'))->assertNotFound();
 });

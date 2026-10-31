@@ -516,10 +516,18 @@ return [
     'settings' => [
         'title' => 'DJ settings',
         'description' => 'Defaults for every gig, and where your request page is.',
-        'sections' => [
-            'gigs' => 'Gigs',
-            'requests' => 'Request defaults',
-            'requests_help' => 'Every gig uses these unless it overrides them.',
+        'rows' => [
+            'timezone' => 'Timezone',
+            'request_page' => 'Request page',
+            'request_page_help' => 'Where visitors make requests.',
+            'requests' => 'When requests open',
+            'requests_help' => 'Every gig uses these request settings unless it overrides them.',
+            'limits' => 'Limits',
+            'limits_help' => 'Caps on how many requests come in.',
+            'options' => 'Requests',
+            'options_help' => 'What visitors can do on the request page.',
+            'tracklist' => 'Tracklist',
+            'tracklist_help' => 'What\'s been played, on the request page.',
         ],
         'fields' => [
             'default_timezone' => 'Default timezone',
@@ -529,7 +537,6 @@ return [
             'hosted_page_enabled' => 'Hosted request page',
             'hosted_page_enabled_help' => 'A ready-made request page on this site\'s address, for when you don\'t have your own. Links and QR codes use it while the request page address is blank.',
         ],
-        'save' => 'Save settings',
         'flash' => [
             'updated' => 'DJ settings saved.',
         ],

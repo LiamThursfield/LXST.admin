@@ -347,9 +347,9 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_SETTINGS]),
                         label: 'navigation.dj_settings',
                         type: MenuItemType::LINK,
-                        to: 'admin.dj.settings.edit',
+                        to: 'admin.site-settings.dj.edit',
                         icon: 'i-lucide-settings-2',
-                        activePatterns: ['admin.dj.settings.*'],
+                        activePatterns: ['admin.site-settings.dj.*'],
                     ))->gate(DjPermission::ViewGigs),
                     new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_DJ_ITEM_LIBRARY,
@@ -605,6 +605,12 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                                 label: 'navigation.email_previews',
                                 to: 'admin.site-settings.email-previews.index',
                             )->gate(SettingsPermission::ViewSettings),
+                            (new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_DJ,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_DJ]),
+                                label: 'navigation.site_settings_dj',
+                                to: 'admin.site-settings.dj.edit',
+                            ))->gate(DjPermission::ViewGigs)->module(TenantModule::Dj),
                             new MenuChildItem(
                                 key: TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_API_TOKENS,
                                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_API_TOKENS]),

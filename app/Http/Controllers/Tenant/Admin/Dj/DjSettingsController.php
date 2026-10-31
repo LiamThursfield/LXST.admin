@@ -23,7 +23,7 @@ class DjSettingsController extends Controller
     {
         Gate::authorize(DjPermission::ViewGigs);
 
-        return Inertia::render('admin/dj/settings/Edit', [
+        return Inertia::render('admin/site-settings/Dj', [
             'settings' => [
                 'default_timezone' => $settings->default_timezone,
                 'request_page_url' => $settings->request_page_url,
@@ -63,6 +63,6 @@ class DjSettingsController extends Controller
         $settings->tracklist_delay_minutes = $request->integer('tracklist_delay_minutes');
         $settings->save();
 
-        return redirect()->route('admin.dj.settings.edit')->with('success', __('dj.settings.flash.updated'));
+        return redirect()->route('admin.site-settings.dj.edit')->with('success', __('dj.settings.flash.updated'));
     }
 }
