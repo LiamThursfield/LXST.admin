@@ -1,1 +1,0 @@
-import{r as s,m as a}from"./app-CcRGBdug.js";function f(t){const i=s(JSON.stringify(t())),n=a(()=>JSON.stringify(t())!==i.value);function r(){i.value=JSON.stringify(t())}return{isDirty:n,markClean:r}}export{f as u};
