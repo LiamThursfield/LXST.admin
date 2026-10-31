@@ -4,6 +4,12 @@ import type { SiteBranding } from '@/types/app';
 /** The favicon shown when the tenant hasn't chosen one (see resources/views/tenant.blade.php). */
 const DEFAULT_FAVICON = '/favicon.svg';
 
+/**
+ * Primary palettes whose 500 shade is too dark for dark text (under 4.5:1), so solid primary
+ * buttons and badges use white text on the 600 shade instead (see resources/css/tenant/app.css).
+ */
+const WHITE_TEXT_PALETTES = ['indigo', 'violet', 'purple'];
+
 let current: SiteBranding | null = null;
 
 /** The tenant's site name, for page titles, or null before the first page has loaded. */
@@ -40,8 +46,21 @@ function apply(site: SiteBranding | null): void {
     const appConfig = useAppConfig();
     appConfig.ui.colors.primary = site.colors.primary;
     appConfig.ui.colors.neutral = site.colors.neutral;
+    setSolidPrimaryText(site.colors.primary);
 
     setFavicon(site.faviconUrl ?? DEFAULT_FAVICON);
+}
+
+function setSolidPrimaryText(palette: string): void {
+    if (typeof document === 'undefined') {
+        return;
+    }
+
+    if (WHITE_TEXT_PALETTES.includes(palette)) {
+        document.documentElement.dataset.primarySolidText = 'white';
+    } else {
+        delete document.documentElement.dataset.primarySolidText;
+    }
 }
 
 function setFavicon(href: string): void {
