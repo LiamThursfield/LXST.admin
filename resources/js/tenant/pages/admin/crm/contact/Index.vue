@@ -72,6 +72,7 @@ const showDeleted = computed({
         :title="trans('crm.contacts.index.title')"
         :columns="columns"
         link-column="email"
+        link-to-record-page
         :rows="contacts.data"
         :pagination="contacts.meta"
         :search-placeholder="trans('crm.contacts.filters.search')"

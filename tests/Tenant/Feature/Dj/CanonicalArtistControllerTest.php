@@ -51,6 +51,18 @@ test('an artist shows their songs and library artists', function () {
         );
 });
 
+test('an artist has an edit page with their name', function () {
+    $artist = CanonicalArtist::factory()->create(['name' => 'Bicep']);
+
+    $this->get(route('admin.dj.canonical-artists.edit', $artist))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('admin/dj/canonical-artist/Edit')
+            ->where('artist.name', 'Bicep')
+            ->where('artist.is_verified', false)
+        );
+});
+
 test('renaming an artist verifies it', function () {
     $artist = CanonicalArtist::factory()->create(['name' => 'Bicep ft. Clara La San']);
 
@@ -89,6 +101,7 @@ test('users who can only view the library cannot change artists', function () {
     $artist = CanonicalArtist::factory()->create(['name' => 'Bicep']);
 
     $this->get(route('admin.dj.canonical-artists.show', $artist))->assertInertia(fn (Assert $page) => $page->where('canManage', false));
+    $this->get(route('admin.dj.canonical-artists.edit', $artist))->assertForbidden();
     $this->patch(route('admin.dj.canonical-artists.update', $artist), ['name' => 'Changed'])->assertForbidden();
     $this->patch(route('admin.dj.canonical-artists.verify', $artist), ['verified' => true])->assertForbidden();
 

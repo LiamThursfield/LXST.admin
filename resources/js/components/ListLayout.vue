@@ -50,6 +50,8 @@ const props = withDefaults(
          * user can edit it). A page with its own cells for this column links them itself.
          */
         linkColumn?: string;
+        /** The link column goes to the record page rather than its edit page. */
+        linkToRecordPage?: boolean;
         emptyTitle: string;
         emptyDescription?: string;
         /** The create action, in the navbar and the "nothing yet" empty state. */
@@ -70,6 +72,7 @@ const props = withDefaults(
         hasFilters: false,
         selectable: false,
         linkColumn: 'name',
+        linkToRecordPage: false,
         emptyDescription: undefined,
         createLabel: undefined,
         createHref: undefined,
@@ -513,7 +516,10 @@ function toggleSortDirection() {
                         </template>
 
                         <template v-if="linksRecords" #[linkSlot]="{ row }">
-                            <ListRecordLink :actions="row.original.actions">
+                            <ListRecordLink
+                                :actions="row.original.actions"
+                                :to-record-page="linkToRecordPage"
+                            >
                                 {{ row.original[linkColumn] }}
                             </ListRecordLink>
                         </template>

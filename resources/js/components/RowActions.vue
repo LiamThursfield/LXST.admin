@@ -24,9 +24,12 @@ const props = withDefaults(
     defineProps<{
         actions: Action[];
         maxVisible?: number;
+        /** The overflow menu's button as in a navbar, outlined and full size, rather than in a row. */
+        toolbar?: boolean;
     }>(),
     {
         maxVisible: 3,
+        toolbar: false,
     },
 );
 
@@ -120,7 +123,15 @@ function handleConfirm() {
             :items="overflowItems"
             :content="{ align: 'end' }"
         >
-            <UTooltip :text="trans('common.actions.more')">
+            <UButton
+                v-if="toolbar"
+                color="neutral"
+                variant="outline"
+                icon="i-lucide-ellipsis"
+                square
+                :aria-label="trans('common.actions.more')"
+            />
+            <UTooltip v-else :text="trans('common.actions.more')">
                 <UButton
                     color="neutral"
                     variant="ghost"

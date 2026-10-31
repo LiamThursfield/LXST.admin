@@ -91,6 +91,19 @@ class CanonicalArtistController extends Controller
     /**
      * Renames the artist, and verifies it so matching never changes it back
      */
+    public function edit(CanonicalArtist $canonicalArtist): Response
+    {
+        Gate::authorize('update', $canonicalArtist);
+
+        return Inertia::render('admin/dj/canonical-artist/Edit', [
+            'artist' => [
+                'id' => $canonicalArtist->id,
+                'name' => $canonicalArtist->name,
+                'is_verified' => $canonicalArtist->isVerified(),
+            ],
+        ]);
+    }
+
     public function update(CanonicalArtistUpdateRequest $request, CanonicalArtist $canonicalArtist, TrackNormaliser $normaliser): RedirectResponse
     {
         /** @var string $name */

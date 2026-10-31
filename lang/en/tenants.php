@@ -15,6 +15,7 @@ return [
         'id' => 'ID',
         'domains' => 'Domains',
         'modules' => 'Modules',
+        'status' => 'Status',
         'created_at' => 'Created',
     ],
 

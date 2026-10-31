@@ -88,6 +88,16 @@ return [
         'no_matches_description' => 'Try another search, or clear the filters.',
     ],
 
+    'record' => [
+        'none' => '—',
+        'yes' => 'Yes',
+        'no' => 'No',
+        'details' => 'Details',
+        'activity' => 'Activity',
+        'showing' => 'Showing :shown of :total',
+        'view_all' => 'View all',
+    ],
+
     'notifications' => [
         'title' => 'Notifications',
         'empty' => "You currently don't have any notifications.",

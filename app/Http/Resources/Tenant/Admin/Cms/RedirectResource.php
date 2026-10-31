@@ -24,6 +24,11 @@ class RedirectResource extends JsonResource
         $user = $request->user();
         $actions = [];
 
+        if ($user?->can('view', $redirect)) {
+            $actions[] = Action::make(__('common.actions.view'), route('admin.cms.redirects.show', $redirect))
+                ->icon('i-lucide-eye');
+        }
+
         if ($user?->can('update', $redirect)) {
             $actions[] = Action::make(__('common.actions.edit'), route('admin.cms.redirects.edit', $redirect))
                 ->icon('i-lucide-pencil');
