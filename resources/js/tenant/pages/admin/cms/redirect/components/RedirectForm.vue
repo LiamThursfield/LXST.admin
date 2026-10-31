@@ -7,9 +7,13 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Cms/RedirectController';
 import type { RedirectData } from '@/types';
 
-const props = defineProps<{
-    redirect?: RedirectData;
-}>();
+const props = withDefaults(
+    defineProps<{
+        redirect?: RedirectData;
+        readonly?: boolean;
+    }>(),
+    { redirect: undefined, readonly: false },
+);
 
 const { trans } = useTrans();
 
@@ -22,11 +26,17 @@ const form = useForm({
     expired_at: props.redirect?.expired_at_local ?? '',
 });
 
-const title = computed(() =>
-    props.redirect
-        ? trans('cms.redirects.edit.title')
-        : trans('cms.redirects.create.title'),
-);
+const title = computed(() => {
+    if (!props.redirect) {
+        return trans('cms.redirects.create.title');
+    }
+
+    return trans(
+        props.readonly
+            ? 'cms.redirects.show.title'
+            : 'cms.redirects.edit.title',
+    );
+});
 
 const breadcrumbs = computed(() => [
     { label: trans('cms.redirects.index.title'), to: index.url() },
@@ -34,6 +44,10 @@ const breadcrumbs = computed(() => [
 ]);
 
 function onSubmit() {
+    if (props.readonly) {
+        return;
+    }
+
     form.submit(
         props.redirect ? update({ redirect: props.redirect.id }) : store(),
     );
@@ -46,6 +60,7 @@ function onSubmit() {
         :breadcrumbs="breadcrumbs"
         :is-dirty="form.isDirty"
         :processing="form.processing"
+        :readonly="readonly"
         :submit-label="
             redirect ? undefined : trans('cms.redirects.create.submit')
         "
@@ -65,6 +80,7 @@ function onSubmit() {
                 >
                     <UInput
                         v-model="form.url_from"
+                        :disabled="readonly"
                         placeholder="/old-page"
                         class="w-full font-mono"
                     />
@@ -78,6 +94,7 @@ function onSubmit() {
                 >
                     <UInput
                         v-model="form.url_to"
+                        :disabled="readonly"
                         placeholder="/new-page"
                         class="w-full font-mono"
                     />
@@ -96,6 +113,7 @@ function onSubmit() {
                 >
                     <USwitch
                         v-model="form.is_enabled"
+                        :disabled="readonly"
                         :label="trans('cms.redirects.fields.is_enabled')"
                     />
                 </UFormField>
@@ -106,6 +124,7 @@ function onSubmit() {
                 >
                     <USwitch
                         v-model="form.is_permanent"
+                        :disabled="readonly"
                         :label="trans('cms.redirects.fields.is_permanent')"
                     />
                 </UFormField>
@@ -124,6 +143,7 @@ function onSubmit() {
                 >
                     <UInput
                         v-model="form.published_at"
+                        :disabled="readonly"
                         type="datetime-local"
                         class="w-full"
                     />
@@ -136,6 +156,7 @@ function onSubmit() {
                 >
                     <UInput
                         v-model="form.expired_at"
+                        :disabled="readonly"
                         type="datetime-local"
                         class="w-full"
                     />

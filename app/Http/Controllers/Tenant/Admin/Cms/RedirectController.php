@@ -57,6 +57,15 @@ class RedirectController extends Controller
             ->with('success', __('cms.redirects.flash.created'));
     }
 
+    public function show(Redirect $redirect): Response
+    {
+        Gate::authorize('view', $redirect);
+
+        return Inertia::render('admin/cms/redirect/Show', [
+            'redirect' => new RedirectResource($redirect),
+        ]);
+    }
+
     public function edit(Redirect $redirect): Response
     {
         Gate::authorize('update', $redirect);

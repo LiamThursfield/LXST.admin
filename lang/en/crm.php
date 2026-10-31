@@ -87,6 +87,16 @@ return [
         ],
         'show' => [
             'title' => 'Contact: :name',
+            'details' => 'Details',
+            'contact' => 'Contact',
+            'status' => 'Status',
+            'added' => 'Added',
+            'deleted' => 'Deleted',
+            'submissions' => 'Submissions',
+            'no_submissions' => 'This contact has not submitted any forms.',
+            'no_addresses' => 'No addresses.',
+            'agreed' => 'Yes',
+            'not_agreed' => 'No',
         ],
         'validation' => [
             'first_name_required' => 'First name is required',
@@ -239,6 +249,7 @@ return [
         'show' => [
             'title' => 'Submission',
             'details' => 'Details',
+            'title_with_form' => ':form submission',
             'answers' => 'Answers',
             'no_answer' => 'No answer',
             'no_answers' => 'This submission has no answers.',
@@ -248,11 +259,6 @@ return [
             'not_consented' => 'No',
             'no_contact' => 'No contact',
             'deleted' => '(deleted)',
-        ],
-        'contact_list' => [
-            'title' => 'Submissions',
-            'empty' => 'This contact has not submitted any forms.',
-            'view_all' => 'View all',
         ],
         'actions' => [
             'mark_spam' => 'Mark as spam',

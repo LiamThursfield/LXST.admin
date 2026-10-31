@@ -110,7 +110,6 @@ class SongController extends Controller
                     'type' => $setlist->items->first()?->type?->label(),
                     'url' => route('admin.dj.setlists.show', $setlist),
                 ]),
-            'keys' => $this->keyItems(),
             'canManage' => $request->user()?->can('update', $song) ?? false,
         ]);
     }
@@ -118,6 +117,29 @@ class SongController extends Controller
     /**
      * Corrects the song's details, and verifies it so matching never changes them back
      */
+    public function edit(CanonicalTrack $song): Response
+    {
+        Gate::authorize('update', $song);
+
+        $song->load('artist');
+
+        return Inertia::render('admin/dj/song/Edit', [
+            'song' => [
+                'id' => $song->id,
+                'title' => $song->title,
+                'artist' => $song->artist === null ? null : [
+                    'id' => $song->artist->id,
+                    'name' => $song->artist->name,
+                ],
+                'bpm' => $song->bpm === null ? null : (float) $song->bpm,
+                'duration' => $song->formattedDuration(),
+                'key' => LibraryTrackResource::key($song->key),
+                'is_verified' => $song->isVerified(),
+            ],
+            'keys' => $this->keyItems(),
+        ]);
+    }
+
     public function update(SongUpdateRequest $request, CanonicalTrack $song, TrackNormaliser $normaliser): RedirectResponse
     {
         $attributes = $request->songAttributes();

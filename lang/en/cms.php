@@ -482,6 +482,9 @@ return [
             'title' => 'Edit redirect',
             'submit' => 'Save changes',
         ],
+        'show' => [
+            'title' => 'Redirect',
+        ],
         'columns' => [
             'from' => 'From',
             'to' => 'To',

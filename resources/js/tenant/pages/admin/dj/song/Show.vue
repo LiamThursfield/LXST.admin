@@ -1,23 +1,37 @@
 <script setup lang="ts">
-import { Head, Link, useForm, useHttp } from '@inertiajs/vue3';
-import { search as searchArtists } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/CanonicalArtistController';
+import { Link } from '@inertiajs/vue3';
+import type { DropdownMenuItem, TableColumn } from '@nuxt/ui';
 import {
     hide,
     verify,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/CanonicalTrackController';
 import {
+    edit,
     index,
-    update,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/SongController';
 import { formatDateTime, userTimezone } from '@/lib/timezone';
 import CanonicalMergeModal from '@/tenant/components/dj/CanonicalMergeModal.vue';
+import CanonicalMergesTable from '@/tenant/components/dj/CanonicalMergesTable.vue';
 import RequestVisibilityCard from '@/tenant/components/dj/RequestVisibilityCard.vue';
 import type {
     CanonicalMergeData,
     LibraryTrackData,
     MusicalKeyData,
-    SelectItem,
 } from '@/types';
+
+type Play = {
+    session: string;
+    library: string | null;
+    played_at: string | null;
+};
+
+type Setlist = {
+    id: number;
+    name: string;
+    gig: string | null;
+    type: string | null;
+    url: string;
+};
 
 const props = defineProps<{
     song: {
@@ -38,75 +52,101 @@ const props = defineProps<{
     };
     libraryTracks: { data: LibraryTrackData[] };
     playsCount: number;
-    plays: Array<{
-        session: string;
-        library: string | null;
-        played_at: string | null;
-    }>;
+    plays: Play[];
     merges: { data: CanonicalMergeData[] };
-    setlists: Array<{
-        id: number;
-        name: string;
-        gig: string | null;
-        type: string | null;
-        url: string;
-    }>;
-    keys: SelectItem[];
+    setlists: Setlist[];
     canManage: boolean;
 }>();
 
 const { trans } = useTrans();
 const timezone = userTimezone(useAuth().value.user);
 
-const form = useForm({
-    title: props.song.title,
-    canonical_artist_id: props.song.artist?.id ?? null,
-    bpm: props.song.bpm === null ? '' : String(props.song.bpm),
-    key: props.song.key?.value ?? '',
-    duration: props.song.duration ?? '',
-});
+const tab = ref('tracks');
 
-function save() {
-    form.transform((data) => ({
-        ...data,
-        bpm: data.bpm === '' ? null : data.bpm,
-        key: data.key === '' ? null : data.key,
-        duration: data.duration === '' ? null : data.duration,
-    })).submit(update(props.song.id), { preserveScroll: true });
-}
-
-// The artist is picked by searching, as there can be thousands
-const artistSearch = ref('');
-const artistItems = ref<Array<{ label: string; value: number | null }>>([
-    { label: trans('dj.songs.fields.no_artist'), value: null },
-    ...(props.song.artist
-        ? [{ label: props.song.artist.name, value: props.song.artist.id }]
-        : []),
+const tabs = computed(() => [
+    {
+        value: 'tracks',
+        label: trans('dj.songs.show.library_tracks'),
+        count: props.libraryTracks.data.length,
+    },
+    {
+        value: 'history',
+        label: trans('dj.songs.show.history'),
+        count: props.playsCount,
+    },
+    {
+        value: 'setlists',
+        label: trans('dj.songs.show.setlists'),
+        count: props.setlists.length,
+    },
+    {
+        value: 'merges',
+        label: trans('dj.songs.show.merges'),
+        count: props.merges.data.length,
+    },
 ]);
-const artistSearcher = useHttp();
 
-const findArtists = useDebounceFn(async () => {
-    try {
-        const response = (await artistSearcher.get(
-            searchArtists.url({ query: { search: artistSearch.value } }),
-        )) as { data: Array<{ id: number; name: string }> };
+const breadcrumbs = computed(() => [
+    { label: trans('dj.songs.title'), to: index.url() },
+    { label: props.song.title },
+]);
 
-        const current = artistItems.value.find(
-            (item) => item.value === form.canonical_artist_id,
-        );
-        artistItems.value = [
-            { label: trans('dj.songs.fields.no_artist'), value: null },
-            ...(current && current.value !== null ? [current] : []),
-            ...response.data
-                .filter((artist) => artist.id !== current?.value)
-                .map((artist) => ({ label: artist.name, value: artist.id })),
-        ];
-    } catch {
-        // Keep the current choices
-    }
-}, 250);
+const trackColumns: TableColumn<LibraryTrackData>[] = [
+    { id: 'title', header: trans('dj.record.columns.track') },
+    { id: 'library', header: trans('dj.record.columns.library') },
+    { accessorKey: 'bpm', header: trans('dj.record.columns.bpm') },
+    { id: 'key', header: trans('dj.record.columns.key') },
+    { accessorKey: 'duration', header: trans('dj.record.columns.duration') },
+];
 
-watch(artistSearch, () => findArtists());
+const playColumns: TableColumn<Play>[] = [
+    { id: 'played_at', header: trans('dj.record.columns.played_at') },
+    { accessorKey: 'session', header: trans('dj.record.columns.session') },
+    { accessorKey: 'library', header: trans('dj.record.columns.library') },
+];
+
+const setlistColumns: TableColumn<Setlist>[] = [
+    { id: 'name', header: trans('dj.record.columns.setlist') },
+    { accessorKey: 'gig', header: trans('dj.record.columns.gig') },
+    { accessorKey: 'type', header: trans('dj.record.columns.type') },
+];
+
+const details = computed(() => [
+    {
+        label: trans('dj.record.columns.artist'),
+        value: props.song.artist?.name ?? trans('dj.tracks.unknown_artist'),
+        href: props.song.artist?.url,
+    },
+    { label: trans('dj.record.columns.bpm'), value: props.song.bpm },
+    { label: trans('dj.record.columns.key'), value: props.song.key?.label },
+    {
+        label: trans('dj.record.columns.duration'),
+        value: props.song.duration,
+    },
+    {
+        label: trans('dj.record.facts.status'),
+        value: props.song.is_verified
+            ? trans('dj.record.facts.verified')
+            : trans('dj.record.facts.not_verified'),
+        color: props.song.is_verified ? 'success' : 'neutral',
+    } as const,
+]);
+
+const lastPlayed = computed(() => props.plays[0]?.played_at ?? null);
+
+const activity = computed(() => [
+    { label: trans('dj.record.facts.plays'), value: props.playsCount },
+    {
+        label: trans('dj.record.facts.last_played'),
+        value: lastPlayed.value
+            ? formatDateTime(lastPlayed.value, timezone)
+            : null,
+    },
+    {
+        label: trans('dj.record.facts.library_tracks'),
+        value: props.libraryTracks.data.length,
+    },
+]);
 
 const verifying = ref(false);
 
@@ -123,371 +163,150 @@ function setVerified(verified: boolean) {
 }
 
 const mergeOpen = ref(false);
+
+const menu = computed<DropdownMenuItem[]>(() =>
+    props.canManage
+        ? [
+              {
+                  label: props.song.is_verified
+                      ? trans('dj.matching.track.unverify')
+                      : trans('dj.matching.track.verify'),
+                  icon: props.song.is_verified
+                      ? 'i-lucide-shield-off'
+                      : 'i-lucide-shield-check',
+                  disabled: verifying.value,
+                  onSelect: () => setVerified(!props.song.is_verified),
+              },
+              {
+                  label: trans('dj.matching.track.merge'),
+                  icon: 'i-lucide-merge',
+                  onSelect: () => (mergeOpen.value = true),
+              },
+          ]
+        : [],
+);
 </script>
 
 <template>
-    <UDashboardPanel>
-        <template #header>
-            <UDashboardNavbar :title="song.title">
-                <template #leading>
-                    <UDashboardSidebarCollapse as="button" :disabled="false" />
-                </template>
-
-                <template #right>
-                    <UButton
-                        as="Link"
-                        :href="index.url()"
-                        color="neutral"
-                        variant="ghost"
-                        icon="i-lucide-arrow-left"
-                        :label="trans('dj.songs.show.back')"
-                    />
-                </template>
-            </UDashboardNavbar>
+    <RecordLayout
+        v-model:tab="tab"
+        :title="song.title"
+        :breadcrumbs="breadcrumbs"
+        :subtitle="song.artist?.name ?? trans('dj.tracks.unknown_artist')"
+        :tabs="tabs"
+        :menu="menu"
+        :edit-href="canManage ? edit.url(song.id) : null"
+    >
+        <template v-if="song.is_verified" #badges>
+            <UBadge color="success" variant="subtle">
+                {{ trans('dj.matching.verified') }}
+            </UBadge>
         </template>
 
-        <template #body>
-            <Head :title="song.title" />
-
-            <div class="mx-auto flex w-full max-w-4xl flex-col gap-6">
-                <div class="flex flex-wrap items-start justify-between gap-4">
-                    <div class="flex flex-col gap-1">
-                        <h1
-                            class="text-highlighted flex items-center gap-2 text-2xl font-semibold"
-                        >
-                            {{ song.title }}
-                            <UBadge
-                                v-if="song.is_verified"
-                                color="success"
-                                variant="subtle"
-                            >
-                                {{ trans('dj.matching.verified') }}
-                            </UBadge>
-                        </h1>
+        <RecordTable
+            v-if="tab === 'tracks'"
+            :columns="trackColumns"
+            :rows="libraryTracks.data"
+            :empty-title="trans('dj.songs.show.no_library_tracks')"
+            empty-icon="i-lucide-library"
+        >
+            <template #title-cell="{ row }">
+                <div class="flex flex-col">
+                    <span class="flex items-center gap-2">
                         <Link
-                            v-if="song.artist"
-                            :href="song.artist.url"
-                            class="text-muted hover:underline"
+                            :href="row.original.url"
+                            class="text-highlighted font-medium hover:underline"
                         >
-                            {{ song.artist.name }}
+                            {{ row.original.title }}
                         </Link>
-                        <span v-else class="text-muted">
-                            {{ trans('dj.tracks.unknown_artist') }}
-                        </span>
-                        <span class="text-muted text-sm">
-                            {{
-                                [song.bpm, song.key?.label, song.duration]
-                                    .filter(Boolean)
-                                    .join(' · ')
-                            }}
-                        </span>
-                    </div>
-
-                    <div v-if="canManage" class="flex flex-wrap gap-2">
-                        <UButton
+                        <UBadge
+                            v-if="row.original.is_missing"
+                            color="warning"
+                            variant="subtle"
                             size="sm"
-                            color="neutral"
-                            variant="outline"
-                            :icon="
-                                song.is_verified
-                                    ? 'i-lucide-shield-off'
-                                    : 'i-lucide-shield-check'
-                            "
-                            :label="
-                                song.is_verified
-                                    ? trans('dj.matching.track.unverify')
-                                    : trans('dj.matching.track.verify')
-                            "
-                            :loading="verifying"
-                            @click="setVerified(!song.is_verified)"
-                        />
-                        <UButton
-                            size="sm"
-                            color="neutral"
-                            variant="outline"
-                            icon="i-lucide-merge"
-                            :label="trans('dj.matching.track.merge')"
-                            @click="mergeOpen = true"
-                        />
-                    </div>
+                        >
+                            {{ trans('dj.tracks.missing') }}
+                        </UBadge>
+                    </span>
+                    <span class="text-muted text-xs">
+                        {{
+                            row.original.artist?.name ??
+                            trans('dj.tracks.unknown_artist')
+                        }}
+                    </span>
                 </div>
+            </template>
+            <template #library-cell="{ row }">
+                {{ row.original.library }}
+            </template>
+            <template #key-cell="{ row }">
+                {{ row.original.key?.camelot }}
+            </template>
+        </RecordTable>
 
-                <RequestVisibilityCard
-                    :hidden="song.is_hidden_from_requests"
-                    :hidden-with-artist="song.artist?.is_hidden_from_requests"
-                    :requestable="song.is_requestable"
-                    :help="trans('dj.requests_visibility.song_help')"
-                    :url="hide.url(song.id)"
-                    :can-manage="canManage"
-                />
+        <RecordTable
+            v-else-if="tab === 'history'"
+            :columns="playColumns"
+            :rows="plays"
+            :total="playsCount"
+            :empty-title="trans('dj.songs.show.no_history')"
+            empty-icon="i-lucide-history"
+        >
+            <template #played_at-cell="{ row }">
+                {{
+                    row.original.played_at
+                        ? formatDateTime(row.original.played_at, timezone)
+                        : ''
+                }}
+            </template>
+        </RecordTable>
 
-                <UPageCard
-                    v-if="canManage"
-                    :title="trans('dj.songs.show.edit')"
-                    :description="trans('dj.songs.show.edit_help')"
-                    variant="subtle"
+        <RecordTable
+            v-else-if="tab === 'setlists'"
+            :columns="setlistColumns"
+            :rows="setlists"
+            :empty-title="trans('dj.songs.show.no_setlists')"
+            empty-icon="i-lucide-list-music"
+        >
+            <template #name-cell="{ row }">
+                <Link
+                    :href="row.original.url"
+                    class="text-highlighted font-medium hover:underline"
                 >
-                    <form
-                        class="grid grid-cols-1 gap-4 sm:grid-cols-2"
-                        @submit.prevent="save"
-                    >
-                        <UFormField
-                            :label="trans('dj.songs.fields.title')"
-                            :error="form.errors.title"
-                            class="sm:col-span-2"
-                            required
-                        >
-                            <UInput v-model="form.title" class="w-full" />
-                        </UFormField>
-                        <UFormField
-                            :label="trans('dj.songs.fields.artist')"
-                            :error="form.errors.canonical_artist_id"
-                            class="sm:col-span-2"
-                        >
-                            <USelectMenu
-                                v-model="form.canonical_artist_id"
-                                v-model:search-term="artistSearch"
-                                :items="artistItems"
-                                value-key="value"
-                                ignore-filter
-                                :loading="artistSearcher.processing"
-                                :search-input="{
-                                    placeholder: trans(
-                                        'dj.songs.fields.artist_search',
-                                    ),
-                                }"
-                                class="w-full"
-                            />
-                        </UFormField>
-                        <UFormField
-                            :label="trans('dj.songs.fields.bpm')"
-                            :error="form.errors.bpm"
-                        >
-                            <UInput
-                                v-model="form.bpm"
-                                type="number"
-                                step="0.01"
-                                min="1"
-                                class="w-full"
-                            />
-                        </UFormField>
-                        <UFormField
-                            :label="trans('dj.songs.fields.key')"
-                            :error="form.errors.key"
-                        >
-                            <USelect
-                                v-model="form.key"
-                                :items="keys"
-                                class="w-full"
-                            />
-                        </UFormField>
-                        <UFormField
-                            :label="trans('dj.songs.fields.duration')"
-                            :help="trans('dj.songs.fields.duration_help')"
-                            :error="form.errors.duration"
-                        >
-                            <UInput
-                                v-model="form.duration"
-                                placeholder="3:45"
-                                class="w-full"
-                            />
-                        </UFormField>
-                        <div class="flex items-end justify-end">
-                            <UButton
-                                type="submit"
-                                :loading="form.processing"
-                                :label="trans('dj.songs.show.save')"
-                            />
-                        </div>
-                    </form>
-                </UPageCard>
+                    {{ row.original.name }}
+                </Link>
+            </template>
+        </RecordTable>
 
-                <UPageCard
-                    :title="trans('dj.songs.show.library_tracks')"
-                    variant="subtle"
-                >
-                    <ul class="divide-default flex flex-col divide-y text-sm">
-                        <li
-                            v-for="track in libraryTracks.data"
-                            :key="track.id"
-                            class="flex flex-wrap items-center justify-between gap-2 py-2"
-                        >
-                            <div class="flex min-w-0 flex-col">
-                                <Link
-                                    :href="track.url"
-                                    class="text-highlighted font-medium hover:underline"
-                                >
-                                    {{ track.title }}
-                                </Link>
-                                <span class="text-muted text-xs">
-                                    {{
-                                        track.artist?.name ??
-                                        trans('dj.tracks.unknown_artist')
-                                    }}
-                                    · {{ track.library }}
-                                </span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <UBadge
-                                    v-if="track.is_missing"
-                                    color="warning"
-                                    variant="subtle"
-                                    size="sm"
-                                >
-                                    {{ trans('dj.tracks.missing') }}
-                                </UBadge>
-                                <span class="text-muted text-xs">
-                                    {{
-                                        [
-                                            track.bpm,
-                                            track.key?.camelot,
-                                            track.duration,
-                                        ]
-                                            .filter(Boolean)
-                                            .join(' · ')
-                                    }}
-                                </span>
-                            </div>
-                        </li>
-                    </ul>
-                </UPageCard>
+        <CanonicalMergesTable v-else :merges="merges.data" />
 
-                <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    <UPageCard
-                        :title="trans('dj.songs.show.history')"
-                        variant="subtle"
-                    >
-                        <template v-if="playsCount">
-                            <p class="text-sm">
-                                {{
-                                    trans('dj.songs.show.history_count', {
-                                        count: playsCount,
-                                    })
-                                }}
-                            </p>
-                            <ul class="flex flex-col gap-1 text-sm">
-                                <li
-                                    v-for="(play, playIndex) in plays"
-                                    :key="playIndex"
-                                    class="flex justify-between gap-2"
-                                >
-                                    <span>
-                                        {{ play.session }}
-                                        <span
-                                            v-if="play.library"
-                                            class="text-muted"
-                                            >· {{ play.library }}</span
-                                        >
-                                    </span>
-                                    <span
-                                        v-if="play.played_at"
-                                        class="text-muted"
-                                    >
-                                        {{
-                                            formatDateTime(
-                                                play.played_at,
-                                                timezone,
-                                            )
-                                        }}
-                                    </span>
-                                </li>
-                            </ul>
-                        </template>
-                        <p v-else class="text-muted text-sm">
-                            {{ trans('dj.songs.show.no_history') }}
-                        </p>
-                    </UPageCard>
+        <CanonicalMergeModal
+            v-model:open="mergeOpen"
+            record="track"
+            :source-id="song.id"
+            :initial-search="song.title"
+            :title="trans('dj.matching.track.merge_title')"
+            :description="trans('dj.matching.track.merge_help')"
+            :placeholder="trans('dj.matching.track.merge_search')"
+        />
 
-                    <UPageCard
-                        :title="trans('dj.songs.show.setlists')"
-                        variant="subtle"
-                    >
-                        <ul
-                            v-if="setlists.length"
-                            class="flex flex-col gap-1 text-sm"
-                        >
-                            <li
-                                v-for="setlist in setlists"
-                                :key="setlist.id"
-                                class="flex justify-between gap-2"
-                            >
-                                <Link
-                                    :href="setlist.url"
-                                    class="hover:underline"
-                                >
-                                    {{ setlist.name }}
-                                    <span v-if="setlist.gig" class="text-muted"
-                                        >· {{ setlist.gig }}</span
-                                    >
-                                </Link>
-                                <span
-                                    v-if="setlist.type"
-                                    class="text-muted text-xs"
-                                    >{{ setlist.type }}</span
-                                >
-                            </li>
-                        </ul>
-                        <p v-else class="text-muted text-sm">
-                            {{ trans('dj.songs.show.no_setlists') }}
-                        </p>
-                    </UPageCard>
-
-                    <UPageCard
-                        :title="trans('dj.songs.show.merges')"
-                        variant="subtle"
-                    >
-                        <ul
-                            v-if="merges.data.length"
-                            class="flex flex-col gap-2 text-sm"
-                        >
-                            <li
-                                v-for="merge in merges.data"
-                                :key="merge.id"
-                                class="flex flex-col"
-                            >
-                                <span>
-                                    {{
-                                        trans(
-                                            `dj.matching.history_entry.${merge.action}`,
-                                            {
-                                                source: merge.source_name,
-                                                target: merge.target_name,
-                                                count: merge.moved_count,
-                                            },
-                                        )
-                                    }}
-                                </span>
-                                <span class="text-muted text-xs">
-                                    {{
-                                        merge.user ??
-                                        trans('dj.matching.automatic')
-                                    }}
-                                    ·
-                                    {{
-                                        formatDateTime(
-                                            merge.created_at,
-                                            timezone,
-                                        )
-                                    }}
-                                </span>
-                            </li>
-                        </ul>
-                        <p v-else class="text-muted text-sm">
-                            {{ trans('dj.songs.show.no_merges') }}
-                        </p>
-                    </UPageCard>
-                </div>
-            </div>
-
-            <CanonicalMergeModal
-                v-model:open="mergeOpen"
-                record="track"
-                :source-id="song.id"
-                :initial-search="song.title"
-                :title="trans('dj.matching.track.merge_title')"
-                :description="trans('dj.matching.track.merge_help')"
-                :placeholder="trans('dj.matching.track.merge_search')"
+        <template #sidebar>
+            <RecordFacts
+                :title="trans('common.record.details')"
+                :facts="details"
+            />
+            <RecordFacts
+                :title="trans('common.record.activity')"
+                :facts="activity"
+            />
+            <RequestVisibilityCard
+                :hidden="song.is_hidden_from_requests"
+                :hidden-with-artist="song.artist?.is_hidden_from_requests"
+                :requestable="song.is_requestable"
+                :help="trans('dj.requests_visibility.song_help')"
+                :url="hide.url(song.id)"
+                :can-manage="canManage"
             />
         </template>
-    </UDashboardPanel>
+    </RecordLayout>
 </template>

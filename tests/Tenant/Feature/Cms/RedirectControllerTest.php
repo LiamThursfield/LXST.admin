@@ -172,14 +172,26 @@ test('a redirect\'s status follows its enabled flag and dates, in the model and 
 });
 
 describe('access', function () {
-    test('users who can only view the site structure can list redirects but not change them', function () {
+    test('users who can only view the site structure can list and open redirects but not change them', function () {
         $this->actingAs($this->createUserWithPermissions([CmsPermission::ViewStructure]));
-        $redirect = Redirect::factory()->create();
+        $redirect = Redirect::factory()->create(['url_from' => '/old-page']);
 
         $this->get(route('admin.cms.redirects.index'))
             ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page->where('canCreate', false)->missing('redirects.data.0.actions'));
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('canCreate', false)
+                ->has('redirects.data.0.actions', 1)
+                ->where('redirects.data.0.actions.0.url', route('admin.cms.redirects.show', $redirect))
+            );
 
+        $this->get(route('admin.cms.redirects.show', $redirect))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('admin/cms/redirect/Show')
+                ->where('redirect.data.url_from', '/old-page')
+            );
+
+        $this->get(route('admin.cms.redirects.edit', $redirect))->assertForbidden();
         $this->get(route('admin.cms.redirects.create'))->assertForbidden();
         $this->post(route('admin.cms.redirects.store'), redirectData())->assertForbidden();
         $this->put(route('admin.cms.redirects.update', $redirect), redirectData())->assertForbidden();

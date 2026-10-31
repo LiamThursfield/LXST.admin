@@ -93,6 +93,21 @@ test('a song shows its library tracks, combined play history and merge history',
         );
 });
 
+test('a song has an edit page with its details and the keys to choose from', function () {
+    $artist = CanonicalArtist::factory()->create(['name' => 'Bicep']);
+    $song = CanonicalTrack::factory()->create(['title' => 'Glue', 'canonical_artist_id' => $artist->id, 'key' => MusicalKey::FSharpMinor]);
+
+    $this->get(route('admin.dj.songs.edit', $song))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('admin/dj/song/Edit')
+            ->where('song.title', 'Glue')
+            ->where('song.artist.name', 'Bicep')
+            ->where('song.key.value', '11A')
+            ->has('keys', count(MusicalKey::cases()))
+        );
+});
+
 test('editing a song saves its details and verifies it', function () {
     $artist = CanonicalArtist::factory()->create();
     $song = CanonicalTrack::factory()->create(['title' => 'Glue (Dirty)']);
@@ -150,6 +165,7 @@ test('users who can only view the library can browse songs but not change them',
 
     $this->get(route('admin.dj.songs.index'))->assertOk()->assertInertia(fn (Assert $page) => $page->where('canManage', false));
     $this->get(route('admin.dj.songs.show', $song))->assertOk()->assertInertia(fn (Assert $page) => $page->where('canManage', false));
+    $this->get(route('admin.dj.songs.edit', $song))->assertForbidden();
     $this->patch(route('admin.dj.songs.update', $song), ['title' => 'Changed'])->assertForbidden();
     $this->post(route('admin.dj.songs.cleanup'))->assertForbidden();
 

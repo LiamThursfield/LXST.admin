@@ -95,7 +95,7 @@ Route::name('cms.')->prefix('cms')->middleware(['tenant.module:cms', 'content.ch
     Route::resource('layouts', LayoutController::class);
     Route::resource('menus', MenuController::class);
     Route::resource('templates', TemplateController::class);
-    Route::resource('redirects', RedirectController::class)->except('show');
+    Route::resource('redirects', RedirectController::class);
 });
 
 Route::name('crm.')->prefix('crm')->middleware(['tenant.module:crm', 'content.changed'])->group(function () {
@@ -174,12 +174,12 @@ Route::name('dj.')->prefix('dj')->middleware(['tenant.module:dj', 'content.chang
 
     // Songs and artists: the canonical records, counted once across libraries
     Route::post('songs/cleanup', [SongController::class, 'cleanup'])->name('songs.cleanup');
-    Route::resource('songs', SongController::class)->only(['index', 'show', 'update']);
+    Route::resource('songs', SongController::class)->only(['index', 'show', 'edit', 'update']);
     Route::get('canonical-artists/search', [CanonicalArtistController::class, 'search'])->name('canonical-artists.search');
     Route::patch('canonical-artists/{canonicalArtist}/verification', [CanonicalArtistController::class, 'verify'])->name('canonical-artists.verify');
     Route::patch('canonical-artists/{canonicalArtist}/hidden', [CanonicalArtistController::class, 'hide'])->name('canonical-artists.hide');
     Route::resource('canonical-artists', CanonicalArtistController::class)
-        ->only(['index', 'show', 'update'])
+        ->only(['index', 'show', 'edit', 'update'])
         ->parameters(['canonical-artists' => 'canonicalArtist']);
     Route::post('tracks/{track}/split', [LibraryTrackSplitController::class, 'store'])->name('tracks.split');
 });

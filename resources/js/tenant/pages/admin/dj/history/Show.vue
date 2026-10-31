@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
+import type { TableColumn } from '@nuxt/ui';
 import { index } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/HistoryController';
 import { formatDateTime } from '@/lib/timezone';
 import type { HistorySessionData, PlayedTrackData } from '@/types';
@@ -10,106 +11,126 @@ const props = defineProps<{
     timezone: string;
 }>();
 
-const { trans, transChoice } = useTrans();
+const { trans } = useTrans();
 const session = computed(() => props.session.data);
+
+const tab = ref('plays');
+
+const tabs = computed(() => [
+    {
+        value: 'plays',
+        label: trans('dj.history.show.plays'),
+        count: session.value.plays_count,
+    },
+]);
+
+const breadcrumbs = computed(() => [
+    { label: trans('dj.history.show.back'), to: index.url() },
+    { label: session.value.name },
+]);
+
+const columns: TableColumn<PlayedTrackData>[] = [
+    { id: 'title', header: trans('dj.record.columns.track') },
+    { id: 'played_at', header: trans('dj.record.columns.played_at') },
+];
+
+const sources: Record<HistorySessionData['source'], string> = {
+    import: trans('dj.history.show.imported'),
+    manual: trans('dj.history.manual_session'),
+    cli: trans('dj.history.live_session'),
+};
+
+function formatTime(value: string | null): string | null {
+    return value ? formatDateTime(value, props.timezone) : null;
+}
+
+const details = computed(() => [
+    {
+        label: trans('dj.history.show.gig'),
+        value: session.value.gig?.name ?? trans('dj.history.not_linked'),
+        href: session.value.gig?.url,
+    },
+    {
+        label: trans('dj.history.show.stats'),
+        value: session.value.include_in_stats
+            ? trans('dj.history.in_stats')
+            : trans('dj.history.not_in_stats'),
+        color: session.value.include_in_stats ? 'success' : 'neutral',
+    } as const,
+    {
+        label: trans('dj.history.show.source'),
+        value: sources[session.value.source],
+    },
+    { label: trans('dj.history.show.library'), value: session.value.library },
+    {
+        label: trans('dj.history.show.started_at'),
+        value: formatTime(session.value.started_at),
+    },
+    {
+        label: trans('dj.history.show.ended_at'),
+        value: formatTime(session.value.ended_at),
+    },
+]);
 </script>
 
 <template>
-    <UDashboardPanel>
-        <template #header>
-            <UDashboardNavbar :title="session.name">
-                <template #leading>
-                    <UDashboardSidebarCollapse as="button" :disabled="false" />
-                </template>
-                <template #right>
-                    <UButton
-                        as="Link"
-                        :href="index.url()"
-                        color="neutral"
-                        variant="ghost"
-                        icon="i-lucide-arrow-left"
-                        :label="trans('dj.history.show.back')"
-                    />
-                </template>
-            </UDashboardNavbar>
+    <RecordLayout
+        v-model:tab="tab"
+        :title="session.name"
+        :breadcrumbs="breadcrumbs"
+        :tabs="tabs"
+    >
+        <template v-if="session.is_superseded" #badges>
+            <UBadge color="neutral" variant="subtle">
+                {{ trans('dj.history.superseded') }}
+            </UBadge>
         </template>
 
-        <template #body>
-            <Head :title="session.name" />
-            <div class="mx-auto flex w-full max-w-3xl flex-col gap-6">
-                <div class="flex flex-wrap items-center gap-2">
-                    <UBadge v-if="session.gig" color="primary" variant="subtle">
-                        <Link :href="session.gig.url">{{
-                            session.gig.name
-                        }}</Link>
-                    </UBadge>
-                    <UBadge v-else color="neutral" variant="subtle">{{
-                        trans('dj.history.not_linked')
-                    }}</UBadge>
-                    <UBadge
-                        :color="
-                            session.include_in_stats ? 'success' : 'neutral'
+        <template v-if="session.is_superseded" #notice>
+            <UAlert
+                color="neutral"
+                variant="subtle"
+                icon="i-lucide-info"
+                :description="trans('dj.history.superseded_help')"
+            />
+        </template>
+
+        <RecordTable
+            :columns="columns"
+            :rows="plays.data"
+            :empty-title="trans('dj.history.show.no_plays')"
+            empty-icon="i-lucide-history"
+        >
+            <template #title-cell="{ row }">
+                <div class="flex flex-col">
+                    <Link
+                        v-if="row.original.track_url ?? row.original.song_url"
+                        :href="
+                            (row.original.track_url ??
+                                row.original.song_url) as string
                         "
-                        variant="subtle"
+                        class="text-highlighted font-medium hover:underline"
                     >
-                        {{
-                            session.include_in_stats
-                                ? trans('dj.history.in_stats')
-                                : trans('dj.history.not_in_stats')
-                        }}
-                    </UBadge>
-                    <span v-if="session.library" class="text-muted text-sm">
-                        {{
-                            trans('dj.history.show.from_library', {
-                                library: session.library,
-                            })
-                        }}
+                        {{ row.original.title }}
+                    </Link>
+                    <span v-else class="text-highlighted font-medium">
+                        {{ row.original.title }}
+                    </span>
+                    <span class="text-muted text-xs">
+                        {{ row.original.artist }}
                     </span>
                 </div>
+            </template>
+            <template #played_at-cell="{ row }">
+                {{ formatTime(row.original.played_at) }}
+            </template>
+        </RecordTable>
 
-                <UPageCard
-                    :title="
-                        transChoice('dj.history.plays', session.plays_count)
-                    "
-                    variant="subtle"
-                >
-                    <ol class="divide-default flex flex-col divide-y text-sm">
-                        <li
-                            v-for="play in plays.data"
-                            :key="play.id"
-                            class="flex justify-between gap-3 py-2"
-                        >
-                            <span class="flex min-w-0 flex-col">
-                                <Link
-                                    v-if="play.track_url ?? play.song_url"
-                                    :href="
-                                        (play.track_url ??
-                                            play.song_url) as string
-                                    "
-                                    class="text-highlighted font-medium hover:underline"
-                                >
-                                    {{ play.title }}
-                                </Link>
-                                <span
-                                    v-else
-                                    class="text-highlighted font-medium"
-                                    >{{ play.title }}</span
-                                >
-                                <span class="text-muted text-xs">{{
-                                    play.artist
-                                }}</span>
-                            </span>
-                            <span
-                                v-if="play.played_at"
-                                class="text-muted shrink-0 text-xs"
-                                >{{
-                                    formatDateTime(play.played_at, timezone)
-                                }}</span
-                            >
-                        </li>
-                    </ol>
-                </UPageCard>
-            </div>
+        <template #sidebar>
+            <RecordFacts
+                :title="trans('common.record.details')"
+                :facts="details"
+            />
         </template>
-    </UDashboardPanel>
+    </RecordLayout>
 </template>

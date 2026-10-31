@@ -1,15 +1,31 @@
 <script setup lang="ts">
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
+import type { DropdownMenuItem, TableColumn } from '@nuxt/ui';
 import {
+    edit,
     hide,
     index,
-    update,
     verify,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/CanonicalArtistController';
-import { formatDateTime, userTimezone } from '@/lib/timezone';
 import CanonicalMergeModal from '@/tenant/components/dj/CanonicalMergeModal.vue';
+import CanonicalMergesTable from '@/tenant/components/dj/CanonicalMergesTable.vue';
 import RequestVisibilityCard from '@/tenant/components/dj/RequestVisibilityCard.vue';
 import type { CanonicalMergeData } from '@/types';
+
+type Song = {
+    id: number;
+    title: string;
+    library_tracks_count: number;
+    is_verified: boolean;
+    url: string;
+};
+
+type LibraryArtist = {
+    id: number;
+    name: string;
+    library: string;
+    tracks_url: string;
+};
 
 const props = defineProps<{
     artist: {
@@ -19,32 +35,72 @@ const props = defineProps<{
         is_hidden_from_requests: boolean;
         songs_url: string;
     };
-    songs: Array<{
-        id: number;
-        title: string;
-        library_tracks_count: number;
-        is_verified: boolean;
-        url: string;
-    }>;
+    songs: Song[];
     songsCount: number;
-    libraryArtists: Array<{
-        id: number;
-        name: string;
-        library: string;
-        tracks_url: string;
-    }>;
+    libraryArtists: LibraryArtist[];
     merges: { data: CanonicalMergeData[] };
     canManage: boolean;
 }>();
 
 const { trans } = useTrans();
-const timezone = userTimezone(useAuth().value.user);
 
-const form = useForm({ name: props.artist.name });
+const tab = ref('songs');
 
-function save() {
-    form.submit(update(props.artist.id), { preserveScroll: true });
-}
+const tabs = computed(() => [
+    {
+        value: 'songs',
+        label: trans('dj.canonical_artists.show.songs'),
+        count: props.songsCount,
+    },
+    {
+        value: 'library_artists',
+        label: trans('dj.canonical_artists.show.library_artists'),
+        count: props.libraryArtists.length,
+    },
+    {
+        value: 'merges',
+        label: trans('dj.songs.show.merges'),
+        count: props.merges.data.length,
+    },
+]);
+
+const breadcrumbs = computed(() => [
+    { label: trans('dj.canonical_artists.title'), to: index.url() },
+    { label: props.artist.name },
+]);
+
+const songColumns: TableColumn<Song>[] = [
+    { id: 'title', header: trans('dj.record.columns.song') },
+    {
+        accessorKey: 'library_tracks_count',
+        header: trans('dj.record.columns.library_tracks'),
+    },
+];
+
+const libraryArtistColumns: TableColumn<LibraryArtist>[] = [
+    { accessorKey: 'name', header: trans('dj.record.columns.artist') },
+    { accessorKey: 'library', header: trans('dj.record.columns.library') },
+    { id: 'tracks', header: '' },
+];
+
+const details = computed(() => [
+    {
+        label: trans('dj.canonical_artists.fields.name'),
+        value: props.artist.name,
+    },
+    {
+        label: trans('dj.record.facts.status'),
+        value: props.artist.is_verified
+            ? trans('dj.record.facts.verified')
+            : trans('dj.record.facts.not_verified'),
+        color: props.artist.is_verified ? 'success' : 'neutral',
+    } as const,
+    { label: trans('dj.record.facts.songs'), value: props.songsCount },
+    {
+        label: trans('dj.record.facts.library_artists'),
+        value: props.libraryArtists.length,
+    },
+]);
 
 const verifying = ref(false);
 
@@ -61,235 +117,123 @@ function setVerified(verified: boolean) {
 }
 
 const mergeOpen = ref(false);
+
+const menu = computed<DropdownMenuItem[]>(() =>
+    props.canManage
+        ? [
+              {
+                  label: props.artist.is_verified
+                      ? trans('dj.matching.track.unverify')
+                      : trans('dj.matching.track.verify'),
+                  icon: props.artist.is_verified
+                      ? 'i-lucide-shield-off'
+                      : 'i-lucide-shield-check',
+                  disabled: verifying.value,
+                  onSelect: () => setVerified(!props.artist.is_verified),
+              },
+              {
+                  label: trans('dj.canonical_artists.show.merge'),
+                  icon: 'i-lucide-merge',
+                  onSelect: () => (mergeOpen.value = true),
+              },
+          ]
+        : [],
+);
 </script>
 
 <template>
-    <UDashboardPanel>
-        <template #header>
-            <UDashboardNavbar :title="artist.name">
-                <template #leading>
-                    <UDashboardSidebarCollapse as="button" :disabled="false" />
-                </template>
+    <RecordLayout
+        v-model:tab="tab"
+        :title="artist.name"
+        :breadcrumbs="breadcrumbs"
+        :tabs="tabs"
+        :menu="menu"
+        :edit-href="canManage ? edit.url(artist.id) : null"
+    >
+        <template v-if="artist.is_verified" #badges>
+            <UBadge color="success" variant="subtle">
+                {{ trans('dj.matching.verified') }}
+            </UBadge>
+        </template>
 
-                <template #right>
+        <RecordTable
+            v-if="tab === 'songs'"
+            :columns="songColumns"
+            :rows="songs"
+            :total="songsCount"
+            :view-all-href="songsCount > songs.length ? artist.songs_url : null"
+            :view-all-label="
+                trans('dj.canonical_artists.show.all_songs', {
+                    count: songsCount,
+                })
+            "
+            :empty-title="trans('dj.canonical_artists.show.no_songs')"
+            empty-icon="i-lucide-music"
+        >
+            <template #title-cell="{ row }">
+                <span class="flex items-center gap-2">
+                    <Link
+                        :href="row.original.url"
+                        class="text-highlighted font-medium hover:underline"
+                    >
+                        {{ row.original.title }}
+                    </Link>
+                    <UBadge
+                        v-if="row.original.is_verified"
+                        color="success"
+                        variant="subtle"
+                        size="sm"
+                    >
+                        {{ trans('dj.matching.verified') }}
+                    </UBadge>
+                </span>
+            </template>
+        </RecordTable>
+
+        <RecordTable
+            v-else-if="tab === 'library_artists'"
+            :columns="libraryArtistColumns"
+            :rows="libraryArtists"
+            :empty-title="trans('dj.canonical_artists.show.no_library_artists')"
+            empty-icon="i-lucide-library"
+        >
+            <template #tracks-cell="{ row }">
+                <div class="text-end">
                     <UButton
                         as="Link"
-                        :href="index.url()"
-                        color="neutral"
-                        variant="ghost"
-                        icon="i-lucide-arrow-left"
-                        :label="trans('dj.canonical_artists.show.back')"
+                        :href="row.original.tracks_url"
+                        variant="link"
+                        size="sm"
+                        trailing-icon="i-lucide-arrow-right"
+                        :label="trans('dj.canonical_artists.show.view_tracks')"
                     />
-                </template>
-            </UDashboardNavbar>
-        </template>
-
-        <template #body>
-            <Head :title="artist.name" />
-
-            <div class="mx-auto flex w-full max-w-4xl flex-col gap-6">
-                <div class="flex flex-wrap items-start justify-between gap-4">
-                    <h1
-                        class="text-highlighted flex items-center gap-2 text-2xl font-semibold"
-                    >
-                        {{ artist.name }}
-                        <UBadge
-                            v-if="artist.is_verified"
-                            color="success"
-                            variant="subtle"
-                        >
-                            {{ trans('dj.matching.verified') }}
-                        </UBadge>
-                    </h1>
-
-                    <div v-if="canManage" class="flex flex-wrap gap-2">
-                        <UButton
-                            size="sm"
-                            color="neutral"
-                            variant="outline"
-                            :icon="
-                                artist.is_verified
-                                    ? 'i-lucide-shield-off'
-                                    : 'i-lucide-shield-check'
-                            "
-                            :label="
-                                artist.is_verified
-                                    ? trans('dj.matching.track.unverify')
-                                    : trans('dj.matching.track.verify')
-                            "
-                            :loading="verifying"
-                            @click="setVerified(!artist.is_verified)"
-                        />
-                        <UButton
-                            size="sm"
-                            color="neutral"
-                            variant="outline"
-                            icon="i-lucide-merge"
-                            :label="trans('dj.canonical_artists.show.merge')"
-                            @click="mergeOpen = true"
-                        />
-                    </div>
                 </div>
+            </template>
+        </RecordTable>
 
-                <RequestVisibilityCard
-                    :hidden="artist.is_hidden_from_requests"
-                    :help="trans('dj.requests_visibility.artist_help')"
-                    :url="hide.url(artist.id)"
-                    :can-manage="canManage"
-                />
+        <CanonicalMergesTable v-else :merges="merges.data" />
 
-                <UPageCard
-                    v-if="canManage"
-                    :title="trans('dj.canonical_artists.show.rename')"
-                    :description="
-                        trans('dj.canonical_artists.show.rename_help')
-                    "
-                    variant="subtle"
-                >
-                    <form
-                        class="flex flex-col gap-3 sm:flex-row sm:items-start"
-                        @submit.prevent="save"
-                    >
-                        <UFormField :error="form.errors.name" class="flex-1">
-                            <UInput
-                                v-model="form.name"
-                                class="w-full"
-                                :aria-label="
-                                    trans('dj.canonical_artists.fields.name')
-                                "
-                            />
-                        </UFormField>
-                        <UButton
-                            type="submit"
-                            :loading="form.processing"
-                            :label="trans('dj.songs.show.save')"
-                        />
-                    </form>
-                </UPageCard>
+        <CanonicalMergeModal
+            v-model:open="mergeOpen"
+            record="artist"
+            :source-id="artist.id"
+            :initial-search="artist.name"
+            :title="trans('dj.canonical_artists.show.merge_title')"
+            :description="trans('dj.canonical_artists.show.merge_help')"
+            :placeholder="trans('dj.canonical_artists.show.merge_search')"
+        />
 
-                <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    <UPageCard
-                        :title="trans('dj.canonical_artists.show.songs')"
-                        variant="subtle"
-                    >
-                        <ul class="flex flex-col gap-1 text-sm">
-                            <li
-                                v-for="song in songs"
-                                :key="song.id"
-                                class="flex justify-between gap-2"
-                            >
-                                <Link
-                                    :href="song.url"
-                                    class="hover:underline"
-                                    >{{ song.title }}</Link
-                                >
-                                <span class="text-muted text-xs">
-                                    {{
-                                        trans('dj.songs.sources', {
-                                            count: song.library_tracks_count,
-                                        })
-                                    }}
-                                </span>
-                            </li>
-                        </ul>
-                        <UButton
-                            v-if="songsCount > songs.length"
-                            as="Link"
-                            :href="artist.songs_url"
-                            variant="link"
-                            class="px-0"
-                            :label="
-                                trans('dj.canonical_artists.show.all_songs', {
-                                    count: songsCount,
-                                })
-                            "
-                        />
-                    </UPageCard>
-
-                    <div class="flex flex-col gap-6">
-                        <UPageCard
-                            :title="
-                                trans(
-                                    'dj.canonical_artists.show.library_artists',
-                                )
-                            "
-                            variant="subtle"
-                        >
-                            <ul class="flex flex-col gap-1 text-sm">
-                                <li
-                                    v-for="libraryArtist in libraryArtists"
-                                    :key="libraryArtist.id"
-                                >
-                                    <Link
-                                        :href="libraryArtist.tracks_url"
-                                        class="hover:underline"
-                                    >
-                                        {{ libraryArtist.name }}
-                                    </Link>
-                                    <span class="text-muted">
-                                        · {{ libraryArtist.library }}</span
-                                    >
-                                </li>
-                            </ul>
-                        </UPageCard>
-
-                        <UPageCard
-                            :title="trans('dj.songs.show.merges')"
-                            variant="subtle"
-                        >
-                            <ul
-                                v-if="merges.data.length"
-                                class="flex flex-col gap-2 text-sm"
-                            >
-                                <li
-                                    v-for="merge in merges.data"
-                                    :key="merge.id"
-                                    class="flex flex-col"
-                                >
-                                    <span>
-                                        {{
-                                            trans(
-                                                `dj.matching.history_entry.${merge.action}`,
-                                                {
-                                                    source: merge.source_name,
-                                                    target: merge.target_name,
-                                                    count: merge.moved_count,
-                                                },
-                                            )
-                                        }}
-                                    </span>
-                                    <span class="text-muted text-xs">
-                                        {{
-                                            merge.user ??
-                                            trans('dj.matching.automatic')
-                                        }}
-                                        ·
-                                        {{
-                                            formatDateTime(
-                                                merge.created_at,
-                                                timezone,
-                                            )
-                                        }}
-                                    </span>
-                                </li>
-                            </ul>
-                            <p v-else class="text-muted text-sm">
-                                {{ trans('dj.songs.show.no_merges') }}
-                            </p>
-                        </UPageCard>
-                    </div>
-                </div>
-            </div>
-
-            <CanonicalMergeModal
-                v-model:open="mergeOpen"
-                record="artist"
-                :source-id="artist.id"
-                :initial-search="artist.name"
-                :title="trans('dj.canonical_artists.show.merge_title')"
-                :description="trans('dj.canonical_artists.show.merge_help')"
-                :placeholder="trans('dj.canonical_artists.show.merge_search')"
+        <template #sidebar>
+            <RecordFacts
+                :title="trans('common.record.details')"
+                :facts="details"
+            />
+            <RequestVisibilityCard
+                :hidden="artist.is_hidden_from_requests"
+                :help="trans('dj.requests_visibility.artist_help')"
+                :url="hide.url(artist.id)"
+                :can-manage="canManage"
             />
         </template>
-    </UDashboardPanel>
+    </RecordLayout>
 </template>
