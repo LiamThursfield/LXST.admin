@@ -14,6 +14,14 @@ export default defineConfig({
     },
     build: {
         outDir: 'public/build-tenant',
+        // The app chunk carries Nuxt UI's runtime for every page, so it sits above Vite's 500 kB default
+        chunkSizeWarningLimit: 800,
+        rollupOptions: {
+            output: {
+                // Vue and Inertia change less often than our code, so browsers keep them cached across deploys
+                manualChunks: (id) => (/[\\/]node_modules[\\/](vue|@vue|@inertiajs)[\\/]/.test(id) ? 'vendor' : undefined),
+            },
+        },
     },
     plugins: [
         laravel({
