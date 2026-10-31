@@ -153,7 +153,8 @@ return [
                     TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_MAIL => ['sortOrder' => 2],
                     TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_INTEGRATIONS => ['sortOrder' => 3],
                     TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_EMAIL_PREVIEWS => ['sortOrder' => 4],
-                    TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_API_TOKENS => ['sortOrder' => 5],
+                    TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_DJ => ['sortOrder' => 5],
+                    TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_API_TOKENS => ['sortOrder' => 6],
                 ],
             ],
             TenantMenu::MENU_MAIN_SECTION_ACCOUNT => [

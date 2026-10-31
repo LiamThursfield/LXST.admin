@@ -12,8 +12,6 @@
 
 return [
     'title' => 'Site settings',
-    'save_changes' => 'Save changes',
-    'read_only' => 'You can view these settings, but not change them.',
 
     'general' => [
         'nav' => 'General',
@@ -92,6 +90,10 @@ return [
         ],
     ],
 
+    'dj' => [
+        'nav' => 'DJ',
+    ],
+
     'email_previews' => [
         'nav' => 'Email previews',
         'title' => 'Email previews',
@@ -123,16 +125,24 @@ return [
         'driver' => 'Send email with',
         'driver_help' => 'Leave as the default to use this platform\'s own mailer.',
         'drivers' => [
-            'default' => 'The platform\'s default mailer',
+            'default' => 'Platform default',
             'smtp' => 'SMTP',
             'mailgun' => 'Mailgun',
             'ses' => 'Amazon SES',
         ],
+        'driver_descriptions' => [
+            'default' => 'No setup needed',
+            'smtp' => 'Any email provider',
+            'mailgun' => 'Domain and API key',
+            'ses' => 'Access keys and region',
+        ],
         'sender' => 'Sender',
+        'sender_help' => 'Who emails appear to come from.',
         'from_address' => 'From address',
         'from_name' => 'From name',
         'from_name_placeholder' => 'Defaults to :name',
-        'connection' => 'Connection',
+        'connection' => ':driver connection',
+        'connection_help' => 'Only the chosen mailer\'s settings are shown.',
         'smtp_host' => 'Host',
         'smtp_port' => 'Port',
         'smtp_port_help' => 'Port 465 connects over SSL. Other ports (usually 587) use STARTTLS when the server offers it.',

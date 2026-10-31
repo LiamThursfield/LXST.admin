@@ -49,6 +49,8 @@ declare module 'vue' {
     RequestVisibilityCard: typeof import('./resources/js/tenant/components/dj/RequestVisibilityCard.vue')['default']
     RichTextContentField: typeof import('./resources/js/tenant/components/cms/fields/RichTextContentField.vue')['default']
     RowActions: typeof import('./resources/js/components/RowActions.vue')['default']
+    SettingsPage: typeof import('./resources/js/components/settings/SettingsPage.vue')['default']
+    SettingsRow: typeof import('./resources/js/components/settings/SettingsRow.vue')['default']
     SubmitOnEnter: typeof import('./resources/js/components/SubmitOnEnter.vue')['default']
     TextareaContentField: typeof import('./resources/js/tenant/components/cms/fields/TextareaContentField.vue')['default']
     TextContentField: typeof import('./resources/js/tenant/components/cms/fields/TextContentField.vue')['default']

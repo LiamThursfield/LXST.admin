@@ -147,8 +147,8 @@ Route::name('dj.')->prefix('dj')->middleware(['tenant.module:dj', 'content.chang
     Route::post('gigs/{gig}/guest-passes', [GuestPassController::class, 'storeForGig'])->name('gigs.guest-passes.store');
     Route::put('guest-passes/{guestPass}', [GuestPassController::class, 'update'])->name('guest-passes.update');
     Route::delete('guest-passes/{guestPass}', [GuestPassController::class, 'destroy'])->name('guest-passes.destroy');
-    Route::get('settings', [DjSettingsController::class, 'edit'])->name('settings.edit');
-    Route::put('settings', [DjSettingsController::class, 'update'])->name('settings.update');
+    // DJ settings moved into Site settings
+    Route::permanentRedirect('settings', '/admin/site-settings/dj');
 
     Route::resource('libraries', LibraryController::class)->only(['index', 'destroy']);
     Route::patch('libraries/{library}/hidden', [LibraryController::class, 'hide'])->name('libraries.hide');
@@ -193,6 +193,12 @@ Route::name('tracker.')->prefix('tracker')->middleware('tenant.module:tracker')-
 
     Route::post('tasks/{task}/entries', [TaskEntryController::class, 'store'])->name('tasks.entries.store');
     Route::delete('entries/{entry}', [TaskEntryController::class, 'destroy'])->name('entries.destroy');
+});
+
+// DJ settings are a Site settings tab, for tenants with the DJ module
+Route::name('site-settings.dj.')->prefix('site-settings/dj')->middleware(['tenant.module:dj', 'content.changed:dj'])->group(function () {
+    Route::get('/', [DjSettingsController::class, 'edit'])->name('edit');
+    Route::put('/', [DjSettingsController::class, 'update'])->name('update');
 });
 
 // API tokens don't change the site's content, so they're outside the group below, which refreshes the API's cache

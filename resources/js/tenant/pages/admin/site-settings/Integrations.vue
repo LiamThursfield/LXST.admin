@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import * as z from 'zod';
 import { update } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/IntegrationSettingsController';
 import SiteSettingsSubLayout from '@/sublayouts/admin/SiteSettingsSubLayout.vue';
@@ -27,6 +27,11 @@ const form = useForm({
     gtm_id: props.settings.gtm_id ?? '',
 });
 
+function discard() {
+    form.reset();
+    form.clearErrors();
+}
+
 function onSubmit() {
     if (!props.canManage) return;
 
@@ -42,52 +47,40 @@ function onSubmit() {
 
 <template>
     <SiteSettingsSubLayout>
-        <Head :title="trans('site_settings.integrations.title')" />
-
-        <UForm
-            id="integration-settings"
-            :schema="schema"
-            :state="form"
-            :disabled="!canManage"
-            @submit="onSubmit"
+        <SettingsPage
+            :title="trans('site_settings.integrations.title')"
+            :description="trans('site_settings.integrations.description')"
+            :readonly="!canManage"
+            form-id="integration-settings"
+            :is-dirty="form.isDirty"
+            :processing="form.processing"
+            @discard="discard"
         >
-            <UPageCard
-                class="mb-4"
-                :title="trans('site_settings.integrations.title')"
-                :description="
-                    canManage
-                        ? trans('site_settings.integrations.description')
-                        : trans('site_settings.read_only')
-                "
-                orientation="horizontal"
-                variant="naked"
+            <UForm
+                id="integration-settings"
+                :schema="schema"
+                :state="form"
+                :disabled="!canManage"
+                @submit="onSubmit"
             >
-                <UButton
-                    v-if="canManage"
-                    class="w-fit lg:ms-auto"
-                    color="primary"
-                    form="integration-settings"
-                    type="submit"
-                    :loading="form.processing"
-                    :label="trans('site_settings.save_changes')"
-                />
-            </UPageCard>
-
-            <UPageCard variant="subtle">
-                <UFormField
-                    class="flex items-start justify-between gap-4 max-sm:flex-col"
+                <SettingsRow
                     :label="trans('site_settings.integrations.gtm_id')"
-                    :help="trans('site_settings.integrations.gtm_id_help')"
-                    name="gtm_id"
-                    :error="form.errors.gtm_id"
+                    :description="
+                        trans('site_settings.integrations.gtm_id_help')
+                    "
                 >
-                    <UInput
-                        v-model="form.gtm_id"
-                        class="w-64"
-                        placeholder="GTM-ABC1234"
-                    />
-                </UFormField>
-            </UPageCard>
-        </UForm>
+                    <UFormField name="gtm_id" :error="form.errors.gtm_id">
+                        <UInput
+                            v-model="form.gtm_id"
+                            :aria-label="
+                                trans('site_settings.integrations.gtm_id')
+                            "
+                            class="w-full sm:w-80"
+                            placeholder="GTM-ABC1234"
+                        />
+                    </UFormField>
+                </SettingsRow>
+            </UForm>
+        </SettingsPage>
     </SiteSettingsSubLayout>
 </template>

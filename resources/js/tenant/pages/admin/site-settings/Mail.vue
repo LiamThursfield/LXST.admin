@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import {
     test,
     update,
@@ -61,16 +61,13 @@ const form = useForm({
     driver: data.driver === DEFAULT_DRIVER ? null : data.driver,
 }));
 
-const driverItems = computed(() => [
-    {
-        label: trans('site_settings.mail.drivers.default'),
-        value: DEFAULT_DRIVER,
-    },
-    ...props.drivers.map((driver) => ({
+const driverItems = computed(() =>
+    [DEFAULT_DRIVER, ...props.drivers].map((driver) => ({
         label: trans(`site_settings.mail.drivers.${driver}`),
+        description: trans(`site_settings.mail.driver_descriptions.${driver}`),
         value: driver,
     })),
-]);
+);
 
 const endpointItems = computed(() =>
     props.mailgunEndpoints.map((endpoint) => ({
@@ -92,6 +89,11 @@ function secretHelp(secret: Secret): string | undefined {
         : undefined;
 }
 
+function discard() {
+    form.reset();
+    form.clearErrors();
+}
+
 function onSubmit() {
     if (!props.canManage) return;
 
@@ -111,273 +113,296 @@ const testForm = useForm({
     to: auth.value.user.email,
 });
 
+const testOpen = ref(false);
+
 function sendTest() {
-    testForm.submit(test(), { preserveScroll: true });
+    testForm.submit(test(), {
+        preserveScroll: true,
+        onSuccess: () => (testOpen.value = false),
+    });
 }
 </script>
 
 <template>
     <SiteSettingsSubLayout>
-        <Head :title="trans('site_settings.mail.title')" />
-
-        <form
-            id="mail-settings"
-            class="flex flex-col gap-4"
-            @submit.prevent="onSubmit"
+        <SettingsPage
+            :title="trans('site_settings.mail.title')"
+            :description="trans('site_settings.mail.description')"
+            :readonly="!canManage"
+            form-id="mail-settings"
+            :is-dirty="form.isDirty"
+            :processing="form.processing"
+            @discard="discard"
         >
-            <UPageCard
-                :title="trans('site_settings.mail.title')"
-                :description="
-                    canManage
-                        ? trans('site_settings.mail.description')
-                        : trans('site_settings.read_only')
-                "
-                orientation="horizontal"
-                variant="naked"
-            >
+            <template v-if="canManage" #actions>
                 <UButton
-                    v-if="canManage"
-                    class="w-fit lg:ms-auto"
-                    color="primary"
-                    form="mail-settings"
-                    type="submit"
-                    :loading="form.processing"
-                    :label="trans('site_settings.save_changes')"
+                    color="neutral"
+                    variant="outline"
+                    icon="i-lucide-send"
+                    :label="trans('site_settings.mail.test')"
+                    @click="testOpen = true"
                 />
-            </UPageCard>
-
-            <UPageCard variant="subtle">
-                <UFormField
-                    :label="trans('site_settings.mail.driver')"
-                    :help="trans('site_settings.mail.driver_help')"
-                    :error="form.errors.driver"
-                >
-                    <USelect
-                        v-model="form.driver"
-                        :items="driverItems"
-                        :disabled="!canManage"
-                        class="w-full sm:w-72"
-                    />
-                </UFormField>
-            </UPageCard>
-
-            <template v-if="form.driver !== DEFAULT_DRIVER">
-                <UPageCard
-                    variant="subtle"
-                    :title="trans('site_settings.mail.sender')"
-                >
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <UFormField
-                            :label="trans('site_settings.mail.from_address')"
-                            :error="form.errors.from_address"
-                            required
-                        >
-                            <UInput
-                                v-model="form.from_address"
-                                type="email"
-                                :disabled="!canManage"
-                                class="w-full"
-                            />
-                        </UFormField>
-
-                        <UFormField
-                            :label="trans('site_settings.mail.from_name')"
-                            :error="form.errors.from_name"
-                        >
-                            <UInput
-                                v-model="form.from_name"
-                                :disabled="!canManage"
-                                :placeholder="
-                                    defaultFrom.name
-                                        ? trans(
-                                              'site_settings.mail.from_name_placeholder',
-                                              { name: defaultFrom.name },
-                                          )
-                                        : undefined
-                                "
-                                class="w-full"
-                            />
-                        </UFormField>
-                    </div>
-                </UPageCard>
-
-                <UPageCard
-                    variant="subtle"
-                    :title="trans('site_settings.mail.connection')"
-                >
-                    <div
-                        v-if="form.driver === 'smtp'"
-                        class="grid grid-cols-1 gap-4 sm:grid-cols-2"
-                    >
-                        <UFormField
-                            :label="trans('site_settings.mail.smtp_host')"
-                            :error="form.errors.smtp_host"
-                            required
-                        >
-                            <UInput
-                                v-model="form.smtp_host"
-                                :disabled="!canManage"
-                                placeholder="smtp.example.com"
-                                class="w-full"
-                            />
-                        </UFormField>
-
-                        <UFormField
-                            :label="trans('site_settings.mail.smtp_port')"
-                            :help="trans('site_settings.mail.smtp_port_help')"
-                            :error="form.errors.smtp_port"
-                            required
-                        >
-                            <UInputNumber
-                                v-model="form.smtp_port"
-                                :disabled="!canManage"
-                                :min="1"
-                                :max="65535"
-                                :format-options="{ useGrouping: false }"
-                                class="w-full"
-                            />
-                        </UFormField>
-
-                        <UFormField
-                            :label="trans('site_settings.mail.smtp_username')"
-                            :error="form.errors.smtp_username"
-                        >
-                            <UInput
-                                v-model="form.smtp_username"
-                                :disabled="!canManage"
-                                autocomplete="off"
-                                class="w-full"
-                            />
-                        </UFormField>
-
-                        <UFormField
-                            :label="trans('site_settings.mail.smtp_password')"
-                            :help="secretHelp('smtp_password')"
-                            :error="form.errors.smtp_password"
-                        >
-                            <UInput
-                                v-model="form.smtp_password"
-                                type="password"
-                                autocomplete="new-password"
-                                :disabled="!canManage"
-                                :placeholder="
-                                    secretPlaceholder('smtp_password')
-                                "
-                                class="w-full"
-                            />
-                        </UFormField>
-                    </div>
-
-                    <div
-                        v-else-if="form.driver === 'mailgun'"
-                        class="grid grid-cols-1 gap-4 sm:grid-cols-2"
-                    >
-                        <UFormField
-                            :label="trans('site_settings.mail.mailgun_domain')"
-                            :error="form.errors.mailgun_domain"
-                            required
-                        >
-                            <UInput
-                                v-model="form.mailgun_domain"
-                                :disabled="!canManage"
-                                placeholder="mg.example.com"
-                                class="w-full"
-                            />
-                        </UFormField>
-
-                        <UFormField
-                            :label="
-                                trans('site_settings.mail.mailgun_endpoint')
-                            "
-                            :error="form.errors.mailgun_endpoint"
-                            required
-                        >
-                            <USelect
-                                v-model="form.mailgun_endpoint"
-                                :items="endpointItems"
-                                :disabled="!canManage"
-                                class="w-full"
-                            />
-                        </UFormField>
-
-                        <UFormField
-                            class="sm:col-span-2"
-                            :label="trans('site_settings.mail.mailgun_secret')"
-                            :help="secretHelp('mailgun_secret')"
-                            :error="form.errors.mailgun_secret"
-                            :required="!savedSecrets.mailgun_secret"
-                        >
-                            <UInput
-                                v-model="form.mailgun_secret"
-                                type="password"
-                                autocomplete="new-password"
-                                :disabled="!canManage"
-                                :placeholder="
-                                    secretPlaceholder('mailgun_secret')
-                                "
-                                class="w-full"
-                            />
-                        </UFormField>
-                    </div>
-
-                    <div
-                        v-else-if="form.driver === 'ses'"
-                        class="grid grid-cols-1 gap-4 sm:grid-cols-2"
-                    >
-                        <UFormField
-                            :label="trans('site_settings.mail.ses_key')"
-                            :error="form.errors.ses_key"
-                            required
-                        >
-                            <UInput
-                                v-model="form.ses_key"
-                                :disabled="!canManage"
-                                autocomplete="off"
-                                class="w-full"
-                            />
-                        </UFormField>
-
-                        <UFormField
-                            :label="trans('site_settings.mail.ses_region')"
-                            :error="form.errors.ses_region"
-                            required
-                        >
-                            <UInput
-                                v-model="form.ses_region"
-                                :disabled="!canManage"
-                                :placeholder="
-                                    trans(
-                                        'site_settings.mail.ses_region_placeholder',
-                                    )
-                                "
-                                class="w-full"
-                            />
-                        </UFormField>
-
-                        <UFormField
-                            class="sm:col-span-2"
-                            :label="trans('site_settings.mail.ses_secret')"
-                            :help="secretHelp('ses_secret')"
-                            :error="form.errors.ses_secret"
-                            :required="!savedSecrets.ses_secret"
-                        >
-                            <UInput
-                                v-model="form.ses_secret"
-                                type="password"
-                                autocomplete="new-password"
-                                :disabled="!canManage"
-                                :placeholder="secretPlaceholder('ses_secret')"
-                                class="w-full"
-                            />
-                        </UFormField>
-                    </div>
-                </UPageCard>
             </template>
-        </form>
 
-        <UPageCard
-            v-if="canManage"
-            variant="subtle"
+            <form id="mail-settings" @submit.prevent="onSubmit">
+                <SettingsRow
+                    :label="trans('site_settings.mail.driver')"
+                    :description="trans('site_settings.mail.driver_help')"
+                >
+                    <UFormField :error="form.errors.driver">
+                        <URadioGroup
+                            v-model="form.driver"
+                            :items="driverItems"
+                            :disabled="!canManage"
+                            variant="card"
+                            :aria-label="trans('site_settings.mail.driver')"
+                            :ui="{
+                                fieldset:
+                                    'grid grid-cols-1 gap-2 sm:grid-cols-2',
+                            }"
+                        />
+                    </UFormField>
+                </SettingsRow>
+
+                <template v-if="form.driver !== DEFAULT_DRIVER">
+                    <SettingsRow
+                        :label="trans('site_settings.mail.sender')"
+                        :description="trans('site_settings.mail.sender_help')"
+                    >
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <UFormField
+                                :label="
+                                    trans('site_settings.mail.from_address')
+                                "
+                                :error="form.errors.from_address"
+                                required
+                            >
+                                <UInput
+                                    v-model="form.from_address"
+                                    type="email"
+                                    :disabled="!canManage"
+                                    class="w-full"
+                                />
+                            </UFormField>
+
+                            <UFormField
+                                :label="trans('site_settings.mail.from_name')"
+                                :error="form.errors.from_name"
+                            >
+                                <UInput
+                                    v-model="form.from_name"
+                                    :disabled="!canManage"
+                                    :placeholder="
+                                        defaultFrom.name
+                                            ? trans(
+                                                  'site_settings.mail.from_name_placeholder',
+                                                  { name: defaultFrom.name },
+                                              )
+                                            : undefined
+                                    "
+                                    class="w-full"
+                                />
+                            </UFormField>
+                        </div>
+                    </SettingsRow>
+
+                    <SettingsRow
+                        :label="
+                            trans('site_settings.mail.connection', {
+                                driver: trans(
+                                    `site_settings.mail.drivers.${form.driver}`,
+                                ),
+                            })
+                        "
+                        :description="
+                            trans('site_settings.mail.connection_help')
+                        "
+                    >
+                        <div
+                            v-if="form.driver === 'smtp'"
+                            class="grid grid-cols-1 gap-4 sm:grid-cols-2"
+                        >
+                            <UFormField
+                                :label="trans('site_settings.mail.smtp_host')"
+                                :error="form.errors.smtp_host"
+                                required
+                            >
+                                <UInput
+                                    v-model="form.smtp_host"
+                                    :disabled="!canManage"
+                                    placeholder="smtp.example.com"
+                                    class="w-full"
+                                />
+                            </UFormField>
+
+                            <UFormField
+                                :label="trans('site_settings.mail.smtp_port')"
+                                :help="
+                                    trans('site_settings.mail.smtp_port_help')
+                                "
+                                :error="form.errors.smtp_port"
+                                required
+                            >
+                                <UInputNumber
+                                    v-model="form.smtp_port"
+                                    :disabled="!canManage"
+                                    :min="1"
+                                    :max="65535"
+                                    :format-options="{ useGrouping: false }"
+                                    class="w-full"
+                                />
+                            </UFormField>
+
+                            <UFormField
+                                :label="
+                                    trans('site_settings.mail.smtp_username')
+                                "
+                                :error="form.errors.smtp_username"
+                            >
+                                <UInput
+                                    v-model="form.smtp_username"
+                                    :disabled="!canManage"
+                                    autocomplete="off"
+                                    class="w-full"
+                                />
+                            </UFormField>
+
+                            <UFormField
+                                :label="
+                                    trans('site_settings.mail.smtp_password')
+                                "
+                                :help="secretHelp('smtp_password')"
+                                :error="form.errors.smtp_password"
+                            >
+                                <UInput
+                                    v-model="form.smtp_password"
+                                    type="password"
+                                    autocomplete="new-password"
+                                    :disabled="!canManage"
+                                    :placeholder="
+                                        secretPlaceholder('smtp_password')
+                                    "
+                                    class="w-full"
+                                />
+                            </UFormField>
+                        </div>
+
+                        <div
+                            v-else-if="form.driver === 'mailgun'"
+                            class="grid grid-cols-1 gap-4 sm:grid-cols-2"
+                        >
+                            <UFormField
+                                :label="
+                                    trans('site_settings.mail.mailgun_domain')
+                                "
+                                :error="form.errors.mailgun_domain"
+                                required
+                            >
+                                <UInput
+                                    v-model="form.mailgun_domain"
+                                    :disabled="!canManage"
+                                    placeholder="mg.example.com"
+                                    class="w-full"
+                                />
+                            </UFormField>
+
+                            <UFormField
+                                :label="
+                                    trans('site_settings.mail.mailgun_endpoint')
+                                "
+                                :error="form.errors.mailgun_endpoint"
+                                required
+                            >
+                                <USelect
+                                    v-model="form.mailgun_endpoint"
+                                    :items="endpointItems"
+                                    :disabled="!canManage"
+                                    class="w-full"
+                                />
+                            </UFormField>
+
+                            <UFormField
+                                class="sm:col-span-2"
+                                :label="
+                                    trans('site_settings.mail.mailgun_secret')
+                                "
+                                :help="secretHelp('mailgun_secret')"
+                                :error="form.errors.mailgun_secret"
+                                :required="!savedSecrets.mailgun_secret"
+                            >
+                                <UInput
+                                    v-model="form.mailgun_secret"
+                                    type="password"
+                                    autocomplete="new-password"
+                                    :disabled="!canManage"
+                                    :placeholder="
+                                        secretPlaceholder('mailgun_secret')
+                                    "
+                                    class="w-full"
+                                />
+                            </UFormField>
+                        </div>
+
+                        <div
+                            v-else-if="form.driver === 'ses'"
+                            class="grid grid-cols-1 gap-4 sm:grid-cols-2"
+                        >
+                            <UFormField
+                                :label="trans('site_settings.mail.ses_key')"
+                                :error="form.errors.ses_key"
+                                required
+                            >
+                                <UInput
+                                    v-model="form.ses_key"
+                                    :disabled="!canManage"
+                                    autocomplete="off"
+                                    class="w-full"
+                                />
+                            </UFormField>
+
+                            <UFormField
+                                :label="trans('site_settings.mail.ses_region')"
+                                :error="form.errors.ses_region"
+                                required
+                            >
+                                <UInput
+                                    v-model="form.ses_region"
+                                    :disabled="!canManage"
+                                    :placeholder="
+                                        trans(
+                                            'site_settings.mail.ses_region_placeholder',
+                                        )
+                                    "
+                                    class="w-full"
+                                />
+                            </UFormField>
+
+                            <UFormField
+                                class="sm:col-span-2"
+                                :label="trans('site_settings.mail.ses_secret')"
+                                :help="secretHelp('ses_secret')"
+                                :error="form.errors.ses_secret"
+                                :required="!savedSecrets.ses_secret"
+                            >
+                                <UInput
+                                    v-model="form.ses_secret"
+                                    type="password"
+                                    autocomplete="new-password"
+                                    :disabled="!canManage"
+                                    :placeholder="
+                                        secretPlaceholder('ses_secret')
+                                    "
+                                    class="w-full"
+                                />
+                            </UFormField>
+                        </div>
+                    </SettingsRow>
+                </template>
+            </form>
+        </SettingsPage>
+
+        <UModal
+            v-model:open="testOpen"
             :title="trans('site_settings.mail.test')"
             :description="
                 form.isDirty
@@ -385,28 +410,39 @@ function sendTest() {
                     : trans('site_settings.mail.test_description')
             "
         >
-            <form
-                class="flex flex-col gap-2 sm:flex-row sm:items-start"
-                @submit.prevent="sendTest"
-            >
-                <UFormField
-                    class="flex-1"
-                    :label="trans('site_settings.mail.test_to')"
-                    :error="testForm.errors.to"
-                >
-                    <UInput v-model="testForm.to" type="email" class="w-full" />
-                </UFormField>
-                <UButton
-                    type="submit"
-                    class="w-fit sm:mt-6"
-                    color="neutral"
-                    variant="subtle"
-                    icon="i-lucide-send"
-                    :disabled="form.isDirty"
-                    :loading="testForm.processing"
-                    :label="trans('site_settings.mail.test_send')"
-                />
-            </form>
-        </UPageCard>
+            <template #body>
+                <form id="mail-test" @submit.prevent="sendTest">
+                    <UFormField
+                        :label="trans('site_settings.mail.test_to')"
+                        :error="testForm.errors.to"
+                    >
+                        <UInput
+                            v-model="testForm.to"
+                            type="email"
+                            class="w-full"
+                            :disabled="form.isDirty"
+                        />
+                    </UFormField>
+                </form>
+            </template>
+            <template #footer>
+                <div class="flex w-full justify-end gap-2">
+                    <UButton
+                        color="neutral"
+                        variant="ghost"
+                        :label="trans('common.actions.cancel')"
+                        @click="testOpen = false"
+                    />
+                    <UButton
+                        type="submit"
+                        form="mail-test"
+                        icon="i-lucide-send"
+                        :disabled="form.isDirty"
+                        :loading="testForm.processing"
+                        :label="trans('site_settings.mail.test_send')"
+                    />
+                </div>
+            </template>
+        </UModal>
     </SiteSettingsSubLayout>
 </template>

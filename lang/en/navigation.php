@@ -42,6 +42,7 @@ return [
     'requests' => 'Requests',
     'annual_drop' => 'The Annual Drop',
     'dj_settings' => 'Settings',
+    'site_settings_dj' => 'DJ',
     'library' => 'Library',
     'songs' => 'Songs',
     'canonical_artists' => 'Artists',

@@ -62,6 +62,12 @@ return [
         'stay' => 'Keep editing',
     ],
 
+    'settings' => [
+        'read_only' => 'You can view these settings, but not change them.',
+        'discard' => 'Discard',
+        'save' => 'Save changes',
+    ],
+
     'footer' => [
         'built_by' => 'Built by LXST.digital • © :year',
     ],

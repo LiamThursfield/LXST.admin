@@ -22,6 +22,8 @@ declare module 'vue' {
     RecordLayout: typeof import('./resources/js/components/RecordLayout.vue')['default']
     RecordTable: typeof import('./resources/js/components/RecordTable.vue')['default']
     RowActions: typeof import('./resources/js/components/RowActions.vue')['default']
+    SettingsPage: typeof import('./resources/js/components/settings/SettingsPage.vue')['default']
+    SettingsRow: typeof import('./resources/js/components/settings/SettingsRow.vue')['default']
     SubmitOnEnter: typeof import('./resources/js/components/SubmitOnEnter.vue')['default']
     TextLink: typeof import('./resources/js/components/TextLink.vue')['default']
     UAlert: typeof import('./node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Alert.vue')['default']

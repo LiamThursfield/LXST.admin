@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
+// Imported explicitly, as the shared list components do.
+import UEmpty from '@nuxt/ui/components/Empty.vue';
 import {
     index,
     store,
@@ -34,25 +36,20 @@ const { trans } = useTrans();
 const toast = useToast();
 const timezone = userTimezone(useAuth().value.user);
 
-const searchFilter = ref({
-    search: props.filter?.search || '',
+const { filters, hasFilters, goToPage } = useListFilters({
+    url: () => index.url(),
+    initial: { search: props.filter?.search || '' },
 });
 
-const search = useDebounceFn((page: number = 1) => {
-    const filter: Record<string, string> = {};
+const pageRange = computed(() => {
+    const { current_page, per_page, total } = props.tokens.meta;
 
-    if (searchFilter.value.search.length) {
-        filter.search = searchFilter.value.search;
-    }
-
-    router.get(
-        index.url(),
-        { page, filter },
-        { preserveState: true, replace: true },
-    );
-}, 300);
-
-watch(searchFilter, () => search(), { deep: true });
+    return {
+        from: total ? (current_page - 1) * per_page + 1 : 0,
+        to: Math.min(current_page * per_page, total),
+        total,
+    };
+});
 
 const createOpen = ref(false);
 
@@ -112,98 +109,148 @@ async function copyNewToken() {
 
 <template>
     <SiteSettingsSubLayout>
-        <Head :title="trans('site_settings.api_tokens.title')" />
-
-        <UPageCard
+        <SettingsPage
             :title="trans('site_settings.api_tokens.title')"
             :description="trans('site_settings.api_tokens.description')"
-            variant="naked"
-            orientation="horizontal"
         >
-            <UButton
-                v-if="canCreate"
-                icon="i-lucide-plus"
-                :label="trans('site_settings.api_tokens.create')"
-                class="w-fit lg:ms-auto"
-                @click="openCreate"
-            />
-        </UPageCard>
+            <template v-if="canCreate" #actions>
+                <UButton
+                    icon="i-lucide-plus"
+                    :label="trans('site_settings.api_tokens.create')"
+                    @click="openCreate"
+                />
+            </template>
 
-        <div class="flex flex-col gap-4">
-            <UInput
-                v-model="searchFilter.search"
-                class="max-w-64"
-                icon="i-lucide-search"
-                :placeholder="trans('site_settings.api_tokens.search')"
-            />
+            <div class="border-default flex flex-col gap-4 border-t pt-6">
+                <UInput
+                    v-model="filters.search"
+                    class="w-full sm:w-72"
+                    icon="i-lucide-search"
+                    :placeholder="trans('site_settings.api_tokens.search')"
+                    :aria-label="trans('site_settings.api_tokens.search')"
+                />
 
-            <UTable
-                :columns="columns"
-                :data="tokens.data"
-                :empty="trans('site_settings.api_tokens.empty')"
-            >
-                <template #name-cell="{ row }">
-                    <div class="flex flex-col items-start gap-1">
-                        <span class="text-highlighted font-medium">
-                            {{ row.original.name }}
-                        </span>
-                        <div class="flex flex-wrap gap-1">
+                <UCard variant="outline" :ui="{ body: 'p-0 sm:p-0' }">
+                    <UEmpty
+                        v-if="!tokens.data.length"
+                        :icon="
+                            hasFilters
+                                ? 'i-lucide-search-x'
+                                : 'i-lucide-key-round'
+                        "
+                        :title="
+                            hasFilters
+                                ? trans('common.list.no_matches')
+                                : trans('site_settings.api_tokens.empty')
+                        "
+                        :description="
+                            hasFilters
+                                ? trans('common.list.no_matches_description')
+                                : undefined
+                        "
+                        variant="naked"
+                        class="py-12"
+                    />
+
+                    <UTable
+                        v-else
+                        :columns="columns"
+                        :data="tokens.data"
+                        class="w-full"
+                    >
+                        <template #name-cell="{ row }">
+                            <div class="flex flex-col items-start gap-1">
+                                <span class="text-highlighted font-medium">
+                                    {{ row.original.name }}
+                                </span>
+                                <div class="flex flex-wrap gap-1">
+                                    <UBadge
+                                        v-for="ability in row.original
+                                            .abilities"
+                                        :key="ability.value"
+                                        color="neutral"
+                                        variant="subtle"
+                                    >
+                                        {{ ability.label }}
+                                    </UBadge>
+                                </div>
+                            </div>
+                        </template>
+
+                        <template #last_used_at-cell="{ row }">
+                            {{
+                                row.original.last_used_at
+                                    ? formatDateTime(
+                                          row.original.last_used_at,
+                                          timezone,
+                                      )
+                                    : trans('site_settings.api_tokens.never')
+                            }}
+                        </template>
+
+                        <template #expires_at-cell="{ row }">
                             <UBadge
-                                v-for="ability in row.original.abilities"
-                                :key="ability.value"
-                                color="neutral"
+                                v-if="row.original.is_expired"
+                                color="error"
                                 variant="subtle"
                             >
-                                {{ ability.label }}
+                                {{ trans('site_settings.api_tokens.expired') }}
                             </UBadge>
-                        </div>
-                    </div>
-                </template>
+                            <template v-else-if="row.original.expires_at">
+                                {{
+                                    formatDateTime(
+                                        row.original.expires_at,
+                                        timezone,
+                                    )
+                                }}
+                            </template>
+                            <span v-else class="text-muted">
+                                {{
+                                    trans('site_settings.api_tokens.no_expiry')
+                                }}
+                            </span>
+                        </template>
 
-                <template #last_used_at-cell="{ row }">
-                    {{
-                        row.original.last_used_at
-                            ? formatDateTime(
-                                  row.original.last_used_at,
-                                  timezone,
-                              )
-                            : trans('site_settings.api_tokens.never')
-                    }}
-                </template>
+                        <template #actions-cell="{ row }">
+                            <RowActions
+                                v-if="row.original.actions"
+                                :actions="row.original.actions"
+                            />
+                        </template>
+                    </UTable>
+                </UCard>
 
-                <template #expires_at-cell="{ row }">
-                    <UBadge
-                        v-if="row.original.is_expired"
-                        color="error"
-                        variant="subtle"
-                    >
-                        {{ trans('site_settings.api_tokens.expired') }}
-                    </UBadge>
-                    <template v-else-if="row.original.expires_at">
-                        {{ formatDateTime(row.original.expires_at, timezone) }}
-                    </template>
-                    <span v-else class="text-muted">
-                        {{ trans('site_settings.api_tokens.no_expiry') }}
+                <div
+                    v-if="tokens.meta.last_page > 1"
+                    class="flex flex-wrap items-center justify-between gap-2 text-sm"
+                >
+                    <span class="text-muted">
+                        {{ trans('common.list.showing', pageRange) }}
                     </span>
-                </template>
-
-                <template #actions-cell="{ row }">
-                    <RowActions
-                        v-if="row.original.actions"
-                        :actions="row.original.actions"
-                    />
-                </template>
-            </UTable>
-
-            <div v-if="tokens.meta.last_page > 1" class="flex justify-end">
-                <UPagination
-                    :items-per-page="tokens.meta.per_page"
-                    :page="tokens.meta.current_page"
-                    :total="tokens.meta.total"
-                    @update:page="(page: any) => search(page)"
-                />
+                    <div class="flex gap-2">
+                        <UButton
+                            color="neutral"
+                            variant="outline"
+                            icon="i-lucide-chevron-left"
+                            :disabled="tokens.meta.current_page <= 1"
+                            :label="trans('common.list.previous')"
+                            @click="goToPage(tokens.meta.current_page - 1)"
+                        />
+                        <UButton
+                            color="neutral"
+                            variant="outline"
+                            trailing-icon="i-lucide-chevron-right"
+                            :disabled="
+                                tokens.meta.current_page >=
+                                tokens.meta.last_page
+                            "
+                            :label="trans('common.list.next')"
+                            @click="goToPage(tokens.meta.current_page + 1)"
+                        />
+                    </div>
+                </div>
             </div>
-        </div>
+        </SettingsPage>
 
         <UModal
             v-model:open="createOpen"

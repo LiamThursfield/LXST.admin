@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import colors from 'tailwindcss/colors';
 import { update } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/ThemeSettingsController';
 import SiteSettingsSubLayout from '@/sublayouts/admin/SiteSettingsSubLayout.vue';
@@ -73,6 +73,11 @@ function resetSiteColors() {
     form.site_colors = { ...props.defaultSiteColors };
 }
 
+function discard() {
+    form.reset();
+    form.clearErrors();
+}
+
 function onSubmit() {
     if (!props.canManage) return;
 
@@ -93,185 +98,163 @@ function onSubmit() {
 
 <template>
     <SiteSettingsSubLayout>
-        <Head :title="trans('site_settings.theme.title')" />
-
-        <form
-            id="theme-settings"
-            class="flex flex-col gap-4"
-            @submit.prevent="onSubmit"
+        <SettingsPage
+            :title="trans('site_settings.theme.title')"
+            :description="trans('site_settings.theme.description')"
+            :readonly="!canManage"
+            form-id="theme-settings"
+            :is-dirty="form.isDirty"
+            :processing="form.processing"
+            @discard="discard"
         >
-            <UPageCard
-                :title="trans('site_settings.theme.title')"
-                :description="
-                    canManage
-                        ? trans('site_settings.theme.description')
-                        : trans('site_settings.read_only')
-                "
-                orientation="horizontal"
-                variant="naked"
-            >
-                <UButton
-                    v-if="canManage"
-                    class="w-fit lg:ms-auto"
-                    color="primary"
-                    form="theme-settings"
-                    type="submit"
-                    :loading="form.processing"
-                    :label="trans('site_settings.save_changes')"
-                />
-            </UPageCard>
-
-            <UPageCard
-                variant="subtle"
-                :title="trans('site_settings.theme.branding')"
-            >
-                <UFormField
+            <form id="theme-settings" @submit.prevent="onSubmit">
+                <SettingsRow
                     :label="trans('site_settings.theme.logo')"
-                    :help="trans('site_settings.theme.logo_help')"
-                    :error="form.errors.logo_file_id"
+                    :description="trans('site_settings.theme.logo_help')"
                 >
-                    <FileField
-                        v-model="form.logo_file_id"
-                        images-only
-                        :disabled="!canManage"
-                    />
-                </UFormField>
+                    <UFormField :error="form.errors.logo_file_id">
+                        <FileField
+                            v-model="form.logo_file_id"
+                            images-only
+                            :disabled="!canManage"
+                        />
+                    </UFormField>
+                </SettingsRow>
 
-                <UFormField
+                <SettingsRow
                     :label="trans('site_settings.theme.favicon')"
-                    :help="trans('site_settings.theme.favicon_help')"
-                    :error="form.errors.favicon_file_id"
+                    :description="trans('site_settings.theme.favicon_help')"
                 >
-                    <FileField
-                        v-model="form.favicon_file_id"
-                        images-only
-                        :disabled="!canManage"
+                    <UFormField :error="form.errors.favicon_file_id">
+                        <FileField
+                            v-model="form.favicon_file_id"
+                            images-only
+                            :disabled="!canManage"
+                        />
+                    </UFormField>
+                </SettingsRow>
+
+                <SettingsRow
+                    :label="trans('site_settings.theme.admin_colors')"
+                    :description="
+                        trans('site_settings.theme.admin_colors_description')
+                    "
+                >
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <UFormField
+                            :label="trans('site_settings.theme.primary_color')"
+                            :error="form.errors.primary_color"
+                            required
+                        >
+                            <USelect
+                                v-model="form.primary_color"
+                                :items="primaryItems"
+                                :disabled="!canManage"
+                                class="w-full"
+                            >
+                                <template #leading>
+                                    <span
+                                        class="size-3 rounded-full"
+                                        :style="{
+                                            backgroundColor: swatch(
+                                                form.primary_color,
+                                            ),
+                                        }"
+                                    />
+                                </template>
+                                <template #item-leading="{ item }">
+                                    <span
+                                        class="size-3 rounded-full"
+                                        :style="{
+                                            backgroundColor: swatch(item.value),
+                                        }"
+                                    />
+                                </template>
+                            </USelect>
+                        </UFormField>
+
+                        <UFormField
+                            :label="trans('site_settings.theme.neutral_color')"
+                            :error="form.errors.neutral_color"
+                            required
+                        >
+                            <USelect
+                                v-model="form.neutral_color"
+                                :items="neutralItems"
+                                :disabled="!canManage"
+                                class="w-full"
+                            >
+                                <template #leading>
+                                    <span
+                                        class="size-3 rounded-full"
+                                        :style="{
+                                            backgroundColor: swatch(
+                                                form.neutral_color,
+                                            ),
+                                        }"
+                                    />
+                                </template>
+                                <template #item-leading="{ item }">
+                                    <span
+                                        class="size-3 rounded-full"
+                                        :style="{
+                                            backgroundColor: swatch(item.value),
+                                        }"
+                                    />
+                                </template>
+                            </USelect>
+                        </UFormField>
+                    </div>
+                </SettingsRow>
+
+                <SettingsRow
+                    :label="trans('site_settings.theme.site_colors')"
+                    :description="
+                        trans('site_settings.theme.site_colors_description')
+                    "
+                >
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <UFormField
+                            v-for="(_, key) in defaultSiteColors"
+                            :key="key"
+                            :label="
+                                trans(
+                                    `site_settings.theme.site_color_labels.${key}`,
+                                )
+                            "
+                            :error="errors[`site_colors.${key}`]"
+                        >
+                            <UInput
+                                v-model="form.site_colors[key]"
+                                :disabled="!canManage"
+                                :placeholder="defaultSiteColors[key]"
+                                class="w-full font-mono"
+                            >
+                                <template #leading>
+                                    <span
+                                        class="border-default size-4 rounded border"
+                                        :style="{
+                                            backgroundColor: validHex(
+                                                form.site_colors[key],
+                                            ),
+                                        }"
+                                    />
+                                </template>
+                            </UInput>
+                        </UFormField>
+                    </div>
+
+                    <UButton
+                        v-if="canManage"
+                        class="w-fit"
+                        color="neutral"
+                        variant="subtle"
+                        icon="i-lucide-rotate-ccw"
+                        :label="trans('site_settings.theme.reset_site_colors')"
+                        @click="resetSiteColors"
                     />
-                </UFormField>
-            </UPageCard>
-
-            <UPageCard
-                variant="subtle"
-                :title="trans('site_settings.theme.admin_colors')"
-                :description="
-                    trans('site_settings.theme.admin_colors_description')
-                "
-            >
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <UFormField
-                        :label="trans('site_settings.theme.primary_color')"
-                        :error="form.errors.primary_color"
-                        required
-                    >
-                        <USelect
-                            v-model="form.primary_color"
-                            :items="primaryItems"
-                            :disabled="!canManage"
-                            class="w-full"
-                        >
-                            <template #leading>
-                                <span
-                                    class="size-3 rounded-full"
-                                    :style="{
-                                        backgroundColor: swatch(
-                                            form.primary_color,
-                                        ),
-                                    }"
-                                />
-                            </template>
-                            <template #item-leading="{ item }">
-                                <span
-                                    class="size-3 rounded-full"
-                                    :style="{
-                                        backgroundColor: swatch(item.value),
-                                    }"
-                                />
-                            </template>
-                        </USelect>
-                    </UFormField>
-
-                    <UFormField
-                        :label="trans('site_settings.theme.neutral_color')"
-                        :error="form.errors.neutral_color"
-                        required
-                    >
-                        <USelect
-                            v-model="form.neutral_color"
-                            :items="neutralItems"
-                            :disabled="!canManage"
-                            class="w-full"
-                        >
-                            <template #leading>
-                                <span
-                                    class="size-3 rounded-full"
-                                    :style="{
-                                        backgroundColor: swatch(
-                                            form.neutral_color,
-                                        ),
-                                    }"
-                                />
-                            </template>
-                            <template #item-leading="{ item }">
-                                <span
-                                    class="size-3 rounded-full"
-                                    :style="{
-                                        backgroundColor: swatch(item.value),
-                                    }"
-                                />
-                            </template>
-                        </USelect>
-                    </UFormField>
-                </div>
-            </UPageCard>
-
-            <UPageCard
-                variant="subtle"
-                :title="trans('site_settings.theme.site_colors')"
-                :description="
-                    trans('site_settings.theme.site_colors_description')
-                "
-            >
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <UFormField
-                        v-for="(_, key) in defaultSiteColors"
-                        :key="key"
-                        :label="
-                            trans(
-                                `site_settings.theme.site_color_labels.${key}`,
-                            )
-                        "
-                        :error="errors[`site_colors.${key}`]"
-                    >
-                        <UInput
-                            v-model="form.site_colors[key]"
-                            :disabled="!canManage"
-                            :placeholder="defaultSiteColors[key]"
-                            class="w-full font-mono"
-                        >
-                            <template #leading>
-                                <span
-                                    class="border-default size-4 rounded border"
-                                    :style="{
-                                        backgroundColor: validHex(
-                                            form.site_colors[key],
-                                        ),
-                                    }"
-                                />
-                            </template>
-                        </UInput>
-                    </UFormField>
-                </div>
-
-                <UButton
-                    v-if="canManage"
-                    class="w-fit"
-                    color="neutral"
-                    variant="subtle"
-                    icon="i-lucide-rotate-ccw"
-                    :label="trans('site_settings.theme.reset_site_colors')"
-                    @click="resetSiteColors"
-                />
-            </UPageCard>
-        </form>
+                </SettingsRow>
+            </form>
+        </SettingsPage>
     </SiteSettingsSubLayout>
 </template>

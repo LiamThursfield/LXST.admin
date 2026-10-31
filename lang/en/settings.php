@@ -12,14 +12,14 @@
 return [
     'title' => 'Settings',
     'success' => 'Success',
-    'save_changes' => 'Save changes',
 
     'profile' => [
         'nav' => 'Profile',
-        'head' => 'Profile settings',
         'title' => 'Profile',
         'description' => 'This information will be displayed publicly.',
         'updated' => 'Your profile has been updated.',
+        'name' => 'Name',
+        'name_description' => 'How you appear in the admin.',
         'first_name' => 'First Name',
         'last_name' => 'Last Name',
         'email' => 'Email',
@@ -38,14 +38,15 @@ return [
 
     'security' => [
         'nav' => 'Security',
-        'head' => 'Security settings',
+        'title' => 'Security',
+        'description' => 'Your password and account.',
         'password_title' => 'Password',
         'password_description' => 'Confirm your current password before setting a new one.',
         'password_updated' => 'Your password has been updated.',
         'current_password' => 'Current password',
         'new_password' => 'New password',
         'confirm_password' => 'Confirm password',
-        'update' => 'Update',
+        'update' => 'Update password',
         'account_title' => 'Account',
         'account_description' => 'No longer want to use our service? You can delete your account here. This action is not reversible. All information related to this account will be deleted permanently.',
     ],
