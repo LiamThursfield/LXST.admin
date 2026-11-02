@@ -15,6 +15,7 @@ use App\Http\Requests\Tenant\Admin\Cms\TemplateUpdateRequest;
 use App\Http\Resources\Tenant\Admin\Cms\TemplateResource;
 use App\Models\Cms\Template;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
@@ -51,11 +52,17 @@ class TemplateController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
         Gate::authorize('create', Template::class);
 
-        return Inertia::render('admin/cms/template/Create', $this->builderOptions());
+        $type = $request->query('type');
+
+        return Inertia::render('admin/cms/template/Create', [
+            ...$this->builderOptions(),
+            // A link can start the new template as a type, e.g. from a field that needs a component
+            'initialType' => is_string($type) ? TemplateType::tryFrom($type)?->value : null,
+        ]);
     }
 
     public function store(TemplateStoreRequest $request): RedirectResponse
@@ -145,8 +152,13 @@ class TemplateController extends Controller
             'nestedTemplates' => Template::query()
                 ->whereIn('type', [TemplateType::Component, TemplateType::Repeater])
                 ->orderBy('name')
-                ->get(['id', 'type', 'name'])
-                ->map(fn (Template $template) => ['id' => $template->id, 'type' => $template->type->value, 'name' => $template->name]),
+                ->get(['id', 'type', 'name', 'description'])
+                ->map(fn (Template $template) => [
+                    'id' => $template->id,
+                    'type' => $template->type->value,
+                    'name' => $template->name,
+                    'description' => $template->description,
+                ]),
             'fieldTypes' => collect(TemplateFieldType::cases())->map(fn (TemplateFieldType $type) => [
                 'value' => $type->value,
                 'label' => $type->label(),

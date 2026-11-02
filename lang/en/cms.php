@@ -403,7 +403,8 @@ return [
             'max' => 'Maximum',
             'template_id' => 'Template',
             'template_id_placeholder' => 'Choose a template',
-            'no_nested_templates' => 'Create a :type template first.',
+            'no_nested_templates' => 'You need a :type template first.',
+            'no_nested_templates_action' => 'Create one',
             'organisation_unit_type' => 'Only units of type',
             'organisation_unit_type_placeholder' => 'Any type',
             'min_items' => 'Fewest rows',
@@ -432,6 +433,7 @@ return [
                 'text' => 'Text',
                 'media' => 'Media & links',
                 'structure' => 'Structure',
+                'components' => 'Your components',
                 'crm' => 'CRM',
             ],
             'type_descriptions' => [

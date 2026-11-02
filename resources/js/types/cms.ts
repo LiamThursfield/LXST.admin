@@ -38,6 +38,7 @@ export type NestedTemplateOption = {
     id: number;
     type: TemplateType;
     name: string;
+    description: string | null;
 };
 
 /** A field type the template builder can offer (see `TemplateController::builderOptions()`). */

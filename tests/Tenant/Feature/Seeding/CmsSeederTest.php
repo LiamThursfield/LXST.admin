@@ -59,6 +59,18 @@ test('the CMS seeder lays the call to action component out in sections too, for 
         ->and($fields['button_label']->settings?->max_length)->toBe(40);
 });
 
+test('the CMS seeder makes client-style components, used and filled in on a pricing page', function () {
+    $template = Template::query()->where('slug', 'pricing-page')->sole();
+    $fields = $template->fields->keyBy('slug');
+    $content = Page::query()->where('slug', 'pricing')->sole()->contentValues();
+
+    expect($fields['hero']->settings?->template_id)->toBe(Template::query()->where('slug', 'hero-section')->value('id'))
+        ->and($fields['price_card']->settings?->template_id)->toBe(Template::query()->where('slug', 'price-card')->value('id'))
+        ->and($content['hero']['background_image']['file_id'])->not->toBeNull()
+        ->and($content['hero']['heading'])->toBe('Simple, honest pricing')
+        ->and($content['price_card']['items'])->toHaveCount(3);
+});
+
 test('the CMS seeder makes pages in every publish status, nested, with their content', function () {
     foreach (PublishStatus::cases() as $status) {
         expect(Url::query()->withStatus($status)->exists())->toBeTrue("No {$status->value} page");

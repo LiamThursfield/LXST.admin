@@ -53,9 +53,10 @@ class CmsSeeder extends Seeder
     }
 
     /**
-     * A layout template, a component, a repeater, and two page templates using every field type
+     * A layout template, components and repeaters, and page templates using every field type,
+     * including one built from client-style components (a hero section and a price card)
      *
-     * @return array{layout: Template, cta: Template, feature: Template, standard: Template, landing: Template}
+     * @return array{layout: Template, cta: Template, feature: Template, standard: Template, landing: Template, pricing: Template}
      */
     protected function seedTemplates(): array
     {
@@ -109,7 +110,29 @@ class CmsSeeder extends Seeder
             ...($crm ? [['office', TemplateFieldType::CrmOrganisationUnit, 'Office', false, ['organisation_unit_type' => OrganisationUnitType::Location->value]]] : []),
         ]);
 
-        return compact('layout', 'cta', 'feature', 'standard', 'landing');
+        $heroSection = $template('hero-section', TemplateType::Component, 'Hero Section', 'A background image with a heading, a subheading and a short intro.', [
+            ['background_image', TemplateFieldType::Image, 'Background image', false],
+            ['heading', TemplateFieldType::Text, 'Heading', true, ['max_length' => 80]],
+            ['subheading', TemplateFieldType::Text, 'Subheading', false],
+            ['intro', TemplateFieldType::Textarea, 'Intro', false, ['rows' => 3]],
+        ]);
+
+        $priceItem = $template('price-item', TemplateType::Repeater, 'Price item', 'One line on a price card.', [
+            ['name', TemplateFieldType::Text, 'Name', true],
+            ['price', TemplateFieldType::Text, 'Price', true, ['max_length' => 40]],
+        ]);
+
+        $priceCard = $template('price-card', TemplateType::Component, 'Price Card', 'A title and a list of items with their prices.', [
+            ['title', TemplateFieldType::Text, 'Title', true],
+            ['items', TemplateFieldType::Repeater, 'Items', false, ['template_id' => $priceItem->id, 'max_items' => 20]],
+        ]);
+
+        $pricing = $template('pricing-page', TemplateType::Page, 'Pricing page', 'A hero section and a price card.', [
+            ['hero', TemplateFieldType::Component, 'Hero', true, ['template_id' => $heroSection->id]],
+            ['price_card', TemplateFieldType::Component, 'Price card', false, ['template_id' => $priceCard->id]],
+        ]);
+
+        return compact('layout', 'cta', 'feature', 'standard', 'landing', 'pricing');
     }
 
     /**
@@ -156,7 +179,7 @@ class CmsSeeder extends Seeder
     /**
      * Pages in every publish status, nested two deep, with content for each template field
      *
-     * @param  array{layout: Template, cta: Template, feature: Template, standard: Template, landing: Template}  $templates
+     * @param  array{layout: Template, cta: Template, feature: Template, standard: Template, landing: Template, pricing: Template}  $templates
      * @param  array{default: Layout, minimal: Layout}  $layouts
      * @return array<string, Page>
      */
@@ -233,6 +256,22 @@ class CmsSeeder extends Seeder
             ['Every booking includes a planning call, a custom playlist and a song request page for your guests.'],
             ['features' => $features(), 'call_to_action' => $cta],
         ));
+        $pricing = $page('pricing', 'pricing', 'Pricing', $templates['pricing'], $layouts['default'], [
+            'hero' => [
+                'background_image' => $featureImage('images/gigs/wedding-barn.jpg', 'A barn wedding reception'),
+                'heading' => 'Simple, honest pricing',
+                'subheading' => 'No hidden extras',
+                'intro' => 'Every booking includes a planning call and a song request page for your guests.',
+            ],
+            'price_card' => [
+                'title' => 'Weddings',
+                'items' => [
+                    ['name' => 'Evening reception', 'price' => '£450'],
+                    ['name' => 'Ceremony and evening', 'price' => '£650'],
+                    ['name' => 'Uplighting', 'price' => 'From £120'],
+                ],
+            ],
+        ]);
         $contact = $page('contact', 'contact', 'Contact', $templates['standard'], $layouts['minimal'], $standard(
             'Get in touch',
             ['Send us a message and we\'ll reply within a day.'],
@@ -254,7 +293,7 @@ class CmsSeeder extends Seeder
             'years_running' => 10,
         ], ['published_at' => $now->subMonths(3), 'expired_at' => $now->subWeek()]);
 
-        return compact('home', 'about', 'team', 'history', 'services', 'contact', 'privacy', 'terms', 'summer', 'draft', 'offer');
+        return compact('home', 'about', 'team', 'history', 'services', 'pricing', 'contact', 'privacy', 'terms', 'summer', 'draft', 'offer');
     }
 
     /**
@@ -282,6 +321,7 @@ class CmsSeeder extends Seeder
                     $link('Our history', $pages['history'] ?? null),
                 ]),
                 $link('Services', $pages['services'] ?? null),
+                $link('Pricing', $pages['pricing'] ?? null),
                 $link('Contact', $pages['contact'] ?? null),
             ]]);
         }
@@ -337,9 +377,9 @@ class CmsSeeder extends Seeder
             return;
         }
 
-        $published = collect($pages)->only(['home', 'about', 'team', 'history', 'services', 'contact', 'privacy', 'terms'])->filter();
+        $published = collect($pages)->only(['home', 'about', 'team', 'history', 'services', 'pricing', 'contact', 'privacy', 'terms'])->filter();
         // How popular each page is, relative to the home page
-        $weights = ['home' => 10, 'services' => 6, 'contact' => 4, 'about' => 3, 'team' => 2, 'history' => 1, 'privacy' => 1, 'terms' => 1];
+        $weights = ['home' => 10, 'services' => 6, 'pricing' => 5, 'contact' => 4, 'about' => 3, 'team' => 2, 'history' => 1, 'privacy' => 1, 'terms' => 1];
         $visitors = collect(range(1, 80))->map(fn () => hash('sha256', fake()->uuid()))->all();
         $sources = [
             [null, null],

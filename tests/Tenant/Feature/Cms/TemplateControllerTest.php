@@ -74,6 +74,33 @@ describe('managing', function () {
             );
     });
 
+    test('the builder gets component and repeater templates with their descriptions, to offer by name', function () {
+        Template::factory()->ofType(TemplateType::Component)->create(['name' => 'Price Card', 'description' => 'A title and its prices.']);
+        Template::factory()->ofType(TemplateType::Repeater)->create(['name' => 'Slide', 'description' => null]);
+        Template::factory()->create(['name' => 'Home']);
+
+        $this->get(route('admin.cms.templates.create'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('nestedTemplates', 2)
+                ->where('nestedTemplates.0.name', 'Price Card')
+                ->where('nestedTemplates.0.type', 'component')
+                ->where('nestedTemplates.0.description', 'A title and its prices.')
+                ->where('nestedTemplates.1.name', 'Slide')
+                ->where('nestedTemplates.1.description', null)
+            );
+    });
+
+    test('a new template can start as a type from the link, and ignores an unknown one', function (array $query, ?string $expected) {
+        $this->get(route('admin.cms.templates.create', $query))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->where('initialType', $expected));
+    })->with([
+        'a known type' => [['type' => 'component'], 'component'],
+        'no type' => [[], null],
+        'an unknown type' => [['type' => 'nonsense'], null],
+        'not a string' => [['type' => ['component']], null],
+    ]);
+
     test('a template is created with its fields in order, slugs made from names, and only each type\'s settings', function () {
         $this->post(route('admin.cms.templates.store'), templateData([
             'fields' => [

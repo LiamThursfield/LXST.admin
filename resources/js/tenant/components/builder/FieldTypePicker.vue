@@ -7,6 +7,10 @@ export type PickerFieldType = {
     icon: string;
     /** Listed but can't be chosen, e.g. a type whose content editor doesn't exist yet. */
     disabled?: boolean;
+    /** Tells apart entries that share a type, e.g. each component template. Defaults to the value. */
+    key?: string;
+    /** The template this entry adds a field for, when it's a named component. */
+    templateId?: number;
 };
 
 /** A heading in the picker and the types under it. */
@@ -24,7 +28,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-    select: [type: string];
+    select: [type: string, option: PickerFieldType];
 }>();
 
 const open = defineModel<boolean>('open', { required: true });
@@ -61,7 +65,7 @@ function choose(type: PickerFieldType) {
         return;
     }
 
-    emit('select', type.value);
+    emit('select', type.value, type);
     open.value = false;
 }
 </script>
@@ -104,7 +108,7 @@ function choose(type: PickerFieldType) {
                     <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                         <button
                             v-for="type in group.types"
-                            :key="type.value"
+                            :key="type.key ?? type.value"
                             type="button"
                             class="border-default hover:bg-elevated focus-visible:outline-primary flex items-start gap-3 rounded-md border p-3 text-left focus-visible:outline-2 disabled:cursor-not-allowed disabled:opacity-60"
                             :disabled="type.disabled"
