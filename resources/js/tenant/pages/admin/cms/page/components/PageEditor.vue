@@ -267,6 +267,7 @@ function onSubmit() {
                 :errors="errors"
                 :readonly="readonly"
                 sectioned
+                :title="form.name"
             />
             <UPageCard
                 v-else

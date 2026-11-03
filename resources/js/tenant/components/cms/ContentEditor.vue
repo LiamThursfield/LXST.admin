@@ -5,6 +5,13 @@ import type {
     TemplateFieldData,
     TemplateSectionData,
 } from '@/types';
+import {
+    fillNestedValues,
+    panelLevelsForError,
+    provideContentPanel,
+    useContentPanel,
+} from './contentPanel';
+import ContentPanel from './ContentPanel.vue';
 import ContentSection from './ContentSection.vue';
 import {
     provideContentState,
@@ -36,6 +43,9 @@ import { nestedTemplatesKey } from './nestedTemplates';
  * which cards and repeater rows are open, and after a failed save opens the ones with errors and
  * scrolls to the first. Nested editors show sections as headed groups.
  *
+ * It also keeps the side panel for content nested too deeply to draw inline, which opens on the
+ * first error inside it after a failed save.
+ *
  * Half-width fields sit side by side when the editor is wide enough.
  */
 const props = withDefaults(
@@ -49,8 +59,11 @@ const props = withDefaults(
         errors?: Record<string, string | undefined>;
         readonly?: boolean;
         sectioned?: boolean;
+        /** What's being edited, e.g. the page's name, for the side panel's breadcrumb. */
+        title?: string;
     }>(),
     {
+        title: undefined,
         sections: () => [],
         prefix: 'content',
         stateKey: undefined,
@@ -66,7 +79,18 @@ const { trans, transChoice } = useTrans();
 
 const state = props.sectioned ? provideContentState() : useContentState();
 
+const panel = props.sectioned ? provideContentPanel() : useContentPanel();
+
 const nestedTemplates = inject(nestedTemplatesKey, ref([]));
+
+if (props.sectioned) {
+    watch(
+        () => props.fields,
+        (fields) =>
+            fillNestedValues(fields, values.value, nestedTemplates.value),
+        { immediate: true },
+    );
+}
 
 const baseStateKey = computed(() => props.stateKey ?? props.prefix);
 
@@ -99,8 +123,11 @@ function nestedProps(field: TemplateFieldData) {
         prefix: `${props.prefix}.${field.slug}`,
         stateKey: `${baseStateKey.value}.${field.slug}`,
         errors: props.errors,
+        parentValues: values.value,
         // A component in a card of its own doesn't need a border as well
-        ...(field.type === 'component' ? { framed: !props.sectioned } : {}),
+        ...(field.type === 'component'
+            ? { framed: !props.sectioned, isTopLevel: props.sectioned }
+            : {}),
     };
 }
 
@@ -348,15 +375,27 @@ const root = useTemplateRef<HTMLElement>('root');
 watch(
     () => props.errors,
     async (errors) => {
-        const hasContentErrors = Object.entries(errors).some(
+        const firstError = Object.entries(errors).find(
             ([key, message]) => message && key.startsWith(`${props.prefix}.`),
-        );
+        )?.[0];
 
-        if (!props.sectioned || !hasContentErrors) {
+        if (!props.sectioned || !firstError) {
             return;
         }
 
         revealErrors(state);
+
+        if (panel) {
+            panel.levels.value = panelLevelsForError(
+                firstError,
+                props.fields,
+                values.value,
+                props.prefix,
+                baseStateKey.value,
+                nestedTemplates.value,
+            );
+        }
+
         await nextTick();
 
         const marked = [
@@ -450,5 +489,12 @@ watch(
                 </div>
             </div>
         </component>
+
+        <ContentPanel
+            v-if="sectioned"
+            :title="title"
+            :errors="errors"
+            :readonly="readonly"
+        />
     </div>
 </template>

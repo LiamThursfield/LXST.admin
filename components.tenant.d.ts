@@ -20,6 +20,7 @@ declare module 'vue' {
     CollapsibleCard: typeof import('./resources/js/components/CollapsibleCard.vue')['default']
     ComponentContentField: typeof import('./resources/js/tenant/components/cms/fields/ComponentContentField.vue')['default']
     ContentEditor: typeof import('./resources/js/tenant/components/cms/ContentEditor.vue')['default']
+    ContentPanel: typeof import('./resources/js/tenant/components/cms/ContentPanel.vue')['default']
     ContentSection: typeof import('./resources/js/tenant/components/cms/ContentSection.vue')['default']
     CrmFormContentField: typeof import('./resources/js/tenant/components/cms/fields/CrmFormContentField.vue')['default']
     CrmOrganisationUnitContentField: typeof import('./resources/js/tenant/components/cms/fields/CrmOrganisationUnitContentField.vue')['default']

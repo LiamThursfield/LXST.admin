@@ -331,6 +331,16 @@ return [
             'drag' => 'Drag to reorder',
             'remaining' => '{0} No more allowed|{1} 1 more allowed|[2,*] :count more allowed',
         ],
+        'panel' => [
+            'breadcrumb' => 'Where this item is',
+            'back' => 'Back',
+            'back_to' => 'Back to :name',
+            'previous' => 'Previous item',
+            'next' => 'Next item',
+            'close' => 'Close',
+            'remove' => 'Remove item',
+            'done' => 'Done',
+        ],
         'image' => [
             'alt' => 'Alt text',
             'alt_help' => 'Describes the image for screen readers and search engines. Leave empty if it\'s only decorative.',

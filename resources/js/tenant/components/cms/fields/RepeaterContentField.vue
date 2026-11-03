@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import { VueDraggable } from 'vue-draggable-plus';
 import type { ContentValues, TemplateFieldData } from '@/types';
+import {
+    opensInPanel,
+    rowLevel,
+    useContentPanel,
+    useInsideContentPanel,
+} from '../contentPanel';
 import { openCollapsible, setAllOpen, useContentState } from '../contentState';
-import { useNestedTemplate } from '../nestedTemplates';
+import { nestedTemplatesKey, useNestedTemplate } from '../nestedTemplates';
 import RepeaterRow from './RepeaterRow.vue';
 
 /** A row in the editor, with a client-side key so it keeps its identity while dragged. */
@@ -10,8 +16,9 @@ type Row = ContentValues & { _key?: number };
 
 /**
  * A list of rows, each a set of the repeater template's fields, shown collapsed to a header
- * each. Existing rows start collapsed and new ones open. The server keeps only the template's
- * fields, so the `_key` used for reordering and remembering open rows isn't saved.
+ * each. Existing rows start collapsed and new ones open, inline or in the side panel if they're
+ * nested too deeply to draw inline. The server keeps only the template's fields, so the `_key`
+ * used for reordering and remembering open rows isn't saved.
  */
 const props = withDefaults(
     defineProps<{
@@ -22,8 +29,11 @@ const props = withDefaults(
         stateKey?: string;
         errors?: Record<string, string | undefined>;
         disabled?: boolean;
+        /** The values holding this field, so its rows can be opened in the side panel. */
+        parentValues?: ContentValues;
     }>(),
     {
+        parentValues: undefined,
         stateKey: undefined,
         errors: () => ({}),
         disabled: false,
@@ -37,6 +47,17 @@ const { trans, transChoice } = useTrans();
 const state = useContentState();
 
 const template = useNestedTemplate(() => props.field.settings.template_id);
+
+const panel = useContentPanel();
+const insidePanel = useInsideContentPanel();
+const nestedTemplates = inject(nestedTemplatesKey, ref([]));
+
+const rowsOpenInPanel = computed(
+    () =>
+        !!panel &&
+        !!props.parentValues &&
+        opensInPanel(template.value?.fields ?? [], insidePanel),
+);
 
 const rowsStateKey = computed(() => props.stateKey ?? props.prefix);
 
@@ -86,6 +107,19 @@ function rowStateKey(row: Row): string {
     return `${rowsStateKey.value}.${row._key}`;
 }
 
+function openRowInPanel(index: number) {
+    panel?.push(
+        rowLevel(
+            props.field,
+            props.parentValues!,
+            props.prefix,
+            rowsStateKey.value,
+            index,
+            nestedTemplates.value,
+        ),
+    );
+}
+
 /** Puts a new row at the index, open, so it's ready to fill in. */
 function insertRow(index: number, row: Row) {
     const added = { ...row, _key: nextKey++ };
@@ -96,6 +130,10 @@ function insertRow(index: number, row: Row) {
         added,
         ...rows.value.slice(index),
     ];
+
+    if (rowsOpenInPanel.value) {
+        openRowInPanel(index);
+    }
 }
 
 function addRow() {
@@ -130,7 +168,7 @@ function removeRow(index: number) {
             class="flex flex-wrap items-center justify-between gap-2"
         >
             <p class="text-muted text-sm">{{ countLabel }}</p>
-            <div v-if="rows.length > 1" class="flex gap-1">
+            <div v-if="rows.length > 1 && !rowsOpenInPanel" class="flex gap-1">
                 <UButton
                     color="neutral"
                     variant="ghost"
@@ -171,6 +209,8 @@ function removeRow(index: number) {
                 :errors="errors"
                 :disabled="disabled"
                 :can-add="canAdd"
+                :opens-in-panel="rowsOpenInPanel"
+                @open="openRowInPanel(index)"
                 @duplicate="duplicateRow(index)"
                 @move-up="moveRow(index, -1)"
                 @move-down="moveRow(index, 1)"
