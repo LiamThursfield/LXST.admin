@@ -6,6 +6,7 @@ use App\Enums\Cms\PublishStatus;
 use App\Enums\Cms\TemplateType;
 use App\Http\Controllers\Controller;
 use App\Http\Queries\Tenant\Admin\Cms\PageIndexQuery;
+use App\Http\Requests\Tenant\Admin\Cms\PageExportRequest;
 use App\Http\Requests\Tenant\Admin\Cms\PageIndexRequest;
 use App\Http\Requests\Tenant\Admin\Cms\PageStoreRequest;
 use App\Http\Requests\Tenant\Admin\Cms\PageUpdateRequest;
@@ -17,6 +18,7 @@ use App\Models\Cms\Template;
 use App\Models\Cms\Url;
 use App\Services\Cms\ContentFieldOptions;
 use App\Services\Cms\PageUrls;
+use App\Services\Cms\Portable\SiteExporter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -57,6 +59,17 @@ class PageController extends Controller
             'statuses' => PublishStatus::asSelectItems(),
             'canCreate' => $request->user()?->can('create', Page::class) ?? false,
         ]);
+    }
+
+    /**
+     * The chosen pages, as portable JSON
+     */
+    public function export(PageExportRequest $request, SiteExporter $exporter): JsonResponse
+    {
+        /** @var list<int> $ids */
+        $ids = $request->validated('ids');
+
+        return response()->json($exporter->pages(Page::query()->whereKey($ids)->get()));
     }
 
     public function create(Request $request): Response

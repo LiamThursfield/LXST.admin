@@ -491,10 +491,15 @@ return [
         'kinds' => [
             'saved_component' => 'Saved component',
             'form' => 'CRM form',
+            'layout' => 'Layout',
+            'menu' => 'Menu',
+            'page' => 'Page',
+            'redirect' => 'Redirect',
         ],
         'missing' => [
             'optional' => ':what The :field field will be left empty.',
             'required' => ':what The :field field needs it, so add it here first.',
+            'menu_item' => 'The page ":page" isn\'t on this site, so the menu item ":label" will be left out.',
             'kinds' => [
                 'file' => 'The file ":reference" isn\'t on this site.',
                 'page' => 'The page ":reference" isn\'t on this site.',
@@ -504,12 +509,19 @@ return [
                 'saved_component' => 'The saved component ":reference" isn\'t on this site.',
             ],
         ],
+        'og_image' => 'Social sharing image',
         'changes' => [
+            'arrives_disabled' => 'Arrives disabled, so it isn\'t live until you enable it.',
             'added' => 'Adds :count field|Adds :count fields',
             'removed' => 'Removes :count field|Removes :count fields',
             'retyped' => 'Changes the type of :count field|Changes the type of :count fields',
         ],
         'warnings' => [
+            'page_live' => 'This page is published, so overwriting changes it straight away. It stays published.',
+            'page_template' => 'Overwriting changes this page\'s template, which removes content for fields the new one doesn\'t have.',
+            'in_use' => 'Overwriting changes this straight away on :places.',
+            'menu_live' => 'Overwriting changes this menu straight away wherever it\'s used.',
+            'redirect_live' => 'This redirect is enabled, so it goes live as soon as it\'s imported.',
             'saved_component_in_use' => 'Overwriting changes this straight away everywhere it\'s used: :places.',
             'removes' => 'Overwriting removes :count field that has content on :places. That content will be lost.|Overwriting removes :count fields that have content on :places. That content will be lost.',
             'retypes' => 'Overwriting changes the type of :count field that has content on :places, which may no longer show.|Overwriting changes the type of :count fields that have content on :places, which may no longer show.',
@@ -534,7 +546,9 @@ return [
             'item_failed' => ':name: :error',
             'not_allowed' => 'You don\'t have permission to import this.',
             'crm_off' => 'This site doesn\'t have the CRM module, so forms can\'t be imported.',
-            'missing_saved_component_template' => 'It uses the template ":template", which isn\'t in this import or on this site.',
+            'item_template_missing' => 'It uses the template ":template", which isn\'t in this import or on this site.',
+            'missing_parent' => 'Its parent page ":url" isn\'t in this import or on this site.',
+            'missing_layout' => 'It uses the layout ":layout", which isn\'t in this import or on this site.',
         ],
     ],
 

@@ -241,7 +241,7 @@ describe('saved components', function () {
 
     test('a template that\'s in neither the file nor the target stops that item', function () {
         checkPortable([portableSaved(['title' => 'A'])])
-            ->assertJsonPath('items.0.errors.0', __('cms.import.validation.missing_saved_component_template', ['template' => 'component/card']));
+            ->assertJsonPath('items.0.errors.0', __('cms.import.validation.item_template_missing', ['template' => 'component/card']));
     });
 
     test('only component templates can be used', function () {

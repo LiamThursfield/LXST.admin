@@ -16,12 +16,12 @@ class PortableContent
     public const int VERSION = 1;
 
     /**
-     * @param  list<array<string, mixed>>  $items
+     * @param  array<array-key, array<string, mixed>>  $items
      * @return array{format: string, version: int, items: list<array<string, mixed>>}
      */
     public function wrap(array $items): array
     {
-        return ['format' => self::FORMAT, 'version' => self::VERSION, 'items' => $items];
+        return ['format' => self::FORMAT, 'version' => self::VERSION, 'items' => array_values($items)];
     }
 
     /**

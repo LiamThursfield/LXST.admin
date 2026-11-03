@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Tenant\Admin\Cms;
 use App\Enums\Cms\RedirectStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Queries\Tenant\Admin\Cms\RedirectIndexQuery;
+use App\Http\Requests\Tenant\Admin\Cms\RedirectExportRequest;
 use App\Http\Requests\Tenant\Admin\Cms\RedirectIndexRequest;
 use App\Http\Requests\Tenant\Admin\Cms\RedirectStoreRequest;
 use App\Http\Requests\Tenant\Admin\Cms\RedirectUpdateRequest;
 use App\Http\Resources\Tenant\Admin\Cms\RedirectResource;
 use App\Models\Cms\Redirect;
+use App\Services\Cms\Portable\SiteExporter;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -40,6 +43,17 @@ class RedirectController extends Controller
             'statuses' => RedirectStatus::asSelectItems(),
             'canCreate' => $request->user()?->can('create', Redirect::class) ?? false,
         ]);
+    }
+
+    /**
+     * The chosen redirects, as portable JSON
+     */
+    public function export(RedirectExportRequest $request, SiteExporter $exporter): JsonResponse
+    {
+        /** @var list<int> $ids */
+        $ids = $request->validated('ids');
+
+        return response()->json($exporter->redirects(Redirect::query()->whereKey($ids)->get()));
     }
 
     public function create(): Response

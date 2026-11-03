@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant\Admin\Cms;
 use App\Enums\Cms\TemplateFieldType;
 use App\Http\Controllers\Controller;
 use App\Http\Queries\Tenant\Admin\Cms\MenuIndexQuery;
+use App\Http\Requests\Tenant\Admin\Cms\MenuExportRequest;
 use App\Http\Requests\Tenant\Admin\Cms\MenuIndexRequest;
 use App\Http\Requests\Tenant\Admin\Cms\MenuStoreRequest;
 use App\Http\Requests\Tenant\Admin\Cms\MenuUpdateRequest;
@@ -12,6 +13,8 @@ use App\Http\Resources\Tenant\Admin\Cms\MenuResource;
 use App\Models\Cms\Content;
 use App\Models\Cms\Menu;
 use App\Services\Cms\ContentFieldOptions;
+use App\Services\Cms\Portable\SiteExporter;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
@@ -44,6 +47,17 @@ class MenuController extends Controller
             'cmsMenus' => MenuResource::collection($query->handle($request)),
             'canCreate' => $request->user()?->can('create', Menu::class) ?? false,
         ]);
+    }
+
+    /**
+     * The chosen menus, as portable JSON
+     */
+    public function export(MenuExportRequest $request, SiteExporter $exporter): JsonResponse
+    {
+        /** @var list<int> $ids */
+        $ids = $request->validated('ids');
+
+        return response()->json($exporter->menus(Menu::query()->whereKey($ids)->get()));
     }
 
     public function create(): Response
