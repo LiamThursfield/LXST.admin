@@ -268,7 +268,7 @@ describe('importing', function () {
         confirmImport([
             portableTemplate('landing', [portableField('card', 'component', ['settings' => ['template' => ['type' => 'component', 'slug' => 'card']]])]),
             portableTemplate('card', [portableField('title')], 'component'),
-        ])->assertRedirect(route('admin.cms.templates.index'))->assertSessionHasNoErrors();
+        ])->assertRedirect(route('admin.cms.import.show'))->assertSessionHasNoErrors();
 
         $card = Template::query()->where('slug', 'card')->sole();
 
@@ -456,7 +456,13 @@ describe('access', function () {
         $this->actingAs($this->createUserWithPermissions([CmsPermission::ViewContent, CmsPermission::ManageContent]));
 
         $this->getJson(route('admin.cms.templates.export', ['ids' => [$template->id]]))->assertForbidden();
-        $this->get(route('admin.cms.import.show'))->assertForbidden();
+
+        // They can use the page for what they manage, but not templates
+        $this->get(route('admin.cms.import.show'))->assertOk();
+        previewImport([portableTemplate('landing')])->assertJsonPath('items.0.errors.0', __('cms.import.validation.not_allowed'));
+        confirmImport([portableTemplate('landing')])->assertSessionHasErrors('json');
+
+        expect(Template::query()->where('slug', 'landing')->exists())->toBeFalse();
     });
 
     test('someone who manages structure can open the import page', function () {

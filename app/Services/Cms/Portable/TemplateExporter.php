@@ -20,13 +20,24 @@ class TemplateExporter
      */
     public function export(iterable $templates): array
     {
+        return $this->portable->wrap($this->items($templates));
+    }
+
+    /**
+     * The templates and those they nest, each once, with dependencies first
+     *
+     * @param  iterable<Template>  $templates
+     * @return list<array<string, mixed>>
+     */
+    public function items(iterable $templates): array
+    {
         $ordered = [];
 
         foreach ($templates as $template) {
             $this->addWithDependencies($template, $ordered);
         }
 
-        return $this->portable->wrap(array_values(array_map($this->item(...), $ordered)));
+        return array_values(array_map($this->item(...), $ordered));
     }
 
     /**

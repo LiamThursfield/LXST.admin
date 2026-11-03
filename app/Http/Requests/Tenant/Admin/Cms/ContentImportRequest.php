@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Tenant\Admin\Cms;
 
+use App\Models\Cms\SavedComponent;
 use App\Models\Cms\Template;
+use App\Models\Crm\Form;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ContentImportRequest extends FormRequest
@@ -11,13 +13,18 @@ class ContentImportRequest extends FormRequest
     protected const int MAX_LENGTH = 2_000_000;
 
     /**
-     * Determine if the user is authorized to make this request.
+     * Anyone who can manage something importable can use the page. Each item's own permission is
+     * checked as it's imported.
      */
     public function authorize(): bool
     {
         $user = $this->user();
 
-        return $user !== null && $user->can('create', Template::class);
+        return $user !== null && (
+            $user->can('create', Template::class)
+            || $user->can('create', SavedComponent::class)
+            || $user->can('create', Form::class)
+        );
     }
 
     /**
@@ -27,6 +34,11 @@ class ContentImportRequest extends FormRequest
      */
     public function rules(): array
     {
+        // The page itself has nothing to check
+        if ($this->isMethodSafe()) {
+            return [];
+        }
+
         return [
             'json' => ['required', 'string', 'max:'.self::MAX_LENGTH],
             'overwrite' => ['nullable', 'array'],
