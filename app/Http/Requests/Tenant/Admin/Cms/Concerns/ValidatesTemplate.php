@@ -125,6 +125,11 @@ trait ValidatesTemplate
             "{$list}.*.settings.rows" => ['nullable', 'integer', 'min:1', 'max:50'],
             "{$list}.*.settings.min" => ['nullable', 'numeric'],
             "{$list}.*.settings.max" => ['nullable', 'numeric', $this->maxNotBelowMinRule()],
+            "{$list}.*.settings.options" => ["required_if:{$list}.*.type,select", 'nullable', 'array', 'list', 'max:100', $this->optionValuesUniqueRule()],
+            "{$list}.*.settings.options.*" => ['array'],
+            "{$list}.*.settings.options.*.label" => ['required', 'string', 'max:120'],
+            "{$list}.*.settings.options.*.value" => ['required', 'string', 'max:120', 'alpha_dash'],
+            "{$list}.*.settings.default" => ['nullable', 'string', $this->defaultIsAnOptionRule()],
             "{$list}.*.settings.template_id" => ["required_if:{$list}.*.type,component,repeater", 'nullable', 'integer', $this->nestedTemplateRule($template)],
             "{$list}.*.settings.min_items" => ['nullable', 'integer', 'min:0', 'max:100'],
             "{$list}.*.settings.max_items" => ['nullable', 'integer', 'min:1', 'max:100', $this->maxItemsNotBelowMinRule()],
@@ -146,12 +151,40 @@ trait ValidatesTemplate
     }
 
     /**
+     * Sites receive an option's value, so each must mean one thing
+     */
+    protected function optionValuesUniqueRule(): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail): void {
+            $values = array_column(array_filter((array) $value, 'is_array'), 'value');
+
+            if (count($values) !== count(array_unique($values))) {
+                $fail(__('cms.templates.validation.duplicate_option_value'));
+            }
+        };
+    }
+
+    protected function defaultIsAnOptionRule(): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail): void {
+            $options = (array) $this->input(Str::replaceLast('.default', '.options', $attribute));
+
+            if (! in_array($value, array_column(array_filter($options, 'is_array'), 'value'), true)) {
+                $fail(__('cms.templates.validation.default_not_an_option'));
+            }
+        };
+    }
+
+    /**
      * @return array<string, string>
      */
     public function messages(): array
     {
         return [
             'slug.unique' => __('cms.templates.validation.slug_taken'),
+            ...collect($this->fieldPaths())
+                ->mapWithKeys(fn (string $path) => ["{$path}.settings.options.required_if" => __('cms.templates.validation.options_required')])
+                ->all(),
         ];
     }
 
@@ -170,7 +203,7 @@ trait ValidatesTemplate
 
         $keys = ['name', 'slug', 'type', 'description', ...array_map(
             fn (string $setting) => "settings.{$setting}",
-            ['max_length', 'rows', 'min', 'max', 'template_id', 'min_items', 'max_items', 'organisation_unit_type', 'width'],
+            ['max_length', 'rows', 'min', 'max', 'options', 'default', 'template_id', 'min_items', 'max_items', 'organisation_unit_type', 'width'],
         )];
 
         foreach (['fields', 'sections.*.fields'] as $list) {
@@ -435,6 +468,14 @@ trait ValidatesTemplate
             array_intersect_key($settings, array_flip($type->settingKeys())),
             fn (mixed $value) => $value !== null && $value !== '',
         );
+
+        // Only what an option is, without anything else the builder sent
+        if (is_array($settings['options'] ?? null)) {
+            $settings['options'] = array_map(
+                fn (array $option) => ['label' => (string) $option['label'], 'value' => (string) $option['value']],
+                array_values($settings['options']),
+            );
+        }
 
         // Full width is the default, so only half width is kept
         if ($width === TemplateFieldWidth::Half) {

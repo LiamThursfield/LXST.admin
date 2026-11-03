@@ -150,6 +150,12 @@ class ContentRules
                 $settings?->min !== null ? 'min:'.$settings->min : null,
                 $settings?->max !== null ? 'max:'.$settings->max : null,
             ]))],
+            // One of the field's options. A default counts as filled in, as the site gets it when nothing's chosen.
+            TemplateFieldType::Select => [$key => [
+                $settings?->default === null ? $required : 'nullable',
+                'string',
+                Rule::in(array_column($settings->options ?? [], 'value')),
+            ]],
             // Sent as {json, html}; only the JSON is used, and the HTML is rebuilt from it
             TemplateFieldType::Wysiwyg => [$key => [$required, 'array', $this->richTextRule($field)]],
             // Sent as {file_id, alt}

@@ -74,6 +74,21 @@ class TemplateFieldFactory extends Factory
     }
 
     /**
+     * A select field with the given values, each labelled after its value
+     *
+     * @param  list<string>  $values
+     */
+    public function select(array $values, ?string $default = null): static
+    {
+        return $this->ofType(TemplateFieldType::Select)->state([
+            'settings' => TemplateFieldSettings::from([
+                'options' => array_map(fn (string $value) => ['label' => ucfirst($value), 'value' => $value], $values),
+                'default' => $default,
+            ]),
+        ]);
+    }
+
+    /**
      * A field that takes half the content editor's width, keeping any other settings
      */
     public function halfWidth(): static

@@ -116,6 +116,10 @@ class CmsSeeder extends Seeder
         $heroSection = $template('hero-section', TemplateType::Component, 'Hero Section', 'A background image with a heading, a subheading and a short intro.', [
             ['background_image', TemplateFieldType::Image, 'Background image', false],
             ['heading', TemplateFieldType::Text, 'Heading', true, ['max_length' => 80]],
+            ['alignment', TemplateFieldType::Select, 'Alignment', false, [
+                'options' => [['label' => 'Left', 'value' => 'left'], ['label' => 'Centre', 'value' => 'center']],
+                'default' => 'center',
+            ]],
             ['subheading', TemplateFieldType::Text, 'Subheading', false],
             ['intro', TemplateFieldType::Textarea, 'Intro', false, ['rows' => 3]],
         ]);
@@ -128,6 +132,10 @@ class CmsSeeder extends Seeder
         $button = $template('button', TemplateType::Component, 'Button', 'A label and where it takes visitors.', [
             ['label', TemplateFieldType::Text, 'Label', true, ['max_length' => 40]],
             ['url', TemplateFieldType::Text, 'Link', true],
+            ['style', TemplateFieldType::Select, 'Style', false, [
+                'options' => [['label' => 'Primary', 'value' => 'primary'], ['label' => 'Secondary', 'value' => 'secondary'], ['label' => 'Text link', 'value' => 'text-link']],
+                'default' => 'primary',
+            ]],
         ]);
 
         $priceCard = $template('price-card', TemplateType::Component, 'Price Card', 'A title, a list of items with their prices and an optional button.', [
@@ -164,7 +172,7 @@ class CmsSeeder extends Seeder
                     ['name' => 'Each extra hour', 'price' => '£60'],
                     ['name' => 'Travel over 30 miles', 'price' => '50p a mile'],
                 ],
-                'button' => ['label' => 'Check your date', 'url' => '/contact'],
+                'button' => ['label' => 'Check your date', 'url' => '/contact', 'style' => 'secondary'],
             ]);
         }
 
@@ -335,6 +343,7 @@ class CmsSeeder extends Seeder
         $privateHire = $page('private-hire', 'private-hire', 'Private hire', $templates['pricing'], $layouts['default'], [
             'hero' => [
                 'heading' => 'Hire a DJ for your own night',
+                'alignment' => 'left',
                 'subheading' => 'Birthdays, anniversaries and everything in between',
             ],
             'price_card' => $standardPricing->reference(),

@@ -72,7 +72,7 @@ class ContentPresenter
 
     protected function value(TemplateField $field, mixed $value, string $format): mixed
     {
-        if ($value === null) {
+        if ($value === null && $field->type !== TemplateFieldType::Select) {
             return $field->type === TemplateFieldType::Repeater ? [] : null;
         }
 
@@ -80,12 +80,23 @@ class ContentPresenter
             TemplateFieldType::Text, TemplateFieldType::Textarea, TemplateFieldType::Number => $value,
             TemplateFieldType::Wysiwyg => $this->richText($value, $format),
             TemplateFieldType::Image => $this->image($value),
+            TemplateFieldType::Select => $this->select($field, $value),
             TemplateFieldType::Component => $this->component($field, $value, $format),
             TemplateFieldType::Repeater => $this->repeater($field, $value, $format),
             TemplateFieldType::CmsMenu => $this->menu($value),
             TemplateFieldType::CrmForm => $this->form($value),
             TemplateFieldType::CrmOrganisationUnit => $this->organisationUnit($value),
         };
+    }
+
+    /**
+     * The chosen value, or the default if it's blank or its option has since been removed
+     */
+    protected function select(TemplateField $field, mixed $value): ?string
+    {
+        $settings = $field->settings;
+
+        return in_array($value, array_column($settings->options ?? [], 'value'), true) ? $value : $settings?->default;
     }
 
     protected function richText(mixed $value, string $format): mixed

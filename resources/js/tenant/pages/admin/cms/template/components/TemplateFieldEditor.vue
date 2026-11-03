@@ -5,10 +5,12 @@ import type {
     NestedTemplateOption,
     SelectItem,
     TemplateFieldData,
+    TemplateFieldNumberSettingKey,
     TemplateFieldSettingKey,
     TemplateFieldTypeOption,
     TemplateFieldWidth,
 } from '@/types';
+import SelectOptionsEditor from './SelectOptionsEditor.vue';
 
 /**
  * The chosen field's settings in the template builder's panel: its name, slug, type, width, help
@@ -65,7 +67,13 @@ const typeSettingKeys = computed<TemplateFieldSettingKey[]>(
 /** The number settings, e.g. max length or a repeater's fewest and most rows. */
 const settingKeys = computed(() =>
     typeSettingKeys.value.filter(
-        (key) => key !== 'template_id' && key !== 'organisation_unit_type',
+        (key): key is TemplateFieldNumberSettingKey =>
+            ![
+                'template_id',
+                'organisation_unit_type',
+                'options',
+                'default',
+            ].includes(key),
     ),
 );
 
@@ -214,6 +222,14 @@ const width = computed({
             <p v-if="!hasTypeSettings" class="text-muted text-sm">
                 {{ trans('cms.templates.builder.no_type_settings') }}
             </p>
+
+            <SelectOptionsEditor
+                v-else-if="typeSettingKeys.includes('options')"
+                v-model="field"
+                :error-prefix="errorPrefix"
+                :errors="errors"
+                :readonly="readonly"
+            />
 
             <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <UFormField
