@@ -43,6 +43,13 @@ class ContentPresenter
      */
     protected ?Collection $savedComponents = null;
 
+    /**
+     * Published pages' URLs by page id, loaded the first time a link needs them, as with saved components
+     *
+     * @var array<int, string>|null
+     */
+    protected ?array $pageUrls = null;
+
     public function __construct(
         protected ContentRules $rules,
         protected FileManagerStorage $files,
@@ -55,6 +62,7 @@ class ContentPresenter
     public function present(Template $template, array $values, string $format = self::FORMAT_BOTH): array
     {
         $this->savedComponents = null;
+        $this->pageUrls = null;
 
         return $this->fields($template, $values, $format);
     }
@@ -81,6 +89,7 @@ class ContentPresenter
             TemplateFieldType::Wysiwyg => $this->richText($value, $format),
             TemplateFieldType::Image => $this->image($value),
             TemplateFieldType::Select => $this->select($field, $value),
+            TemplateFieldType::Link => $this->link($value),
             TemplateFieldType::Component => $this->component($field, $value, $format),
             TemplateFieldType::Repeater => $this->repeater($field, $value, $format),
             TemplateFieldType::CmsMenu => $this->menu($value),
@@ -129,6 +138,29 @@ class ContentPresenter
             'name' => $file->name,
             'mime_type' => $file->mime_type,
         ];
+    }
+
+    /**
+     * Page links use the page's current URL, and links to pages that aren't published are null
+     *
+     * @return array{url: string, target: string|null}|null
+     */
+    protected function link(mixed $value): ?array
+    {
+        $destination = $this->rules->linkDestination($value);
+
+        if (is_int($destination)) {
+            $this->pageUrls ??= Url::query()
+                ->withStatus(PublishStatus::Published)
+                ->where('urlable_type', Page::class)
+                ->pluck('url_full', 'urlable_id')
+                ->all();
+
+            $destination = $this->pageUrls[$destination] ?? null;
+        }
+
+        /** @var array<string, mixed> $value */
+        return $destination === null ? null : ['url' => $destination, 'target' => $value['target'] ?? null];
     }
 
     /**

@@ -381,6 +381,19 @@ return [
                 'remove' => 'Remove link',
             ],
         ],
+        'link' => [
+            'type' => 'Links to',
+            'types' => [
+                'page' => 'A page',
+                'url' => 'A custom URL',
+            ],
+            'page_placeholder' => 'Choose a page',
+            'page_help' => 'The link follows the page if its URL changes.',
+            'page_gone' => 'The page this linked to has been deleted. Choose another.',
+            'url_help' => 'A full URL (https://…), an email (mailto:…), a phone number (tel:…), a path on the site (/…) or an anchor (#…).',
+            'target' => 'Open in a new tab',
+            'remove' => 'Remove link',
+        ],
         'select' => [
             'placeholder' => 'Choose an option',
             'none' => 'None',
@@ -564,6 +577,7 @@ return [
                 'number' => 'A number, with an optional minimum and maximum',
                 'select' => 'A dropdown of your own options, e.g. a button\'s style',
                 'image' => 'An image from the File Manager',
+                'link' => 'A page on the site or a URL, which can open in a new tab',
                 'cms_menu' => 'One of the site\'s menus',
                 'component' => 'A group of fields from a component template',
                 'repeater' => 'A list of items, e.g. slides or features',

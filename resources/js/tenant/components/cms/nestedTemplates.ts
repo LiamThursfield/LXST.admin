@@ -1,6 +1,7 @@
 import type { InjectionKey, Ref } from 'vue';
 import type {
     ContentValues,
+    MenuPageOption,
     SavedComponentOption,
     SavedComponentOptions,
     TemplateData,
@@ -41,6 +42,18 @@ export function provideMenuOptions(
 
 export function useMenuOptions() {
     return inject(menuOptionsKey, ref([]));
+}
+
+/** The pages link fields can go to, provided by the page. */
+export const linkPagesKey: InjectionKey<Ref<MenuPageOption[]>> =
+    Symbol('cmsLinkPages');
+
+export function provideLinkPages(pages: Ref<MenuPageOption[]>): void {
+    provide(linkPagesKey, pages);
+}
+
+export function useLinkPages() {
+    return inject(linkPagesKey, ref([]));
 }
 
 export type CrmOptions = {

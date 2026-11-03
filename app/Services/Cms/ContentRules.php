@@ -2,6 +2,7 @@
 
 namespace App\Services\Cms;
 
+use App\Data\Cms\MenuItemData;
 use App\Enums\Cms\TemplateFieldType;
 use App\Enums\TenantModule;
 use App\Models\Cms\SavedComponent;
@@ -116,6 +117,10 @@ class ContentRules
             $attributes["{$key}.file_id"] = $name;
             $attributes["{$key}.alt"] = __('cms.content.image.alt_attribute', ['field' => $name]);
             $attributes["{$key}.".SavedComponent::REFERENCE_KEY] = $name;
+            // Link fields are validated by where they go
+            foreach (['link_type', 'page_id', 'url', 'target'] as $linkKey) {
+                $attributes["{$key}.{$linkKey}"] = $name;
+            }
 
             $nested = in_array($field->type, [TemplateFieldType::Component, TemplateFieldType::Repeater], true)
                 ? $this->nestedTemplate($field)
@@ -168,6 +173,8 @@ class ContentRules
                 ],
                 "{$key}.alt" => ['nullable', 'string', 'max:255'],
             ],
+            // Sent as {link_type, page_id, url, target}
+            TemplateFieldType::Link => $this->linkRules($key, $required, data_get($data, $key)),
             // An object of the component template's fields, or a reference to a saved component, which
             // has its own content so its fields aren't checked here. An optional component only needs
             // its required fields once something in it has been filled in.
@@ -210,6 +217,63 @@ class ContentRules
                     ),
                 ]]
                 : [$key => ['nullable', 'integer']],
+        };
+    }
+
+    /**
+     * Whichever of a page or a URL the link uses. Only needed if the field's required, or it's being
+     * filled in.
+     *
+     * @return array<string, list<mixed>>
+     */
+    protected function linkRules(string $key, string $required, mixed $value): array
+    {
+        $destination = $required === 'required' || $this->linkDestination($value) !== null ? 'required' : 'nullable';
+        $isPage = is_array($value) && ($value['link_type'] ?? null) === MenuItemData::LINK_PAGE;
+
+        return [
+            $key => [$required, 'array'],
+            "{$key}.link_type" => [$destination, Rule::in([MenuItemData::LINK_PAGE, MenuItemData::LINK_URL])],
+            ...($isPage
+                ? ["{$key}.page_id" => [$destination, 'integer', Rule::exists('cms_pages', 'id')]]
+                : ["{$key}.url" => [$destination, 'string', 'max:255', self::safeUrlRule()]]),
+            "{$key}.target" => ['nullable', Rule::in(['_self', '_blank'])],
+        ];
+    }
+
+    /**
+     * The page or URL a link's value goes to, whichever it uses
+     */
+    public function linkDestination(mixed $value): int|string|null
+    {
+        if (! is_array($value)) {
+            return null;
+        }
+
+        return match ($value['link_type'] ?? null) {
+            MenuItemData::LINK_PAGE => is_numeric($value['page_id'] ?? null) ? (int) $value['page_id'] : null,
+            MenuItemData::LINK_URL => filled($value['url'] ?? null) ? trim((string) $value['url']) : null,
+            default => null,
+        };
+    }
+
+    /**
+     * Links typed in must be http(s), mailto, tel, a path on the site or an anchor, which rules out
+     * the likes of `javascript:`
+     */
+    public static function safeUrlRule(): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail): void {
+            $url = trim((string) $value);
+            $scheme = strtolower((string) parse_url($url, PHP_URL_SCHEME));
+
+            $isSafe = (str_starts_with($url, '/') && ! str_starts_with($url, '//'))
+                || str_starts_with($url, '#')
+                || in_array($scheme, ['http', 'https', 'mailto', 'tel'], true);
+
+            if (! $isSafe) {
+                $fail(__('cms.menus.validation.url'));
+            }
         };
     }
 

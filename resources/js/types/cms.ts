@@ -136,6 +136,14 @@ export type SavedComponentData = {
     actions?: any[];
 };
 
+/** A link field's value: a page, which it follows if its URL changes, or a URL (see `MenuItemData`). */
+export type LinkValue = {
+    link_type: 'page' | 'url';
+    page_id: number | null;
+    url: string | null;
+    target: string | null;
+};
+
 /** A saved component a component field can use, with its content to show read-only. */
 export type SavedComponentOption = {
     id: number;

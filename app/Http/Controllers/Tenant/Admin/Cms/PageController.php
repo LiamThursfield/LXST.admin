@@ -189,6 +189,7 @@ class PageController extends Controller
             // For menu and CRM fields (not `menus`, which is the shared sidebar navigation prop)
             'menuOptions' => $this->fieldOptions->menus(),
             'crmOptions' => $this->fieldOptions->crm(),
+            'pageOptions' => $this->fieldOptions->pages(),
             'savedComponentOptions' => $this->fieldOptions->savedComponents(request()->user()),
             'layouts' => Layout::query()->orderBy('name')->get(['id', 'name'])
                 ->map(fn (Layout $layout) => ['value' => $layout->id, 'label' => $layout->name]),

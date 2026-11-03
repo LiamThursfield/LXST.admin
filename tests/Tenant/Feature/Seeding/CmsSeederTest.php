@@ -76,11 +76,27 @@ test('the CMS seeder makes a list of price cards with their own lists, and a com
     $content = Page::query()->where('slug', 'pricing')->sole()->contentValues();
 
     expect(Template::query()->where('slug', 'pricing-page')->sole()->repeaterLevelsBelow())->toBe(Template::MAX_REPEATER_LEVELS)
-        ->and($content['price_card']['button']['label'])->toBe('Check your date')
+        ->and($content['price_card']['link']['label'])->toBe('Check your date')
         ->and($content['price_cards'])->toHaveCount(3)
         ->and($content['price_cards'][0]['card']['items'])->toHaveCount(2)
-        ->and($content['price_cards'][0]['card']['button']['url'])->toBe('/contact')
-        ->and($content['price_cards'][1]['card'])->not->toHaveKey('button');
+        ->and($content['price_cards'][0]['card']['link']['label'])->toBe('Book a party')
+        ->and($content['price_cards'][1]['card']['link']['destination']['target'])->toBe('_blank');
+});
+
+test('the CMS seeder makes a Link component, used in the Hero Section and Price Card, that follows the page it links to', function () {
+    $link = Template::query()->where('slug', 'link')->sole();
+    $contact = Page::query()->where('slug', 'contact')->sole();
+    $content = Page::query()->where('slug', 'pricing')->sole()->contentValues();
+
+    expect($link->fields->pluck('type', 'slug')->all())->toBe([
+        'label' => TemplateFieldType::Text,
+        'destination' => TemplateFieldType::Link,
+        'type' => TemplateFieldType::Select,
+        'style' => TemplateFieldType::Select,
+    ])
+        ->and(Template::query()->where('slug', 'hero-section')->sole()->fields->firstWhere('slug', 'link')->settings->template_id)->toBe($link->id)
+        ->and(Template::query()->where('slug', 'price-card')->sole()->fields->firstWhere('slug', 'link')->settings->template_id)->toBe($link->id)
+        ->and($content['hero']['link']['destination']['page_id'])->toBe($contact->id);
 });
 
 test('the CMS seeder makes pages in every publish status, nested, with their content', function () {
@@ -120,8 +136,8 @@ test('the CMS seeder makes a Standard pricing saved component from the price car
     expect($savedComponent->name)->toBe('Standard pricing')
         ->and($savedComponent->template->slug)->toBe('price-card')
         ->and($savedComponent->contentValues()['items'])->toHaveCount(3)
-        ->and($savedComponent->contentValues()['button']['label'])->toBe('Check your date')
-        ->and($savedComponent->contentValues()['button']['style'])->toBe('secondary')
+        ->and($savedComponent->contentValues()['link']['label'])->toBe('Check your date')
+        ->and($savedComponent->contentValues()['link']['style'])->toBe('secondary')
         ->and($savedComponent->usedBy()->pluck('slug')->sort()->values()->all())->toBe(['pricing', 'private-hire']);
 });
 

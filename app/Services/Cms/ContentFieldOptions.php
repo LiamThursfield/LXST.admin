@@ -4,14 +4,15 @@ namespace App\Services\Cms;
 
 use App\Enums\TenantModule;
 use App\Models\Cms\Menu;
+use App\Models\Cms\Page;
 use App\Models\Cms\SavedComponent;
 use App\Models\Crm\Form;
 use App\Models\Crm\OrganisationUnit;
 use App\Models\User;
 
 /**
- * The choices content fields offer (menus, CRM forms, organisation units and saved components), for
- * the page and layout editors
+ * The choices content fields offer (menus, pages, CRM forms, organisation units and saved
+ * components), for the page and layout editors
  */
 class ContentFieldOptions
 {
@@ -22,6 +23,26 @@ class ContentFieldOptions
     {
         return Menu::query()->orderBy('name')->get(['id', 'name'])
             ->map(fn (Menu $menu) => ['value' => $menu->id, 'label' => $menu->name])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * The pages menu items and link fields can go to, in URL order
+     *
+     * @return array<int, array{value: int, label: string, url: string|null}>
+     */
+    public function pages(): array
+    {
+        return Page::query()
+            ->with('url')
+            ->get()
+            ->sortBy(fn (Page $page) => $page->url->url_full ?? '')
+            ->map(fn (Page $page) => [
+                'value' => $page->id,
+                'label' => $page->name.' ('.($page->url->url_full ?? '?').')',
+                'url' => $page->url?->url_full,
+            ])
             ->values()
             ->all();
     }

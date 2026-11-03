@@ -89,6 +89,7 @@ return [
         'select' => 'Select',
         'wysiwyg' => 'Rich text',
         'image' => 'Image',
+        'link' => 'Link',
         'repeater' => 'Repeater',
         'component' => 'Component',
         'cms_menu' => 'Menu',

@@ -19,6 +19,7 @@ enum TemplateFieldType: string
     case Select = 'select';
     case Wysiwyg = 'wysiwyg';
     case Image = 'image';
+    case Link = 'link';
     case Repeater = 'repeater';
     case Component = 'component';
     case CmsMenu = 'cms_menu';

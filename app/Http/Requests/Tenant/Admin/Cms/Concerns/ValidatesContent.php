@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Tenant\Admin\Cms\Concerns;
 
+use App\Data\Cms\MenuItemData;
 use App\Enums\Cms\TemplateFieldType;
 use App\Models\Cms\SavedComponent;
 use App\Models\Cms\Template;
@@ -83,10 +84,34 @@ trait ValidatesContent
                 ? ['file_id' => (int) $value['file_id'], 'alt' => filled($value['alt'] ?? null) ? (string) $value['alt'] : null]
                 : null,
             TemplateFieldType::CmsMenu, TemplateFieldType::CrmForm, TemplateFieldType::CrmOrganisationUnit => is_numeric($value) ? (int) $value : null,
+            TemplateFieldType::Link => $this->linkValue($value),
             TemplateFieldType::Component => $this->componentValue($field, $value),
             TemplateFieldType::Repeater => $this->repeaterValue($field, $value),
             default => $value,
         };
+    }
+
+    /**
+     * Only the link it uses, or null if it doesn't go anywhere, so a link type alone doesn't make an
+     * untouched optional component look filled in
+     *
+     * @return array{link_type: string, page_id: int|null, url: string|null, target: string|null}|null
+     */
+    protected function linkValue(mixed $value): ?array
+    {
+        $destination = $this->contentRuleBuilder()->linkDestination($value);
+
+        if ($destination === null) {
+            return null;
+        }
+
+        /** @var array<string, mixed> $value */
+        return [
+            'link_type' => is_int($destination) ? MenuItemData::LINK_PAGE : MenuItemData::LINK_URL,
+            'page_id' => is_int($destination) ? $destination : null,
+            'url' => is_string($destination) ? $destination : null,
+            'target' => ($value['target'] ?? null) === '_blank' ? '_blank' : null,
+        ];
     }
 
     /**
