@@ -95,6 +95,7 @@ Route::name('cms.')->prefix('cms')->middleware(['tenant.module:cms', 'content.ch
     Route::get('pages/url-check', [PageController::class, 'urlCheck'])->name('pages.url-check');
     Route::resource('pages', PageController::class);
     Route::post('saved-components/reusable', [SavedComponentController::class, 'storeReusable'])->name('saved-components.reusable.store');
+    Route::get('saved-components/export', [SavedComponentController::class, 'export'])->name('saved-components.export');
     Route::resource('saved-components', SavedComponentController::class);
     Route::resource('layouts', LayoutController::class);
     Route::resource('menus', MenuController::class);
@@ -114,6 +115,7 @@ Route::name('crm.')->prefix('crm')->middleware(['tenant.module:crm', 'content.ch
     Route::post('contacts/{contact}/spam', [ContactSpamController::class, 'store'])->name('contacts.spam.store');
     Route::delete('contacts/{contact}/spam', [ContactSpamController::class, 'destroy'])->name('contacts.spam.destroy');
     Route::resource('contacts', ContactController::class);
+    Route::get('forms/export', [FormController::class, 'export'])->name('forms.export');
     Route::resource('forms', FormController::class);
     Route::post('form-submissions/{form_submission}/spam', [FormSubmissionSpamController::class, 'store'])->name('form-submissions.spam.store');
     Route::delete('form-submissions/{form_submission}/spam', [FormSubmissionSpamController::class, 'destroy'])->name('form-submissions.spam.destroy');

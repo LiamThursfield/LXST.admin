@@ -461,6 +461,14 @@ return [
         ],
     ],
 
+    'export' => [
+        'import' => 'Import',
+        'copy' => 'Copy JSON',
+        'download' => 'Download',
+        'copied' => 'JSON copied.',
+        'failed' => 'This couldn\'t be exported.',
+    ],
+
     'import' => [
         'title' => 'Import',
         'json' => 'JSON',
@@ -480,12 +488,29 @@ return [
             'unchanged' => 'No change',
             'error' => 'Problem',
         ],
+        'kinds' => [
+            'saved_component' => 'Saved component',
+            'form' => 'CRM form',
+        ],
+        'missing' => [
+            'optional' => ':what The :field field will be left empty.',
+            'required' => ':what The :field field needs it, so add it here first.',
+            'kinds' => [
+                'file' => 'The file ":reference" isn\'t on this site.',
+                'page' => 'The page ":reference" isn\'t on this site.',
+                'menu' => 'The menu ":reference" isn\'t on this site.',
+                'form' => 'The form ":reference" isn\'t on this site.',
+                'organisation_unit' => 'The organisation unit ":reference" isn\'t on this site.',
+                'saved_component' => 'The saved component ":reference" isn\'t on this site.',
+            ],
+        ],
         'changes' => [
             'added' => 'Adds :count field|Adds :count fields',
             'removed' => 'Removes :count field|Removes :count fields',
             'retyped' => 'Changes the type of :count field|Changes the type of :count fields',
         ],
         'warnings' => [
+            'saved_component_in_use' => 'Overwriting changes this straight away everywhere it\'s used: :places.',
             'removes' => 'Overwriting removes :count field that has content on :places. That content will be lost.|Overwriting removes :count fields that have content on :places. That content will be lost.',
             'retypes' => 'Overwriting changes the type of :count field that has content on :places, which may no longer show.|Overwriting changes the type of :count fields that have content on :places, which may no longer show.',
         ],
@@ -504,9 +529,12 @@ return [
             'unsupported_version' => 'This was exported from a newer version, and this site can only read up to version :max.',
             'no_items' => 'There\'s nothing in this to import.',
             'unknown_item' => 'Item :number isn\'t something this site knows how to import.',
-            'duplicate_item' => 'The template ":slug" is in this more than once.',
+            'duplicate_item' => '":slug" is in this more than once.',
             'missing_template' => 'The :field field uses the template ":template", which isn\'t in this import or on this site.',
             'item_failed' => ':name: :error',
+            'not_allowed' => 'You don\'t have permission to import this.',
+            'crm_off' => 'This site doesn\'t have the CRM module, so forms can\'t be imported.',
+            'missing_saved_component_template' => 'It uses the template ":template", which isn\'t in this import or on this site.',
         ],
     ],
 
@@ -515,11 +543,6 @@ return [
             'title' => 'Templates',
             'create' => 'New template',
             'empty' => 'No templates yet.',
-            'import' => 'Import',
-            'copy_json' => 'Copy JSON',
-            'download_json' => 'Download',
-            'copied' => 'JSON copied.',
-            'export_failed' => 'This couldn\'t be exported.',
         ],
         'create' => [
             'title' => 'New template',

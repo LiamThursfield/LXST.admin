@@ -4,7 +4,6 @@ import {
     preview as previewRoute,
     store,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Cms/ContentImportController';
-import { index as templatesIndex } from '@/actions/App/Http/Controllers/Tenant/Admin/Cms/TemplateController';
 
 type ImportResult = {
     key: string;
@@ -90,7 +89,8 @@ function onSubmit() {
     if (results.value === null) {
         runCheck();
     } else if (hasWork.value && !hasErrors.value) {
-        form.post(store.url());
+        // Back on this page, it's ready for the next paste rather than importing the same one again
+        form.post(store.url(), { onSuccess: () => form.reset() });
     }
 }
 
@@ -119,10 +119,7 @@ function actionColor(item: ImportResult) {
     )[actionKey(item) as 'error' | ImportResult['action']];
 }
 
-const breadcrumbs = computed(() => [
-    { label: trans('cms.templates.index.title'), to: templatesIndex.url() },
-    { label: trans('cms.import.title') },
-]);
+const breadcrumbs = computed(() => [{ label: trans('cms.import.title') }]);
 </script>
 
 <template>

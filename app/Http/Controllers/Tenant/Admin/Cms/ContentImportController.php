@@ -4,11 +4,10 @@ namespace App\Http\Controllers\Tenant\Admin\Cms;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Admin\Cms\ContentImportRequest;
-use App\Models\Cms\Template;
-use App\Services\Cms\Portable\TemplateImporter;
+use App\Services\Cms\Portable\ContentImporter;
+use App\Services\Cms\Portable\ItemImporter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -17,12 +16,10 @@ use Inertia\Response;
  */
 class ContentImportController extends Controller
 {
-    public function __construct(protected TemplateImporter $importer) {}
+    public function __construct(protected ContentImporter $importer) {}
 
-    public function show(): Response
+    public function show(ContentImportRequest $request): Response
     {
-        Gate::authorize('create', Template::class);
-
         return Inertia::render('admin/cms/import/Index');
     }
 
@@ -40,10 +37,10 @@ class ContentImportController extends Controller
     {
         $results = collect($this->importer->import($request->string('json')->toString(), $request->overwriteKeys()));
 
-        return redirect()->route('admin.cms.templates.index')->with('success', __('cms.import.flash.imported', [
-            'created' => $results->where('action', TemplateImporter::ACTION_CREATE)->count(),
-            'overwritten' => $results->where('action', TemplateImporter::ACTION_OVERWRITE)->count(),
-            'skipped' => $results->whereIn('action', [TemplateImporter::ACTION_SKIP, TemplateImporter::ACTION_UNCHANGED])->count(),
+        return redirect()->route('admin.cms.import.show')->with('success', __('cms.import.flash.imported', [
+            'created' => $results->where('action', ItemImporter::ACTION_CREATE)->count(),
+            'overwritten' => $results->where('action', ItemImporter::ACTION_OVERWRITE)->count(),
+            'skipped' => $results->whereIn('action', [ItemImporter::ACTION_SKIP, ItemImporter::ACTION_UNCHANGED])->count(),
         ]));
     }
 }

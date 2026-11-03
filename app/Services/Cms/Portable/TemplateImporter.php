@@ -12,170 +12,87 @@ use App\Models\Cms\Page;
 use App\Models\Cms\SavedComponent;
 use App\Models\Cms\Template;
 use App\Models\Cms\TemplateField;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
 /**
- * Imports templates from portable JSON. A dry run does the real import in a transaction that's always
- * rolled back, so what it reports is exactly what confirming would do, including the checks that
- * depend on templates earlier in the same file.
+ * Imports templates, by their type and slug. A nested template is referred to the same way.
  *
- * @phpstan-type ImportResult array{key: string, kind: string, type: string, type_label: string, slug: string, name: string, action: string, can_overwrite: bool, changes: list<string>, warnings: list<string>, errors: list<string>}
+ * @extends ItemImporter<Template>
  */
-class TemplateImporter
+class TemplateImporter extends ItemImporter
 {
+    use ChecksImportedData;
     use SyncsBuilderFields;
     use SyncsBuilderSections;
 
-    public const string ACTION_CREATE = 'create';
+    public function __construct(protected TemplateExporter $exporter) {}
 
-    public const string ACTION_OVERWRITE = 'overwrite';
-
-    public const string ACTION_SKIP = 'skip';
-
-    public const string ACTION_UNCHANGED = 'unchanged';
-
-    public function __construct(
-        protected PortableContent $portable,
-        protected TemplateExporter $exporter,
-    ) {}
-
-    /**
-     * What importing would do, saving nothing
-     *
-     * @param  list<string>  $overwrite  The keys of the items to overwrite rather than skip
-     * @return list<ImportResult>
-     *
-     * @throws ValidationException
-     */
-    public function preview(string $json, array $overwrite = []): array
+    public function kind(): string
     {
-        $items = $this->validItems($json);
-
-        DB::beginTransaction();
-
-        try {
-            return $this->run($items, $overwrite);
-        } finally {
-            DB::rollBack();
-        }
+        return 'template';
     }
 
     /**
-     * Imports everything, or nothing if any of it fails
-     *
-     * @param  list<string>  $overwrite  The keys of the items to overwrite rather than skip
-     * @return list<ImportResult>
-     *
-     * @throws ValidationException
+     * @param  array<mixed>  $item
      */
-    public function import(string $json, array $overwrite = []): array
+    public function key(array $item): ?string
     {
-        $items = $this->validItems($json);
+        $type = is_string($item['type'] ?? null) ? TemplateType::tryFrom($item['type']) : null;
 
-        return DB::transaction(function () use ($items, $overwrite) {
-            $results = $this->run($items, $overwrite);
-
-            foreach ($results as $result) {
-                if ($result['errors'] !== []) {
-                    throw $this->portable->invalid(__('cms.import.validation.item_failed', ['name' => $result['name'], 'error' => $result['errors'][0]]));
-                }
-            }
-
-            return $results;
-        });
+        return $type !== null && is_string($item['slug'] ?? null) ? $this->referenceKey($type->value, $item['slug']) : null;
     }
 
-    /**
-     * Checks the items are templates this version understands, each once. Their fields are checked
-     * later, by the same rules as the template builder.
-     *
-     * @return array<string, array<string, mixed>> By key
-     *
-     * @throws ValidationException
-     */
-    protected function validItems(string $json): array
-    {
-        $items = [];
-
-        foreach ($this->portable->items($json) as $position => $item) {
-            $type = is_array($item) && is_string($item['type'] ?? null) ? TemplateType::tryFrom($item['type']) : null;
-
-            if ($type === null || ($item['kind'] ?? null) !== 'template' || ! is_string($item['slug'] ?? null)) {
-                throw $this->portable->invalid(__('cms.import.validation.unknown_item', ['number' => $position + 1]));
-            }
-
-            $key = $this->key($type->value, $item['slug']);
-
-            if (isset($items[$key])) {
-                throw $this->portable->invalid(__('cms.import.validation.duplicate_item', ['slug' => $item['slug']]));
-            }
-
-            /** @var array<string, mixed> $item */
-            $items[$key] = $item;
-        }
-
-        return $items;
-    }
-
-    protected function key(string $type, string $slug): string
+    protected function referenceKey(string $type, string $slug): string
     {
         return "{$type}/{$slug}";
     }
 
     /**
-     * @param  array<string, array<string, mixed>>  $items
-     * @param  list<string>  $overwrite
-     * @return list<ImportResult>
+     * @param  array<string, mixed>  $item
+     * @return list<string>
      */
-    protected function run(array $items, array $overwrite): array
+    public function dependencies(array $item): array
     {
-        $loops = [];
-        $ordered = [];
-
-        foreach (array_keys($items) as $key) {
-            $this->addInDependencyOrder($key, $items, $ordered, $loops);
-        }
-
-        return array_map(
-            fn (string $key) => $this->importItem($key, $items[$key], in_array($key, $overwrite, true), isset($loops[$key])),
-            array_keys($ordered),
-        );
+        return array_values(array_filter(array_map($this->referenceOf(...), $this->fieldsOf($item))));
     }
 
     /**
-     * Dependencies go first, whatever order the file has them in, so they exist by the time they're
-     * needed. Items that nest each other are noted, as no order would work.
-     *
-     * @param  array<string, array<string, mixed>>  $items
-     * @param  array<string, true>  $ordered
-     * @param  array<string, true>  $loops
-     * @param  list<string>  $path
+     * @param  array<string, mixed>  $item
      */
-    protected function addInDependencyOrder(string $key, array $items, array &$ordered, array &$loops, array $path = []): void
+    protected function type(array $item): string
     {
-        if (isset($ordered[$key])) {
-            return;
-        }
+        return $item['type'];
+    }
 
-        if (in_array($key, $path, true)) {
-            foreach (array_slice($path, (int) array_search($key, $path, true)) as $inLoop) {
-                $loops[$inLoop] = true;
-            }
+    /**
+     * @param  array<string, mixed>  $item
+     */
+    protected function typeLabel(array $item): string
+    {
+        return TemplateType::from($item['type'])->label();
+    }
 
-            return;
-        }
+    /**
+     * @param  array<string, mixed>  $item
+     */
+    protected function existing(array $item): ?Template
+    {
+        return Template::query()->where('type', TemplateType::from($item['type']))->where('slug', $item['slug'])->first();
+    }
 
-        foreach ($this->fieldsOf($items[$key]) as $field) {
-            $reference = $this->referenceOf($field);
+    /**
+     * @param  Template  $existing
+     * @return array<string, mixed>
+     */
+    protected function exported(Model $existing): array
+    {
+        return $this->exporter->item($existing);
+    }
 
-            if ($reference !== null && isset($items[$reference])) {
-                $this->addInDependencyOrder($reference, $items, $ordered, $loops, [...$path, $key]);
-            }
-        }
-
-        $ordered[$key] = true;
+    protected function userCanManage(): bool
+    {
+        return auth()->user()?->can('create', Template::class) ?? false;
     }
 
     /**
@@ -215,52 +132,8 @@ class TemplateImporter
         $reference = is_array($field['settings'] ?? null) ? ($field['settings']['template'] ?? null) : null;
 
         return is_array($reference) && is_string($reference['type'] ?? null) && is_string($reference['slug'] ?? null)
-            ? $this->key($reference['type'], $reference['slug'])
+            ? $this->referenceKey($reference['type'], $reference['slug'])
             : null;
-    }
-
-    /**
-     * @param  array<string, mixed>  $item
-     * @return ImportResult
-     */
-    protected function importItem(string $key, array $item, bool $overwrite, bool $isInLoop): array
-    {
-        $type = TemplateType::from($item['type']);
-        $existing = Template::query()->where('type', $type)->where('slug', $item['slug'])->first();
-
-        $isUnchanged = $existing !== null && $this->canonical($this->exporter->item($existing)) === $this->canonical($item);
-        $canOverwrite = $existing !== null && ! $isUnchanged;
-
-        $result = [
-            'key' => $key,
-            'kind' => 'template',
-            'type' => $type->value,
-            'type_label' => $type->label(),
-            'slug' => $item['slug'],
-            'name' => is_string($item['name'] ?? null) ? $item['name'] : $item['slug'],
-            'action' => match (true) {
-                $existing === null => self::ACTION_CREATE,
-                $isUnchanged => self::ACTION_UNCHANGED,
-                $overwrite => self::ACTION_OVERWRITE,
-                default => self::ACTION_SKIP,
-            },
-            'can_overwrite' => $canOverwrite,
-            'changes' => $canOverwrite ? $this->changes($existing, $item) : [],
-            'warnings' => $canOverwrite ? $this->warnings($existing, $item) : [],
-            'errors' => [],
-        ];
-
-        if (! in_array($result['action'], [self::ACTION_CREATE, self::ACTION_OVERWRITE], true)) {
-            return $result;
-        }
-
-        $result['errors'] = $isInLoop ? [__('cms.templates.validation.nests_itself')] : $this->missingTemplates($item);
-
-        if ($result['errors'] === []) {
-            $result['errors'] = $this->save($item, $existing);
-        }
-
-        return $result;
     }
 
     /**
@@ -301,16 +174,22 @@ class TemplateImporter
      * Saves the template through the same rules and steps as the template builder
      *
      * @param  array<string, mixed>  $item
-     * @return list<string> Anything stopping it being saved
+     * @param  Template|null  $existing
+     * @return array{errors: list<string>, warnings: list<string>}
      */
-    protected function save(array $item, ?Template $existing): array
+    protected function save(array $item, ?Model $existing): array
     {
-        $data = ImportedTemplateData::for($this->builderData($item, $existing), $existing);
+        $missing = $this->missingTemplates($item);
 
-        try {
-            $data->validateResolved();
-        } catch (ValidationException $exception) {
-            return array_values(array_unique(array_merge(...array_values($exception->errors()))));
+        if ($missing !== []) {
+            return ['errors' => $missing, 'warnings' => []];
+        }
+
+        $data = ImportedTemplateData::for($this->builderData($item, $existing), $existing);
+        $errors = $this->validationErrors($data);
+
+        if ($errors !== []) {
+            return ['errors' => $errors, 'warnings' => []];
         }
 
         $template = $existing ?? Template::create($data->templateAttributes());
@@ -319,7 +198,7 @@ class TemplateImporter
         $sectionIds = $this->syncBuilderSections($template->sections(), $data->sectionsAttributes());
         $this->syncBuilderFields($template->fields(), $data->fieldsAttributes($sectionIds));
 
-        return [];
+        return ['errors' => [], 'warnings' => []];
     }
 
     /**
@@ -389,37 +268,13 @@ class TemplateImporter
     }
 
     /**
-     * A form of an item that can be compared, whichever environment it's from and however it's laid out
-     *
-     * @param  array<mixed>  $value
-     * @return array<mixed>
-     */
-    protected function canonical(array $value): array
-    {
-        $canonical = [];
-
-        foreach ($value as $key => $item) {
-            $item = is_array($item) ? $this->canonical($item) : $item;
-
-            if ($item !== null && $item !== [] && $item !== false && $item !== '') {
-                $canonical[$key] = $item;
-            }
-        }
-
-        if (! array_is_list($value)) {
-            ksort($canonical);
-        }
-
-        return $canonical;
-    }
-
-    /**
      * What overwriting would do to the template's fields
      *
+     * @param  Template  $existing
      * @param  array<string, mixed>  $item
      * @return list<string>
      */
-    protected function changes(Template $existing, array $item): array
+    protected function changes(Model $existing, array $item): array
     {
         $incoming = $this->incomingTypes($item);
         $current = $existing->fields()->get();
@@ -440,10 +295,11 @@ class TemplateImporter
      * What overwriting would lose: a removed field's content is deleted, and a field that changes
      * type may no longer be able to show what's saved
      *
+     * @param  Template  $existing
      * @param  array<string, mixed>  $item
      * @return list<string>
      */
-    protected function warnings(Template $existing, array $item): array
+    protected function overwriteWarnings(Model $existing, array $item): array
     {
         $incoming = $this->incomingTypes($item);
         $current = $existing->fields()->get();

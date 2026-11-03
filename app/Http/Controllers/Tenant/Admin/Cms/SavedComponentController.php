@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant\Admin\Cms;
 use App\Enums\Cms\TemplateType;
 use App\Http\Controllers\Controller;
 use App\Http\Queries\Tenant\Admin\Cms\SavedComponentIndexQuery;
+use App\Http\Requests\Tenant\Admin\Cms\SavedComponentExportRequest;
 use App\Http\Requests\Tenant\Admin\Cms\SavedComponentIndexRequest;
 use App\Http\Requests\Tenant\Admin\Cms\SavedComponentStoreRequest;
 use App\Http\Requests\Tenant\Admin\Cms\SavedComponentUpdateRequest;
@@ -15,6 +16,7 @@ use App\Models\Cms\Page;
 use App\Models\Cms\SavedComponent;
 use App\Models\Cms\Template;
 use App\Services\Cms\ContentFieldOptions;
+use App\Services\Cms\Portable\SavedComponentExporter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -51,6 +53,17 @@ class SavedComponentController extends Controller
             'templates' => $this->componentTemplates(withFields: false),
             'canCreate' => $request->user()?->can('create', SavedComponent::class) ?? false,
         ]);
+    }
+
+    /**
+     * The chosen saved components and their templates, as portable JSON
+     */
+    public function export(SavedComponentExportRequest $request, SavedComponentExporter $exporter): JsonResponse
+    {
+        /** @var list<int> $ids */
+        $ids = $request->validated('ids');
+
+        return response()->json($exporter->export(SavedComponent::query()->whereKey($ids)->orderBy('name')->get()));
     }
 
     public function create(): Response

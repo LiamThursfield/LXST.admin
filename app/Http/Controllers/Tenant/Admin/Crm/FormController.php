@@ -3,14 +3,18 @@
 namespace App\Http\Controllers\Tenant\Admin\Crm;
 
 use App\Enums\Crm\FormFieldType;
+use App\Enums\TenantModule;
 use App\Http\Controllers\Concerns\SyncsBuilderFields;
 use App\Http\Controllers\Controller;
 use App\Http\Queries\Tenant\Admin\Crm\FormIndexQuery;
+use App\Http\Requests\Tenant\Admin\Crm\FormExportRequest;
 use App\Http\Requests\Tenant\Admin\Crm\FormIndexRequest;
 use App\Http\Requests\Tenant\Admin\Crm\FormStoreRequest;
 use App\Http\Requests\Tenant\Admin\Crm\FormUpdateRequest;
 use App\Http\Resources\Tenant\Admin\Crm\FormResource;
 use App\Models\Crm\Form;
+use App\Services\Cms\Portable\FormExporter;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -41,7 +45,20 @@ class FormController extends Controller
             ],
             'forms' => FormResource::collection($query->handle($request)),
             'canCreate' => $request->user()?->can('create', Form::class) ?? false,
+            // The import page is part of the CMS
+            'canImport' => ($request->user()?->can('create', Form::class) ?? false) && (tenant()?->hasModule(TenantModule::Cms) ?? false),
         ]);
+    }
+
+    /**
+     * The chosen forms as portable JSON, without their email recipients or submissions
+     */
+    public function export(FormExportRequest $request, FormExporter $exporter): JsonResponse
+    {
+        /** @var list<int> $ids */
+        $ids = $request->validated('ids');
+
+        return response()->json($exporter->export(Form::query()->whereKey($ids)->orderBy('name')->get()));
     }
 
     public function create(): Response

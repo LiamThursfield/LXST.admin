@@ -26,6 +26,7 @@ declare module 'vue' {
     CrmOrganisationUnitContentField: typeof import('./resources/js/tenant/components/cms/fields/CrmOrganisationUnitContentField.vue')['default']
     DeleteAccount: typeof import('./resources/js/components/settings/DeleteAccount.vue')['default']
     EditorLayout: typeof import('./resources/js/components/EditorLayout.vue')['default']
+    ExportActions: typeof import('./resources/js/tenant/components/cms/ExportActions.vue')['default']
     FieldTypePicker: typeof import('./resources/js/tenant/components/builder/FieldTypePicker.vue')['default']
     FileField: typeof import('./resources/js/tenant/components/file-manager/FileField.vue')['default']
     FilePickerModal: typeof import('./resources/js/tenant/components/file-manager/FilePickerModal.vue')['default']
