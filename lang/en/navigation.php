@@ -16,6 +16,8 @@ return [
     'cms' => 'CMS',
     'pages' => 'Pages',
     'view_pages' => 'View Pages',
+    'saved_components' => 'Saved Components',
+    'view_saved_components' => 'View Saved Components',
     'layouts' => 'Layouts',
     'view_layouts' => 'View Layouts',
     'cms_menus' => 'Menus',

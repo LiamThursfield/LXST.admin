@@ -115,6 +115,16 @@ export type LayoutData = {
     actions?: any[];
 };
 
+export type SavedComponentData = {
+    id: number;
+    template_id: number;
+    name: string;
+    slug: string;
+    template?: { id: number; name: string };
+    content?: ContentValues;
+    actions?: any[];
+};
+
 export type PublishStatus = 'published' | 'scheduled' | 'expired' | 'draft';
 
 export type PageMetadata = {

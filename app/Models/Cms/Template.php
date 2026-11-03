@@ -180,10 +180,21 @@ class Template extends Model
     }
 
     /**
+     * @return HasMany<SavedComponent, $this>
+     */
+    public function savedComponents(): HasMany
+    {
+        return $this->hasMany(SavedComponent::class);
+    }
+
+    /**
      * Whether anything uses this template, so it can't be deleted or change type
      */
     public function isInUse(): bool
     {
-        return $this->usedByFields()->exists() || $this->layouts()->exists() || $this->pages()->exists();
+        return $this->usedByFields()->exists()
+            || $this->layouts()->exists()
+            || $this->pages()->exists()
+            || $this->savedComponents()->exists();
     }
 }

@@ -14,6 +14,7 @@ use App\Models\Cms\Menu;
 use App\Models\Cms\Page;
 use App\Models\Cms\PageView;
 use App\Models\Cms\Redirect;
+use App\Models\Cms\SavedComponent;
 use App\Models\Cms\Template;
 use App\Models\Crm\Form;
 use App\Models\Crm\OrganisationUnit;
@@ -26,7 +27,8 @@ use Illuminate\Support\Str;
 /**
  * A small, realistic website to test the CMS admin and the headless API with (#166): templates
  * using every field type (a page and a component laid out in sections, with half-width fields),
- * two layouts, nested menus, pages in every publish status, redirects, and a few weeks of page views.
+ * two layouts, a saved component, nested menus, pages in every publish status, redirects, and a few
+ * weeks of page views.
  *
  * Run within a tenant, e.g. `php artisan tenants:seed --class=CmsSeeder`. Safe to re-run: each kind
  * of data is only seeded when none exists yet.
@@ -44,6 +46,7 @@ class CmsSeeder extends Seeder
     public function run(): void
     {
         $templates = $this->seedTemplates();
+        $this->seedSavedComponents($templates['price_card']);
         $menus = $this->seedMenus();
         $layouts = $this->seedLayouts($templates['layout'], $menus);
         $pages = $this->seedPages($templates, $layouts);
@@ -56,7 +59,7 @@ class CmsSeeder extends Seeder
      * A layout template, components and repeaters, and page templates using every field type,
      * including one built from client-style components (a hero section and a price card)
      *
-     * @return array{layout: Template, cta: Template, feature: Template, standard: Template, landing: Template, pricing: Template}
+     * @return array{layout: Template, cta: Template, feature: Template, standard: Template, landing: Template, pricing: Template, price_card: Template}
      */
     protected function seedTemplates(): array
     {
@@ -143,7 +146,27 @@ class CmsSeeder extends Seeder
             ['price_cards', TemplateFieldType::Repeater, 'More price cards', false, ['template_id' => $priceCardRow->id, 'max_items' => 6]],
         ]);
 
-        return compact('layout', 'cta', 'feature', 'standard', 'landing', 'pricing');
+        return [...compact('layout', 'cta', 'feature', 'standard', 'landing', 'pricing'), 'price_card' => $priceCard];
+    }
+
+    /**
+     * The price card that's edited in one place
+     */
+    protected function seedSavedComponents(Template $priceCard): void
+    {
+        $savedComponent = SavedComponent::query()->firstOrCreate(['slug' => 'standard-pricing'], ['name' => 'Standard pricing', 'template_id' => $priceCard->id]);
+
+        if ($savedComponent->content()->doesntExist()) {
+            $savedComponent->syncContent([
+                'title' => 'Standard pricing',
+                'items' => [
+                    ['name' => 'Up to four hours', 'price' => '£350'],
+                    ['name' => 'Each extra hour', 'price' => '£60'],
+                    ['name' => 'Travel over 30 miles', 'price' => '50p a mile'],
+                ],
+                'button' => ['label' => 'Check your date', 'url' => '/contact'],
+            ]);
+        }
     }
 
     /**
@@ -190,7 +213,7 @@ class CmsSeeder extends Seeder
     /**
      * Pages in every publish status, nested two deep, with content for each template field
      *
-     * @param  array{layout: Template, cta: Template, feature: Template, standard: Template, landing: Template, pricing: Template}  $templates
+     * @param  array{layout: Template, cta: Template, feature: Template, standard: Template, landing: Template, pricing: Template, price_card: Template}  $templates
      * @param  array{default: Layout, minimal: Layout}  $layouts
      * @return array<string, Page>
      */

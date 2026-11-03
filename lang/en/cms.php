@@ -207,6 +207,58 @@ return [
         ],
     ],
 
+    'saved_components' => [
+        'index' => [
+            'title' => 'Saved components',
+            'create' => 'New saved component',
+            'empty' => 'No saved components yet.',
+        ],
+        'create' => [
+            'title' => 'New saved component',
+            'submit' => 'Create saved component',
+        ],
+        'edit' => [
+            'title' => 'Edit :name',
+            'submit' => 'Save changes',
+        ],
+        'show' => [
+            'title' => ':name',
+        ],
+        'columns' => [
+            'name' => 'Name',
+            'slug' => 'Slug',
+            'template' => 'Template',
+        ],
+        'filters' => [
+            'name' => 'Search names',
+            'template' => 'Template',
+        ],
+        'sections' => [
+            'details' => 'Details',
+            'content' => 'Content',
+        ],
+        'fields' => [
+            'name' => 'Name',
+            'slug' => 'Slug',
+            'slug_help' => 'Leave empty to make one from the name.',
+            'template' => 'Template',
+            'template_placeholder' => 'Choose a component template',
+            'template_help' => 'The template decides which content fields the saved component has.',
+            'template_changed' => 'Changing the template keeps content for fields with the same slug. Content for any other fields is removed when you save.',
+            'no_templates' => 'Create a component template first.',
+        ],
+        'content_choose_template' => 'Choose a template to add content.',
+        'confirm_delete' => 'Delete the :name saved component?',
+        'flash' => [
+            'created' => 'Saved component created.',
+            'updated' => 'Saved component updated.',
+            'deleted' => 'Saved component deleted.',
+        ],
+        'validation' => [
+            'template_type' => 'Choose a component template.',
+        ],
+    ],
+
     'layouts' => [
         'index' => [
             'title' => 'Layouts',
@@ -477,7 +529,7 @@ return [
             'nests_itself' => 'That template already contains this one, so using it here would nest content forever.',
             'too_many_repeater_levels' => 'Using that template here would put more than :max lists inside each other.',
             'max_below_min' => 'The maximum can\'t be below the minimum.',
-            'in_use' => 'This template is used by a page, a layout or another template, so it can\'t be deleted.',
+            'in_use' => 'This template is used by a page, a layout, a saved component or another template, so it can\'t be deleted.',
         ],
     ],
 
