@@ -65,16 +65,32 @@ class CmsSeeder extends Seeder
     {
         $template = fn (string $slug, TemplateType $type, string $name, string $description, array $fields) => $this->template($slug, $type, $name, $description, $fields);
 
-        $cta = $template('call-to-action', TemplateType::Component, 'Call to action', 'A heading, a short message and a button.', [
+        $link = $template('link', TemplateType::Component, 'Link', 'A label and where it goes, shown as a link or a button.', [
+            ['label', TemplateFieldType::Text, 'Label', true, ['max_length' => 60]],
+            ['destination', TemplateFieldType::Link, 'Destination', true],
+            ['type', TemplateFieldType::Select, 'Type', false, [
+                'options' => [['label' => 'Link', 'value' => 'link'], ['label' => 'Button', 'value' => 'button']],
+                'default' => 'link',
+            ]],
+            ['style', TemplateFieldType::Select, 'Style', false, [
+                'options' => [['label' => 'Default', 'value' => 'default'], ['label' => 'Primary', 'value' => 'primary'], ['label' => 'Secondary', 'value' => 'secondary']],
+                'default' => 'default',
+            ]],
+        ]);
+        $this->sections($link, [
+            ['Link', null, false, ['label', 'destination']],
+            ['Appearance', 'How the site shows it.', false, ['type', 'style']],
+        ], halfWidth: ['type', 'style']);
+
+        $cta = $template('call-to-action', TemplateType::Component, 'Call to action', 'A heading, a short message and a link.', [
             ['heading', TemplateFieldType::Text, 'Heading', true],
             ['message', TemplateFieldType::Textarea, 'Message', false, ['rows' => 3]],
-            ['button_label', TemplateFieldType::Text, 'Button label', false, ['max_length' => 40]],
-            ['button_url', TemplateFieldType::Text, 'Button link', false],
+            ['link', TemplateFieldType::Component, 'Link', false, ['template_id' => $link->id]],
         ]);
         $this->sections($cta, [
             ['Message', null, false, ['heading', 'message']],
-            ['Button', 'Where the button takes visitors.', false, ['button_label', 'button_url']],
-        ], halfWidth: ['button_label', 'button_url']);
+            ['Link', 'Where it takes visitors.', false, ['link']],
+        ]);
 
         $feature = $template('feature', TemplateType::Repeater, 'Feature', 'One item in a list of features.', [
             ['title', TemplateFieldType::Text, 'Title', true],
@@ -111,19 +127,6 @@ class CmsSeeder extends Seeder
             ['intro', TemplateFieldType::Textarea, 'Intro', false, ['rows' => 4]],
             ['years_running', TemplateFieldType::Number, 'Years running', false, ['min' => 0, 'max' => 100]],
             ...($crm ? [['office', TemplateFieldType::CrmOrganisationUnit, 'Office', false, ['organisation_unit_type' => OrganisationUnitType::Location->value]]] : []),
-        ]);
-
-        $link = $template('link', TemplateType::Component, 'Link', 'A label and where it goes, shown as a link or a button.', [
-            ['label', TemplateFieldType::Text, 'Label', true, ['max_length' => 60]],
-            ['destination', TemplateFieldType::Link, 'Destination', true],
-            ['type', TemplateFieldType::Select, 'Type', false, [
-                'options' => [['label' => 'Link', 'value' => 'link'], ['label' => 'Button', 'value' => 'button']],
-                'default' => 'link',
-            ]],
-            ['style', TemplateFieldType::Select, 'Style', false, [
-                'options' => [['label' => 'Default', 'value' => 'default'], ['label' => 'Primary', 'value' => 'primary'], ['label' => 'Secondary', 'value' => 'secondary']],
-                'default' => 'default',
-            ]],
         ]);
 
         $heroSection = $template('hero-section', TemplateType::Component, 'Hero Section', 'A background image with a heading, a subheading, a short intro and a link.', [
@@ -294,7 +297,17 @@ class CmsSeeder extends Seeder
             ['title' => 'Parties', 'description' => 'Birthdays, anniversaries and everything in between.', 'image' => $featureImage('images/gigs/rooftop-party.jpg', 'A rooftop party at sunset')],
             ['title' => 'Club nights', 'description' => 'House, disco and edits, mixed live all night.', 'image' => $featureImage('images/gigs/club-night.jpg', 'The DJ booth at a club night')],
         ];
-        $cta = ['heading' => 'Planning an event?', 'message' => 'Tell us the date and we\'ll let you know if we\'re free.', 'button_label' => 'Get in touch', 'button_url' => '/contact'];
+        $contact = $page('contact', 'contact', 'Contact', $templates['standard'], $layouts['minimal'], $standard(
+            'Get in touch',
+            ['Send us a message and we\'ll reply within a day.'],
+            ['contact_form' => $form],
+        ));
+        $pageLink = fn (Page $target) => ['link_type' => 'page', 'page_id' => $target->id, 'url' => null, 'target' => null];
+        $cta = [
+            'heading' => 'Planning an event?',
+            'message' => 'Tell us the date and we\'ll let you know if we\'re free.',
+            'link' => ['label' => 'Get in touch', 'destination' => $pageLink($contact), 'type' => 'button', 'style' => 'primary'],
+        ];
 
         $home = $page('home', '', 'Home', $templates['standard'], $layouts['default'], $standard(
             'Music for every moment',
@@ -312,12 +325,6 @@ class CmsSeeder extends Seeder
             ['Every booking includes a planning call, a custom playlist and a song request page for your guests.'],
             ['features' => $features(), 'call_to_action' => $cta],
         ));
-        $contact = $page('contact', 'contact', 'Contact', $templates['standard'], $layouts['minimal'], $standard(
-            'Get in touch',
-            ['Send us a message and we\'ll reply within a day.'],
-            ['contact_form' => $form],
-        ));
-        $pageLink = fn (Page $target) => ['link_type' => 'page', 'page_id' => $target->id, 'url' => null, 'target' => null];
         $pricing = $page('pricing', 'pricing', 'Pricing', $templates['pricing'], $layouts['default'], [
             'hero' => [
                 'background_image' => $featureImage('images/gigs/wedding-barn.jpg', 'A barn wedding reception'),

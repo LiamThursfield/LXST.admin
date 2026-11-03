@@ -49,15 +49,24 @@ test('the CMS seeder lays the standard page template out in sections, with half-
         ->and($fields['body']->settings?->width)->toBeNull();
 });
 
-test('the CMS seeder lays the call to action component out in sections too, for nested editors', function () {
+test('the CMS seeder lays the call to action and link components out in sections too, for nested editors', function () {
     $template = Template::query()->where('slug', 'call-to-action')->sole();
     $fields = $template->fields->keyBy('slug');
+    $link = Template::query()->where('slug', 'link')->sole();
 
-    expect($template->sections->pluck('name')->all())->toBe(['Message', 'Button'])
+    expect($template->sections->pluck('name')->all())->toBe(['Message', 'Link'])
         ->and($fields['heading']->section_id)->toBe($template->sections->first()->id)
-        ->and($fields['button_url']->section_id)->toBe($template->sections->last()->id)
-        ->and($fields['button_label']->settings?->width)->toBe(TemplateFieldWidth::Half)
-        ->and($fields['button_label']->settings?->max_length)->toBe(40);
+        ->and($fields['link']->section_id)->toBe($template->sections->last()->id)
+        ->and($link->sections->pluck('name')->all())->toBe(['Link', 'Appearance'])
+        ->and($link->fields->firstWhere('slug', 'style')->settings?->width)->toBe(TemplateFieldWidth::Half);
+});
+
+test('the seeded call to action links to the contact page, so it follows the page and can\'t hold an unsafe URL', function () {
+    $template = Template::query()->where('slug', 'call-to-action')->sole();
+    $content = Page::query()->where('slug', '')->sole()->contentValues()['call_to_action'];
+
+    expect($template->fields->pluck('slug')->all())->toBe(['heading', 'message', 'link'])
+        ->and($content['link']['destination']['page_id'])->toBe(Page::query()->where('slug', 'contact')->value('id'));
 });
 
 test('the CMS seeder makes client-style components, used and filled in on a pricing page', function () {
