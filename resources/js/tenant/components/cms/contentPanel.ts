@@ -5,6 +5,7 @@ import type {
     TemplateFieldData,
     TemplateSectionData,
 } from '@/types';
+import { isSavedReference } from './nestedTemplates';
 
 /**
  * One item open in the content panel: a row of a list, or a component. It points at where the item
@@ -21,6 +22,8 @@ export type PanelLevel = {
     stateKey: string;
     /** The row's place in the list, or null for a component. */
     index: Ref<number> | null;
+    /** Whether it's only there to read, e.g. inside a saved component being used. */
+    readonly?: boolean;
 };
 
 /** What a level's editor shows. */
@@ -30,6 +33,8 @@ export type PanelContents = {
     values: ContentValues;
     prefix: string;
     stateKey: string;
+    /** The component field it is, if it's one, which also lets the editor choose where its values come from. */
+    component?: { field: TemplateFieldData; parent: ContentValues };
 };
 
 /** The stack of open items, kept by the top content editor. Nothing open means the panel is closed. */
@@ -123,6 +128,10 @@ export function fillNestedValues(
                 values[field.slug] = {};
             }
 
+            if (isSavedReference(values[field.slug])) {
+                continue;
+            }
+
             fillNestedValues(
                 template.fields ?? [],
                 values[field.slug],
@@ -206,6 +215,7 @@ export function levelContents(
                   values: value,
                   prefix: level.prefix,
                   stateKey: level.stateKey,
+                  component: { field: level.field, parent: level.parent },
               }
             : null;
     }
@@ -231,6 +241,7 @@ export function levelContents(
               values: row[only.slug],
               prefix: `${prefix}.${only.slug}`,
               stateKey: `${stateKey}.${only.slug}`,
+              component: { field: only, parent: row },
           }
         : { ...contents, values: row, prefix, stateKey };
 }

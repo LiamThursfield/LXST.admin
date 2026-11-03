@@ -1,5 +1,10 @@
 import type { InjectionKey, Ref } from 'vue';
-import type { TemplateData } from '@/types';
+import type {
+    ContentValues,
+    SavedComponentOption,
+    SavedComponentOptions,
+    TemplateData,
+} from '@/types';
 
 /**
  * The component and repeater templates (with their fields), provided by the page so nested
@@ -53,4 +58,60 @@ export function provideCrmOptions(options: Ref<CrmOptions | null>): void {
 
 export function useCrmOptions() {
     return inject(crmOptionsKey, ref(null));
+}
+
+/** The key a component's value uses to refer to a saved component, in place of its own values. */
+export const savedComponentKey = '_saved_component_id';
+
+/** Whether a component's value is a reference to a saved component, even with nothing chosen yet. */
+export function isSavedReference(value: unknown): value is ContentValues {
+    return !!value && typeof value === 'object' && savedComponentKey in value;
+}
+
+/** What a component's value has in it: a saved component's content if it refers to one. */
+export function resolveSavedValues(
+    values: ContentValues | null | undefined,
+    savedComponents: SavedComponentOption[],
+): ContentValues | null | undefined {
+    return isSavedReference(values)
+        ? savedComponents.find((item) => item.id === values[savedComponentKey])
+              ?.content
+        : values;
+}
+
+type SavedComponentsContext = {
+    items: Ref<SavedComponentOption[]>;
+    canManage: boolean;
+    /** What choosing not to use a saved component is called, e.g. "Custom for this page". */
+    customLabel: string;
+};
+
+const savedComponentsKey: InjectionKey<SavedComponentsContext> =
+    Symbol('cmsSavedComponents');
+
+/**
+ * The saved components component fields can use, provided by the page and layout editors. A saved
+ * component's own editor doesn't provide them, as it can't use other saved components.
+ */
+export function provideSavedComponents(
+    options: SavedComponentOptions | null | undefined,
+    customLabel: string,
+): void {
+    provide(savedComponentsKey, {
+        items: ref(options?.items ?? []),
+        canManage: options?.canManage ?? false,
+        customLabel,
+    });
+}
+
+/** The saved components, or null where they can't be used. */
+export function useSavedComponents(): SavedComponentsContext | null {
+    return inject(savedComponentsKey, null);
+}
+
+/** Just the saved components' list, for what describes a component's content. */
+export function useSavedComponentItems() {
+    const context = useSavedComponents();
+
+    return computed(() => context?.items.value ?? []);
 }

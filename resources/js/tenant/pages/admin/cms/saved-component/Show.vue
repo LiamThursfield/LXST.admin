@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import type { SavedComponentData, TemplateData } from '@/types';
+import type {
+    SavedComponentData,
+    SavedComponentUsage,
+    TemplateData,
+} from '@/types';
 import SavedComponentEditor from './components/SavedComponentEditor.vue';
 
 defineProps<{
     savedComponent: { data: SavedComponentData };
     templates: { data: TemplateData[] };
     nestedTemplates: { data: TemplateData[] };
+    usage: SavedComponentUsage[];
 }>();
 </script>
 
@@ -14,6 +19,7 @@ defineProps<{
         :templates="templates.data"
         :nested-templates="nestedTemplates.data"
         :saved-component="savedComponent.data"
+        :usage="usage"
         readonly
     />
 </template>

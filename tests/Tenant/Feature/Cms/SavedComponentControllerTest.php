@@ -175,7 +175,7 @@ describe('validation', function () {
         $savedComponent = SavedComponent::factory()->create(['slug' => 'mine', 'template_id' => $template->id]);
 
         $this->post(route('admin.cms.saved-components.store'), savedComponentData($template, ['slug' => 'taken']))
-            ->assertSessionHasErrors('slug');
+            ->assertSessionHasErrors(['slug' => __('cms.saved_components.validation.slug_taken')]);
 
         $this->put(route('admin.cms.saved-components.update', $savedComponent), savedComponentData($template, ['slug' => 'mine']))
             ->assertSessionHasNoErrors();

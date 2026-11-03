@@ -9,7 +9,7 @@ import type {
 import ContentEditor from '../ContentEditor.vue';
 import { useCollapsible } from '../contentState';
 import { textValues, withComponentFields } from '../contentSummary';
-import { nestedTemplatesKey } from '../nestedTemplates';
+import { nestedTemplatesKey, useSavedComponentItems } from '../nestedTemplates';
 
 /**
  * One row of a repeater, collapsed to a header: a thumbnail from its first image field, a title
@@ -50,6 +50,7 @@ const row = defineModel<ContentValues>({ required: true });
 const { trans, transChoice } = useTrans();
 
 const nestedTemplates = inject(nestedTemplatesKey, ref([]));
+const savedComponents = useSavedComponentItems();
 
 /** The first error in this row, shown in its header. */
 const error = computed(
@@ -67,11 +68,21 @@ const { open, toggle } = useCollapsible(() => props.stateKey, {
 const bodyId = useId();
 
 const texts = computed(() =>
-    textValues(props.fields, row.value, nestedTemplates.value),
+    textValues(
+        props.fields,
+        row.value,
+        nestedTemplates.value,
+        savedComponents.value,
+    ),
 );
 
 const rowFields = computed(() =>
-    withComponentFields(props.fields, row.value, nestedTemplates.value),
+    withComponentFields(
+        props.fields,
+        row.value,
+        nestedTemplates.value,
+        savedComponents.value,
+    ),
 );
 
 const title = computed(

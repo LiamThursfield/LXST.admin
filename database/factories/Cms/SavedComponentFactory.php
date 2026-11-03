@@ -30,4 +30,14 @@ class SavedComponentFactory extends Factory
             'slug' => Str::slug($name),
         ];
     }
+
+    /**
+     * With the given values, keyed by field slug
+     *
+     * @param  array<string, mixed>  $values
+     */
+    public function withContent(array $values): static
+    {
+        return $this->afterCreating(fn (SavedComponent $savedComponent) => $savedComponent->syncContent($values));
+    }
 }

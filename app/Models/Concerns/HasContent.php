@@ -3,6 +3,7 @@
 namespace App\Models\Concerns;
 
 use App\Models\Cms\Content;
+use App\Models\Cms\SavedComponent;
 use App\Models\Cms\Template;
 use App\Models\Cms\TemplateField;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -52,7 +53,8 @@ trait HasContent
 
     /**
      * Saves the values (keyed by field slug) for the current template's fields, and removes any
-     * content that doesn't belong to its fields, e.g. after the template was changed
+     * content that doesn't belong to its fields, e.g. after the template was changed. Records which
+     * saved components each value uses, so one in use can't be deleted.
      *
      * @param  array<string, mixed>  $values
      */
@@ -71,10 +73,12 @@ trait HasContent
                 continue;
             }
 
-            $this->content()->updateOrCreate(
+            $content = $this->content()->updateOrCreate(
                 ['template_field_id' => $field->id],
                 ['template_field_type' => $field->type, 'data' => $value],
             );
+
+            $content->savedComponents()->sync(SavedComponent::referencedIdsIn($value));
         }
 
         $this->unsetRelation('content');

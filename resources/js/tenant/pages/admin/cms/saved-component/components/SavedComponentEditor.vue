@@ -5,9 +5,15 @@ import {
     store,
     update,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Cms/SavedComponentController';
+import TextLink from '@/components/TextLink.vue';
 import ContentEditor from '@/tenant/components/cms/ContentEditor.vue';
 import { provideNestedTemplates } from '@/tenant/components/cms/nestedTemplates';
-import type { ContentValues, SavedComponentData, TemplateData } from '@/types';
+import type {
+    ContentValues,
+    SavedComponentData,
+    SavedComponentUsage,
+    TemplateData,
+} from '@/types';
 
 const props = withDefaults(
     defineProps<{
@@ -16,15 +22,18 @@ const props = withDefaults(
         templates: TemplateData[];
         /** The component and repeater templates, with their fields, for nested content. */
         nestedTemplates: TemplateData[];
+        /** The pages and layouts using it. */
+        usage?: SavedComponentUsage[];
         readonly?: boolean;
     }>(),
     {
         savedComponent: undefined,
+        usage: () => [],
         readonly: false,
     },
 );
 
-const { trans } = useTrans();
+const { trans, transChoice } = useTrans();
 
 provideNestedTemplates(toRef(props, 'nestedTemplates'));
 
@@ -83,8 +92,44 @@ const breadcrumbs = computed(() => [
     },
 ]);
 
+const isInUse = computed(() => props.usage.length > 0);
+
+/** Where it's used, e.g. "4 pages and 1 layout". */
+const places = computed(() => {
+    const count = (type: SavedComponentUsage['type']) =>
+        props.usage.filter((item) => item.type === type).length;
+    const pages = count('page');
+    const layouts = count('layout');
+
+    if (pages && layouts) {
+        return trans('cms.saved_components.usage.and', {
+            first: transChoice('cms.saved_components.usage.pages', pages),
+            second: transChoice('cms.saved_components.usage.layouts', layouts),
+        });
+    }
+
+    return pages
+        ? transChoice('cms.saved_components.usage.pages', pages)
+        : transChoice('cms.saved_components.usage.layouts', layouts);
+});
+
+const confirmOpen = ref(false);
+
+/** Edits go live straight away everywhere it's used, so check first. */
 function onSubmit() {
     if (props.readonly) return;
+
+    if (isInUse.value) {
+        confirmOpen.value = true;
+
+        return;
+    }
+
+    save();
+}
+
+function save() {
+    confirmOpen.value = false;
 
     form.submit(
         savedComponent
@@ -167,13 +212,17 @@ function onSubmit() {
                         :help="
                             readonly
                                 ? undefined
-                                : templates.length
+                                : isInUse
                                   ? trans(
-                                        'cms.saved_components.fields.template_help',
+                                        'cms.saved_components.usage.template_locked',
                                     )
-                                  : trans(
-                                        'cms.saved_components.fields.no_templates',
-                                    )
+                                  : templates.length
+                                    ? trans(
+                                          'cms.saved_components.fields.template_help',
+                                      )
+                                    : trans(
+                                          'cms.saved_components.fields.no_templates',
+                                      )
                         "
                         :error="form.errors.template_id"
                         required
@@ -181,7 +230,7 @@ function onSubmit() {
                         <USelect
                             v-model.nullable="form.template_id"
                             :items="templateItems"
-                            :disabled="readonly"
+                            :disabled="readonly || isInUse"
                             :placeholder="
                                 trans(
                                     'cms.saved_components.fields.template_placeholder',
@@ -204,6 +253,68 @@ function onSubmit() {
                     />
                 </div>
             </UPageCard>
+
+            <UPageCard
+                v-if="savedComponent"
+                variant="subtle"
+                :title="trans('cms.saved_components.usage.title')"
+            >
+                <p v-if="!isInUse" class="text-muted text-sm">
+                    {{ trans('cms.saved_components.usage.unused') }}
+                </p>
+                <div v-else class="flex flex-col gap-3 text-sm">
+                    <p class="text-highlighted font-medium">
+                        {{
+                            trans('cms.saved_components.usage.used_on', {
+                                places,
+                            })
+                        }}
+                    </p>
+                    <ul class="flex flex-col gap-1.5">
+                        <li
+                            v-for="item in usage"
+                            :key="`${item.type}-${item.name}`"
+                            class="flex items-baseline justify-between gap-2"
+                        >
+                            <TextLink v-if="item.url" :href="item.url">
+                                {{ item.name }}
+                            </TextLink>
+                            <span v-else>{{ item.name }}</span>
+                            <span class="text-muted text-xs">
+                                {{
+                                    trans(
+                                        `cms.saved_components.usage.type.${item.type}`,
+                                    )
+                                }}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </UPageCard>
         </template>
+
+        <UModal
+            v-model:open="confirmOpen"
+            :title="trans('cms.saved_components.usage.confirm_title')"
+            :description="
+                trans('cms.saved_components.usage.confirm_message', { places })
+            "
+        >
+            <template #footer>
+                <div class="flex w-full justify-end gap-2">
+                    <UButton
+                        color="neutral"
+                        variant="subtle"
+                        :label="trans('cms.saved_components.usage.cancel')"
+                        @click="confirmOpen = false"
+                    />
+                    <UButton
+                        :loading="form.processing"
+                        :label="trans('cms.saved_components.usage.confirm')"
+                        @click="save"
+                    />
+                </div>
+            </template>
+        </UModal>
     </EditorLayout>
 </template>

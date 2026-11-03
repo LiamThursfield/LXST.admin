@@ -46,10 +46,10 @@ class CmsSeeder extends Seeder
     public function run(): void
     {
         $templates = $this->seedTemplates();
-        $this->seedSavedComponents($templates['price_card']);
+        $standardPricing = $this->seedSavedComponents($templates['price_card']);
         $menus = $this->seedMenus();
         $layouts = $this->seedLayouts($templates['layout'], $menus);
-        $pages = $this->seedPages($templates, $layouts);
+        $pages = $this->seedPages($templates, $layouts, $standardPricing);
         $this->fillMenus($menus, $pages);
         $this->seedRedirects();
         $this->seedPageViews($pages);
@@ -152,7 +152,7 @@ class CmsSeeder extends Seeder
     /**
      * The price card that's edited in one place
      */
-    protected function seedSavedComponents(Template $priceCard): void
+    protected function seedSavedComponents(Template $priceCard): SavedComponent
     {
         $savedComponent = SavedComponent::query()->firstOrCreate(['slug' => 'standard-pricing'], ['name' => 'Standard pricing', 'template_id' => $priceCard->id]);
 
@@ -167,6 +167,8 @@ class CmsSeeder extends Seeder
                 'button' => ['label' => 'Check your date', 'url' => '/contact'],
             ]);
         }
+
+        return $savedComponent;
     }
 
     /**
@@ -211,13 +213,14 @@ class CmsSeeder extends Seeder
     }
 
     /**
-     * Pages in every publish status, nested two deep, with content for each template field
+     * Pages in every publish status, nested two deep, with content for each template field, and two
+     * pages using the Standard pricing saved component
      *
      * @param  array{layout: Template, cta: Template, feature: Template, standard: Template, landing: Template, pricing: Template, price_card: Template}  $templates
      * @param  array{default: Layout, minimal: Layout}  $layouts
      * @return array<string, Page>
      */
-    protected function seedPages(array $templates, array $layouts): array
+    protected function seedPages(array $templates, array $layouts, SavedComponent $standardPricing): array
     {
         if (Page::query()->exists()) {
             return Page::query()->with('url')->get()->keyBy(fn (Page $page) => $page->slug === '' ? 'home' : $page->slug)->all();
@@ -326,7 +329,15 @@ class CmsSeeder extends Seeder
                         ],
                     ],
                 ],
+                ['card' => $standardPricing->reference()],
             ],
+        ]);
+        $privateHire = $page('private-hire', 'private-hire', 'Private hire', $templates['pricing'], $layouts['default'], [
+            'hero' => [
+                'heading' => 'Hire a DJ for your own night',
+                'subheading' => 'Birthdays, anniversaries and everything in between',
+            ],
+            'price_card' => $standardPricing->reference(),
         ]);
         $contact = $page('contact', 'contact', 'Contact', $templates['standard'], $layouts['minimal'], $standard(
             'Get in touch',
@@ -349,7 +360,7 @@ class CmsSeeder extends Seeder
             'years_running' => 10,
         ], ['published_at' => $now->subMonths(3), 'expired_at' => $now->subWeek()]);
 
-        return compact('home', 'about', 'team', 'history', 'services', 'pricing', 'contact', 'privacy', 'terms', 'summer', 'draft', 'offer');
+        return compact('home', 'about', 'team', 'history', 'services', 'pricing', 'privateHire', 'contact', 'privacy', 'terms', 'summer', 'draft', 'offer');
     }
 
     /**
