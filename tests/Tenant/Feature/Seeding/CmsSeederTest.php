@@ -77,7 +77,7 @@ test('the CMS seeder makes a list of price cards with their own lists, and a com
 
     expect(Template::query()->where('slug', 'pricing-page')->sole()->repeaterLevelsBelow())->toBe(Template::MAX_REPEATER_LEVELS)
         ->and($content['price_card']['button']['label'])->toBe('Check your date')
-        ->and($content['price_cards'])->toHaveCount(2)
+        ->and($content['price_cards'])->toHaveCount(3)
         ->and($content['price_cards'][0]['card']['items'])->toHaveCount(2)
         ->and($content['price_cards'][0]['card']['button']['url'])->toBe('/contact')
         ->and($content['price_cards'][1]['card'])->not->toHaveKey('button');
@@ -120,7 +120,8 @@ test('the CMS seeder makes a Standard pricing saved component from the price car
     expect($savedComponent->name)->toBe('Standard pricing')
         ->and($savedComponent->template->slug)->toBe('price-card')
         ->and($savedComponent->contentValues()['items'])->toHaveCount(3)
-        ->and($savedComponent->contentValues()['button']['label'])->toBe('Check your date');
+        ->and($savedComponent->contentValues()['button']['label'])->toBe('Check your date')
+        ->and($savedComponent->usedBy()->pluck('slug')->sort()->values()->all())->toBe(['pricing', 'private-hire']);
 });
 
 test('the CMS seeder makes redirects and a few weeks of page views for the published pages', function () {

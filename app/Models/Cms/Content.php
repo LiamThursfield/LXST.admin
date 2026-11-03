@@ -7,6 +7,7 @@ use Database\Factories\Cms\ContentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
@@ -66,5 +67,15 @@ class Content extends Model
     public function templateField(): BelongsTo
     {
         return $this->belongsTo(TemplateField::class);
+    }
+
+    /**
+     * The saved components this value uses, kept up to date by HasContent::syncContent()
+     *
+     * @return BelongsToMany<SavedComponent, $this>
+     */
+    public function savedComponents(): BelongsToMany
+    {
+        return $this->belongsToMany(SavedComponent::class, 'cms_content_saved_component');
     }
 }

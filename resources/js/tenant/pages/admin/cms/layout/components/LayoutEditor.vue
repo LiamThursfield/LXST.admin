@@ -11,8 +11,14 @@ import {
     provideCrmOptions,
     provideMenuOptions,
     provideNestedTemplates,
+    provideSavedComponents,
 } from '@/tenant/components/cms/nestedTemplates';
-import type { ContentValues, LayoutData, TemplateData } from '@/types';
+import type {
+    ContentValues,
+    LayoutData,
+    SavedComponentOptions,
+    TemplateData,
+} from '@/types';
 
 const props = withDefaults(
     defineProps<{
@@ -25,6 +31,8 @@ const props = withDefaults(
         menus?: Array<{ value: number; label: string }>;
         /** The CRM forms and organisation units, or null without CRM. */
         crmOptions?: CrmOptions | null;
+        /** The saved components component fields can use. */
+        savedComponentOptions?: SavedComponentOptions;
         readonly?: boolean;
     }>(),
     {
@@ -38,6 +46,10 @@ const { trans } = useTrans();
 provideNestedTemplates(toRef(props, 'nestedTemplates'));
 provideMenuOptions(toRef(() => props.menus ?? []));
 provideCrmOptions(toRef(() => props.crmOptions ?? null));
+provideSavedComponents(
+    props.savedComponentOptions,
+    trans('cms.content.saved.custom_for_layout'),
+);
 
 const layout = props.layout;
 

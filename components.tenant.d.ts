@@ -99,6 +99,7 @@ declare module 'vue' {
     USwitch: typeof import('./node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Switch.vue')['default']
     UTable: typeof import('./node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Table.vue')['default']
     UTextarea: typeof import('./node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Textarea.vue')['default']
+    UTooltip: typeof import('./node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Tooltip.vue')['default']
     UTree: typeof import('./node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Tree.vue')['default']
   }
 }

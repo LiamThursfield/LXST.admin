@@ -4,6 +4,7 @@ namespace App\Services\Cms;
 
 use App\Enums\Cms\TemplateFieldType;
 use App\Enums\TenantModule;
+use App\Models\Cms\SavedComponent;
 use App\Models\Cms\Template;
 use App\Models\Cms\TemplateField;
 use App\Models\Crm\Form;
@@ -36,7 +37,26 @@ class ContentRules
      */
     protected array $nestedTemplates = [];
 
+    /**
+     * Each saved component's template id, by saved component id
+     *
+     * @var array<int, int>|null
+     */
+    protected ?array $savedComponentTemplateIds = null;
+
+    /**
+     * A saved component's own content can't use other saved components
+     */
+    protected bool $allowsSavedComponents = true;
+
     public function __construct(protected RichText $richText) {}
+
+    public function withoutSavedComponents(): static
+    {
+        $this->allowsSavedComponents = false;
+
+        return $this;
+    }
 
     /**
      * @param  array<string, mixed>  $data  The request data, for the repeater rows to validate and to tell whether an
@@ -95,6 +115,7 @@ class ContentRules
             // Image fields are validated by their file and alt text
             $attributes["{$key}.file_id"] = $name;
             $attributes["{$key}.alt"] = __('cms.content.image.alt_attribute', ['field' => $name]);
+            $attributes["{$key}.".SavedComponent::REFERENCE_KEY] = $name;
 
             $nested = in_array($field->type, [TemplateFieldType::Component, TemplateFieldType::Repeater], true)
                 ? $this->nestedTemplate($field)
@@ -141,9 +162,16 @@ class ContentRules
                 ],
                 "{$key}.alt" => ['nullable', 'string', 'max:255'],
             ],
-            // An object of the component template's fields. An optional component only needs its
-            // required fields once something in it has been filled in.
+            // An object of the component template's fields, or a reference to a saved component, which
+            // has its own content so its fields aren't checked here. An optional component only needs
+            // its required fields once something in it has been filled in.
             TemplateFieldType::Component => $this->nestedRules($field, $key, function (Template $template) use ($field, $key, $data, $required, $optional) {
+                $reference = $this->referenceRules($template, $key, data_get($data, $key));
+
+                if ($reference !== null) {
+                    return [$key => [$required, 'array'], ...$reference];
+                }
+
                 $isEmpty = $optional || (! $field->is_required && ! $this->hasValues(data_get($data, $key)));
 
                 return [$key => [$required, 'array'], ...$this->fieldsRules($template, $key, $data, $isEmpty)];
@@ -177,6 +205,33 @@ class ContentRules
                 ]]
                 : [$key => ['nullable', 'integer']],
         };
+    }
+
+    /**
+     * The rules for a component's value that's a reference to a saved component of its template, or
+     * null if it isn't one
+     *
+     * @return array<string, list<mixed>>|null
+     */
+    protected function referenceRules(Template $template, string $key, mixed $value): ?array
+    {
+        $referenceKey = "{$key}.".SavedComponent::REFERENCE_KEY;
+
+        if (! $this->allowsSavedComponents) {
+            return SavedComponent::referencedId($value) === null ? null : [
+                $referenceKey => [fn (string $attribute, mixed $id, Closure $fail) => $fail(__('cms.saved_components.validation.no_references'))],
+            ];
+        }
+
+        return ! SavedComponent::isReference($value) ? null : [
+            $referenceKey => ['required', function (string $attribute, mixed $id, Closure $fail) use ($template): void {
+                $this->savedComponentTemplateIds ??= SavedComponent::query()->pluck('template_id', 'id')->all();
+
+                if (! is_numeric($id) || ($this->savedComponentTemplateIds[(int) $id] ?? null) !== $template->id) {
+                    $fail(__('cms.saved_components.validation.reference_invalid'));
+                }
+            }],
+        ];
     }
 
     /**

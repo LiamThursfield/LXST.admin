@@ -8,6 +8,7 @@ use App\Models\Cms\Layout;
 use App\Models\Cms\Menu;
 use App\Models\Cms\Page;
 use App\Models\Cms\Redirect;
+use App\Models\Cms\SavedComponent;
 use App\Models\Cms\Template;
 use App\Models\Cms\TemplateField;
 use App\Models\Cms\TemplateSection;
@@ -262,6 +263,33 @@ test('the page API needs the CMS module', function () {
     tenant()->update(['modules' => [TenantModule::Crm]]);
 
     getPage('/about')->assertNotFound();
+});
+
+test('editing a saved component changes every page using it, with a fresh cache', function () {
+    $this->actingAs($this->createUserWithPermissions(CmsPermission::cases()));
+
+    $card = Template::factory()->ofType(TemplateType::Component)->create();
+    TemplateField::factory()->for($card)->create(['type' => TemplateFieldType::Text, 'slug' => 'title']);
+    $saved = SavedComponent::factory()->withContent(['title' => 'Standard'])->create(['template_id' => $card->id]);
+
+    $row = Template::factory()->ofType(TemplateType::Repeater)->create();
+    TemplateField::factory()->for($row)->create(['type' => TemplateFieldType::Component, 'slug' => 'card', 'settings' => ['template_id' => $card->id]]);
+
+    apiPage('first', [['type' => TemplateFieldType::Component, 'slug' => 'main', 'settings' => ['template_id' => $card->id]]], ['main' => $saved->reference()]);
+    apiPage('second', [['type' => TemplateFieldType::Repeater, 'slug' => 'cards', 'settings' => ['template_id' => $row->id]]], ['cards' => [['card' => $saved->reference()]]]);
+
+    getPage('/first')->assertJsonPath('data.content.main', ['title' => 'Standard']);
+    getPage('/second')->assertJsonPath('data.content.cards.0.card', ['title' => 'Standard']);
+
+    $this->put(route('admin.cms.saved-components.update', $saved), [
+        'template_id' => $card->id,
+        'name' => $saved->name,
+        'slug' => $saved->slug,
+        'content' => ['title' => 'Updated'],
+    ])->assertSessionHasNoErrors();
+
+    getPage('/first')->assertJsonPath('data.content.main', ['title' => 'Updated']);
+    getPage('/second')->assertJsonPath('data.content.cards.0.card', ['title' => 'Updated']);
 });
 
 test('only successful admin changes refresh cached pages', function () {

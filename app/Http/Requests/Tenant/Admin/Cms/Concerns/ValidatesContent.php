@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Tenant\Admin\Cms\Concerns;
 
 use App\Enums\Cms\TemplateFieldType;
+use App\Models\Cms\SavedComponent;
 use App\Models\Cms\Template;
 use App\Models\Cms\TemplateField;
 use App\Services\Cms\ContentRules;
@@ -86,12 +87,19 @@ trait ValidatesContent
     }
 
     /**
-     * The component's fields, keyed by slug, or null if none are filled in
+     * A reference to a saved component, or the component's fields, keyed by slug, or null if none
+     * are filled in
      *
      * @return array<string, mixed>|null
      */
     protected function componentValue(TemplateField $field, mixed $value): ?array
     {
+        $savedComponentId = SavedComponent::referencedId($value);
+
+        if ($savedComponentId !== null) {
+            return [SavedComponent::REFERENCE_KEY => $savedComponentId];
+        }
+
         $template = $this->contentRuleBuilder()->nestedTemplate($field);
 
         if ($template === null || ! is_array($value)) {
@@ -141,7 +149,23 @@ trait ValidatesContent
      */
     protected function contentRuleBuilder(): ContentRules
     {
-        return $this->contentRuleBuilder ??= app(ContentRules::class);
+        if ($this->contentRuleBuilder === null) {
+            $this->contentRuleBuilder = app(ContentRules::class);
+
+            if (! $this->allowsSavedComponents()) {
+                $this->contentRuleBuilder->withoutSavedComponents();
+            }
+        }
+
+        return $this->contentRuleBuilder;
+    }
+
+    /**
+     * Whether the content can use saved components
+     */
+    protected function allowsSavedComponents(): bool
+    {
+        return true;
     }
 
     /**

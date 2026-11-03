@@ -125,6 +125,29 @@ export type SavedComponentData = {
     actions?: any[];
 };
 
+/** A saved component a component field can use, with its content to show read-only. */
+export type SavedComponentOption = {
+    id: number;
+    template_id: number;
+    name: string;
+    content: ContentValues;
+};
+
+/** The saved components a page or layout editor offers. */
+export type SavedComponentOptions = {
+    items: SavedComponentOption[];
+    /** Whether the user can make and edit saved components. */
+    canManage: boolean;
+};
+
+/** A page or layout using a saved component. */
+export type SavedComponentUsage = {
+    type: 'page' | 'layout';
+    name: string;
+    /** The screen the user can open it on, if there is one. */
+    url: string | null;
+};
+
 export type PublishStatus = 'published' | 'scheduled' | 'expired' | 'draft';
 
 export type PageMetadata = {

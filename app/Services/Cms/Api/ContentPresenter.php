@@ -9,6 +9,7 @@ use App\Enums\TenantModule;
 use App\Http\Resources\Tenant\Api\V1\Crm\FormDefinitionResource;
 use App\Models\Cms\Menu;
 use App\Models\Cms\Page;
+use App\Models\Cms\SavedComponent;
 use App\Models\Cms\Template;
 use App\Models\Cms\TemplateField;
 use App\Models\Cms\Url;
@@ -18,6 +19,7 @@ use App\Models\Crm\OrganisationUnit;
 use App\Models\FileManager\File;
 use App\Services\Cms\ContentRules;
 use App\Services\FileManager\FileManagerStorage;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Turns stored content into what a headless site needs: nested components and repeaters
@@ -33,6 +35,14 @@ class ContentPresenter
 
     public const string FORMAT_JSON = 'json';
 
+    /**
+     * Loaded the first time a component uses one, so many cards don't mean many queries. Starts
+     * afresh with each present(), as a presenter can outlive the request it was made for.
+     *
+     * @var Collection<int, SavedComponent>|null
+     */
+    protected ?Collection $savedComponents = null;
+
     public function __construct(
         protected ContentRules $rules,
         protected FileManagerStorage $files,
@@ -43,6 +53,17 @@ class ContentPresenter
      * @return array<string, mixed>
      */
     public function present(Template $template, array $values, string $format = self::FORMAT_BOTH): array
+    {
+        $this->savedComponents = null;
+
+        return $this->fields($template, $values, $format);
+    }
+
+    /**
+     * @param  array<string, mixed>  $values
+     * @return array<string, mixed>
+     */
+    protected function fields(Template $template, array $values, string $format): array
     {
         return $template->fields
             ->mapWithKeys(fn (TemplateField $field) => [$field->slug => $this->value($field, $values[$field->slug] ?? null, $format)])
@@ -106,7 +127,31 @@ class ContentPresenter
     {
         $template = $this->rules->nestedTemplate($field);
 
-        return $template === null || ! is_array($value) ? null : $this->present($template, $value, $format);
+        if ($template === null || ! is_array($value)) {
+            return null;
+        }
+
+        return SavedComponent::isReference($value)
+            ? $this->savedComponent($template, $value, $format)
+            : $this->fields($template, $value, $format);
+    }
+
+    /**
+     * The saved component's content, in the same shape as a custom component's, or null if it's
+     * gone or has a different template because the field's template was changed
+     *
+     * @param  array<mixed>  $reference
+     * @return array<string, mixed>|null
+     */
+    protected function savedComponent(Template $template, array $reference, string $format): ?array
+    {
+        $this->savedComponents ??= SavedComponent::query()->with(['template.fields', 'content'])->get()->keyBy('id');
+
+        $savedComponent = $this->savedComponents->get(SavedComponent::referencedId($reference));
+
+        return $savedComponent?->template_id === $template->id
+            ? $this->fields($template, $savedComponent->contentValues(), $format)
+            : null;
     }
 
     /**
@@ -121,7 +166,7 @@ class ContentPresenter
         }
 
         return array_values(array_map(
-            fn (mixed $row) => $this->present($template, is_array($row) ? $row : [], $format),
+            fn (mixed $row) => $this->fields($template, is_array($row) ? $row : [], $format),
             $value,
         ));
     }

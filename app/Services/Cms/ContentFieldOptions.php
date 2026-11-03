@@ -4,12 +4,14 @@ namespace App\Services\Cms;
 
 use App\Enums\TenantModule;
 use App\Models\Cms\Menu;
+use App\Models\Cms\SavedComponent;
 use App\Models\Crm\Form;
 use App\Models\Crm\OrganisationUnit;
+use App\Models\User;
 
 /**
- * The choices content fields offer (menus, CRM forms and organisation units), for the page and
- * layout editors
+ * The choices content fields offer (menus, CRM forms, organisation units and saved components), for
+ * the page and layout editors
  */
 class ContentFieldOptions
 {
@@ -22,6 +24,36 @@ class ContentFieldOptions
             ->map(fn (Menu $menu) => ['value' => $menu->id, 'label' => $menu->name])
             ->values()
             ->all();
+    }
+
+    /**
+     * The saved components component fields can use, with their content to show read-only, and
+     * whether the user can make and edit them
+     *
+     * @return array{items: array<int, array{id: int, template_id: int, name: string, content: object}>, canManage: bool}
+     */
+    public function savedComponents(?User $user): array
+    {
+        return [
+            'items' => SavedComponent::query()->with(['template.fields', 'content'])->orderBy('name')->get()
+                ->map(fn (SavedComponent $savedComponent) => $this->savedComponent($savedComponent))
+                ->values()
+                ->all(),
+            'canManage' => $user?->can('create', SavedComponent::class) ?? false,
+        ];
+    }
+
+    /**
+     * @return array{id: int, template_id: int, name: string, content: object}
+     */
+    public function savedComponent(SavedComponent $savedComponent): array
+    {
+        return [
+            'id' => $savedComponent->id,
+            'template_id' => $savedComponent->template_id,
+            'name' => $savedComponent->name,
+            'content' => (object) $savedComponent->contentValues(),
+        ];
     }
 
     /**

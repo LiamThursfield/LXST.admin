@@ -30,7 +30,7 @@ import RepeaterContentField from './fields/RepeaterContentField.vue';
 import RichTextContentField from './fields/RichTextContentField.vue';
 import TextareaContentField from './fields/TextareaContentField.vue';
 import TextContentField from './fields/TextContentField.vue';
-import { nestedTemplatesKey } from './nestedTemplates';
+import { nestedTemplatesKey, useSavedComponentItems } from './nestedTemplates';
 
 /**
  * Edits content for a template's fields (layouts, and pages in #51). Values are keyed by field
@@ -82,6 +82,7 @@ const state = props.sectioned ? provideContentState() : useContentState();
 const panel = props.sectioned ? provideContentPanel() : useContentPanel();
 
 const nestedTemplates = inject(nestedTemplatesKey, ref([]));
+const savedComponents = useSavedComponentItems();
 
 if (props.sectioned) {
     watch(
@@ -189,8 +190,12 @@ function firstErrorIn(fields: TemplateFieldData[]): string | undefined {
 /** What a collapsed card of several fields says is in it: its first text, or how many fields. */
 function fieldsSummary(fields: TemplateFieldData[]): string {
     return (
-        textValues(fields, values.value, nestedTemplates.value)[0] ??
-        transChoice('cms.content.summary.fields', fields.length)
+        textValues(
+            fields,
+            values.value,
+            nestedTemplates.value,
+            savedComponents.value,
+        )[0] ?? transChoice('cms.content.summary.fields', fields.length)
     );
 }
 
@@ -357,8 +362,12 @@ function summaryFor(field: TemplateFieldData): string {
     );
 
     return (
-        textValues(template?.fields ?? [], value, nestedTemplates.value)[0] ??
-        empty
+        textValues(
+            template?.fields ?? [],
+            value,
+            nestedTemplates.value,
+            savedComponents.value,
+        )[0] ?? empty
     );
 }
 

@@ -14,6 +14,7 @@ use App\Models\Cms\Layout;
 use App\Models\Cms\Template;
 use App\Services\Cms\ContentFieldOptions;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -49,7 +50,7 @@ class LayoutController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
         Gate::authorize('create', Layout::class);
 
@@ -58,6 +59,7 @@ class LayoutController extends Controller
             'nestedTemplates' => $this->nestedTemplates(),
             'menuOptions' => $this->fieldOptions->menus(),
             'crmOptions' => $this->fieldOptions->crm(),
+            'savedComponentOptions' => $this->fieldOptions->savedComponents($request->user()),
         ]);
     }
 
@@ -73,7 +75,7 @@ class LayoutController extends Controller
             ->with('success', __('cms.layouts.flash.created'));
     }
 
-    public function show(Layout $layout): Response
+    public function show(Request $request, Layout $layout): Response
     {
         Gate::authorize('view', $layout);
 
@@ -83,10 +85,11 @@ class LayoutController extends Controller
             'nestedTemplates' => $this->nestedTemplates(),
             'menuOptions' => $this->fieldOptions->menus(),
             'crmOptions' => $this->fieldOptions->crm(),
+            'savedComponentOptions' => $this->fieldOptions->savedComponents($request->user()),
         ]);
     }
 
-    public function edit(Layout $layout): Response
+    public function edit(Request $request, Layout $layout): Response
     {
         Gate::authorize('update', $layout);
 
@@ -96,6 +99,7 @@ class LayoutController extends Controller
             'nestedTemplates' => $this->nestedTemplates(),
             'menuOptions' => $this->fieldOptions->menus(),
             'crmOptions' => $this->fieldOptions->crm(),
+            'savedComponentOptions' => $this->fieldOptions->savedComponents($request->user()),
         ]);
     }
 

@@ -108,8 +108,8 @@ function rowStateKey(row: Row): string {
 }
 
 function openRowInPanel(index: number) {
-    panel?.push(
-        rowLevel(
+    panel?.push({
+        ...rowLevel(
             props.field,
             props.parentValues!,
             props.prefix,
@@ -117,7 +117,8 @@ function openRowInPanel(index: number) {
             index,
             nestedTemplates.value,
         ),
-    );
+        readonly: props.disabled,
+    });
 }
 
 /** Puts a new row at the index, open, so it's ready to fill in. */

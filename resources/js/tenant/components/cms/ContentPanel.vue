@@ -8,7 +8,8 @@ import {
 } from './contentPanel';
 import type { PanelLevel } from './contentPanel';
 import { textValues } from './contentSummary';
-import { nestedTemplatesKey } from './nestedTemplates';
+import ComponentContentField from './fields/ComponentContentField.vue';
+import { nestedTemplatesKey, useSavedComponentItems } from './nestedTemplates';
 
 /**
  * A side panel for content nested too deeply to draw inline. Each item opened from inside it goes
@@ -35,6 +36,7 @@ const { trans } = useTrans();
 
 const panel = useContentPanel()!;
 const nestedTemplates = inject(nestedTemplatesKey, ref([]));
+const savedComponents = useSavedComponentItems();
 
 const levels = panel.levels;
 const level = computed(() => levels.value.at(-1));
@@ -64,6 +66,7 @@ function levelTitle(item: PanelLevel): string {
             itemContents?.fields ?? [],
             itemContents?.values,
             nestedTemplates.value,
+            savedComponents.value,
         )[0] ??
         trans('cms.content.repeater.item', { number: item.index.value + 1 })
     );
@@ -95,6 +98,8 @@ const rowCount = computed<number>(() =>
 );
 
 const rowIndex = computed(() => level.value?.index?.value ?? null);
+
+const isReadonly = computed(() => props.readonly || !!level.value?.readonly);
 
 function back() {
     panel.closeTo(levels.value.length - 1);
@@ -217,8 +222,23 @@ watch(
 
         <template #body>
             <div ref="root">
+                <ComponentContentField
+                    v-if="contents?.component"
+                    :key="contents.stateKey"
+                    v-model="
+                        contents.component.parent[contents.component.field.slug]
+                    "
+                    :field="contents.component.field"
+                    :parent-values="contents.component.parent"
+                    :prefix="contents.prefix"
+                    :state-key="contents.stateKey"
+                    :errors="errors"
+                    :disabled="isReadonly"
+                    :framed="false"
+                    is-top-level
+                />
                 <ContentEditor
-                    v-if="contents"
+                    v-else-if="contents"
                     :key="contents.stateKey"
                     :model-value="contents.values"
                     :fields="contents.fields"
@@ -226,7 +246,7 @@ watch(
                     :prefix="contents.prefix"
                     :state-key="contents.stateKey"
                     :errors="errors"
-                    :readonly="readonly"
+                    :readonly="isReadonly"
                 />
             </div>
         </template>
@@ -234,7 +254,7 @@ watch(
         <template #footer>
             <div class="flex w-full items-center justify-between gap-2">
                 <UButton
-                    v-if="rowIndex !== null && !readonly"
+                    v-if="rowIndex !== null && !isReadonly"
                     color="error"
                     variant="ghost"
                     :label="trans('cms.content.panel.remove')"

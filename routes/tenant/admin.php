@@ -93,6 +93,7 @@ Route::name('cms.')->prefix('cms')->middleware(['tenant.module:cms', 'content.ch
     // The URL a page would have, and whether it's free, for the page editor's live check
     Route::get('pages/url-check', [PageController::class, 'urlCheck'])->name('pages.url-check');
     Route::resource('pages', PageController::class);
+    Route::post('saved-components/reusable', [SavedComponentController::class, 'storeReusable'])->name('saved-components.reusable.store');
     Route::resource('saved-components', SavedComponentController::class);
     Route::resource('layouts', LayoutController::class);
     Route::resource('menus', MenuController::class);

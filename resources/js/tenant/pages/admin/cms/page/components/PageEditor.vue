@@ -13,6 +13,7 @@ import {
     provideCrmOptions,
     provideMenuOptions,
     provideNestedTemplates,
+    provideSavedComponents,
 } from '@/tenant/components/cms/nestedTemplates';
 import FileField from '@/tenant/components/file-manager/FileField.vue';
 import type {
@@ -20,6 +21,7 @@ import type {
     PageData,
     PageMetadata,
     PublishStatus,
+    SavedComponentOptions,
     TemplateData,
 } from '@/types';
 
@@ -34,6 +36,8 @@ const props = withDefaults(
         menus?: Array<{ value: number; label: string }>;
         /** The CRM forms and organisation units, or null without CRM. */
         crmOptions?: CrmOptions | null;
+        /** The saved components component fields can use. */
+        savedComponentOptions?: SavedComponentOptions;
         layouts: Array<{ value: number; label: string }>;
         /** The pages this one can sit under. */
         parents: Array<{ value: number; label: string }>;
@@ -52,6 +56,10 @@ const { trans } = useTrans();
 provideNestedTemplates(toRef(props, 'nestedTemplates'));
 provideMenuOptions(toRef(() => props.menus ?? []));
 provideCrmOptions(toRef(() => props.crmOptions ?? null));
+provideSavedComponents(
+    props.savedComponentOptions,
+    trans('cms.content.saved.custom_for_page'),
+);
 
 const page = props.page;
 

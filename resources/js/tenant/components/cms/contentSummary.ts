@@ -1,4 +1,10 @@
-import type { ContentValues, TemplateData, TemplateFieldData } from '@/types';
+import type {
+    ContentValues,
+    SavedComponentOption,
+    TemplateData,
+    TemplateFieldData,
+} from '@/types';
+import { resolveSavedValues } from './nestedTemplates';
 
 /** The field types a row's title and subtitle, and a collapsed summary, can come from. */
 const textTypes = ['text', 'textarea'];
@@ -12,16 +18,20 @@ export function isTextField(field: TemplateFieldData): boolean {
 
 /**
  * The fields and their values, with each component swapped for the fields inside it, so a row made
- * up of a component can be described by what's in that component.
+ * up of a component can be described by what's in that component. A component using a saved
+ * component is described by that saved component's content.
  */
 export function withComponentFields(
     fields: TemplateFieldData[],
     values: ContentValues | null | undefined,
     templates: TemplateData[],
+    savedComponents: SavedComponentOption[] = [],
     visited: number[] = [],
 ): Array<{ field: TemplateFieldData; value: unknown }> {
+    const resolved = resolveSavedValues(values, savedComponents);
+
     return fields.flatMap((field) => {
-        const value = values?.[field.slug];
+        const value = resolved?.[field.slug];
 
         if (field.type !== 'component') {
             return [{ field, value }];
@@ -31,10 +41,13 @@ export function withComponentFields(
         const template = templates.find((item) => item.id === id);
 
         return template && !visited.includes(template.id)
-            ? withComponentFields(template.fields ?? [], value, templates, [
-                  ...visited,
-                  template.id,
-              ])
+            ? withComponentFields(
+                  template.fields ?? [],
+                  value,
+                  templates,
+                  savedComponents,
+                  [...visited, template.id],
+              )
             : [];
     });
 }
@@ -44,8 +57,9 @@ export function textValues(
     fields: TemplateFieldData[],
     values: ContentValues | null | undefined,
     templates: TemplateData[] = [],
+    savedComponents: SavedComponentOption[] = [],
 ): string[] {
-    return withComponentFields(fields, values, templates)
+    return withComponentFields(fields, values, templates, savedComponents)
         .filter(({ field }) => isTextField(field))
         .map(({ value }) => value)
         .filter(

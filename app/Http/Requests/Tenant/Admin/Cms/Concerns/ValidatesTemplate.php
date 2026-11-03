@@ -117,7 +117,7 @@ trait ValidatesTemplate
             "{$list}.*.id" => ['nullable', 'integer', Rule::exists('cms_template_fields', 'id')->where('template_id', $template->id ?? 0)],
             "{$list}.*.type" => ['required', Rule::enum(TemplateFieldType::class), $this->fieldTypeAllowedRule($type)],
             "{$list}.*.name" => ['required', 'string', 'max:120'],
-            "{$list}.*.slug" => ['required', 'string', 'max:120', 'alpha_dash'],
+            "{$list}.*.slug" => ['required', 'string', 'max:120', 'alpha_dash', $this->fieldSlugNotReservedRule()],
             "{$list}.*.description" => ['nullable', 'string', 'max:500'],
             "{$list}.*.is_required" => ['boolean'],
             "{$list}.*.settings" => ['nullable', 'array'],
@@ -131,6 +131,18 @@ trait ValidatesTemplate
             "{$list}.*.settings.organisation_unit_type" => ['nullable', Rule::enum(OrganisationUnitType::class)],
             "{$list}.*.settings.width" => ['nullable', Rule::enum(TemplateFieldWidth::class)],
         ];
+    }
+
+    /**
+     * Keys starting with `_` have a meaning of their own in content, e.g. a saved component reference
+     */
+    protected function fieldSlugNotReservedRule(): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail): void {
+            if (is_string($value) && str_starts_with($value, '_')) {
+                $fail(__('cms.templates.validation.field_slug_reserved'));
+            }
+        };
     }
 
     /**
