@@ -58,6 +58,10 @@ class TenantMenu
 
     public const string MENU_MAIN_SECTION_CMS_ITEM_PAGES_VIEW = 'view';
 
+    public const string MENU_MAIN_SECTION_CMS_ITEM_SAVED_COMPONENTS = 'saved-components';
+
+    public const string MENU_MAIN_SECTION_CMS_ITEM_SAVED_COMPONENTS_VIEW = 'view';
+
     public const string MENU_MAIN_SECTION_CMS_ITEM_LAYOUTS = 'layouts';
 
     public const string MENU_MAIN_SECTION_CMS_ITEM_LAYOUTS_VIEW = 'view';

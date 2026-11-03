@@ -10,6 +10,7 @@ use App\Models\Cms\Menu;
 use App\Models\Cms\Page;
 use App\Models\Cms\PageView;
 use App\Models\Cms\Redirect;
+use App\Models\Cms\SavedComponent;
 use App\Models\Cms\Template;
 use App\Models\Cms\TemplateField;
 use App\Models\Cms\TemplateSection;
@@ -113,6 +114,15 @@ test('the CMS seeder fills layouts and nested menus that link to the seeded page
         ->and(Menu::query()->where('slug', 'footer')->sole()->menu_items->toCollection()->pluck('target')->filter()->values()->all())->toBe(['_blank']);
 });
 
+test('the CMS seeder makes a Standard pricing saved component from the price card template', function () {
+    $savedComponent = SavedComponent::query()->where('slug', 'standard-pricing')->sole();
+
+    expect($savedComponent->name)->toBe('Standard pricing')
+        ->and($savedComponent->template->slug)->toBe('price-card')
+        ->and($savedComponent->contentValues()['items'])->toHaveCount(3)
+        ->and($savedComponent->contentValues()['button']['label'])->toBe('Check your date');
+});
+
 test('the CMS seeder makes redirects and a few weeks of page views for the published pages', function () {
     expect(Redirect::query()->where('is_permanent', true)->exists())->toBeTrue()
         ->and(Redirect::query()->where('is_permanent', false)->exists())->toBeTrue()
@@ -130,7 +140,7 @@ test('the CMS admin pages load with the seeded data, including scheduled and exp
 });
 
 test('running the CMS seeder again creates nothing new', function () {
-    $counts = fn () => [Template::count(), TemplateSection::count(), TemplateField::count(), Layout::count(), Menu::count(), Page::count(), Url::count(), Redirect::count(), PageView::count()];
+    $counts = fn () => [Template::count(), TemplateSection::count(), TemplateField::count(), Layout::count(), SavedComponent::count(), Menu::count(), Page::count(), Url::count(), Redirect::count(), PageView::count()];
     $first = $counts();
 
     $this->seed(CmsSeeder::class);

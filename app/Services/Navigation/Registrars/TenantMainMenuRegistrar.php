@@ -113,6 +113,22 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         ]),
                     ),
                     new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_SAVED_COMPONENTS,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_SAVED_COMPONENTS]),
+                        label: 'navigation.saved_components',
+                        type: MenuItemType::LINK,
+                        icon: 'i-lucide-component',
+                        activePatterns: ['admin.cms.saved-components.*'],
+                        children: Collection::wrap([
+                            new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_SAVED_COMPONENTS_VIEW,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_SAVED_COMPONENTS, TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_SAVED_COMPONENTS_VIEW]),
+                                label: 'navigation.view_saved_components',
+                                to: 'admin.cms.saved-components.index',
+                            )->gate(CmsPermission::ViewContent),
+                        ]),
+                    ),
+                    new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_LAYOUTS,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_LAYOUTS]),
                         label: 'navigation.layouts',
