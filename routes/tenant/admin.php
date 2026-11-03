@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Tenant\Admin\Cms\ContentImportController;
 use App\Http\Controllers\Tenant\Admin\Cms\LayoutController;
 use App\Http\Controllers\Tenant\Admin\Cms\MenuController;
 use App\Http\Controllers\Tenant\Admin\Cms\PageController;
@@ -97,7 +98,12 @@ Route::name('cms.')->prefix('cms')->middleware(['tenant.module:cms', 'content.ch
     Route::resource('saved-components', SavedComponentController::class);
     Route::resource('layouts', LayoutController::class);
     Route::resource('menus', MenuController::class);
+    Route::get('templates/export', [TemplateController::class, 'export'])->name('templates.export');
     Route::resource('templates', TemplateController::class);
+    Route::get('import', [ContentImportController::class, 'show'])->name('import.show');
+    // A dry run changes nothing, so cached pages stay as they are
+    Route::post('import/preview', [ContentImportController::class, 'preview'])->name('import.preview')->withoutMiddleware('content.changed');
+    Route::post('import', [ContentImportController::class, 'store'])->name('import.store');
     Route::resource('redirects', RedirectController::class);
 });
 
