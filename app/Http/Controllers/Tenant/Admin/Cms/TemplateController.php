@@ -9,6 +9,7 @@ use App\Http\Controllers\Concerns\SyncsBuilderFields;
 use App\Http\Controllers\Concerns\SyncsBuilderSections;
 use App\Http\Controllers\Controller;
 use App\Http\Queries\Tenant\Admin\Cms\TemplateIndexQuery;
+use App\Http\Requests\Tenant\Admin\Cms\TemplateCreateRequest;
 use App\Http\Requests\Tenant\Admin\Cms\TemplateIndexRequest;
 use App\Http\Requests\Tenant\Admin\Cms\TemplateStoreRequest;
 use App\Http\Requests\Tenant\Admin\Cms\TemplateUpdateRequest;
@@ -51,11 +52,12 @@ class TemplateController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(TemplateCreateRequest $request): Response
     {
-        Gate::authorize('create', Template::class);
-
-        return Inertia::render('admin/cms/template/Create', $this->builderOptions());
+        return Inertia::render('admin/cms/template/Create', [
+            ...$this->builderOptions(),
+            'initialType' => $request->initialType()?->value,
+        ]);
     }
 
     public function store(TemplateStoreRequest $request): RedirectResponse
@@ -145,8 +147,13 @@ class TemplateController extends Controller
             'nestedTemplates' => Template::query()
                 ->whereIn('type', [TemplateType::Component, TemplateType::Repeater])
                 ->orderBy('name')
-                ->get(['id', 'type', 'name'])
-                ->map(fn (Template $template) => ['id' => $template->id, 'type' => $template->type->value, 'name' => $template->name]),
+                ->get(['id', 'type', 'name', 'description'])
+                ->map(fn (Template $template) => [
+                    'id' => $template->id,
+                    'type' => $template->type->value,
+                    'name' => $template->name,
+                    'description' => $template->description,
+                ]),
             'fieldTypes' => collect(TemplateFieldType::cases())->map(fn (TemplateFieldType $type) => [
                 'value' => $type->value,
                 'label' => $type->label(),

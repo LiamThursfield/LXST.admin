@@ -11,7 +11,10 @@ import BuilderFieldList from '@/tenant/components/builder/BuilderFieldList.vue';
 import type { BuilderFieldRow } from '@/tenant/components/builder/BuilderFieldList.vue';
 import BuilderFieldPanel from '@/tenant/components/builder/BuilderFieldPanel.vue';
 import FieldTypePicker from '@/tenant/components/builder/FieldTypePicker.vue';
-import type { PickerFieldTypeGroup } from '@/tenant/components/builder/FieldTypePicker.vue';
+import type {
+    PickerFieldType,
+    PickerFieldTypeGroup,
+} from '@/tenant/components/builder/FieldTypePicker.vue';
 import type {
     NestedTemplateOption,
     SelectItem,
@@ -39,6 +42,8 @@ const props = withDefaults(
         fieldTypes: TemplateFieldTypeOption[];
         nestedTemplates: NestedTemplateOption[];
         organisationUnitTypes?: SelectItem[];
+        /** The type a new template starts as. */
+        initialType?: TemplateType | null;
         /** Other templates use this one, so its type can't change. */
         isInUse?: boolean;
         readonly?: boolean;
@@ -46,6 +51,7 @@ const props = withDefaults(
     {
         template: undefined,
         organisationUnitTypes: () => [],
+        initialType: null,
         isInUse: false,
         readonly: false,
     },
@@ -78,7 +84,7 @@ function fieldsIn(sectionId: number | null): BuilderField[] {
 }
 
 const form = useForm({
-    type: (template?.type ?? 'page') as TemplateType,
+    type: (template?.type ?? props.initialType ?? 'page') as TemplateType,
     name: template?.name ?? '',
     slug: template?.slug ?? '',
     description: template?.description ?? '',
@@ -211,27 +217,54 @@ const panelDescription = computed(() =>
         : trans('cms.templates.builder.section'),
 );
 
+/** The tenant's component templates, offered by name when this type of template allows component fields. */
+const componentPickerTypes = computed<PickerFieldType[]>(() => {
+    const componentType = allowedFieldTypes.value.find(
+        (type) => type.value === 'component',
+    );
+
+    if (!componentType?.isAvailable || componentType.needsModule) {
+        return [];
+    }
+
+    return nestedTemplateOptions.value
+        .filter((item) => item.type === 'component')
+        .map((item) => ({
+            key: `component-${item.id}`,
+            value: 'component',
+            templateId: item.id,
+            label: item.name,
+            description:
+                item.description ||
+                trans('cms.templates.builder.type_descriptions.component'),
+            icon: templateFieldTypeIcon('component'),
+        }));
+});
+
 /** The types offered for a new field, grouped. Types needing a module the tenant lacks aren't offered. */
 const pickerGroups = computed<PickerFieldTypeGroup[]>(() =>
     templateFieldTypeGroups
         .map((group) => ({
             label: trans(`cms.templates.builder.type_groups.${group}`),
-            types: allowedFieldTypes.value
-                .filter(
-                    (type) =>
-                        !type.needsModule &&
-                        (templateFieldTypeMeta[type.value]?.group ?? 'text') ===
-                            group,
-                )
-                .map((type) => ({
-                    value: type.value,
-                    label: type.label,
-                    description: trans(
-                        `cms.templates.builder.type_descriptions.${type.value}`,
-                    ),
-                    icon: templateFieldTypeIcon(type.value),
-                    disabled: !type.isAvailable,
-                })),
+            types:
+                group === 'components'
+                    ? componentPickerTypes.value
+                    : allowedFieldTypes.value
+                          .filter(
+                              (type) =>
+                                  !type.needsModule &&
+                                  (templateFieldTypeMeta[type.value]?.group ??
+                                      'text') === group,
+                          )
+                          .map((type) => ({
+                              value: type.value,
+                              label: type.label,
+                              description: trans(
+                                  `cms.templates.builder.type_descriptions.${type.value}`,
+                              ),
+                              icon: templateFieldTypeIcon(type.value),
+                              disabled: !type.isAvailable,
+                          })),
         }))
         .filter((group) => group.types.length),
 );
@@ -250,9 +283,40 @@ function newField(type: string): BuilderField {
     });
 }
 
+/** A slug from the name that no other field in the template has, e.g. `price_card_2`. */
+function uniqueFieldSlug(name: string): string {
+    const base = name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '');
+    const taken = lists.value.flatMap((list) =>
+        list.fields.map((field) => field.slug),
+    );
+
+    let slug = base;
+
+    for (let suffix = 2; taken.includes(slug); suffix++) {
+        slug = `${base}_${suffix}`;
+    }
+
+    return slug;
+}
+
+/** A component field for the chosen template, named after it and ready to rename. */
+function newComponentField(templateId: number, name: string): BuilderField {
+    return {
+        ...newField('component'),
+        name,
+        slug: uniqueFieldSlug(name),
+        settings: { template_id: templateId },
+    };
+}
+
 /** Adds the field after the chosen one, at the end of the chosen section, or at the end of the fields with no section. */
-function addField(type: string) {
-    const field = newField(type);
+function addField(type: string, option: PickerFieldType) {
+    const field = option.templateId
+        ? newComponentField(option.templateId, option.label)
+        : newField(type);
 
     if (selectedField.value) {
         selectedField.value.list.fields.splice(

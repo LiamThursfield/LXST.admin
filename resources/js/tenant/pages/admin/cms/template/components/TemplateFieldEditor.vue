@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Link } from '@inertiajs/vue3';
+import { create } from '@/actions/App/Http/Controllers/Tenant/Admin/Cms/TemplateController';
 import type {
     NestedTemplateOption,
     SelectItem,
@@ -217,19 +219,30 @@ const width = computed({
                 <UFormField
                     v-if="typeSettingKeys.includes('template_id')"
                     :label="trans('cms.templates.builder.template_id')"
-                    :help="
-                        nestedTemplateItems.length || readonly
-                            ? undefined
-                            : trans(
-                                  'cms.templates.builder.no_nested_templates',
-                                  {
-                                      type: typeLabel,
-                                  },
-                              )
-                    "
                     :error="error('settings.template_id')"
                     required
                 >
+                    <template
+                        v-if="!nestedTemplateItems.length && !readonly"
+                        #help
+                    >
+                        {{
+                            trans('cms.templates.builder.no_nested_templates', {
+                                type: typeLabel,
+                            })
+                        }}
+                        <Link
+                            :href="create.url({ query: { type: field.type } })"
+                            class="text-primary font-medium hover:underline"
+                        >
+                            {{
+                                trans(
+                                    'cms.templates.builder.no_nested_templates_action',
+                                )
+                            }}
+                        </Link>
+                    </template>
+
                     <USelect
                         v-model.nullable="field.settings.template_id"
                         :items="nestedTemplateItems"

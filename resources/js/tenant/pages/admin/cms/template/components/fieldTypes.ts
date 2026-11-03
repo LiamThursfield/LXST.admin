@@ -3,6 +3,7 @@ export const templateFieldTypeGroups = [
     'text',
     'media',
     'structure',
+    'components',
     'crm',
 ] as const;
 
