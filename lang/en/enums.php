@@ -86,6 +86,7 @@ return [
         'text' => 'Text',
         'textarea' => 'Text area',
         'number' => 'Number',
+        'select' => 'Select',
         'wysiwyg' => 'Rich text',
         'image' => 'Image',
         'repeater' => 'Repeater',

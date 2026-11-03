@@ -69,12 +69,15 @@ trait ValidatesContent
 
     /**
      * Numbers as numbers; rich text as its JSON plus HTML built from it; images as their file and
-     * alt text. Anything blank becomes null, so no content is saved for it.
+     * alt text. Anything blank becomes null, so no content is saved for it. A select's default isn't
+     * stored either: it would make an untouched optional component look filled in, and changing the
+     * default should update existing content.
      */
     protected function storedValue(TemplateField $field, mixed $value): mixed
     {
         return match ($field->type) {
             TemplateFieldType::Number => is_numeric($value) ? $value + 0 : null,
+            TemplateFieldType::Select => filled($value) && $value !== $field->settings?->default ? $value : null,
             TemplateFieldType::Wysiwyg => $this->richTextValue($value),
             TemplateFieldType::Image => is_array($value) && filled($value['file_id'] ?? null)
                 ? ['file_id' => (int) $value['file_id'], 'alt' => filled($value['alt'] ?? null) ? (string) $value['alt'] : null]

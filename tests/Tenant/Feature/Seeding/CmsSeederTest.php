@@ -121,6 +121,7 @@ test('the CMS seeder makes a Standard pricing saved component from the price car
         ->and($savedComponent->template->slug)->toBe('price-card')
         ->and($savedComponent->contentValues()['items'])->toHaveCount(3)
         ->and($savedComponent->contentValues()['button']['label'])->toBe('Check your date')
+        ->and($savedComponent->contentValues()['button']['style'])->toBe('secondary')
         ->and($savedComponent->usedBy()->pluck('slug')->sort()->values()->all())->toBe(['pricing', 'private-hire']);
 });
 

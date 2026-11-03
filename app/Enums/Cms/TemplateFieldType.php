@@ -16,6 +16,7 @@ enum TemplateFieldType: string
     case Text = 'text';
     case Textarea = 'textarea';
     case Number = 'number';
+    case Select = 'select';
     case Wysiwyg = 'wysiwyg';
     case Image = 'image';
     case Repeater = 'repeater';
@@ -67,6 +68,7 @@ enum TemplateFieldType: string
             self::Text => ['max_length'],
             self::Textarea => ['max_length', 'rows'],
             self::Number => ['min', 'max'],
+            self::Select => ['options', 'default'],
             self::Component => ['template_id'],
             self::Repeater => ['template_id', 'min_items', 'max_items'],
             self::CrmOrganisationUnit => ['organisation_unit_type'],

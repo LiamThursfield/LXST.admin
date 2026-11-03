@@ -28,10 +28,24 @@ export type TemplateFieldSettingKey =
     | 'rows'
     | 'min'
     | 'max'
+    | 'options'
+    | 'default'
     | 'template_id'
     | 'min_items'
     | 'max_items'
     | 'organisation_unit_type';
+
+/** The settings drawn as number inputs in the template builder. */
+export type TemplateFieldNumberSettingKey = Exclude<
+    TemplateFieldSettingKey,
+    'organisation_unit_type' | 'options' | 'default'
+>;
+
+/** One of a select field's choices. The site receives the value. */
+export type TemplateFieldOption = {
+    label: string;
+    value: string;
+};
 
 /** A component or repeater template a field can nest (see `TemplateController::builderOptions()`). */
 export type NestedTemplateOption = {
@@ -67,12 +81,9 @@ export type TemplateFieldData = {
     slug: string;
     description: string | null;
     is_required: boolean;
-    settings: Partial<
-        Record<
-            Exclude<TemplateFieldSettingKey, 'organisation_unit_type'>,
-            number | null
-        >
-    > & {
+    settings: Partial<Record<TemplateFieldNumberSettingKey, number | null>> & {
+        options?: TemplateFieldOption[] | null;
+        default?: string | null;
         organisation_unit_type?: string | null;
         width?: TemplateFieldWidth | null;
     };

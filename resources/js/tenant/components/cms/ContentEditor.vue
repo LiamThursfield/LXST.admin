@@ -28,6 +28,7 @@ import MenuContentField from './fields/MenuContentField.vue';
 import NumberContentField from './fields/NumberContentField.vue';
 import RepeaterContentField from './fields/RepeaterContentField.vue';
 import RichTextContentField from './fields/RichTextContentField.vue';
+import SelectContentField from './fields/SelectContentField.vue';
 import TextareaContentField from './fields/TextareaContentField.vue';
 import TextContentField from './fields/TextContentField.vue';
 import { nestedTemplatesKey, useSavedComponentItems } from './nestedTemplates';
@@ -100,6 +101,7 @@ const editors: Record<string, Component> = {
     text: TextContentField,
     textarea: TextareaContentField,
     number: NumberContentField,
+    select: SelectContentField,
     wysiwyg: RichTextContentField,
     image: ImageContentField,
     component: ComponentContentField,
