@@ -8,12 +8,14 @@ import type {
 } from '@/types';
 import ContentEditor from '../ContentEditor.vue';
 import { useCollapsible } from '../contentState';
-import { textValues } from '../contentSummary';
+import { textValues, withComponentFields } from '../contentSummary';
+import { nestedTemplatesKey } from '../nestedTemplates';
 
 /**
  * One row of a repeater, collapsed to a header: a thumbnail from its first image field, a title
- * and subtitle from its text fields, and a menu of actions, which also gives keyboard users a
- * way to reorder without dragging.
+ * and subtitle from its text fields (or how many items are in its first list), and a menu of
+ * actions, which also gives keyboard users a way to reorder without dragging. Fields inside a
+ * component in the row count as the row's own.
  */
 const props = defineProps<{
     /** The repeater template's fields. */
@@ -41,7 +43,9 @@ const emit = defineEmits<{
 
 const row = defineModel<ContentValues>({ required: true });
 
-const { trans } = useTrans();
+const { trans, transChoice } = useTrans();
+
+const nestedTemplates = inject(nestedTemplatesKey, ref([]));
 
 /** The first error in this row, shown in its header. */
 const error = computed(
@@ -58,7 +62,13 @@ const { open, toggle } = useCollapsible(() => props.stateKey, {
 
 const bodyId = useId();
 
-const texts = computed(() => textValues(props.fields, row.value));
+const texts = computed(() =>
+    textValues(props.fields, row.value, nestedTemplates.value),
+);
+
+const rowFields = computed(() =>
+    withComponentFields(props.fields, row.value, nestedTemplates.value),
+);
 
 const title = computed(
     () =>
@@ -66,12 +76,21 @@ const title = computed(
         trans('cms.content.repeater.item', { number: props.index + 1 }),
 );
 
+/** What's in the row's first list, for a row with no second text to show. */
+const itemsSummary = computed(() => {
+    const list = rowFields.value.find(({ field }) => field.type === 'repeater');
+
+    return Array.isArray(list?.value) && list.value.length
+        ? transChoice('cms.content.summary.items', list.value.length)
+        : undefined;
+});
+
 const imageField = computed(() =>
-    props.fields.find((field) => field.type === 'image'),
+    rowFields.value.find(({ field }) => field.type === 'image'),
 );
 
-const image = useFileDetails(() =>
-    imageField.value ? row.value[imageField.value.slug]?.file_id : null,
+const image = useFileDetails(
+    () => (imageField.value?.value as ContentValues | null)?.file_id,
 );
 
 const menuItems = computed<DropdownMenuItem[][]>(() => [
@@ -158,7 +177,7 @@ const menuItems = computed<DropdownMenuItem[][]>(() => [
                     class="min-w-0 flex-1 truncate text-sm"
                     :class="error ? 'text-error' : 'text-muted'"
                 >
-                    {{ error ?? texts[1] }}
+                    {{ error ?? texts[1] ?? itemsSummary }}
                 </span>
                 <UIcon
                     name="i-lucide-chevron-down"

@@ -71,6 +71,17 @@ test('the CMS seeder makes client-style components, used and filled in on a pric
         ->and($content['price_card']['items'])->toHaveCount(3);
 });
 
+test('the CMS seeder makes a list of price cards with their own lists, and a component inside a component', function () {
+    $content = Page::query()->where('slug', 'pricing')->sole()->contentValues();
+
+    expect(Template::query()->where('slug', 'pricing-page')->sole()->repeaterLevelsBelow())->toBe(Template::MAX_REPEATER_LEVELS)
+        ->and($content['price_card']['button']['label'])->toBe('Check your date')
+        ->and($content['price_cards'])->toHaveCount(2)
+        ->and($content['price_cards'][0]['card']['items'])->toHaveCount(2)
+        ->and($content['price_cards'][0]['card']['button']['url'])->toBe('/contact')
+        ->and($content['price_cards'][1]['card'])->not->toHaveKey('button');
+});
+
 test('the CMS seeder makes pages in every publish status, nested, with their content', function () {
     foreach (PublishStatus::cases() as $status) {
         expect(Url::query()->withStatus($status)->exists())->toBeTrue("No {$status->value} page");

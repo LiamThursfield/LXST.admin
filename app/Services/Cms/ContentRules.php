@@ -39,7 +39,8 @@ class ContentRules
     public function __construct(protected RichText $richText) {}
 
     /**
-     * @param  array<string, mixed>  $data  The request data, to tell whether an optional component is being filled in
+     * @param  array<string, mixed>  $data  The request data, for the repeater rows to validate and to tell whether an
+     *                                      optional component is being filled in
      * @return array<string, list<mixed>>
      */
     public function rules(Template $template, string $prefix = 'content', array $data = []): array
@@ -142,8 +143,8 @@ class ContentRules
             ],
             // An object of the component template's fields. An optional component only needs its
             // required fields once something in it has been filled in.
-            TemplateFieldType::Component => $this->nestedRules($field, $key, function (Template $template) use ($field, $key, $data, $required) {
-                $isEmpty = ! $field->is_required && ! $this->hasValues(data_get($data, $key));
+            TemplateFieldType::Component => $this->nestedRules($field, $key, function (Template $template) use ($field, $key, $data, $required, $optional) {
+                $isEmpty = $optional || (! $field->is_required && ! $this->hasValues(data_get($data, $key)));
 
                 return [$key => [$required, 'array'], ...$this->fieldsRules($template, $key, $data, $isEmpty)];
             }),
@@ -153,11 +154,10 @@ class ContentRules
                     $field->is_required && ! $optional ? 'required' : 'nullable',
                     'array',
                     'list',
-                    $settings?->min_items !== null ? 'min:'.$settings->min_items : null,
+                    $settings?->min_items !== null && ! $optional ? 'min:'.$settings->min_items : null,
                     $settings?->max_items !== null ? 'max:'.$settings->max_items : null,
                 ])),
-                "{$key}.*" => ['array'],
-                ...$this->fieldsRules($template, "{$key}.*", $data, $optional),
+                ...$this->rowsRules($template, $key, $data, $optional),
             ]),
             // A menu's id
             TemplateFieldType::CmsMenu => [$key => [$required, 'integer', Rule::exists('cms_menus', 'id')]],
@@ -177,6 +177,32 @@ class ContentRules
                 ]]
                 : [$key => ['nullable', 'integer']],
         };
+    }
+
+    /**
+     * Each row's rules, under its own key (e.g. `content.slides.0.title`) rather than a wildcard, so
+     * whether an optional component in a row is empty is decided for that row alone. Anything that
+     * isn't a list of rows fails the repeater's own rules.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, list<mixed>>
+     */
+    protected function rowsRules(Template $template, string $key, array $data, bool $optional): array
+    {
+        $rows = data_get($data, $key);
+
+        if (! is_array($rows) || ! array_is_list($rows)) {
+            return [];
+        }
+
+        $rules = [];
+
+        foreach (array_keys($rows) as $index) {
+            $rules["{$key}.{$index}"] = ['array'];
+            $rules += $this->fieldsRules($template, "{$key}.{$index}", $data, $optional);
+        }
+
+        return $rules;
     }
 
     /**

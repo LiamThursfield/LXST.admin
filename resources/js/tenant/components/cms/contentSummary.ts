@@ -1,4 +1,4 @@
-import type { ContentValues, TemplateFieldData } from '@/types';
+import type { ContentValues, TemplateData, TemplateFieldData } from '@/types';
 
 /** The field types a row's title and subtitle, and a collapsed summary, can come from. */
 const textTypes = ['text', 'textarea'];
@@ -10,14 +10,44 @@ export function isTextField(field: TemplateFieldData): boolean {
     return textTypes.includes(field.type);
 }
 
-/** The text fields' values, in field order, skipping empty ones. */
+/**
+ * The fields and their values, with each component swapped for the fields inside it, so a row made
+ * up of a component can be described by what's in that component.
+ */
+export function withComponentFields(
+    fields: TemplateFieldData[],
+    values: ContentValues | null | undefined,
+    templates: TemplateData[],
+    visited: number[] = [],
+): Array<{ field: TemplateFieldData; value: unknown }> {
+    return fields.flatMap((field) => {
+        const value = values?.[field.slug];
+
+        if (field.type !== 'component') {
+            return [{ field, value }];
+        }
+
+        const id = field.settings.template_id;
+        const template = templates.find((item) => item.id === id);
+
+        return template && !visited.includes(template.id)
+            ? withComponentFields(template.fields ?? [], value, templates, [
+                  ...visited,
+                  template.id,
+              ])
+            : [];
+    });
+}
+
+/** The text fields' values (and those inside components), in field order, skipping empty ones. */
 export function textValues(
     fields: TemplateFieldData[],
     values: ContentValues | null | undefined,
+    templates: TemplateData[] = [],
 ): string[] {
-    return fields
-        .filter(isTextField)
-        .map((field) => values?.[field.slug])
+    return withComponentFields(fields, values, templates)
+        .filter(({ field }) => isTextField(field))
+        .map(({ value }) => value)
         .filter(
             (value): value is string =>
                 typeof value === 'string' && value.trim() !== '',

@@ -465,6 +465,7 @@ return [
             'field_type_needs_module' => ':field fields need the :module module.',
             'nested_template' => 'Choose a :type template.',
             'nests_itself' => 'That template already contains this one, so using it here would nest content forever.',
+            'too_many_repeater_levels' => 'Using that template here would put more than :max lists inside each other.',
             'max_below_min' => 'The maximum can\'t be below the minimum.',
             'in_use' => 'This template is used by a page, a layout or another template, so it can\'t be deleted.',
         ],

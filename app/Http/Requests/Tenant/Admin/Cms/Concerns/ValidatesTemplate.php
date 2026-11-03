@@ -282,7 +282,8 @@ trait ValidatesTemplate
     /**
      * A component or repeater field must use a template of the matching type, and that template
      * can't contain this one (directly or through its own nested templates), or content would nest
-     * forever
+     * forever. The whole chain can only have so many lists, counting the templates already using
+     * this one, as adding a field here makes those chains longer too.
      */
     protected function nestedTemplateRule(?Template $template): Closure
     {
@@ -304,6 +305,16 @@ trait ValidatesTemplate
 
             if ($template !== null && ($nested->id === $template->id || $nested->nestsTemplate($template))) {
                 $fail(__('cms.templates.validation.nests_itself'));
+
+                return;
+            }
+
+            $levels = ($template?->repeaterLevelsAbove() ?? 0)
+                + ($fieldType === TemplateFieldType::Repeater ? 1 : 0)
+                + $nested->repeaterLevelsBelow();
+
+            if ($levels > Template::MAX_REPEATER_LEVELS) {
+                $fail(__('cms.templates.validation.too_many_repeater_levels', ['max' => Template::MAX_REPEATER_LEVELS]));
             }
         };
     }

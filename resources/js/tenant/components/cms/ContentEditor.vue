@@ -162,7 +162,7 @@ function firstErrorIn(fields: TemplateFieldData[]): string | undefined {
 /** What a collapsed card of several fields says is in it: its first text, or how many fields. */
 function fieldsSummary(fields: TemplateFieldData[]): string {
     return (
-        textValues(fields, values.value)[0] ??
+        textValues(fields, values.value, nestedTemplates.value)[0] ??
         transChoice('cms.content.summary.fields', fields.length)
     );
 }
@@ -329,7 +329,10 @@ function summaryFor(field: TemplateFieldData): string {
         (item) => item.id === field.settings.template_id,
     );
 
-    return textValues(template?.fields ?? [], value)[0] ?? empty;
+    return (
+        textValues(template?.fields ?? [], value, nestedTemplates.value)[0] ??
+        empty
+    );
 }
 
 const overview = computed(() =>
