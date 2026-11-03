@@ -9,13 +9,13 @@ use App\Http\Controllers\Concerns\SyncsBuilderFields;
 use App\Http\Controllers\Concerns\SyncsBuilderSections;
 use App\Http\Controllers\Controller;
 use App\Http\Queries\Tenant\Admin\Cms\TemplateIndexQuery;
+use App\Http\Requests\Tenant\Admin\Cms\TemplateCreateRequest;
 use App\Http\Requests\Tenant\Admin\Cms\TemplateIndexRequest;
 use App\Http\Requests\Tenant\Admin\Cms\TemplateStoreRequest;
 use App\Http\Requests\Tenant\Admin\Cms\TemplateUpdateRequest;
 use App\Http\Resources\Tenant\Admin\Cms\TemplateResource;
 use App\Models\Cms\Template;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
@@ -52,16 +52,11 @@ class TemplateController extends Controller
         ]);
     }
 
-    public function create(Request $request): Response
+    public function create(TemplateCreateRequest $request): Response
     {
-        Gate::authorize('create', Template::class);
-
-        $type = $request->query('type');
-
         return Inertia::render('admin/cms/template/Create', [
             ...$this->builderOptions(),
-            // A link can start the new template as a type, e.g. from a field that needs a component
-            'initialType' => is_string($type) ? TemplateType::tryFrom($type)?->value : null,
+            'initialType' => $request->initialType()?->value,
         ]);
     }
 

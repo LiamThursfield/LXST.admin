@@ -90,15 +90,21 @@ describe('managing', function () {
             );
     });
 
-    test('a new template can start as a type from the link, and ignores an unknown one', function (array $query, ?string $expected) {
+    test('a new template can start as a type from the link', function (array $query, ?string $expected) {
         $this->get(route('admin.cms.templates.create', $query))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page->where('initialType', $expected));
     })->with([
         'a known type' => [['type' => 'component'], 'component'],
         'no type' => [[], null],
-        'an unknown type' => [['type' => 'nonsense'], null],
-        'not a string' => [['type' => ['component']], null],
+    ]);
+
+    test('a new template can\'t start as a type that doesn\'t exist', function (mixed $type) {
+        $this->get(route('admin.cms.templates.create', ['type' => $type]))
+            ->assertSessionHasErrors('type');
+    })->with([
+        'an unknown type' => ['nonsense'],
+        'not a string' => [['component']],
     ]);
 
     test('a template is created with its fields in order, slugs made from names, and only each type\'s settings', function () {
