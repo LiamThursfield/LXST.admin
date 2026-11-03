@@ -15,7 +15,8 @@ import { nestedTemplatesKey } from '../nestedTemplates';
  * One row of a repeater, collapsed to a header: a thumbnail from its first image field, a title
  * and subtitle from its text fields (or how many items are in its first list), and a menu of
  * actions, which also gives keyboard users a way to reorder without dragging. Fields inside a
- * component in the row count as the row's own.
+ * component in the row count as the row's own. Its fields open below it, or in the side panel if
+ * it's nested too deeply to draw inline.
  */
 const props = defineProps<{
     /** The repeater template's fields. */
@@ -31,9 +32,12 @@ const props = defineProps<{
     errors?: Record<string, string | undefined>;
     disabled?: boolean;
     canAdd: boolean;
+    /** Whether choosing it opens it in the side panel, rather than below it. */
+    opensInPanel?: boolean;
 }>();
 
 const emit = defineEmits<{
+    open: [];
     duplicate: [];
     moveUp: [];
     moveDown: [];
@@ -151,9 +155,12 @@ const menuItems = computed<DropdownMenuItem[][]>(() => [
             <button
                 type="button"
                 class="focus-visible:outline-primary flex min-w-0 flex-1 items-center gap-2.5 rounded py-1 text-left focus-visible:outline-2"
-                :aria-expanded="open"
-                :aria-controls="bodyId"
-                @click="toggle"
+                v-bind="
+                    opensInPanel
+                        ? { 'aria-haspopup': 'dialog' }
+                        : { 'aria-expanded': open, 'aria-controls': bodyId }
+                "
+                @click="opensInPanel ? emit('open') : toggle()"
             >
                 <span
                     v-if="imageField"
@@ -180,6 +187,12 @@ const menuItems = computed<DropdownMenuItem[][]>(() => [
                     {{ error ?? texts[1] ?? itemsSummary }}
                 </span>
                 <UIcon
+                    v-if="opensInPanel"
+                    name="i-lucide-chevron-right"
+                    class="text-muted size-4 shrink-0"
+                />
+                <UIcon
+                    v-else
                     name="i-lucide-chevron-down"
                     class="text-muted size-4 shrink-0 transition-transform"
                     :class="{ 'rotate-180': open }"
@@ -204,6 +217,7 @@ const menuItems = computed<DropdownMenuItem[][]>(() => [
         </div>
 
         <div
+            v-if="!opensInPanel"
             v-show="open"
             :id="bodyId"
             class="border-default border-t p-3 sm:p-4"
