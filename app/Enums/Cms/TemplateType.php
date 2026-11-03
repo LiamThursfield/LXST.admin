@@ -36,6 +36,7 @@ enum TemplateType: string
                 TemplateFieldType::Select,
                 TemplateFieldType::Wysiwyg,
                 TemplateFieldType::Image,
+                TemplateFieldType::Link,
                 TemplateFieldType::Component,
                 TemplateFieldType::Repeater,
             ],
@@ -46,6 +47,7 @@ enum TemplateType: string
                 TemplateFieldType::Select,
                 TemplateFieldType::Wysiwyg,
                 TemplateFieldType::Image,
+                TemplateFieldType::Link,
                 TemplateFieldType::Component,
             ],
         };

@@ -20,6 +20,7 @@ export const templateFieldTypeMeta: Record<
     number: { icon: 'i-lucide-hash', group: 'text' },
     select: { icon: 'i-lucide-square-chevron-down', group: 'text' },
     image: { icon: 'i-lucide-image', group: 'media' },
+    link: { icon: 'i-lucide-link', group: 'media' },
     cms_menu: { icon: 'i-lucide-menu', group: 'media' },
     component: { icon: 'i-lucide-box', group: 'structure' },
     repeater: { icon: 'i-lucide-list', group: 'structure' },

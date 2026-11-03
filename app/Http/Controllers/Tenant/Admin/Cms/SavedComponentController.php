@@ -60,6 +60,7 @@ class SavedComponentController extends Controller
         return Inertia::render('admin/cms/saved-component/Create', [
             'templates' => $this->componentTemplates(),
             'nestedTemplates' => $this->nestedTemplates(),
+            'pageOptions' => $this->fieldOptions->pages(),
         ]);
     }
 
@@ -100,6 +101,7 @@ class SavedComponentController extends Controller
             'usage' => $this->usage($request, $savedComponent),
             'templates' => $this->componentTemplates(),
             'nestedTemplates' => $this->nestedTemplates(),
+            'pageOptions' => $this->fieldOptions->pages(),
         ]);
     }
 
@@ -112,6 +114,7 @@ class SavedComponentController extends Controller
             'usage' => $this->usage($request, $savedComponent),
             'templates' => $this->componentTemplates(),
             'nestedTemplates' => $this->nestedTemplates(),
+            'pageOptions' => $this->fieldOptions->pages(),
         ]);
     }
 

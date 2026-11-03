@@ -4,7 +4,7 @@ namespace App\Http\Requests\Tenant\Admin\Cms\Concerns;
 
 use App\Data\Cms\MenuItemData;
 use App\Models\Cms\Menu;
-use Closure;
+use App\Services\Cms\ContentRules;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -54,7 +54,7 @@ trait ValidatesMenu
             "{$prefix}.*.link_type" => ['required', Rule::in([MenuItemData::LINK_PAGE, MenuItemData::LINK_URL])],
             // Each link type ignores the other's field
             "{$prefix}.*.page_id" => ["exclude_if:{$prefix}.*.link_type,url", 'required', 'integer', Rule::exists('cms_pages', 'id')],
-            "{$prefix}.*.url" => ["exclude_if:{$prefix}.*.link_type,page", 'required', 'string', 'max:255', $this->safeUrlRule()],
+            "{$prefix}.*.url" => ["exclude_if:{$prefix}.*.link_type,page", 'required', 'string', 'max:255', ContentRules::safeUrlRule()],
             "{$prefix}.*.target" => ['nullable', Rule::in(['_self', '_blank'])],
             "{$prefix}.*.rel" => ['nullable', 'string', 'max:100'],
             "{$prefix}.*.custom_class" => ['nullable', 'string', 'max:100', 'regex:/^[A-Za-z0-9_\- ]*$/'],
@@ -113,25 +113,6 @@ trait ValidatesMenu
         }
 
         return $attributes;
-    }
-
-    /**
-     * Custom links must be http(s), mailto, tel, a path on the site or an anchor
-     */
-    protected function safeUrlRule(): Closure
-    {
-        return function (string $attribute, mixed $value, Closure $fail): void {
-            $url = trim((string) $value);
-            $scheme = strtolower((string) parse_url($url, PHP_URL_SCHEME));
-
-            $isSafe = (str_starts_with($url, '/') && ! str_starts_with($url, '//'))
-                || str_starts_with($url, '#')
-                || in_array($scheme, ['http', 'https', 'mailto', 'tel'], true);
-
-            if (! $isSafe) {
-                $fail(__('cms.menus.validation.url'));
-            }
-        };
     }
 
     /**

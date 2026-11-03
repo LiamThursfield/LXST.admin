@@ -113,7 +113,20 @@ class CmsSeeder extends Seeder
             ...($crm ? [['office', TemplateFieldType::CrmOrganisationUnit, 'Office', false, ['organisation_unit_type' => OrganisationUnitType::Location->value]]] : []),
         ]);
 
-        $heroSection = $template('hero-section', TemplateType::Component, 'Hero Section', 'A background image with a heading, a subheading and a short intro.', [
+        $link = $template('link', TemplateType::Component, 'Link', 'A label and where it goes, shown as a link or a button.', [
+            ['label', TemplateFieldType::Text, 'Label', true, ['max_length' => 60]],
+            ['destination', TemplateFieldType::Link, 'Destination', true],
+            ['type', TemplateFieldType::Select, 'Type', false, [
+                'options' => [['label' => 'Link', 'value' => 'link'], ['label' => 'Button', 'value' => 'button']],
+                'default' => 'link',
+            ]],
+            ['style', TemplateFieldType::Select, 'Style', false, [
+                'options' => [['label' => 'Default', 'value' => 'default'], ['label' => 'Primary', 'value' => 'primary'], ['label' => 'Secondary', 'value' => 'secondary']],
+                'default' => 'default',
+            ]],
+        ]);
+
+        $heroSection = $template('hero-section', TemplateType::Component, 'Hero Section', 'A background image with a heading, a subheading, a short intro and a link.', [
             ['background_image', TemplateFieldType::Image, 'Background image', false],
             ['heading', TemplateFieldType::Text, 'Heading', true, ['max_length' => 80]],
             ['alignment', TemplateFieldType::Select, 'Alignment', false, [
@@ -122,6 +135,7 @@ class CmsSeeder extends Seeder
             ]],
             ['subheading', TemplateFieldType::Text, 'Subheading', false],
             ['intro', TemplateFieldType::Textarea, 'Intro', false, ['rows' => 3]],
+            ['link', TemplateFieldType::Component, 'Link', false, ['template_id' => $link->id]],
         ]);
 
         $priceItem = $template('price-item', TemplateType::Repeater, 'Price item', 'One line on a price card.', [
@@ -129,19 +143,10 @@ class CmsSeeder extends Seeder
             ['price', TemplateFieldType::Text, 'Price', true, ['max_length' => 40]],
         ]);
 
-        $button = $template('button', TemplateType::Component, 'Button', 'A label and where it takes visitors.', [
-            ['label', TemplateFieldType::Text, 'Label', true, ['max_length' => 40]],
-            ['url', TemplateFieldType::Text, 'Link', true],
-            ['style', TemplateFieldType::Select, 'Style', false, [
-                'options' => [['label' => 'Primary', 'value' => 'primary'], ['label' => 'Secondary', 'value' => 'secondary'], ['label' => 'Text link', 'value' => 'text-link']],
-                'default' => 'primary',
-            ]],
-        ]);
-
-        $priceCard = $template('price-card', TemplateType::Component, 'Price Card', 'A title, a list of items with their prices and an optional button.', [
+        $priceCard = $template('price-card', TemplateType::Component, 'Price Card', 'A title, a list of items with their prices and an optional link.', [
             ['title', TemplateFieldType::Text, 'Title', true],
             ['items', TemplateFieldType::Repeater, 'Items', false, ['template_id' => $priceItem->id, 'max_items' => 20]],
-            ['button', TemplateFieldType::Component, 'Button', false, ['template_id' => $button->id]],
+            ['link', TemplateFieldType::Component, 'Link', false, ['template_id' => $link->id]],
         ]);
 
         $priceCardRow = $template('price-card-row', TemplateType::Repeater, 'Price card row', 'One price card in a list of them.', [
@@ -172,7 +177,13 @@ class CmsSeeder extends Seeder
                     ['name' => 'Each extra hour', 'price' => '£60'],
                     ['name' => 'Travel over 30 miles', 'price' => '50p a mile'],
                 ],
-                'button' => ['label' => 'Check your date', 'url' => '/contact', 'style' => 'secondary'],
+                // A path, as pages are seeded after this; pages link to each other below
+                'link' => [
+                    'label' => 'Check your date',
+                    'destination' => ['link_type' => 'url', 'page_id' => null, 'url' => '/contact', 'target' => null],
+                    'type' => 'button',
+                    'style' => 'secondary',
+                ],
             ]);
         }
 
@@ -301,12 +312,19 @@ class CmsSeeder extends Seeder
             ['Every booking includes a planning call, a custom playlist and a song request page for your guests.'],
             ['features' => $features(), 'call_to_action' => $cta],
         ));
+        $contact = $page('contact', 'contact', 'Contact', $templates['standard'], $layouts['minimal'], $standard(
+            'Get in touch',
+            ['Send us a message and we\'ll reply within a day.'],
+            ['contact_form' => $form],
+        ));
+        $pageLink = fn (Page $target) => ['link_type' => 'page', 'page_id' => $target->id, 'url' => null, 'target' => null];
         $pricing = $page('pricing', 'pricing', 'Pricing', $templates['pricing'], $layouts['default'], [
             'hero' => [
                 'background_image' => $featureImage('images/gigs/wedding-barn.jpg', 'A barn wedding reception'),
                 'heading' => 'Simple, honest pricing',
                 'subheading' => 'No hidden extras',
                 'intro' => 'Every booking includes a planning call and a song request page for your guests.',
+                'link' => ['label' => 'Get in touch', 'destination' => $pageLink($contact), 'type' => 'button', 'style' => 'primary'],
             ],
             'price_card' => [
                 'title' => 'Weddings',
@@ -315,7 +333,7 @@ class CmsSeeder extends Seeder
                     ['name' => 'Ceremony and evening', 'price' => '£650'],
                     ['name' => 'Uplighting', 'price' => 'From £120'],
                 ],
-                'button' => ['label' => 'Check your date', 'url' => '/contact'],
+                'link' => ['label' => 'Check your date', 'destination' => $pageLink($contact), 'type' => 'button', 'style' => 'primary'],
             ],
             'price_cards' => [
                 [
@@ -325,7 +343,7 @@ class CmsSeeder extends Seeder
                             ['name' => 'Up to four hours', 'price' => '£320'],
                             ['name' => 'Each extra hour', 'price' => '£60'],
                         ],
-                        'button' => ['label' => 'Book a party', 'url' => '/contact'],
+                        'link' => ['label' => 'Book a party', 'destination' => $pageLink($contact)],
                     ],
                 ],
                 [
@@ -334,6 +352,11 @@ class CmsSeeder extends Seeder
                         'items' => [
                             ['name' => 'Evening event', 'price' => 'From £550'],
                             ['name' => 'Awards night with sound system', 'price' => 'From £800'],
+                        ],
+                        'link' => [
+                            'label' => 'Download our brochure',
+                            'destination' => ['link_type' => 'url', 'page_id' => null, 'url' => 'https://example.com/corporate-brochure.pdf', 'target' => '_blank'],
+                            'style' => 'secondary',
                         ],
                     ],
                 ],
@@ -348,11 +371,6 @@ class CmsSeeder extends Seeder
             ],
             'price_card' => $standardPricing->reference(),
         ]);
-        $contact = $page('contact', 'contact', 'Contact', $templates['standard'], $layouts['minimal'], $standard(
-            'Get in touch',
-            ['Send us a message and we\'ll reply within a day.'],
-            ['contact_form' => $form],
-        ));
         $privacy = $page('privacy', 'privacy', 'Privacy policy', $templates['standard'], $layouts['minimal'], $standard('Privacy policy', ['We only keep your details to plan your event.']));
         $terms = $page('terms', 'terms', 'Terms', $templates['standard'], $layouts['minimal'], $standard('Terms and conditions', ['A 25% deposit secures your date.']));
 

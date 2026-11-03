@@ -11,7 +11,7 @@ use App\Http\Requests\Tenant\Admin\Cms\MenuUpdateRequest;
 use App\Http\Resources\Tenant\Admin\Cms\MenuResource;
 use App\Models\Cms\Content;
 use App\Models\Cms\Menu;
-use App\Models\Cms\Page;
+use App\Services\Cms\ContentFieldOptions;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
@@ -20,6 +20,8 @@ use Inertia\Response;
 
 class MenuController extends Controller
 {
+    public function __construct(protected ContentFieldOptions $fieldOptions) {}
+
     public function index(MenuIndexRequest $request, MenuIndexQuery $query): Response
     {
         return Inertia::render('admin/cms/menu/Index', [
@@ -49,7 +51,7 @@ class MenuController extends Controller
         Gate::authorize('create', Menu::class);
 
         return Inertia::render('admin/cms/menu/Create', [
-            'pages' => $this->pageOptions(),
+            'pages' => $this->fieldOptions->pages(),
         ]);
     }
 
@@ -67,7 +69,7 @@ class MenuController extends Controller
 
         return Inertia::render('admin/cms/menu/Show', [
             'menu' => new MenuResource($menu),
-            'pages' => $this->pageOptions(),
+            'pages' => $this->fieldOptions->pages(),
         ]);
     }
 
@@ -77,7 +79,7 @@ class MenuController extends Controller
 
         return Inertia::render('admin/cms/menu/Edit', [
             'menu' => new MenuResource($menu),
-            'pages' => $this->pageOptions(),
+            'pages' => $this->fieldOptions->pages(),
         ]);
     }
 
@@ -109,25 +111,5 @@ class MenuController extends Controller
         $menu->delete();
 
         return redirect()->back()->with('success', __('cms.menus.flash.deleted'));
-    }
-
-    /**
-     * The pages items can link to, in URL order
-     *
-     * @return array<int, array{value: int, label: string, url: string|null}>
-     */
-    protected function pageOptions(): array
-    {
-        return Page::query()
-            ->with('url')
-            ->get()
-            ->sortBy(fn (Page $page) => $page->url->url_full ?? '')
-            ->map(fn (Page $page) => [
-                'value' => $page->id,
-                'label' => $page->name.' ('.($page->url->url_full ?? '?').')',
-                'url' => $page->url?->url_full,
-            ])
-            ->values()
-            ->all();
     }
 }

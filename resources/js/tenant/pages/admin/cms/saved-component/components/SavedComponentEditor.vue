@@ -7,9 +7,13 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Cms/SavedComponentController';
 import TextLink from '@/components/TextLink.vue';
 import ContentEditor from '@/tenant/components/cms/ContentEditor.vue';
-import { provideNestedTemplates } from '@/tenant/components/cms/nestedTemplates';
+import {
+    provideLinkPages,
+    provideNestedTemplates,
+} from '@/tenant/components/cms/nestedTemplates';
 import type {
     ContentValues,
+    MenuPageOption,
     SavedComponentData,
     SavedComponentUsage,
     TemplateData,
@@ -22,6 +26,8 @@ const props = withDefaults(
         templates: TemplateData[];
         /** The component and repeater templates, with their fields, for nested content. */
         nestedTemplates: TemplateData[];
+        /** The pages link fields can go to. */
+        pageOptions?: MenuPageOption[];
         /** The pages and layouts using it. */
         usage?: SavedComponentUsage[];
         readonly?: boolean;
@@ -36,6 +42,7 @@ const props = withDefaults(
 const { trans, transChoice } = useTrans();
 
 provideNestedTemplates(toRef(props, 'nestedTemplates'));
+provideLinkPages(toRef(() => props.pageOptions ?? []));
 
 const savedComponent = props.savedComponent;
 

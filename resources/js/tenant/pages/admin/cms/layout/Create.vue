@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import type { CrmOptions } from '@/tenant/components/cms/nestedTemplates';
-import type { SavedComponentOptions, TemplateData } from '@/types';
+import type {
+    MenuPageOption,
+    SavedComponentOptions,
+    TemplateData,
+} from '@/types';
 import LayoutEditor from './components/LayoutEditor.vue';
 
 defineProps<{
@@ -8,6 +12,7 @@ defineProps<{
     nestedTemplates: { data: TemplateData[] };
     menuOptions: Array<{ value: number; label: string }>;
     crmOptions: CrmOptions | null;
+    pageOptions: MenuPageOption[];
     savedComponentOptions: SavedComponentOptions;
 }>();
 </script>
@@ -18,6 +23,7 @@ defineProps<{
         :nested-templates="nestedTemplates.data"
         :menus="menuOptions"
         :crm-options="crmOptions"
+        :page-options="pageOptions"
         :saved-component-options="savedComponentOptions"
     />
 </template>

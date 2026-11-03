@@ -11,6 +11,7 @@ import ContentEditor from '@/tenant/components/cms/ContentEditor.vue';
 import {
     type CrmOptions,
     provideCrmOptions,
+    provideLinkPages,
     provideMenuOptions,
     provideNestedTemplates,
     provideSavedComponents,
@@ -21,6 +22,7 @@ import type {
     PageData,
     PageMetadata,
     PublishStatus,
+    MenuPageOption,
     SavedComponentOptions,
     TemplateData,
 } from '@/types';
@@ -36,6 +38,8 @@ const props = withDefaults(
         menus?: Array<{ value: number; label: string }>;
         /** The CRM forms and organisation units, or null without CRM. */
         crmOptions?: CrmOptions | null;
+        /** The pages link fields can go to. */
+        pageOptions?: MenuPageOption[];
         /** The saved components component fields can use. */
         savedComponentOptions?: SavedComponentOptions;
         layouts: Array<{ value: number; label: string }>;
@@ -56,6 +60,7 @@ const { trans } = useTrans();
 provideNestedTemplates(toRef(props, 'nestedTemplates'));
 provideMenuOptions(toRef(() => props.menus ?? []));
 provideCrmOptions(toRef(() => props.crmOptions ?? null));
+provideLinkPages(toRef(() => props.pageOptions ?? []));
 provideSavedComponents(
     props.savedComponentOptions,
     trans('cms.content.saved.custom_for_page'),

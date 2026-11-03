@@ -24,6 +24,7 @@ import ComponentContentField from './fields/ComponentContentField.vue';
 import CrmFormContentField from './fields/CrmFormContentField.vue';
 import CrmOrganisationUnitContentField from './fields/CrmOrganisationUnitContentField.vue';
 import ImageContentField from './fields/ImageContentField.vue';
+import LinkContentField from './fields/LinkContentField.vue';
 import MenuContentField from './fields/MenuContentField.vue';
 import NumberContentField from './fields/NumberContentField.vue';
 import RepeaterContentField from './fields/RepeaterContentField.vue';
@@ -104,6 +105,7 @@ const editors: Record<string, Component> = {
     select: SelectContentField,
     wysiwyg: RichTextContentField,
     image: ImageContentField,
+    link: LinkContentField,
     component: ComponentContentField,
     repeater: RepeaterContentField,
     cms_menu: MenuContentField,
