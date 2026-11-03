@@ -93,11 +93,14 @@ Route::name('file-manager.')->prefix('file-manager')->middleware('content.change
 Route::name('cms.')->prefix('cms')->middleware(['tenant.module:cms', 'content.changed'])->group(function () {
     // The URL a page would have, and whether it's free, for the page editor's live check
     Route::get('pages/url-check', [PageController::class, 'urlCheck'])->name('pages.url-check');
+    Route::get('pages/export', [PageController::class, 'export'])->name('pages.export');
     Route::resource('pages', PageController::class);
     Route::post('saved-components/reusable', [SavedComponentController::class, 'storeReusable'])->name('saved-components.reusable.store');
     Route::get('saved-components/export', [SavedComponentController::class, 'export'])->name('saved-components.export');
     Route::resource('saved-components', SavedComponentController::class);
+    Route::get('layouts/export', [LayoutController::class, 'export'])->name('layouts.export');
     Route::resource('layouts', LayoutController::class);
+    Route::get('menus/export', [MenuController::class, 'export'])->name('menus.export');
     Route::resource('menus', MenuController::class);
     Route::get('templates/export', [TemplateController::class, 'export'])->name('templates.export');
     Route::resource('templates', TemplateController::class);
@@ -105,6 +108,7 @@ Route::name('cms.')->prefix('cms')->middleware(['tenant.module:cms', 'content.ch
     // A dry run changes nothing, so cached pages stay as they are
     Route::post('import/preview', [ContentImportController::class, 'preview'])->name('import.preview')->withoutMiddleware('content.changed');
     Route::post('import', [ContentImportController::class, 'store'])->name('import.store');
+    Route::get('redirects/export', [RedirectController::class, 'export'])->name('redirects.export');
     Route::resource('redirects', RedirectController::class);
 });
 

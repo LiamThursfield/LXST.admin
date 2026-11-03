@@ -196,7 +196,7 @@ describe('the dry run', function () {
 
     test('an item that already exists is skipped by default, and can be overwritten', function () {
         $template = Template::factory()->create(['slug' => 'landing', 'name' => 'Old']);
-        $key = 'page/landing';
+        $key = 'template/page/landing';
 
         previewImport([portableTemplate('landing')])
             ->assertJsonPath('items.0.action', 'skip')
@@ -281,7 +281,7 @@ describe('importing', function () {
         confirmImport([portableTemplate('landing')])->assertSessionHasNoErrors();
         expect($template->refresh()->name)->toBe('Old');
 
-        confirmImport([portableTemplate('landing')], ['page/landing'])->assertSessionHasNoErrors();
+        confirmImport([portableTemplate('landing')], ['template/page/landing'])->assertSessionHasNoErrors();
         expect($template->refresh()->name)->toBe('Landing');
     });
 
@@ -292,7 +292,7 @@ describe('importing', function () {
         $page = Page::factory()->create(['template_id' => $template->id]);
         $page->syncContent(['kept' => 'Stays', 'gone' => 'Lost']);
 
-        confirmImport([portableTemplate('landing', [portableField('kept', 'text', ['name' => 'Renamed'])])], ['page/landing'])
+        confirmImport([portableTemplate('landing', [portableField('kept', 'text', ['name' => 'Renamed'])])], ['template/page/landing'])
             ->assertSessionHasNoErrors();
 
         expect($kept->refresh()->name)->toBe('Renamed')
@@ -307,7 +307,7 @@ describe('importing', function () {
 
         confirmImport([portableTemplate('landing', [], 'page', ['sections' => [
             ['name' => 'Hero', 'description' => 'New words', 'is_collapsed' => true, 'fields' => [portableField('heading')]],
-        ]])], ['page/landing'])->assertSessionHasNoErrors();
+        ]])], ['template/page/landing'])->assertSessionHasNoErrors();
 
         $section = $template->sections()->sole();
 
@@ -323,7 +323,7 @@ describe('importing', function () {
             portableTemplate('first', [portableField('title')]),
             portableTemplate('existing'),
             portableTemplate('broken', [portableField('title', 'not_a_type')]),
-        ], ['page/existing'])->assertSessionHasErrors('json');
+        ], ['template/page/existing'])->assertSessionHasErrors('json');
 
         expect(Template::query()->where('slug', 'first')->exists())->toBeFalse()
             ->and($existing->refresh()->name)->toBe('Old');
@@ -398,7 +398,7 @@ describe('what can\'t be imported', function () {
         $outer = Template::factory()->ofType(TemplateType::Component)->create(['slug' => 'outer']);
         TemplateField::factory()->for($outer)->usingTemplate($inner)->create(['slug' => 'inner']);
 
-        previewImport([portableTemplate('inner', [portableField('outer', 'component', ['settings' => ['template' => ['type' => 'component', 'slug' => 'outer']]])], 'component')], ['component/inner'])
+        previewImport([portableTemplate('inner', [portableField('outer', 'component', ['settings' => ['template' => ['type' => 'component', 'slug' => 'outer']]])], 'component')], ['template/component/inner'])
             ->assertJsonPath('items.0.errors.0', __('cms.templates.validation.nests_itself'));
     });
 
@@ -435,7 +435,7 @@ describe('what can\'t be imported', function () {
         previewImport([portableTemplate('with-id', [portableField('card', 'component', ['settings' => ['template_id' => $other->id]])])])
             ->assertJsonPath('items.0.errors.0', fn (string $error) => str_contains($error, 'required') || str_contains($error, 'Template'));
 
-        confirmImport([portableTemplate('landing', [portableField('heading', 'text', ['id' => $field->id])])], ['page/landing'])
+        confirmImport([portableTemplate('landing', [portableField('heading', 'text', ['id' => $field->id])])], ['template/page/landing'])
             ->assertSessionHasNoErrors();
 
         expect($field->refresh()->name)->toBe('Theirs')

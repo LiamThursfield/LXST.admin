@@ -2,7 +2,10 @@
 
 namespace App\Services\Cms\Portable;
 
+use App\Enums\Cms\TemplateType;
+use App\Models\Cms\Template;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 /**
  * Imports one kind of portable item: whether it's new, already here, changed or to be skipped, and
@@ -57,6 +60,87 @@ abstract class ItemImporter
     }
 
     /**
+     * What the item is known by, to show in the results
+     *
+     * @param  array<string, mixed>  $item
+     */
+    protected function identifier(array $item): string
+    {
+        return $item['slug'];
+    }
+
+    /**
+     * @param  array<string, mixed>  $item
+     */
+    protected function name(array $item): string
+    {
+        return is_string($item['name'] ?? null) ? $item['name'] : $this->identifier($item);
+    }
+
+    /**
+     * Something to save a new record with until its details have been checked, in the second pass
+     *
+     * @param  array<string, mixed>  $item
+     */
+    protected function placeholderName(array $item): string
+    {
+        return mb_substr($this->name($item), 0, 120);
+    }
+
+    /**
+     * Whether something could be a slug, so it's safe to save while it's still to be checked
+     */
+    protected function validSlug(mixed $slug): bool
+    {
+        return is_string($slug) && $slug !== '' && strlen($slug) <= 120;
+    }
+
+    /**
+     * The key of the template something refers to
+     */
+    protected function templateKey(mixed $reference): ?string
+    {
+        return is_array($reference) && is_string($reference['type'] ?? null) && is_string($reference['slug'] ?? null)
+            ? "template/{$reference['type']}/{$reference['slug']}"
+            : null;
+    }
+
+    protected function referencedTemplate(mixed $reference): ?Template
+    {
+        $type = is_array($reference) && is_string($reference['type'] ?? null) ? TemplateType::tryFrom($reference['type']) : null;
+
+        return $type !== null && is_string($reference['slug'] ?? null)
+            ? Template::query()->with('fields')->where('type', $type)->where('slug', $reference['slug'])->first()
+            : null;
+    }
+
+    protected function missingTemplateMessage(mixed $reference): string
+    {
+        return (string) __('cms.import.validation.item_template_missing', ['template' => Str::after($this->templateKey($reference) ?? '?', 'template/')]);
+    }
+
+    /**
+     * What to say about references that aren't here: an optional one is left empty with a warning,
+     * and a required one stops the item
+     *
+     * @param  list<array{field: string, required: bool, kind: string, reference: string}>  $missing
+     * @return array{errors: list<string>, warnings: list<string>}
+     */
+    protected function missingOutcome(array $missing): array
+    {
+        $outcome = ['errors' => [], 'warnings' => []];
+
+        foreach ($missing as $reference) {
+            $outcome[$reference['required'] ? 'errors' : 'warnings'][] = (string) __('cms.import.missing.'.($reference['required'] ? 'required' : 'optional'), [
+                'what' => __("cms.import.missing.kinds.{$reference['kind']}", ['reference' => $reference['reference']]),
+                'field' => $reference['field'],
+            ]);
+        }
+
+        return $outcome;
+    }
+
+    /**
      * What's already here with the item's key
      *
      * @param  array<string, mixed>  $item
@@ -78,13 +162,36 @@ abstract class ItemImporter
     abstract protected function userCanManage(): bool;
 
     /**
-     * Saves the item through the same rules as the admin
+     * The first pass: saves what the item is, so everything else can refer to it. Anything that could
+     * refer to other items waits for fill().
      *
      * @param  array<string, mixed>  $item
      * @param  TModel|null  $existing
      * @return SaveOutcome
      */
     abstract protected function save(array $item, ?Model $existing): array;
+
+    /**
+     * The second pass, once every item's record exists: fills in what refers to other items, through
+     * the same rules as the admin
+     *
+     * @param  array<string, mixed>  $item
+     * @return array{errors: list<string>, warnings: list<string>}
+     */
+    public function fill(array $item): array
+    {
+        return ['errors' => [], 'warnings' => []];
+    }
+
+    /**
+     * Anything to know about a new item
+     *
+     * @return list<string>
+     */
+    protected function createNotes(): array
+    {
+        return [];
+    }
 
     /**
      * Why this kind of item can't be imported here at all, if there's a reason
@@ -133,8 +240,8 @@ abstract class ItemImporter
             'kind' => $this->kind(),
             'type' => $this->type($item),
             'type_label' => $this->typeLabel($item),
-            'slug' => $item['slug'],
-            'name' => is_string($item['name'] ?? null) ? $item['name'] : $item['slug'],
+            'slug' => $this->identifier($item),
+            'name' => $this->name($item),
             'action' => match (true) {
                 $existing === null => self::ACTION_CREATE,
                 $isUnchanged => self::ACTION_UNCHANGED,
@@ -142,7 +249,7 @@ abstract class ItemImporter
                 default => self::ACTION_SKIP,
             },
             'can_overwrite' => $canOverwrite,
-            'changes' => $canOverwrite ? $this->changes($existing, $item) : [],
+            'changes' => $canOverwrite ? $this->changes($existing, $item) : ($existing === null ? $this->createNotes() : []),
             'warnings' => $canOverwrite ? $this->overwriteWarnings($existing, $item) : [],
             'errors' => [],
         ];

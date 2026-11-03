@@ -32,7 +32,7 @@ class FormImporter extends ItemImporter
      */
     public function key(array $item): ?string
     {
-        return is_string($item['slug'] ?? null) ? "{$this->kind()}/{$item['slug']}" : null;
+        return $this->validSlug($item['slug'] ?? null) ? "{$this->kind()}/{$item['slug']}" : null;
     }
 
     /**

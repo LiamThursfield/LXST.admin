@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant\Admin\Cms;
 use App\Enums\Cms\TemplateType;
 use App\Http\Controllers\Controller;
 use App\Http\Queries\Tenant\Admin\Cms\LayoutIndexQuery;
+use App\Http\Requests\Tenant\Admin\Cms\LayoutExportRequest;
 use App\Http\Requests\Tenant\Admin\Cms\LayoutIndexRequest;
 use App\Http\Requests\Tenant\Admin\Cms\LayoutStoreRequest;
 use App\Http\Requests\Tenant\Admin\Cms\LayoutUpdateRequest;
@@ -13,6 +14,8 @@ use App\Http\Resources\Tenant\Admin\Cms\TemplateResource;
 use App\Models\Cms\Layout;
 use App\Models\Cms\Template;
 use App\Services\Cms\ContentFieldOptions;
+use App\Services\Cms\Portable\SiteExporter;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -48,6 +51,17 @@ class LayoutController extends Controller
             'templates' => $this->layoutTemplates(withFields: false),
             'canCreate' => $request->user()?->can('create', Layout::class) ?? false,
         ]);
+    }
+
+    /**
+     * The chosen layouts, as portable JSON
+     */
+    public function export(LayoutExportRequest $request, SiteExporter $exporter): JsonResponse
+    {
+        /** @var list<int> $ids */
+        $ids = $request->validated('ids');
+
+        return response()->json($exporter->layouts(Layout::query()->whereKey($ids)->get()));
     }
 
     public function create(Request $request): Response

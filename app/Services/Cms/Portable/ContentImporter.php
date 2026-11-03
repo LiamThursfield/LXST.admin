@@ -22,12 +22,14 @@ class ContentImporter
         TemplateImporter $templates,
         SavedComponentImporter $savedComponents,
         FormImporter $forms,
+        LayoutImporter $layouts,
+        MenuImporter $menus,
+        PageImporter $pages,
+        RedirectImporter $redirects,
     ) {
-        $this->importers = [
-            $templates->kind() => $templates,
-            $savedComponents->kind() => $savedComponents,
-            $forms->kind() => $forms,
-        ];
+        foreach ([$templates, $savedComponents, $forms, $layouts, $menus, $pages, $redirects] as $importer) {
+            $this->importers[$importer->kind()] = $importer;
+        }
     }
 
     /**
@@ -121,10 +123,26 @@ class ContentImporter
             $this->addInDependencyOrder($key, $items, $ordered, $loops);
         }
 
-        return array_map(
+        // Menus, pages and layouts can point at each other, so no order would work for those: every
+        // record is made first, then what refers to other records is filled in
+        $results = array_map(
             fn (string $key) => $this->importers[$items[$key]['kind']]->import($key, $items[$key], in_array($key, $overwrite, true), isset($loops[$key])),
             array_keys($ordered),
         );
+
+        return array_map(function (array $result) use ($items) {
+            if ($result['errors'] !== [] || ! in_array($result['action'], [ItemImporter::ACTION_CREATE, ItemImporter::ACTION_OVERWRITE], true)) {
+                return $result;
+            }
+
+            $outcome = $this->importers[$result['kind']]->fill($items[$result['key']]);
+
+            return [
+                ...$result,
+                'errors' => $outcome['errors'],
+                'warnings' => [...$result['warnings'], ...$outcome['warnings']],
+            ];
+        }, $results);
     }
 
     /**

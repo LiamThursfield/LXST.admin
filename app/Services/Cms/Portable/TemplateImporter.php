@@ -14,6 +14,7 @@ use App\Models\Cms\Template;
 use App\Models\Cms\TemplateField;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 /**
  * Imports templates, by their type and slug. A nested template is referred to the same way.
@@ -40,12 +41,12 @@ class TemplateImporter extends ItemImporter
     {
         $type = is_string($item['type'] ?? null) ? TemplateType::tryFrom($item['type']) : null;
 
-        return $type !== null && is_string($item['slug'] ?? null) ? $this->referenceKey($type->value, $item['slug']) : null;
+        return $type !== null && $this->validSlug($item['slug'] ?? null) ? $this->referenceKey($type->value, $item['slug']) : null;
     }
 
     protected function referenceKey(string $type, string $slug): string
     {
-        return "{$type}/{$slug}";
+        return "{$this->kind()}/{$type}/{$slug}";
     }
 
     /**
@@ -153,21 +154,12 @@ class TemplateImporter extends ItemImporter
             if ($reference !== null && $this->referencedTemplate($reference) === null) {
                 $errors[] = __('cms.import.validation.missing_template', [
                     'field' => is_string($field['name'] ?? null) ? $field['name'] : '?',
-                    'template' => $this->referenceOf($field) ?? '?',
+                    'template' => Str::after($this->referenceOf($field) ?? '?', "{$this->kind()}/"),
                 ]);
             }
         }
 
         return $errors;
-    }
-
-    protected function referencedTemplate(mixed $reference): ?Template
-    {
-        $type = is_array($reference) && is_string($reference['type'] ?? null) ? TemplateType::tryFrom($reference['type']) : null;
-
-        return $type !== null && is_string($reference['slug'] ?? null)
-            ? Template::query()->where('type', $type)->where('slug', $reference['slug'])->first()
-            : null;
     }
 
     /**

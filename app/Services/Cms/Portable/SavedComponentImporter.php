@@ -2,12 +2,10 @@
 
 namespace App\Services\Cms\Portable;
 
-use App\Enums\Cms\TemplateType;
 use App\Http\Requests\Tenant\Admin\Cms\ImportedSavedComponentData;
 use App\Models\Cms\Layout;
 use App\Models\Cms\Page;
 use App\Models\Cms\SavedComponent;
-use App\Models\Cms\Template;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -36,7 +34,7 @@ class SavedComponentImporter extends ItemImporter
      */
     public function key(array $item): ?string
     {
-        return is_string($item['slug'] ?? null) ? "{$this->kind()}/{$item['slug']}" : null;
+        return $this->validSlug($item['slug'] ?? null) ? "{$this->kind()}/{$item['slug']}" : null;
     }
 
     /**
@@ -45,11 +43,9 @@ class SavedComponentImporter extends ItemImporter
      */
     public function dependencies(array $item): array
     {
-        $reference = $item['template'] ?? null;
+        $template = $this->templateKey($item['template'] ?? null);
 
-        return is_array($reference) && is_string($reference['type'] ?? null) && is_string($reference['slug'] ?? null)
-            ? ["{$reference['type']}/{$reference['slug']}"]
-            : [];
+        return $template === null ? [] : [$template];
     }
 
     /**
@@ -117,32 +113,39 @@ class SavedComponentImporter extends ItemImporter
      */
     protected function save(array $item, ?Model $existing): array
     {
-        $template = $this->template($item['template'] ?? null);
+        $template = $this->referencedTemplate($item['template'] ?? null);
 
         if ($template === null) {
-            return ['errors' => [__('cms.import.validation.missing_saved_component_template', [
-                'template' => $this->dependencies($item)[0] ?? '?',
-            ])], 'warnings' => []];
+            return ['errors' => [$this->missingTemplateMessage($item['template'] ?? null)], 'warnings' => []];
+        }
+
+        if ($existing === null) {
+            SavedComponent::create(['template_id' => $template->id, 'name' => $this->placeholderName($item), 'slug' => $item['slug']]);
+        }
+
+        return ['errors' => [], 'warnings' => []];
+    }
+
+    /**
+     * @param  array<string, mixed>  $item
+     * @return array{errors: list<string>, warnings: list<string>}
+     */
+    public function fill(array $item): array
+    {
+        $savedComponent = $this->existing($item);
+        $template = $this->referencedTemplate($item['template'] ?? null);
+
+        if ($savedComponent === null || $template === null) {
+            return ['errors' => [], 'warnings' => []];
         }
 
         /** @var list<MissingReference> $missing */
         $missing = [];
-        $content = is_array($item['content'] ?? null) ? $item['content'] : [];
-        $values = $this->values->import($template, $content, $missing);
+        $values = $this->values->import($template, is_array($item['content'] ?? null) ? $item['content'] : [], $missing);
+        $outcome = $this->missingOutcome($missing);
 
-        $errors = [];
-        $warnings = [];
-
-        foreach ($missing as $reference) {
-            if ($reference['required']) {
-                $errors[] = $this->missingMessage('required', $reference);
-            } else {
-                $warnings[] = $this->missingMessage('optional', $reference);
-            }
-        }
-
-        if ($errors !== []) {
-            return ['errors' => $errors, 'warnings' => $warnings];
+        if ($outcome['errors'] !== []) {
+            return $outcome;
         }
 
         $data = ImportedSavedComponentData::for([
@@ -150,38 +153,15 @@ class SavedComponentImporter extends ItemImporter
             'name' => $item['name'] ?? null,
             'slug' => $item['slug'],
             'content' => $values,
-        ], $existing);
+        ], $savedComponent);
 
-        $errors = $this->validationErrors($data);
+        $outcome['errors'] = $this->validationErrors($data);
 
-        if ($errors !== []) {
-            return ['errors' => $errors, 'warnings' => $warnings];
+        if ($outcome['errors'] === []) {
+            $savedComponent->update($data->savedComponentAttributes());
+            $savedComponent->syncContent($data->contentValues());
         }
 
-        $savedComponent = $existing ?? SavedComponent::create($data->savedComponentAttributes());
-        $existing?->update($data->savedComponentAttributes());
-        $savedComponent->syncContent($data->contentValues());
-
-        return ['errors' => [], 'warnings' => $warnings];
-    }
-
-    protected function template(mixed $reference): ?Template
-    {
-        $type = is_array($reference) && is_string($reference['type'] ?? null) ? TemplateType::tryFrom($reference['type']) : null;
-
-        return $type !== null && is_string($reference['slug'] ?? null)
-            ? Template::query()->with('fields')->where('type', $type)->where('slug', $reference['slug'])->first()
-            : null;
-    }
-
-    /**
-     * @param  MissingReference  $reference
-     */
-    protected function missingMessage(string $severity, array $reference): string
-    {
-        return __("cms.import.missing.{$severity}", [
-            'what' => __("cms.import.missing.kinds.{$reference['kind']}", ['reference' => $reference['reference']]),
-            'field' => $reference['field'],
-        ]);
+        return $outcome;
     }
 }

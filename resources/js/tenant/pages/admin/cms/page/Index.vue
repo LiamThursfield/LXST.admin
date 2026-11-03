@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { show as importPage } from '@/actions/App/Http/Controllers/Tenant/Admin/Cms/ContentImportController';
 import {
     create,
+    exportMethod,
     index,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Cms/PageController';
 import RowActions from '@/components/RowActions.vue';
 import { formatDateTime, userTimezone } from '@/lib/timezone';
+import ExportActions from '@/tenant/components/cms/ExportActions.vue';
 import type { PageData, PublishStatus, SelectItem } from '@/types';
 
 const props = defineProps<{
@@ -30,6 +33,8 @@ const props = defineProps<{
 }>();
 
 const { trans } = useTrans();
+
+const selected = ref<Array<string | number>>([]);
 const timezone = userTimezone(useAuth().value.user);
 
 const statusColors: Record<PublishStatus, 'success' | 'info' | 'neutral'> = {
@@ -57,6 +62,8 @@ const { filters, hasFilters, chips, remove, clear, goToPage } = useListFilters({
 <template>
     <ListLayout
         v-model:search="filters.search"
+        v-model:selected="selected"
+        selectable
         :title="trans('cms.pages.index.title')"
         :columns="columns"
         :rows="pages.data"
@@ -71,6 +78,24 @@ const { filters, hasFilters, chips, remove, clear, goToPage } = useListFilters({
         @clear-filters="clear"
         @page="goToPage"
     >
+        <template v-if="canCreate" #actions>
+            <UButton
+                as="Link"
+                :href="importPage.url()"
+                color="neutral"
+                variant="subtle"
+                icon="i-lucide-upload"
+                :label="trans('cms.export.import')"
+            />
+        </template>
+
+        <template #bulk-actions>
+            <ExportActions
+                :url="() => exportMethod.url({ query: { ids: selected } })"
+                filename="pages.json"
+            />
+        </template>
+
         <template #filters>
             <USelect
                 v-model="filters.status"
