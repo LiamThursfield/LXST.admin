@@ -461,11 +461,65 @@ return [
         ],
     ],
 
+    'import' => [
+        'title' => 'Import',
+        'json' => 'JSON',
+        'json_help' => 'Paste JSON copied from another environment. Checking it saves nothing.',
+        'check' => 'Check',
+        'submit' => 'Import',
+        'checking_failed' => 'This couldn\'t be checked.',
+        'results' => 'What would happen',
+        'overwrite' => 'Overwrite',
+        'if_overwritten' => 'If overwritten: :changes',
+        'nothing_to_do' => 'Everything here already exists, so nothing would change. Choose Overwrite on an item to replace it.',
+        'has_errors' => 'Fix the problems below in the JSON before importing. Nothing has been saved.',
+        'actions' => [
+            'create' => 'Create',
+            'overwrite' => 'Overwrite',
+            'skip' => 'Skip',
+            'unchanged' => 'No change',
+            'error' => 'Problem',
+        ],
+        'changes' => [
+            'added' => 'Adds :count field|Adds :count fields',
+            'removed' => 'Removes :count field|Removes :count fields',
+            'retyped' => 'Changes the type of :count field|Changes the type of :count fields',
+        ],
+        'warnings' => [
+            'removes' => 'Overwriting removes :count field that has content on :places. That content will be lost.|Overwriting removes :count fields that have content on :places. That content will be lost.',
+            'retypes' => 'Overwriting changes the type of :count field that has content on :places, which may no longer show.|Overwriting changes the type of :count fields that have content on :places, which may no longer show.',
+        ],
+        'places' => [
+            'pages' => ':count page|:count pages',
+            'layouts' => ':count layout|:count layouts',
+            'saved_components' => ':count saved component|:count saved components',
+            'and' => ':first and :last',
+        ],
+        'flash' => [
+            'imported' => 'Imported: :created created, :overwritten overwritten, :skipped skipped.',
+        ],
+        'validation' => [
+            'invalid_json' => 'This isn\'t valid JSON.',
+            'unknown_format' => 'This isn\'t content exported from this admin.',
+            'unsupported_version' => 'This was exported from a newer version, and this site can only read up to version :max.',
+            'no_items' => 'There\'s nothing in this to import.',
+            'unknown_item' => 'Item :number isn\'t something this site knows how to import.',
+            'duplicate_item' => 'The template ":slug" is in this more than once.',
+            'missing_template' => 'The :field field uses the template ":template", which isn\'t in this import or on this site.',
+            'item_failed' => ':name: :error',
+        ],
+    ],
+
     'templates' => [
         'index' => [
             'title' => 'Templates',
             'create' => 'New template',
             'empty' => 'No templates yet.',
+            'import' => 'Import',
+            'copy_json' => 'Copy JSON',
+            'download_json' => 'Download',
+            'copied' => 'JSON copied.',
+            'export_failed' => 'This couldn\'t be exported.',
         ],
         'create' => [
             'title' => 'New template',

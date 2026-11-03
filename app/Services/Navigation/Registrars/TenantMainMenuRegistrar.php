@@ -166,7 +166,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         label: 'navigation.templates',
                         type: MenuItemType::LINK,
                         icon: 'i-lucide-layout-template',
-                        activePatterns: ['admin.cms.templates.*'],
+                        activePatterns: ['admin.cms.templates.*', 'admin.cms.import.*'],
                         children: Collection::wrap([
                             new MenuChildItem(
                                 key: TenantMenu::MENU_MAIN_SECTION_CMS_ITEM_TEMPLATES_VIEW,

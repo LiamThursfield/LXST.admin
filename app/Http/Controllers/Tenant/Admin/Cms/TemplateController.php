@@ -10,11 +10,14 @@ use App\Http\Controllers\Concerns\SyncsBuilderSections;
 use App\Http\Controllers\Controller;
 use App\Http\Queries\Tenant\Admin\Cms\TemplateIndexQuery;
 use App\Http\Requests\Tenant\Admin\Cms\TemplateCreateRequest;
+use App\Http\Requests\Tenant\Admin\Cms\TemplateExportRequest;
 use App\Http\Requests\Tenant\Admin\Cms\TemplateIndexRequest;
 use App\Http\Requests\Tenant\Admin\Cms\TemplateStoreRequest;
 use App\Http\Requests\Tenant\Admin\Cms\TemplateUpdateRequest;
 use App\Http\Resources\Tenant\Admin\Cms\TemplateResource;
 use App\Models\Cms\Template;
+use App\Services\Cms\Portable\TemplateExporter;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -50,6 +53,17 @@ class TemplateController extends Controller
             'types' => TemplateType::asSelectItems(),
             'canCreate' => $request->user()?->can('create', Template::class) ?? false,
         ]);
+    }
+
+    /**
+     * The chosen templates and those they nest, as portable JSON
+     */
+    public function export(TemplateExportRequest $request, TemplateExporter $exporter): JsonResponse
+    {
+        /** @var list<int> $ids */
+        $ids = $request->validated('ids');
+
+        return response()->json($exporter->export(Template::query()->whereKey($ids)->orderBy('name')->get()));
     }
 
     public function create(TemplateCreateRequest $request): Response

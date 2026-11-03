@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { useHttp } from '@inertiajs/vue3';
+import { show as importPage } from '@/actions/App/Http/Controllers/Tenant/Admin/Cms/ContentImportController';
 import {
     create,
+    exportMethod,
     index,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Cms/TemplateController';
 import RowActions from '@/components/RowActions.vue';
@@ -30,6 +33,60 @@ const props = defineProps<{
 
 const { trans } = useTrans();
 
+const toast = useToast();
+
+const selected = ref<Array<string | number>>([]);
+
+const exportRequest = useHttp();
+
+/** The ticked templates and those they nest, as JSON. */
+async function exportedJson(): Promise<string | null> {
+    try {
+        const exported = await exportRequest.get(
+            exportMethod.url({ query: { ids: selected.value } }),
+        );
+
+        return JSON.stringify(exported, null, 2);
+    } catch {
+        toast.add({
+            title: trans('cms.templates.index.export_failed'),
+            icon: 'i-lucide-circle-alert',
+            color: 'error',
+        });
+
+        return null;
+    }
+}
+
+async function copyJson() {
+    const json = await exportedJson();
+
+    if (json !== null) {
+        await navigator.clipboard.writeText(json);
+        toast.add({
+            title: trans('cms.templates.index.copied'),
+            icon: 'i-lucide-check',
+            color: 'success',
+        });
+    }
+}
+
+async function downloadJson() {
+    const json = await exportedJson();
+
+    if (json !== null) {
+        const url = URL.createObjectURL(
+            new Blob([json], { type: 'application/json' }),
+        );
+        const link = document.createElement('a');
+
+        link.href = url;
+        link.download = 'templates.json';
+        link.click();
+        URL.revokeObjectURL(url);
+    }
+}
+
 const { filters, hasFilters, chips, remove, clear, goToPage } = useListFilters({
     url: () => index.url(),
     initial: {
@@ -48,6 +105,8 @@ const { filters, hasFilters, chips, remove, clear, goToPage } = useListFilters({
 <template>
     <ListLayout
         v-model:search="filters.name"
+        v-model:selected="selected"
+        selectable
         :title="trans('cms.templates.index.title')"
         :columns="columns"
         :rows="templates.data"
@@ -64,6 +123,38 @@ const { filters, hasFilters, chips, remove, clear, goToPage } = useListFilters({
         @clear-filters="clear"
         @page="goToPage"
     >
+        <template v-if="canCreate" #actions>
+            <UButton
+                as="Link"
+                :href="importPage.url()"
+                color="neutral"
+                variant="subtle"
+                icon="i-lucide-upload"
+                :label="trans('cms.templates.index.import')"
+            />
+        </template>
+
+        <template #bulk-actions>
+            <UButton
+                color="neutral"
+                variant="subtle"
+                size="sm"
+                icon="i-lucide-copy"
+                :loading="exportRequest.processing"
+                :label="trans('cms.templates.index.copy_json')"
+                @click="copyJson"
+            />
+            <UButton
+                color="neutral"
+                variant="subtle"
+                size="sm"
+                icon="i-lucide-download"
+                :loading="exportRequest.processing"
+                :label="trans('cms.templates.index.download_json')"
+                @click="downloadJson"
+            />
+        </template>
+
         <template #filters>
             <USelect
                 class="w-full sm:w-40"
