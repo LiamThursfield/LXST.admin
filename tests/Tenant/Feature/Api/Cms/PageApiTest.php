@@ -187,6 +187,32 @@ describe('content', function () {
             ->assertJsonPath('data.content.slides.1.picture', null);
     });
 
+    test('a list of cards that each have their own list is resolved all the way down', function () {
+        $file = File::factory()->create(['name' => 'card.jpg', 'path' => 'card.jpg', 'mime_type' => 'image/jpeg']);
+
+        $price = Template::factory()->ofType(TemplateType::Repeater)->create();
+        TemplateField::factory()->for($price)->create(['type' => TemplateFieldType::Text, 'slug' => 'price']);
+        $card = Template::factory()->ofType(TemplateType::Component)->create();
+        TemplateField::factory()->for($card)->create(['type' => TemplateFieldType::Image, 'slug' => 'photo']);
+        TemplateField::factory()->for($card)->create(['type' => TemplateFieldType::Repeater, 'slug' => 'prices', 'order' => 1, 'settings' => ['template_id' => $price->id]]);
+        $row = Template::factory()->ofType(TemplateType::Repeater)->create();
+        TemplateField::factory()->for($row)->create(['type' => TemplateFieldType::Component, 'slug' => 'card', 'settings' => ['template_id' => $card->id]]);
+
+        apiPage('pricing', [
+            ['type' => TemplateFieldType::Repeater, 'slug' => 'cards', 'settings' => ['template_id' => $row->id]],
+        ], [
+            'cards' => [
+                ['card' => ['photo' => ['file_id' => $file->id, 'alt' => 'A card'], 'prices' => [['price' => '£450']]]],
+                ['card' => null],
+            ],
+        ]);
+
+        getPage('/pricing')
+            ->assertJsonPath('data.content.cards.0.card.photo.alt', 'A card')
+            ->assertJsonPath('data.content.cards.0.card.prices.0.price', '£450')
+            ->assertJsonPath('data.content.cards.1.card', null);
+    });
+
     test('menus link to pages\' current URLs, leaving out unpublished pages', function () {
         $team = apiPage('team');
         $draft = apiPage('draft');

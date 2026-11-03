@@ -2,6 +2,7 @@
 
 namespace App\Models\Cms;
 
+use App\Enums\Cms\TemplateFieldType;
 use App\Enums\Cms\TemplateType;
 use Database\Factories\Cms\TemplateFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,6 +27,9 @@ class Template extends Model
 {
     /** @use HasFactory<TemplateFactory> */
     use HasFactory;
+
+    /** The most lists a chain of nested templates can have, e.g. a list of cards that each have a list of prices */
+    public const int MAX_REPEATER_LEVELS = 2;
 
     protected $table = 'cms_templates';
 
@@ -117,6 +121,46 @@ class Template extends Model
         }
 
         return false;
+    }
+
+    /**
+     * The most repeaters in any chain of templates below this one
+     *
+     * @param  list<int>  $visited  Templates already checked, so a loop can't recurse forever
+     */
+    public function repeaterLevelsBelow(array $visited = []): int
+    {
+        $visited[] = $this->id;
+
+        return $this->fields()->get()
+            ->map(function (TemplateField $field) use ($visited): int {
+                $id = $field->settings?->template_id;
+                $nested = $id === null || in_array($id, $visited, true) ? null : Template::query()->find($id);
+
+                return $nested === null ? 0 : $this->repeaterLevel($field) + $nested->repeaterLevelsBelow($visited);
+            })
+            ->max() ?? 0;
+    }
+
+    /**
+     * The most repeaters in any chain of templates above this one
+     *
+     * @param  list<int>  $visited  Templates already checked, so a loop can't recurse forever
+     */
+    public function repeaterLevelsAbove(array $visited = []): int
+    {
+        $visited[] = $this->id;
+
+        return $this->usedByFields()->with('template')->get()
+            ->map(fn (TemplateField $field): int => in_array($field->template_id, $visited, true)
+                ? 0
+                : $this->repeaterLevel($field) + $field->template->repeaterLevelsAbove($visited))
+            ->max() ?? 0;
+    }
+
+    protected function repeaterLevel(TemplateField $field): int
+    {
+        return $field->type === TemplateFieldType::Repeater ? 1 : 0;
     }
 
     /**

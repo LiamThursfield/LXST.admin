@@ -37,6 +37,36 @@ function saveNested(Template $template, array $content): TestResponse
     ]);
 }
 
+/**
+ * A component or repeater field on the parent, using the nested template
+ *
+ * @param  array<string, mixed>  $settings
+ */
+function nestIn(Template $parent, Template $nested, string $slug, bool $isRequired = false, array $settings = []): TemplateField
+{
+    return TemplateField::factory()->for($parent)->usingTemplate($nested)->create([
+        'name' => ucfirst($slug),
+        'slug' => $slug,
+        'is_required' => $isRequired,
+        'settings' => ['template_id' => $nested->id, ...$settings],
+    ]);
+}
+
+/**
+ * Saves the template with just this field
+ *
+ * @param  array<string, mixed>  $field
+ */
+function saveTemplateWithField(Template $template, array $field): TestResponse
+{
+    return test()->put(route('admin.cms.templates.update', $template), [
+        'type' => $template->type->value,
+        'name' => $template->name,
+        'slug' => $template->slug,
+        'fields' => [$field],
+    ]);
+}
+
 describe('content', function () {
     test('a component is stored as an object of its fields, and repeater rows in order without the editor\'s keys', function () {
         saveNested($this->layoutTemplate, [
@@ -76,6 +106,115 @@ describe('content', function () {
     });
 });
 
+describe('nested content', function () {
+    beforeEach(function () {
+        $this->layout = Template::factory()->ofType(TemplateType::Layout)->create();
+    });
+
+    test('a list of cards that each have their own list is stored in order, without the editor\'s keys', function () {
+        $card = Template::factory()->ofType(TemplateType::Component)->create();
+        TemplateField::factory()->for($card)->create(['name' => 'Name', 'slug' => 'name', 'is_required' => true]);
+        nestIn($card, $this->repeater, 'prices');
+        $row = Template::factory()->ofType(TemplateType::Repeater)->create();
+        nestIn($row, $card, 'card', isRequired: true);
+        nestIn($this->layout, $row, 'cards');
+
+        saveNested($this->layout, ['cards' => [
+            ['_key' => 4, 'card' => ['name' => 'Weddings', 'prices' => [['_key' => 1, 'title' => 'Evening'], ['_key' => 0, 'title' => 'All day']]]],
+            ['_key' => 2, 'card' => ['name' => 'Parties']],
+        ]])->assertSessionHasNoErrors();
+
+        expect(Layout::query()->sole()->contentValues()['cards'])->toEqual([
+            ['card' => ['name' => 'Weddings', 'prices' => [['title' => 'Evening'], ['title' => 'All day']]]],
+            ['card' => ['name' => 'Parties', 'prices' => null]],
+        ]);
+    });
+
+    test('fields in the deepest list are validated row by row and named after their parents', function () {
+        $card = Template::factory()->ofType(TemplateType::Component)->create();
+        nestIn($card, $this->repeater, 'prices');
+        $row = Template::factory()->ofType(TemplateType::Repeater)->create();
+        nestIn($row, $card, 'card');
+        nestIn($this->layout, $row, 'cards');
+
+        saveNested($this->layout, ['cards' => [
+            ['card' => ['prices' => [['title' => 'Evening']]]],
+            ['card' => ['prices' => [['title' => 'All day'], ['title' => '']]]],
+        ]])->assertSessionHasErrors([
+            'content.cards.1.card.prices.1.title' => __('validation.required', ['attribute' => 'Cards Card Prices Title']),
+        ])->assertSessionDoesntHaveErrors(['content.cards.0.card.prices.0.title']);
+    });
+
+    test('rows that aren\'t a list are rejected', function () {
+        nestIn($this->layout, $this->repeater, 'rows');
+
+        saveNested($this->layout, ['rows' => ['first' => ['title' => 'First']]])
+            ->assertSessionHasErrors('content.rows');
+    });
+
+    test('an optional component left empty in one row isn\'t affected by another row filling theirs in', function (array $rows) {
+        $row = Template::factory()->ofType(TemplateType::Repeater)->create();
+        TemplateField::factory()->for($row)->create(['name' => 'Name', 'slug' => 'name']);
+        nestIn($row, $this->component, 'button');
+        nestIn($this->layout, $row, 'rows');
+
+        saveNested($this->layout, ['rows' => $rows])->assertSessionHasNoErrors();
+
+        expect(collect(Layout::query()->sole()->contentValues()['rows'])->pluck('button.title')->all())
+            ->toEqual(array_map(fn (array $row) => $row['button']['title'] ?: null, $rows));
+    })->with([
+        'the filled row first' => [[
+            ['name' => 'A', 'button' => ['title' => 'Go', 'count' => null]],
+            ['name' => 'B', 'button' => ['title' => '', 'count' => null]],
+        ]],
+        'the filled row last' => [[
+            ['name' => 'A', 'button' => ['title' => '', 'count' => null]],
+            ['name' => 'B', 'button' => ['title' => 'Go', 'count' => null]],
+        ]],
+    ]);
+
+    test('an optional component partly filled in only fails in its own row', function () {
+        $row = Template::factory()->ofType(TemplateType::Repeater)->create();
+        nestIn($row, $this->component, 'button');
+        nestIn($this->layout, $row, 'rows');
+
+        saveNested($this->layout, ['rows' => [
+            ['button' => ['title' => '', 'count' => null]],
+            ['button' => ['title' => '', 'count' => '2']],
+        ]])->assertSessionHasErrors([
+            'content.rows.1.button.title' => __('validation.required', ['attribute' => 'Rows Button Title']),
+        ])->assertSessionDoesntHaveErrors(['content.rows.0.button.title']);
+    });
+
+    test('a required component inside an optional one is only needed once the optional one is filled in', function () {
+        $outer = Template::factory()->ofType(TemplateType::Component)->create();
+        TemplateField::factory()->for($outer)->create(['name' => 'Note', 'slug' => 'note']);
+        nestIn($outer, $this->component, 'inner', isRequired: true);
+        nestIn($this->layout, $outer, 'outer');
+
+        saveNested($this->layout, ['outer' => ['note' => 'Filled in', 'inner' => ['title' => '', 'count' => null]]])
+            ->assertSessionHasErrors(['content.outer.inner.title' => __('validation.required', ['attribute' => 'Outer Inner Title'])]);
+
+        saveNested($this->layout, ['outer' => ['note' => '', 'inner' => ['title' => '', 'count' => null]]])
+            ->assertSessionHasNoErrors();
+
+        expect(Layout::query()->sole()->contentValues()['outer'])->toBeNull();
+    });
+
+    test('a list\'s fewest rows only apply once the optional component it\'s in is filled in', function () {
+        $card = Template::factory()->ofType(TemplateType::Component)->create();
+        TemplateField::factory()->for($card)->create(['name' => 'Name', 'slug' => 'name']);
+        nestIn($card, $this->repeater, 'prices', settings: ['min_items' => 1]);
+        nestIn($this->layout, $card, 'card');
+
+        saveNested($this->layout, ['card' => ['name' => 'Weddings', 'prices' => []]])
+            ->assertSessionHasErrors('content.card.prices');
+
+        saveNested($this->layout, ['card' => ['name' => '', 'prices' => []]])
+            ->assertSessionHasNoErrors();
+    });
+});
+
 describe('templates', function () {
     test('component and repeater fields can be added, using a template of the matching type', function () {
         $this->post(route('admin.cms.templates.store'), [
@@ -110,6 +249,81 @@ describe('templates', function () {
             'slug' => $this->component->slug,
             'fields' => [['type' => 'repeater', 'name' => 'Rows', 'slug' => 'rows', 'settings' => ['template_id' => $this->repeater->id]]],
         ])->assertSessionHasErrors(['fields.0.settings.template_id' => __('cms.templates.validation.nests_itself')]);
+    });
+
+    test('components and repeater rows can hold components, but a repeater row can\'t directly hold a repeater', function () {
+        foreach (['component', 'repeater'] as $index => $type) {
+            $this->post(route('admin.cms.templates.store'), [
+                'type' => $type,
+                'name' => "Holder {$index}",
+                'fields' => [['type' => 'component', 'name' => 'Button', 'slug' => 'button', 'settings' => ['template_id' => $this->component->id]]],
+            ])->assertSessionHasNoErrors();
+        }
+
+        $this->post(route('admin.cms.templates.store'), [
+            'type' => 'repeater',
+            'name' => 'List of lists',
+            'fields' => [['type' => 'repeater', 'name' => 'Rows', 'slug' => 'rows', 'settings' => ['template_id' => $this->repeater->id]]],
+        ])->assertSessionHasErrors('fields.0.type');
+
+        expect(TemplateType::Repeater->allowsFieldType(TemplateFieldType::CmsMenu))->toBeFalse()
+            ->and(TemplateType::Component->allowsFieldType(TemplateFieldType::CmsMenu))->toBeFalse();
+    });
+
+    describe('how many lists can nest', function () {
+        beforeEach(function () {
+            // A card with a list of slides, and a list of those cards: list > card > list
+            $this->card = Template::factory()->ofType(TemplateType::Component)->create();
+            nestIn($this->card, $this->repeater, 'slides');
+            $this->cardRow = Template::factory()->ofType(TemplateType::Repeater)->create();
+            nestIn($this->cardRow, $this->card, 'card');
+        });
+
+        test('two levels are allowed', function () {
+            $this->post(route('admin.cms.templates.store'), [
+                'type' => 'page',
+                'name' => 'Pricing',
+                'fields' => [['type' => 'repeater', 'name' => 'Cards', 'slug' => 'cards', 'settings' => ['template_id' => $this->cardRow->id]]],
+            ])->assertSessionHasNoErrors();
+        });
+
+        test('a third level can\'t be added from above', function () {
+            $listOfCards = Template::factory()->ofType(TemplateType::Component)->create();
+            nestIn($listOfCards, $this->cardRow, 'cards');
+            $outerRow = Template::factory()->ofType(TemplateType::Repeater)->create();
+            nestIn($outerRow, $listOfCards, 'cards');
+
+            $this->post(route('admin.cms.templates.store'), [
+                'type' => 'page',
+                'name' => 'Too deep',
+                'fields' => [['type' => 'repeater', 'name' => 'Outer', 'slug' => 'outer', 'settings' => ['template_id' => $outerRow->id]]],
+            ])->assertSessionHasErrors(['fields.0.settings.template_id' => __('cms.templates.validation.too_many_repeater_levels', ['max' => 2])]);
+        });
+
+        test('a third level can\'t be added from below, through a template already in use', function () {
+            $listInside = Template::factory()->ofType(TemplateType::Component)->create();
+            nestIn($listInside, Template::factory()->ofType(TemplateType::Repeater)->create(), 'rows');
+
+            $page = Template::factory()->create();
+            nestIn($page, $this->cardRow, 'cards');
+
+            saveTemplateWithField($this->repeater, ['type' => 'component', 'name' => 'More', 'slug' => 'more', 'settings' => ['template_id' => $listInside->id]])
+                ->assertSessionHasErrors(['fields.0.settings.template_id' => __('cms.templates.validation.too_many_repeater_levels', ['max' => 2])]);
+        });
+
+        test('the same field is fine while the chain stays short enough, and components don\'t count', function () {
+            $listInside = Template::factory()->ofType(TemplateType::Component)->create();
+            nestIn($listInside, Template::factory()->ofType(TemplateType::Repeater)->create(), 'rows');
+
+            // Nothing uses the repeater through a list of cards here, so this is only two levels
+            $this->cardRow->fields()->delete();
+
+            saveTemplateWithField($this->repeater, ['type' => 'component', 'name' => 'More', 'slug' => 'more', 'settings' => ['template_id' => $listInside->id]])
+                ->assertSessionHasNoErrors();
+
+            expect($this->repeater->repeaterLevelsAbove())->toBe(1)
+                ->and($this->repeater->repeaterLevelsBelow())->toBe(1);
+        });
     });
 
     test('the builder lists the templates component and repeater fields can use', function () {

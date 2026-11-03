@@ -18,8 +18,10 @@ enum TemplateType: string
     case Repeater = 'repeater';
 
     /**
-     * The field types a template of this type can have. Components and repeaters can't hold
-     * fields that link to other content, and a repeater row can't hold another repeater.
+     * The field types a template of this type can have. Components and repeaters can hold other
+     * components, but not fields that link to other content such as menus or forms. A repeater
+     * row can't directly hold another repeater, though a component in the row can, up to
+     * Template::MAX_REPEATER_LEVELS.
      *
      * @return list<TemplateFieldType>
      */
@@ -33,6 +35,7 @@ enum TemplateType: string
                 TemplateFieldType::Number,
                 TemplateFieldType::Wysiwyg,
                 TemplateFieldType::Image,
+                TemplateFieldType::Component,
                 TemplateFieldType::Repeater,
             ],
             self::Repeater => [
@@ -41,6 +44,7 @@ enum TemplateType: string
                 TemplateFieldType::Number,
                 TemplateFieldType::Wysiwyg,
                 TemplateFieldType::Image,
+                TemplateFieldType::Component,
             ],
         };
     }

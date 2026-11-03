@@ -122,14 +122,25 @@ class CmsSeeder extends Seeder
             ['price', TemplateFieldType::Text, 'Price', true, ['max_length' => 40]],
         ]);
 
-        $priceCard = $template('price-card', TemplateType::Component, 'Price Card', 'A title and a list of items with their prices.', [
-            ['title', TemplateFieldType::Text, 'Title', true],
-            ['items', TemplateFieldType::Repeater, 'Items', false, ['template_id' => $priceItem->id, 'max_items' => 20]],
+        $button = $template('button', TemplateType::Component, 'Button', 'A label and where it takes visitors.', [
+            ['label', TemplateFieldType::Text, 'Label', true, ['max_length' => 40]],
+            ['url', TemplateFieldType::Text, 'Link', true],
         ]);
 
-        $pricing = $template('pricing-page', TemplateType::Page, 'Pricing page', 'A hero section and a price card.', [
+        $priceCard = $template('price-card', TemplateType::Component, 'Price Card', 'A title, a list of items with their prices and an optional button.', [
+            ['title', TemplateFieldType::Text, 'Title', true],
+            ['items', TemplateFieldType::Repeater, 'Items', false, ['template_id' => $priceItem->id, 'max_items' => 20]],
+            ['button', TemplateFieldType::Component, 'Button', false, ['template_id' => $button->id]],
+        ]);
+
+        $priceCardRow = $template('price-card-row', TemplateType::Repeater, 'Price card row', 'One price card in a list of them.', [
+            ['card', TemplateFieldType::Component, 'Card', true, ['template_id' => $priceCard->id]],
+        ]);
+
+        $pricing = $template('pricing-page', TemplateType::Page, 'Pricing page', 'A hero section, a main price card and a list of others.', [
             ['hero', TemplateFieldType::Component, 'Hero', true, ['template_id' => $heroSection->id]],
             ['price_card', TemplateFieldType::Component, 'Price card', false, ['template_id' => $priceCard->id]],
+            ['price_cards', TemplateFieldType::Repeater, 'More price cards', false, ['template_id' => $priceCardRow->id, 'max_items' => 6]],
         ]);
 
         return compact('layout', 'cta', 'feature', 'standard', 'landing', 'pricing');
@@ -269,6 +280,28 @@ class CmsSeeder extends Seeder
                     ['name' => 'Evening reception', 'price' => '£450'],
                     ['name' => 'Ceremony and evening', 'price' => '£650'],
                     ['name' => 'Uplighting', 'price' => 'From £120'],
+                ],
+                'button' => ['label' => 'Check your date', 'url' => '/contact'],
+            ],
+            'price_cards' => [
+                [
+                    'card' => [
+                        'title' => 'Private parties',
+                        'items' => [
+                            ['name' => 'Up to four hours', 'price' => '£320'],
+                            ['name' => 'Each extra hour', 'price' => '£60'],
+                        ],
+                        'button' => ['label' => 'Book a party', 'url' => '/contact'],
+                    ],
+                ],
+                [
+                    'card' => [
+                        'title' => 'Corporate events',
+                        'items' => [
+                            ['name' => 'Evening event', 'price' => 'From £550'],
+                            ['name' => 'Awards night with sound system', 'price' => 'From £800'],
+                        ],
+                    ],
                 ],
             ],
         ]);
