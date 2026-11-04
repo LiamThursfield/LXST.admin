@@ -2,8 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Tenant\Admin\Bookings\ResourceController;
+use App\Http\Controllers\Tenant\Admin\Bookings\RotaController;
 use App\Http\Controllers\Tenant\Admin\Bookings\ServiceCategoryController;
 use App\Http\Controllers\Tenant\Admin\Bookings\ServiceController;
+use App\Http\Controllers\Tenant\Admin\Bookings\StaffHoursController;
+use App\Http\Controllers\Tenant\Admin\Bookings\TimeOffController;
 use App\Http\Controllers\Tenant\Admin\Cms\ContentImportController;
 use App\Http\Controllers\Tenant\Admin\Cms\LayoutController;
 use App\Http\Controllers\Tenant\Admin\Cms\MenuController;
@@ -118,6 +122,13 @@ Route::name('cms.')->prefix('cms')->middleware(['tenant.module:cms', 'content.ch
 Route::name('bookings.')->prefix('bookings')->middleware('tenant.module:bookings')->group(function () {
     Route::resource('services', ServiceController::class);
     Route::resource('service-categories', ServiceCategoryController::class)->except('show');
+    Route::resource('resources', ResourceController::class);
+    Route::get('rota', [RotaController::class, 'index'])->name('rota.index');
+    Route::put('rota', [RotaController::class, 'update'])->name('rota.update');
+    Route::post('time-off/{time_off}/approve', [TimeOffController::class, 'approve'])->name('time-off.approve');
+    Route::post('time-off/{time_off}/decline', [TimeOffController::class, 'decline'])->name('time-off.decline');
+    Route::resource('time-off', TimeOffController::class)->only(['index', 'create', 'store', 'destroy'])->parameters(['time-off' => 'time_off']);
+    Route::get('staff-hours', StaffHoursController::class)->name('staff-hours.index');
 });
 
 Route::name('crm.')->prefix('crm')->middleware(['tenant.module:crm', 'content.changed'])->group(function () {

@@ -169,6 +169,16 @@ class Service extends Model
     }
 
     /**
+     * The resources that can do this service
+     *
+     * @return BelongsToMany<BookableResource, $this>
+     */
+    public function resources(): BelongsToMany
+    {
+        return $this->belongsToMany(BookableResource::class, 'bookings_resource_service', 'service_id', 'resource_id')->withPivot(['price', 'duration_minutes']);
+    }
+
+    /**
      * Scope to the services offered at a location: those choosing it, and those with no locations chosen
      *
      * @param  Builder<Service>  $query

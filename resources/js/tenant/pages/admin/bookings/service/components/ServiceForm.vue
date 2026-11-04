@@ -540,6 +540,15 @@ function submit() {
                         class="w-full"
                     />
                 </UFormField>
+
+                <div v-if="service?.resource_names?.length">
+                    <p class="text-sm font-medium">
+                        {{ trans('bookings.services.fields.resources') }}
+                    </p>
+                    <p class="text-muted text-sm">
+                        {{ service.resource_names.join(', ') }}
+                    </p>
+                </div>
             </UPageCard>
 
             <UPageCard variant="subtle">

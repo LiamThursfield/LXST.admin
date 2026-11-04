@@ -3,6 +3,7 @@
 namespace App\Services\Navigation\Registrars;
 
 use App\Enums\TenantModule;
+use App\Models\Bookings\TimeOff;
 use App\Services\Authorisation\Enums\BookingsPermission;
 use App\Services\Authorisation\Enums\CmsPermission;
 use App\Services\Authorisation\Enums\CorePermission;
@@ -22,6 +23,7 @@ use App\Services\Navigation\Exceptions\DuplicateMenuSectionKeyException;
 use App\Services\Navigation\Exceptions\MenuKeyDoesNotExistException;
 use App\Services\Navigation\Helpers\NavigationConfig;
 use App\Services\Navigation\NavigationRegistry;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Collection;
 
 class TenantMainMenuRegistrar implements MenuRegistrar
@@ -116,6 +118,42 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         icon: 'i-lucide-tag',
                         activePatterns: ['admin.bookings.service-categories.*'],
                     ))->gate(BookingsPermission::ViewServices),
+                    (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_RESOURCES,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_RESOURCES]),
+                        label: 'navigation.resources',
+                        type: MenuItemType::LINK,
+                        to: 'admin.bookings.resources.index',
+                        icon: 'i-lucide-users',
+                        activePatterns: ['admin.bookings.resources.*'],
+                    ))->gate(BookingsPermission::ViewResources),
+                    (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_ROTA,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_ROTA]),
+                        label: 'navigation.rota',
+                        type: MenuItemType::LINK,
+                        to: 'admin.bookings.rota.index',
+                        icon: 'i-lucide-calendar-days',
+                        activePatterns: ['admin.bookings.rota.*'],
+                    ))->gate(BookingsPermission::ViewResources),
+                    (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_TIME_OFF,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_TIME_OFF]),
+                        label: 'navigation.time_off',
+                        type: MenuItemType::LINK,
+                        to: 'admin.bookings.time-off.index',
+                        icon: 'i-lucide-palmtree',
+                        activePatterns: ['admin.bookings.time-off.*'],
+                    ))->gate(fn (?Authenticatable $user) => $user?->can('viewAny', TimeOff::class) ?? false),
+                    (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_STAFF_HOURS,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_STAFF_HOURS]),
+                        label: 'navigation.staff_hours',
+                        type: MenuItemType::LINK,
+                        to: 'admin.bookings.staff-hours.index',
+                        icon: 'i-lucide-clock',
+                        activePatterns: ['admin.bookings.staff-hours.*'],
+                    ))->gate(BookingsPermission::ViewStaffReports),
                 ])->each(fn (MenuItem $item) => $item->module(TenantModule::Bookings)),
                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
             ),

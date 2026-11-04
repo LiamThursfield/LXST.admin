@@ -84,6 +84,7 @@ class ServiceResource extends JsonResource
                 'price_adjustment' => $this->toMajorUnits($option->price_adjustment),
                 'duration_adjustment' => $option->duration_adjustment,
             ])->values()),
+            'resource_names' => $this->whenLoaded('resources', fn () => $service->resources->pluck('name')->values()),
             'location_ids' => $this->whenLoaded('locations', fn () => $service->locations->map(fn (OrganisationUnit $location) => $location->id)->values()),
         ]);
     }

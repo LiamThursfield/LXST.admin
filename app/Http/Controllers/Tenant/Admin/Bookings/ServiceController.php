@@ -14,12 +14,14 @@ use App\Http\Requests\Tenant\Admin\Bookings\ServiceIndexRequest;
 use App\Http\Requests\Tenant\Admin\Bookings\ServiceStoreRequest;
 use App\Http\Requests\Tenant\Admin\Bookings\ServiceUpdateRequest;
 use App\Http\Resources\Tenant\Admin\Bookings\ServiceResource;
+use App\Models\Bookings\BookableResource;
 use App\Models\Bookings\Service;
 use App\Models\Bookings\ServiceCategory;
 use App\Models\Crm\OrganisationUnit;
 use App\Models\Tenant;
 use App\Services\Industry\Terminology;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -73,22 +75,22 @@ class ServiceController extends Controller
             ->with('success', app(Terminology::class)->translate('bookings.services.flash.created'));
     }
 
-    public function show(Service $service): Response
+    public function show(Request $request, Service $service): Response
     {
         Gate::authorize('view', $service);
 
         return Inertia::render('admin/bookings/service/Show', [
-            'service' => new ServiceResource($service->load(['options', 'locations'])),
+            'service' => new ServiceResource($service->load($this->relationsFor($request))),
             ...$this->formOptions(),
         ]);
     }
 
-    public function edit(Service $service): Response
+    public function edit(Request $request, Service $service): Response
     {
         Gate::authorize('update', $service);
 
         return Inertia::render('admin/bookings/service/Edit', [
-            'service' => new ServiceResource($service->load(['options', 'locations'])),
+            'service' => new ServiceResource($service->load($this->relationsFor($request))),
             ...$this->formOptions(),
         ]);
     }
@@ -115,6 +117,20 @@ class ServiceController extends Controller
         $service->delete();
 
         return redirect()->back()->with('success', app(Terminology::class)->translate('bookings.services.flash.deleted'));
+    }
+
+    /**
+     * What a service's form shows, with who can do it only for those who can see resources
+     *
+     * @return list<string>
+     */
+    protected function relationsFor(Request $request): array
+    {
+        return [
+            'options',
+            'locations',
+            ...($request->user()?->can('viewAny', BookableResource::class) ? ['resources'] : []),
+        ];
     }
 
     /**
