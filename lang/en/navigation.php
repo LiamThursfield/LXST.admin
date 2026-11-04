@@ -27,6 +27,10 @@ return [
     'redirects' => 'Redirects',
     'view_redirects' => 'View Redirects',
 
+    'bookings' => ':Bookings',
+    'services' => ':Services',
+    'service_categories' => 'Categories',
+
     'crm' => 'CRM',
     'contacts' => 'Contacts',
     'view_contacts' => 'View Contacts',

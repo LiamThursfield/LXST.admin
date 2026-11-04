@@ -90,7 +90,7 @@ describe('creating', function () {
             ->assertInertia(fn (Assert $page) => $page
                 ->has('industries', count(config('industries.profiles')))
                 ->where('industries.0.value', 'hospitality')
-                ->where('industries.0.suggested_modules', ['cms', 'crm'])
+                ->where('industries.0.suggested_modules', ['bookings', 'cms', 'crm'])
             );
     });
 

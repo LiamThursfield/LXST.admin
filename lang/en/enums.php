@@ -32,6 +32,19 @@ return [
         'ticket' => 'Event ticket',
         'enquiry' => 'Enquiry or quote',
     ],
+    'service_price_type' => [
+        'fixed' => 'Fixed price',
+        'from' => 'From a price',
+        'on_quote' => 'On quote',
+    ],
+    'service_option_type' => [
+        'variation' => 'Variation',
+        'add_on' => 'Add-on',
+    ],
+    'hire_unit' => [
+        'hour' => 'Per hour',
+        'day' => 'Per day',
+    ],
     'form_field_type' => [
         'text' => 'Text',
         'textarea' => 'Text area',
@@ -192,6 +205,7 @@ return [
     ],
 
     'tenant_module' => [
+        'bookings' => 'Bookings',
         'cms' => 'CMS',
         'crm' => 'CRM',
         'dj' => 'DJ',

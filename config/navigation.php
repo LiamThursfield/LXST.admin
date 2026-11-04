@@ -53,6 +53,12 @@ return [
                 'sortOrder' => 0,
                 'dashboard' => ['sortOrder' => 0],
             ],
+            TenantMenu::MENU_MAIN_SECTION_BOOKINGS => [
+                'sortOrder' => 10,
+                TenantMenu::MENU_MAIN_SECTION_BOOKINGS_LABEL => ['sortOrder' => 0],
+                TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICES => ['sortOrder' => 10],
+                TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICE_CATEGORIES => ['sortOrder' => 20],
+            ],
             TenantMenu::MENU_MAIN_SECTION_CMS => [
                 'sortOrder' => 20,
                 TenantMenu::MENU_MAIN_SECTION_CMS_LABEL => ['sortOrder' => 0],

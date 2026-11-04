@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Tenant\Admin\Bookings\ServiceCategoryController;
+use App\Http\Controllers\Tenant\Admin\Bookings\ServiceController;
 use App\Http\Controllers\Tenant\Admin\Cms\ContentImportController;
 use App\Http\Controllers\Tenant\Admin\Cms\LayoutController;
 use App\Http\Controllers\Tenant\Admin\Cms\MenuController;
@@ -111,6 +113,11 @@ Route::name('cms.')->prefix('cms')->middleware(['tenant.module:cms', 'content.ch
     Route::post('import', [ContentImportController::class, 'store'])->name('import.store');
     Route::get('redirects/export', [RedirectController::class, 'export'])->name('redirects.export');
     Route::resource('redirects', RedirectController::class);
+});
+
+Route::name('bookings.')->prefix('bookings')->middleware('tenant.module:bookings')->group(function () {
+    Route::resource('services', ServiceController::class);
+    Route::resource('service-categories', ServiceCategoryController::class)->except('show');
 });
 
 Route::name('crm.')->prefix('crm')->middleware(['tenant.module:crm', 'content.changed'])->group(function () {
