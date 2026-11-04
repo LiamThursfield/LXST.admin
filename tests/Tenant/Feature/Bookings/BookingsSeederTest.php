@@ -1,9 +1,14 @@
 <?php
 
+use App\Enums\Bookings\ResourceType;
 use App\Enums\BookingType;
+use App\Models\Bookings\BookableResource;
 use App\Models\Bookings\Service;
 use App\Models\Bookings\ServiceCategory;
 use App\Models\Bookings\ServiceOption;
+use App\Models\Bookings\Shift;
+use App\Models\Bookings\TimeOff;
+use App\Models\Bookings\WorkingHour;
 use App\Models\Crm\OrganisationUnit;
 use Database\Seeders\BookingsSeeder;
 
@@ -17,5 +22,12 @@ it('seeds a service of every booking type, and is safe to re-run', function () {
         ->and(Service::query()->count())->toBe(7)
         ->and(ServiceCategory::query()->count())->toBe(3)
         ->and(ServiceOption::query()->count())->toBe(3)
-        ->and(Service::query()->firstWhere('slug', 'room-hire')->locations()->count())->toBe(1);
+        ->and(Service::query()->firstWhere('slug', 'room-hire')->locations()->count())->toBe(1)
+        ->and(BookableResource::query()->pluck('type')->unique()->count())->toBe(count(ResourceType::cases()))
+        ->and(BookableResource::query()->count())->toBe(5)
+        ->and(WorkingHour::query()->count())->toBe(25)
+        ->and(Shift::query()->count())->toBe(1)
+        ->and(TimeOff::query()->count())->toBe(3)
+        ->and(BookableResource::query()->firstWhere('slug', 'sam-taylor')->services()->count())->toBe(2)
+        ->and(BookableResource::query()->firstWhere('slug', 'sam-taylor')->services()->firstWhere('slug', 'consultation')->pivot->price)->toBe(5000);
 });

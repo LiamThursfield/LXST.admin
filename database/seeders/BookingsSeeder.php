@@ -3,22 +3,29 @@
 namespace Database\Seeders;
 
 use App\Enums\Bookings\HireUnit;
+use App\Enums\Bookings\ResourceType;
 use App\Enums\Bookings\ServiceOptionType;
 use App\Enums\Bookings\ServicePriceType;
+use App\Enums\Bookings\TimeOffStatus;
+use App\Enums\Bookings\TimeOffType;
 use App\Enums\BookingType;
 use App\Enums\Crm\OrganisationUnitType;
 use App\Enums\TenantModule;
+use App\Models\Bookings\BookableResource;
 use App\Models\Bookings\Service;
 use App\Models\Bookings\ServiceCategory;
 use App\Models\Crm\OrganisationUnit;
+use App\Services\Authorisation\Enums\Role;
 use Illuminate\Database\Seeder;
 
 /**
  * Seeds example services: one of each booking type, each kind of price, with variations and add-ons,
  * so every part of the form has something to show. With the CRM, one is limited to a single location.
+ * Also one resource of each type who can do them, with working hours, shifts this week, and time off
+ * both waiting and approved. Dates are relative to now.
  *
  * Run within a tenant, e.g. `php artisan tenants:seed --class=BookingsSeeder`.
- * Safe to re-run: a category or service that already exists is left alone.
+ * Safe to re-run: a category, service or resource that already exists is left alone.
  */
 class BookingsSeeder extends Seeder
 {
@@ -120,6 +127,95 @@ class BookingsSeeder extends Seeder
             'price_type' => ServicePriceType::OnQuote,
             'is_bookable_online' => false,
         ]);
+
+        $this->seedResources();
+    }
+
+    protected function seedResources(): void
+    {
+        $sam = $this->seedResource('sam-taylor', [
+            'type' => ResourceType::Person,
+            'name' => 'Sam Taylor',
+            'job_title' => 'Senior team member',
+            'description' => 'Fifteen years of experience.',
+            // The editor, so asking for time off can be tried by signing in as them
+            'user_id' => RoleUserSeeder::userFor(Role::Editor)?->id,
+            'is_public' => true,
+        ], weekdays: [['09:00', '17:00']]);
+
+        $alex = $this->seedResource('alex-morgan', [
+            'type' => ResourceType::Person,
+            'name' => 'Alex Morgan',
+            'job_title' => 'Team member',
+            'user_id' => RoleUserSeeder::userFor(Role::Viewer)?->id,
+        ], weekdays: [['09:00', '13:00'], ['14:00', '18:00']]);
+
+        $room = $this->seedResource('main-room', [
+            'type' => ResourceType::Space,
+            'name' => 'Main room',
+            'capacity' => 20,
+        ], weekdays: [['08:00', '22:00']]);
+
+        $this->seedResource('projector', [
+            'type' => ResourceType::Equipment,
+            'name' => 'Projector',
+        ]);
+
+        $van = $this->seedResource('van', [
+            'type' => ResourceType::Vehicle,
+            'name' => 'Van',
+        ], weekdays: [['08:00', '18:00']]);
+
+        if ($sam->wasRecentlyCreated) {
+            // A senior person charges more, and takes less time
+            $sam->services()->sync([
+                Service::query()->where('slug', 'consultation')->value('id') => ['price' => 5000, 'duration_minutes' => 30],
+            ] + $this->serviceIds(['group-session']));
+            $sam->shifts()->create(['works_on' => now()->startOfWeek()->addDays(5)->toDateString(), 'starts_at' => '10:00', 'ends_at' => '14:00', 'note' => 'Weekend cover']);
+            $sam->timeOff()->create(['type' => TimeOffType::Holiday, 'status' => TimeOffStatus::Requested, 'starts_on' => now()->addWeeks(2)->toDateString(), 'ends_on' => now()->addWeeks(2)->addDays(4)->toDateString(), 'requested_by_id' => $sam->user_id]);
+        }
+
+        if ($alex->wasRecentlyCreated) {
+            $alex->services()->sync($this->serviceIds(['consultation', 'home-visit', 'large-project']));
+            $alex->timeOff()->create(['type' => TimeOffType::Holiday, 'status' => TimeOffStatus::Approved, 'starts_on' => now()->addDay()->toDateString(), 'ends_on' => now()->addDays(2)->toDateString(), 'reviewed_at' => now()]);
+        }
+
+        if ($room->wasRecentlyCreated) {
+            $room->services()->sync($this->serviceIds(['group-session', 'room-hire', 'open-evening', 'table-booking']));
+        }
+
+        if ($van->wasRecentlyCreated) {
+            $van->services()->sync($this->serviceIds(['home-visit']));
+            $van->timeOff()->create(['type' => TimeOffType::Maintenance, 'status' => TimeOffStatus::Approved, 'starts_on' => now()->addWeek()->toDateString(), 'ends_on' => now()->addWeek()->toDateString(), 'reason' => 'Annual service', 'reviewed_at' => now()]);
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     * @param  list<array{0: string, 1: string}>  $weekdays  The periods it works, Monday to Friday
+     */
+    protected function seedResource(string $slug, array $attributes, array $weekdays = []): BookableResource
+    {
+        $resource = BookableResource::withTrashed()->firstOrCreate(['slug' => $slug], $attributes);
+
+        if ($resource->wasRecentlyCreated) {
+            foreach (range(1, 5) as $day) {
+                foreach ($weekdays as [$startsAt, $endsAt]) {
+                    $resource->workingHours()->create(['day_of_week' => $day, 'starts_at' => $startsAt, 'ends_at' => $endsAt]);
+                }
+            }
+        }
+
+        return $resource;
+    }
+
+    /**
+     * @param  list<string>  $slugs
+     * @return array<int, array<string, mixed>>
+     */
+    protected function serviceIds(array $slugs): array
+    {
+        return Service::query()->whereIn('slug', $slugs)->pluck('id')->mapWithKeys(fn (int $id) => [$id => []])->all();
     }
 
     /**

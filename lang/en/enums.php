@@ -32,6 +32,23 @@ return [
         'ticket' => 'Event ticket',
         'enquiry' => 'Enquiry or quote',
     ],
+    'resource_type' => [
+        'person' => 'Person',
+        'space' => 'Space',
+        'equipment' => 'Equipment',
+        'vehicle' => 'Vehicle',
+    ],
+    'time_off_type' => [
+        'holiday' => 'Holiday',
+        'sickness' => 'Sickness',
+        'maintenance' => 'Maintenance',
+        'other' => 'Other',
+    ],
+    'time_off_status' => [
+        'requested' => 'Requested',
+        'approved' => 'Approved',
+        'declined' => 'Declined',
+    ],
     'service_price_type' => [
         'fixed' => 'Fixed price',
         'from' => 'From a price',

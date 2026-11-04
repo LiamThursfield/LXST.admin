@@ -70,13 +70,15 @@ function isSameList(first: string[], second: string[]): boolean {
 }
 
 /**
- * Lists still on the old industry's defaults move to the new one's. Lists the tenant has changed
+ * Words the tenant changed were chosen for the old industry, so they go back to the new one's.
+ * Lists still on the old industry's defaults move to the new one's; lists the tenant has changed
  * stay as they are, matching what's saved.
  */
 function changeIndustry(industry: string) {
     const old = selectedIndustry.value;
 
     form.industry = industry;
+    form.terms = termInputs({});
 
     if (isSameList(form.booking_types, old.booking_types)) {
         form.booking_types = [...selectedIndustry.value.booking_types];

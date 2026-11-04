@@ -17,7 +17,12 @@ namespace App\Services\Navigation\Constants;
  * ├── Dashboard
  * ├── Bookings
  * │   ├── Services
- * │   └── Service categories
+ * │   ├── Service categories
+ * │   ├── Staff
+ * │   ├── Resources
+ * │   ├── Rota
+ * │   ├── Time off
+ * │   └── Staff hours
  * ├── CMS
  * │   ├── Pages
  * │   ├── Layouts
@@ -60,6 +65,16 @@ class TenantMenu
     public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICES = 'services';
 
     public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICE_CATEGORIES = 'service-categories';
+
+    public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_STAFF = 'staff';
+
+    public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_RESOURCES = 'resources';
+
+    public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_ROTA = 'rota';
+
+    public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_TIME_OFF = 'time-off';
+
+    public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_STAFF_HOURS = 'staff-hours';
 
     public const string MENU_MAIN_SECTION_CMS = 'cms';
 

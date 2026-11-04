@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Tenant\Admin\Crm\Concerns;
 
 use App\Enums\Crm\LocationType;
+use App\Support\TimePeriods;
 use Closure;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Validation\Rule;
@@ -81,7 +82,7 @@ trait ValidatesLocationHours
     {
         return function (string $attribute, mixed $value, Closure $fail): void {
             foreach (collect(is_array($value) ? $value : [])->groupBy('day_of_week') as $day => $periods) {
-                $problem = $this->periodsProblem($periods->all());
+                $problem = TimePeriods::problem($periods->all());
 
                 if ($problem !== null) {
                     $fail(__("crm.opening_hours.validation.{$problem}", ['when' => __("crm.opening_hours.days.{$day}")]));
@@ -93,7 +94,7 @@ trait ValidatesLocationHours
     protected function exceptionPeriodsRule(): Closure
     {
         return function (string $attribute, mixed $value, Closure $fail): void {
-            $problem = $this->periodsProblem(is_array($value) ? $value : []);
+            $problem = TimePeriods::problem(is_array($value) ? $value : []);
 
             if ($problem !== null) {
                 $fail(__("crm.opening_hours.validation.{$problem}", ['when' => __('crm.opening_hours.these_dates')]));
@@ -127,35 +128,6 @@ trait ValidatesLocationHours
                 }
             }
         };
-    }
-
-    /**
-     * What's wrong with a day's periods, as a validation message key. A close at or before the open
-     * runs into the next day, which is only a whole day from midnight to midnight.
-     *
-     * @param  array<mixed>  $periods
-     */
-    protected function periodsProblem(array $periods): ?string
-    {
-        $times = collect($periods)
-            ->filter(fn (mixed $period) => is_array($period) && is_string($period['opens_at'] ?? null) && is_string($period['closes_at'] ?? null))
-            ->sortBy('opens_at')
-            ->values();
-
-        foreach ($times as $index => $period) {
-            if ($period['opens_at'] === $period['closes_at'] && $period['opens_at'] !== '00:00') {
-                return 'same_time';
-            }
-
-            $next = $times->get($index + 1);
-            $runsPastMidnight = $period['closes_at'] <= $period['opens_at'];
-
-            if ($next !== null && ($runsPastMidnight || $next['opens_at'] < $period['closes_at'])) {
-                return 'periods_overlap';
-            }
-        }
-
-        return null;
     }
 
     /**

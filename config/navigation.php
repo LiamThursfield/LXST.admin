@@ -58,6 +58,11 @@ return [
                 TenantMenu::MENU_MAIN_SECTION_BOOKINGS_LABEL => ['sortOrder' => 0],
                 TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICES => ['sortOrder' => 10],
                 TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICE_CATEGORIES => ['sortOrder' => 20],
+                TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_STAFF => ['sortOrder' => 25],
+                TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_RESOURCES => ['sortOrder' => 30],
+                TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_ROTA => ['sortOrder' => 40],
+                TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_TIME_OFF => ['sortOrder' => 50],
+                TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_STAFF_HOURS => ['sortOrder' => 60],
             ],
             TenantMenu::MENU_MAIN_SECTION_CMS => [
                 'sortOrder' => 20,
