@@ -23,6 +23,15 @@ return [
         '90d' => 'Last 90 days',
         '12m' => 'Last 12 months',
     ],
+    'booking_type' => [
+        'appointment' => 'Appointment',
+        'class' => 'Class or group',
+        'table' => 'Table or party',
+        'hire' => 'Hire or rental',
+        'visit' => 'On-site visit',
+        'ticket' => 'Event ticket',
+        'enquiry' => 'Enquiry or quote',
+    ],
     'form_field_type' => [
         'text' => 'Text',
         'textarea' => 'Text area',

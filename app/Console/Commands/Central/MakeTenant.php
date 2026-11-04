@@ -4,6 +4,7 @@ namespace App\Console\Commands\Central;
 
 use App\Enums\TenantModule;
 use App\Models\Tenant;
+use App\Services\Industry\IndustryProfiles;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -13,7 +14,7 @@ use Stancl\Tenancy\Exceptions\DomainOccupiedByOtherTenantException;
 
 use function Laravel\Prompts\multiselect;
 
-#[Signature('central:make:tenant {--modules= : Comma separated modules to switch on (cms, crm, dj, tracker). Prompts when omitted}')]
+#[Signature('central:make:tenant {--modules= : Comma separated modules to switch on (cms, crm, dj, tracker). Prompts when omitted} {--industry= : The tenant\'s industry, a key of config/industries.php. Uses the general one when omitted}')]
 #[Description('Makes a tenant')]
 class MakeTenant extends Command
 {
@@ -41,8 +42,18 @@ class MakeTenant extends Command
             return;
         }
 
+        $profiles = app(IndustryProfiles::class);
+        $option = $this->option('industry');
+        $industry = is_string($option) ? $option : $profiles->fallbackKey();
+
+        if (! in_array($industry, $profiles->keys(), true)) {
+            $this->error('Unknown industry: '.$industry.'. Valid industries: '.implode(', ', $profiles->keys()).'.');
+
+            return;
+        }
+
         $this->info('Creating the tenant database, this may take a while.');
-        $tenant = Tenant::query()->create(['name' => $name, 'modules' => $modules]);
+        $tenant = Tenant::query()->create(['name' => $name, 'modules' => $modules, 'industry' => $industry]);
 
         $domainCount = 0;
         do {

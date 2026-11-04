@@ -35,6 +35,8 @@ declare module '@inertiajs/core' {
             };
             /** Only shared in the tenant app. */
             site: SiteBranding | null;
+            /** The tenant's words as placeholders, e.g. `{ customer: 'guest', customers: 'guests' }`. Only shared in the tenant app. */
+            terminology: Record<string, string> | null;
             sidebarOpen: boolean;
             translations: Translations;
             [key: string]: unknown;

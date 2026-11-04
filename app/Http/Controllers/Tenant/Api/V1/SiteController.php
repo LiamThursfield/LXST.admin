@@ -11,11 +11,13 @@ use App\Models\Settings\ThemeSettings;
 use App\Services\Cms\Api\ApiResponseCache;
 use App\Services\Cms\Api\ContentPresenter;
 use App\Services\FileManager\FileManagerStorage;
+use App\Services\Industry\Terminology;
 use Illuminate\Http\JsonResponse;
 
 /**
- * The site-wide data a headless site needs on every page: its name, branding, theme, tracking
- * and menus. Menus are keyed by slug, and empty without the CMS module.
+ * The site-wide data a headless site needs on every page: its name, industry and words for
+ * things, branding, theme, tracking and menus. Menus are keyed by slug, and empty without the CMS
+ * module.
  */
 class SiteController extends Controller
 {
@@ -23,6 +25,7 @@ class SiteController extends Controller
         protected ContentPresenter $presenter,
         protected FileManagerStorage $files,
         protected ApiResponseCache $cache,
+        protected Terminology $terminology,
     ) {}
 
     public function __invoke(): JsonResponse
@@ -44,6 +47,8 @@ class SiteController extends Controller
 
         return [
             'name' => app(GeneralSettings::class)->site_name,
+            'industry' => tenant()?->industryProfile()->key,
+            'terminology' => $this->terminology->forTenant(),
             'logo_url' => $this->files->urlFor($theme->logo_file_id),
             'favicon_url' => $this->files->urlFor($theme->favicon_file_id),
             'theme' => [

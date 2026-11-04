@@ -38,6 +38,8 @@ class TenantDatabaseSeeder extends Seeder
             return;
         }
 
+        $this->call(IndustrySeeder::class);
+
         // Before the settings and the CMS, which use its logo, favicon and images
         $this->call([
             FileManagerSeeder::class,

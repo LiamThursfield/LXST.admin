@@ -152,6 +152,10 @@ const { filters, hasFilters, chips, remove, clear, goToPage } = useListFilters({
             </div>
         </template>
 
+        <template #industry-cell="{ row }">
+            {{ row.original.industry.label }}
+        </template>
+
         <template #modules-cell="{ row }">
             <div class="flex flex-wrap gap-1">
                 <UBadge

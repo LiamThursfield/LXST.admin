@@ -6,6 +6,7 @@ use App\Enums\AppContext;
 use App\Models\Settings\GeneralSettings;
 use App\Models\Settings\ThemeSettings;
 use App\Services\FileManager\FileManagerStorage;
+use App\Services\Industry\Terminology;
 use App\Services\Localisation\FrontendTranslations;
 use App\Services\Navigation\Constants\CentralMenu;
 use App\Services\Navigation\Constants\TenantMenu;
@@ -30,6 +31,7 @@ class HandleInertiaRequests extends Middleware
     public function __construct(
         protected NavigationService $navigationService,
         protected FrontendTranslations $frontendTranslations,
+        protected Terminology $terminology,
     ) {}
 
     public function rootView(Request $request): string
@@ -100,6 +102,8 @@ class HandleInertiaRequests extends Middleware
             ],
             // The tenant's name and branding (site settings), used for page titles, the sidebar logo, favicon and colours
             'site' => $context === AppContext::Tenant ? fn () => $this->site() : null,
+            // The tenant's words for its customers, bookings and so on, which useTrans() fills into strings
+            'terminology' => $context === AppContext::Tenant ? fn () => $this->terminology->placeholders() : null,
             'menus' => [
                 'main' => $this->navigationService->resolveMenuForUser($mainMenuKey, $request->user()),
             ],

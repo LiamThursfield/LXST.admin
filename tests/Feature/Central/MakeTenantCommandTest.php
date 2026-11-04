@@ -34,6 +34,25 @@ test('it creates a tenant with the modules chosen in the prompt when the option 
         ->toBe([TenantModule::Crm]);
 });
 
+test('it creates a tenant in the industry given in the option', function () {
+    $this->artisan('central:make:tenant', ['--modules' => 'cms', '--industry' => 'pets'])
+        ->expectsQuestion('What is the tenant name?', 'Acme')
+        ->expectsQuestion('Add a domain? (leave blank to skip)', 'acme.test')
+        ->expectsQuestion('Add a domain? (leave blank to skip)', '')
+        ->assertSuccessful();
+
+    expect(Tenant::query()->where('name', 'acme')->firstOrFail()->industry)->toBe('pets');
+});
+
+test('it does not create a tenant with an unknown industry', function () {
+    $this->artisan('central:make:tenant', ['--modules' => 'cms', '--industry' => 'piracy'])
+        ->expectsQuestion('What is the tenant name?', 'Acme')
+        ->expectsOutputToContain('Unknown industry: piracy')
+        ->assertSuccessful();
+
+    expect(Tenant::query()->count())->toBe(0);
+});
+
 test('it does not create a tenant when the option contains an unknown module', function () {
     $this->artisan('central:make:tenant', ['--modules' => 'cms,blog'])
         ->expectsQuestion('What is the tenant name?', 'Acme')

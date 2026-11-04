@@ -53,6 +53,7 @@ use App\Http\Controllers\Tenant\Admin\Settings\TimezoneController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\ApiTokenController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\EmailPreviewController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\GeneralSettingsController;
+use App\Http\Controllers\Tenant\Admin\SiteSettings\IndustrySettingsController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\IntegrationSettingsController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\MailSettingsController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\ThemeSettingsController;
@@ -231,6 +232,8 @@ Route::name('site-settings.email-previews.')->prefix('site-settings/email-previe
 Route::name('site-settings.')->prefix('site-settings')->middleware('content.changed')->group(function () {
     Route::get('general', [GeneralSettingsController::class, 'edit'])->name('general.edit');
     Route::put('general', [GeneralSettingsController::class, 'update'])->name('general.update');
+    Route::get('industry', [IndustrySettingsController::class, 'edit'])->name('industry.edit');
+    Route::put('industry', [IndustrySettingsController::class, 'update'])->name('industry.update');
     Route::get('integrations', [IntegrationSettingsController::class, 'edit'])->name('integrations.edit');
     Route::put('integrations', [IntegrationSettingsController::class, 'update'])->name('integrations.update');
     Route::get('theme', [ThemeSettingsController::class, 'edit'])->name('theme.edit');

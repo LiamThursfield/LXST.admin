@@ -57,6 +57,7 @@ class TenantResource extends JsonResource
                 ->values()
                 ->all(),
             'admin_url' => $primaryDomain === null ? null : $urls->admin($primaryDomain),
+            'industry' => $tenant->industryProfile()->toSelectItem(),
             'modules' => collect(TenantModule::cases())
                 ->filter(fn (TenantModule $module) => $modules->contains($module))
                 ->map(fn (TenantModule $module) => ['value' => $module->value, 'label' => $module->label()])
