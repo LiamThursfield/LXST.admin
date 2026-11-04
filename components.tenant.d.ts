@@ -23,6 +23,7 @@ declare module 'vue' {
     ContentPanel: typeof import('./resources/js/tenant/components/cms/ContentPanel.vue')['default']
     ContentSection: typeof import('./resources/js/tenant/components/cms/ContentSection.vue')['default']
     CrmFormContentField: typeof import('./resources/js/tenant/components/cms/fields/CrmFormContentField.vue')['default']
+    CrmOpeningHoursContentField: typeof import('./resources/js/tenant/components/cms/fields/CrmOpeningHoursContentField.vue')['default']
     CrmOrganisationUnitContentField: typeof import('./resources/js/tenant/components/cms/fields/CrmOrganisationUnitContentField.vue')['default']
     DeleteAccount: typeof import('./resources/js/components/settings/DeleteAccount.vue')['default']
     EditorLayout: typeof import('./resources/js/components/EditorLayout.vue')['default']
@@ -41,6 +42,8 @@ declare module 'vue' {
     MenuContentField: typeof import('./resources/js/tenant/components/cms/fields/MenuContentField.vue')['default']
     NotificationsSlideover: typeof import('./resources/js/components/NotificationsSlideover.vue')['default']
     NumberContentField: typeof import('./resources/js/tenant/components/cms/fields/NumberContentField.vue')['default']
+    OpeningHourExceptionsFields: typeof import('./resources/js/tenant/components/crm/OpeningHourExceptionsFields.vue')['default']
+    OpeningPeriodFields: typeof import('./resources/js/tenant/components/crm/OpeningPeriodFields.vue')['default']
     PublicRequestList: typeof import('./resources/js/tenant/components/dj/public/PublicRequestList.vue')['default']
     RecordFacts: typeof import('./resources/js/components/RecordFacts.vue')['default']
     RecordLayout: typeof import('./resources/js/components/RecordLayout.vue')['default']
@@ -87,6 +90,7 @@ declare module 'vue' {
     UIcon: typeof import('./node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/vue/components/Icon.vue')['default']
     UInput: typeof import('./node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Input.vue')['default']
     UInputNumber: typeof import('./node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/InputNumber.vue')['default']
+    UInputTags: typeof import('./node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/InputTags.vue')['default']
     UModal: typeof import('./node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Modal.vue')['default']
     UNavigationMenu: typeof import('./node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/NavigationMenu.vue')['default']
     UPageCard: typeof import('./node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/PageCard.vue')['default']
@@ -104,5 +108,6 @@ declare module 'vue' {
     UTextarea: typeof import('./node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Textarea.vue')['default']
     UTooltip: typeof import('./node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Tooltip.vue')['default']
     UTree: typeof import('./node_modules/.pnpm/@nuxt+ui@4.12.0_e4d1d67e65606a4d68b963fd24b23dc7/node_modules/@nuxt/ui/dist/runtime/components/Tree.vue')['default']
+    WeeklyHoursFields: typeof import('./resources/js/tenant/components/crm/WeeklyHoursFields.vue')['default']
   }
 }

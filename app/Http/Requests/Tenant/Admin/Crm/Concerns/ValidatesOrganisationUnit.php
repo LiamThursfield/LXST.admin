@@ -11,6 +11,7 @@ use Illuminate\Validation\Rule;
 trait ValidatesOrganisationUnit
 {
     use ValidatesAddresses;
+    use ValidatesLocationHours;
 
     /**
      * Treat an address with every field blank as "no address", so the form can always send the address fields
@@ -60,7 +61,20 @@ trait ValidatesOrganisationUnit
 
             'address' => ['nullable', 'array'],
             ...($this->input('address') === null ? [] : $this->addressRules('address')),
+
+            // Only locations have hours, so anything else's are ignored rather than checked
+            ...($this->type() === OrganisationUnitType::Location ? $this->locationRules() : []),
         ];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return $this->locationAttributes();
     }
 
     /**
@@ -119,7 +133,12 @@ trait ValidatesOrganisationUnit
      */
     public function organisationUnitAttributes(): array
     {
-        $attributes = $this->safe()->except('address');
+        $attributes = $this->safe()->except(['address', 'opening_hours', 'opening_hour_exceptions']);
+
+        $attributes = [
+            ...$attributes,
+            ...$this->locationAttributesFrom($attributes, $this->type() === OrganisationUnitType::Location),
+        ];
 
         /** @var array<string, string|null> $socials */
         $socials = $attributes['socials'] ?? [];

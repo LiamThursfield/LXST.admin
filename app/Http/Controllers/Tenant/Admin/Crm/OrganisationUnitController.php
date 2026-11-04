@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant\Admin\Crm;
 
+use App\Enums\Crm\LocationType;
 use App\Enums\Crm\OrganisationUnitType;
 use App\Enums\Crm\SocialMedia;
 use App\Http\Controllers\Controller;
@@ -58,6 +59,7 @@ class OrganisationUnitController extends Controller
             $organisationUnit = OrganisationUnit::create($request->organisationUnitAttributes());
 
             $this->syncAddress($organisationUnit, $request->addressAttributes());
+            $this->syncOpeningHours($organisationUnit, $request->openingHoursAttributes(), $request->openingHourExceptionAttributes());
         });
 
         return redirect()->route('admin.crm.organisation-units.index')
@@ -69,7 +71,7 @@ class OrganisationUnitController extends Controller
         Gate::authorize('view', $organisationUnit);
 
         return Inertia::render('admin/crm/organisation-unit/Show', [
-            'organisationUnit' => new OrganisationUnitResource($organisationUnit->load('parent', 'address')),
+            'organisationUnit' => new OrganisationUnitResource($organisationUnit->load('parent', 'address', 'openingHours', 'openingHourExceptions')),
             ...$this->formOptions(),
         ]);
     }
@@ -79,7 +81,7 @@ class OrganisationUnitController extends Controller
         Gate::authorize('update', $organisationUnit);
 
         return Inertia::render('admin/crm/organisation-unit/Edit', [
-            'organisationUnit' => new OrganisationUnitResource($organisationUnit->load('parent', 'address')),
+            'organisationUnit' => new OrganisationUnitResource($organisationUnit->load('parent', 'address', 'openingHours', 'openingHourExceptions')),
             ...$this->formOptions($organisationUnit),
         ]);
     }
@@ -90,6 +92,7 @@ class OrganisationUnitController extends Controller
             $organisationUnit->update($request->organisationUnitAttributes());
 
             $this->syncAddress($organisationUnit, $request->addressAttributes());
+            $this->syncOpeningHours($organisationUnit, $request->openingHoursAttributes(), $request->openingHourExceptionAttributes());
         });
 
         return redirect()->route('admin.crm.organisation-units.index')
@@ -143,7 +146,23 @@ class OrganisationUnitController extends Controller
             ]),
             'parentOptions' => $parents,
             'socialMedia' => SocialMedia::asSelectItems(),
+            'locationTypes' => LocationType::asSelectItems(),
         ];
+    }
+
+    /**
+     * Replaces the unit's hours with the submitted form's. Units that aren't locations submit none.
+     *
+     * @param  list<array<string, mixed>>  $hours
+     * @param  list<array<string, mixed>>  $exceptions
+     */
+    protected function syncOpeningHours(OrganisationUnit $organisationUnit, array $hours, array $exceptions): void
+    {
+        $organisationUnit->openingHours()->delete();
+        $organisationUnit->openingHourExceptions()->delete();
+
+        $organisationUnit->openingHours()->createMany($hours);
+        $organisationUnit->openingHourExceptions()->createMany($exceptions);
     }
 
     /**

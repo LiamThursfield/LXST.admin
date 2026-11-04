@@ -55,7 +55,7 @@ class PortableValues
             TemplateFieldType::Repeater => $this->exportRows($field, $value),
             TemplateFieldType::CmsMenu => $this->slugReference('menu', Menu::query()->whereKey($value)->value('slug')),
             TemplateFieldType::CrmForm => $this->slugReference('form', Form::query()->whereKey($value)->value('slug')),
-            TemplateFieldType::CrmOrganisationUnit => $this->slugReference('organisation_unit', OrganisationUnit::query()->whereKey($value)->value('slug')),
+            TemplateFieldType::CrmOrganisationUnit, TemplateFieldType::CrmOpeningHours => $this->slugReference('organisation_unit', OrganisationUnit::query()->whereKey($value)->value('slug')),
         };
     }
 
@@ -162,7 +162,7 @@ class PortableValues
             TemplateFieldType::Repeater => $this->importRows($field, $value, $missing),
             TemplateFieldType::CmsMenu => $this->importSlug($field, $value, 'menu', Menu::class, $missing),
             TemplateFieldType::CrmForm => $this->importSlug($field, $value, 'form', Form::class, $missing),
-            TemplateFieldType::CrmOrganisationUnit => $this->importSlug($field, $value, 'organisation_unit', OrganisationUnit::class, $missing),
+            TemplateFieldType::CrmOrganisationUnit, TemplateFieldType::CrmOpeningHours => $this->importSlug($field, $value, 'organisation_unit', OrganisationUnit::class, $missing),
         };
     }
 

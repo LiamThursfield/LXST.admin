@@ -7,6 +7,7 @@ use App\Http\Controllers\Tenant\Api\V1\Cms\PageController;
 use App\Http\Controllers\Tenant\Api\V1\Cms\PageViewController;
 use App\Http\Controllers\Tenant\Api\V1\Crm\FormController;
 use App\Http\Controllers\Tenant\Api\V1\Crm\FormSubmissionController;
+use App\Http\Controllers\Tenant\Api\V1\Crm\LocationController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\GigController as DjGigController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\GigRequestController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\GigTracklistController;
@@ -57,6 +58,9 @@ Route::prefix('v1')
             Route::post('forms/{form:slug}/submissions', [FormSubmissionController::class, 'store'])
                 ->middleware('throttle:form-submissions')
                 ->name('forms.submissions.store');
+            // Where a location is and when it's open. Locations are addressed by their slug.
+            Route::get('locations', [LocationController::class, 'index'])->name('locations.index');
+            Route::get('locations/{location:slug}', [LocationController::class, 'show'])->name('locations.show');
         });
 
         // Request context, song requests and now playing are added here as they're built

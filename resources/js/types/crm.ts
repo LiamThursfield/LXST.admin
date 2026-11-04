@@ -12,10 +12,37 @@ export type AddressData = {
     country: string | null;
 };
 
+export type LocationType = 'premises' | 'mobile' | 'online' | 'by_appointment';
+
+/** A period of opening, as HH:MM on the location's clock. */
+export type OpeningPeriodData = {
+    opens_at: string;
+    closes_at: string;
+    label: string | null;
+};
+
+/** A weekly period, on an ISO day of the week (1 is Monday). */
+export type OpeningHourData = OpeningPeriodData & {
+    day_of_week: number;
+};
+
+/** Dates replacing the weekly hours. No periods means closed. */
+export type OpeningHourExceptionData = {
+    name: string;
+    starts_on: string;
+    ends_on: string | null;
+    periods: OpeningPeriodData[];
+};
+
 export type OrganisationUnitData = {
     id: number;
     type: OrganisationUnitType;
     type_label: string;
+    location_type: LocationType | null;
+    timezone: string | null;
+    service_areas: string[];
+    opening_hours?: OpeningHourData[];
+    opening_hour_exceptions?: OpeningHourExceptionData[];
     name: string;
     slug: string;
     email: string;
@@ -40,6 +67,7 @@ export type OrganisationUnitFormOptions = {
     allowedParentTypes: Record<OrganisationUnitType, OrganisationUnitType[]>;
     parentOptions: OrganisationUnitParentOption[];
     socialMedia: SelectItem[];
+    locationTypes: SelectItem[];
 };
 
 export type ContactData = {

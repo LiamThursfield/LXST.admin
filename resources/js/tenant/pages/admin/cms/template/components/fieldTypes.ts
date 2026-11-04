@@ -26,6 +26,7 @@ export const templateFieldTypeMeta: Record<
     repeater: { icon: 'i-lucide-list', group: 'structure' },
     crm_form: { icon: 'i-lucide-clipboard-list', group: 'crm' },
     crm_organisation_unit: { icon: 'i-lucide-building-2', group: 'crm' },
+    crm_opening_hours: { icon: 'i-lucide-clock', group: 'crm' },
 };
 
 /** A type the map doesn't know yet still gets an icon and a group. */

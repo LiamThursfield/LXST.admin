@@ -4,6 +4,8 @@ namespace App\Http\Resources\Tenant\Admin\Crm;
 
 use App\Http\Resources\Traits\HasActions;
 use App\Models\Crm\Address;
+use App\Models\Crm\OpeningHour;
+use App\Models\Crm\OpeningHourException;
 use App\Models\Crm\OrganisationUnit;
 use App\Support\UI\Action;
 use Illuminate\Http\Request;
@@ -83,6 +85,22 @@ class OrganisationUnitResource extends JsonResource
                 'name' => $organisationUnit->parent->name,
             ]),
             'address' => $this->whenLoaded('address', fn () => $organisationUnit->address?->only(['id', ...Address::FIELDS])),
+            'location_type' => $organisationUnit->location_type?->value,
+            'timezone' => $organisationUnit->timezone,
+            'service_areas' => $organisationUnit->service_areas ?? [],
+            'opening_hours' => $this->whenLoaded('openingHours', fn () => $organisationUnit->openingHours
+                ->sortBy(['day_of_week', 'opens_at'])
+                ->map(fn (OpeningHour $hour) => $hour->only(['day_of_week', 'opens_at', 'closes_at', 'label']))
+                ->values()),
+            'opening_hour_exceptions' => $this->whenLoaded('openingHourExceptions', fn () => $organisationUnit->openingHourExceptions
+                ->sortBy(fn (OpeningHourException $exception) => $exception->starts_on->toDateString())
+                ->map(fn (OpeningHourException $exception) => [
+                    'name' => $exception->name,
+                    'starts_on' => $exception->starts_on->toDateString(),
+                    'ends_on' => $exception->ends_on->toDateString(),
+                    'periods' => $exception->periods ?? [],
+                ])
+                ->values()),
         ]);
     }
 }

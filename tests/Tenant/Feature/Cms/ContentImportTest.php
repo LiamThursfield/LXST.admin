@@ -89,7 +89,7 @@ function everyFieldTypeItems(): array
         TemplateFieldType::Component => ['template' => ['type' => 'component', 'slug' => 'card']],
         TemplateFieldType::Repeater => ['template' => ['type' => 'repeater', 'slug' => 'row'], 'min_items' => 1, 'max_items' => 3],
         TemplateFieldType::CrmOrganisationUnit => ['organisation_unit_type' => 'location'],
-        TemplateFieldType::Wysiwyg, TemplateFieldType::Image, TemplateFieldType::Link, TemplateFieldType::CmsMenu, TemplateFieldType::CrmForm => [],
+        TemplateFieldType::Wysiwyg, TemplateFieldType::Image, TemplateFieldType::Link, TemplateFieldType::CmsMenu, TemplateFieldType::CrmForm, TemplateFieldType::CrmOpeningHours => [],
     }]), TemplateFieldType::cases());
 
     return [$component, $row, portableTemplate('everything', $fields)];

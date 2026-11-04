@@ -19,6 +19,7 @@ defineProps<
         :allowed-parent-types="allowedParentTypes"
         :parent-options="parentOptions"
         :social-media="socialMedia"
+        :location-types="locationTypes"
         :readonly="false"
     />
 </template>
