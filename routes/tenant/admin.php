@@ -130,7 +130,7 @@ Route::name('bookings.')->prefix('bookings')->middleware('tenant.module:bookings
     Route::post('time-off/{time_off}/approve', [TimeOffController::class, 'approve'])->name('time-off.approve');
     Route::post('time-off/{time_off}/decline', [TimeOffController::class, 'decline'])->name('time-off.decline');
     Route::resource('time-off', TimeOffController::class)->only(['index', 'create', 'store', 'destroy'])->parameters(['time-off' => 'time_off']);
-    Route::get('staff-hours', StaffHoursController::class)->name('staff-hours.index');
+    Route::get('hours', StaffHoursController::class)->name('staff-hours.index');
 });
 
 Route::name('crm.')->prefix('crm')->middleware(['tenant.module:crm', 'content.changed'])->group(function () {
