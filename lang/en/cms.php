@@ -408,6 +408,8 @@ return [
             'no_forms' => 'Create a CRM form first.',
             'organisation_unit_placeholder' => 'Choose an organisation unit',
             'no_organisation_units' => 'Create an organisation unit first.',
+            'location_placeholder' => 'Choose a location',
+            'no_locations' => 'Create a location first.',
             'off' => 'CRM is switched off for this site, so this field is hidden from the site. Its value is kept.',
         ],
         'repeater' => [
@@ -674,6 +676,7 @@ return [
                 'repeater' => 'A list of items, e.g. slides or features',
                 'crm_form' => 'A CRM form to show on the page',
                 'crm_organisation_unit' => 'An office, team or location',
+                'crm_opening_hours' => 'A location\'s opening hours, and whether it\'s open now',
             ],
         ],
         'confirm_delete' => 'Delete the :name template?',

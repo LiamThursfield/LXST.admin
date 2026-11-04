@@ -2,6 +2,7 @@
 
 namespace Database\Factories\Crm;
 
+use App\Enums\Crm\LocationType;
 use App\Enums\Crm\OrganisationUnitType;
 use App\Models\Crm\OrganisationUnit;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -50,8 +51,43 @@ class OrganisationUnitFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'type' => OrganisationUnitType::Location,
+            'location_type' => LocationType::Premises,
+            'timezone' => 'Europe/London',
             'name' => fake()->unique()->city().' Office',
             'parent_id' => $company->id ?? OrganisationUnit::factory()->company(),
+        ]);
+    }
+
+    /**
+     * A location that travels to its customers, in the given areas
+     *
+     * @param  list<string>  $serviceAreas
+     */
+    public function mobile(?OrganisationUnit $company = null, array $serviceAreas = ['M1', 'M2', 'SK1']): static
+    {
+        return $this->location($company)->state(fn (array $attributes) => [
+            'location_type' => LocationType::Mobile,
+            'service_areas' => $serviceAreas,
+        ]);
+    }
+
+    /**
+     * A location that meets its customers online
+     */
+    public function online(?OrganisationUnit $company = null): static
+    {
+        return $this->location($company)->state(fn (array $attributes) => [
+            'location_type' => LocationType::Online,
+        ]);
+    }
+
+    /**
+     * A location customers can only visit when they've arranged to
+     */
+    public function byAppointment(?OrganisationUnit $company = null): static
+    {
+        return $this->location($company)->state(fn (array $attributes) => [
+            'location_type' => LocationType::ByAppointment,
         ]);
     }
 

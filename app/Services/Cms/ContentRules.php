@@ -4,6 +4,7 @@ namespace App\Services\Cms;
 
 use App\Data\Cms\MenuItemData;
 use App\Enums\Cms\TemplateFieldType;
+use App\Enums\Crm\OrganisationUnitType;
 use App\Enums\TenantModule;
 use App\Models\Cms\SavedComponent;
 use App\Models\Cms\Template;
@@ -216,6 +217,10 @@ class ContentRules
                         fn ($rule, string $type) => $rule->where('type', $type),
                     ),
                 ]]
+                : [$key => ['nullable', 'integer']],
+            // A location's id, whose opening hours the page shows
+            TemplateFieldType::CrmOpeningHours => $this->crmEnabled()
+                ? [$key => [$required, 'integer', Rule::exists(OrganisationUnit::class, 'id')->where('type', OrganisationUnitType::Location->value)]]
                 : [$key => ['nullable', 'integer']],
         };
     }

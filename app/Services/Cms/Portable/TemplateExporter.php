@@ -129,7 +129,8 @@ class TemplateExporter
             TemplateFieldType::Image,
             TemplateFieldType::Link,
             TemplateFieldType::CmsMenu,
-            TemplateFieldType::CrmForm => [],
+            TemplateFieldType::CrmForm,
+            TemplateFieldType::CrmOpeningHours => [],
         };
 
         return array_filter(

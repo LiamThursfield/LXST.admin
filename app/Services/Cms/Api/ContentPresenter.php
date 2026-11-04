@@ -5,8 +5,10 @@ namespace App\Services\Cms\Api;
 use App\Data\Cms\MenuItemData;
 use App\Enums\Cms\PublishStatus;
 use App\Enums\Cms\TemplateFieldType;
+use App\Enums\Crm\OrganisationUnitType;
 use App\Enums\TenantModule;
 use App\Http\Resources\Tenant\Api\V1\Crm\FormDefinitionResource;
+use App\Http\Resources\Tenant\Api\V1\Crm\LocationResource;
 use App\Models\Cms\Menu;
 use App\Models\Cms\Page;
 use App\Models\Cms\SavedComponent;
@@ -95,6 +97,7 @@ class ContentPresenter
             TemplateFieldType::CmsMenu => $this->menu($value),
             TemplateFieldType::CrmForm => $this->form($value),
             TemplateFieldType::CrmOrganisationUnit => $this->organisationUnit($value),
+            TemplateFieldType::CrmOpeningHours => $this->openingHours($value),
         };
     }
 
@@ -320,6 +323,32 @@ class ContentPresenter
             'socials' => (object) ($unit->socials ?? []),
             'address' => $unit->address?->only(Address::FIELDS),
         ];
+    }
+
+    /**
+     * The location and its hours, without whether it's open now: cached pages would hand every
+     * visitor the same old answer, so sites fetch a fresh one from `api_url`
+     *
+     * @return array<string, mixed>|null
+     */
+    protected function openingHours(mixed $value): ?array
+    {
+        $location = $this->crmEnabled() && is_numeric($value)
+            ? OrganisationUnit::query()
+                ->where('type', OrganisationUnitType::Location)
+                ->with(['address', 'openingHours', 'openingHourExceptions'])
+                ->find((int) $value)
+            : null;
+
+        if ($location === null) {
+            return null;
+        }
+
+        /** @var array<string, mixed> $details */
+        $details = (new LocationResource($location))->resolve();
+        unset($details['status']);
+
+        return [...$details, 'api_url' => route('api.v1.crm.locations.show', $location->slug)];
     }
 
     protected function crmEnabled(): bool

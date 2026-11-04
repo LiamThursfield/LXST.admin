@@ -2,6 +2,7 @@
 
 namespace App\Models\Crm;
 
+use App\Enums\Crm\LocationType;
 use App\Enums\Crm\OrganisationUnitType;
 use Database\Factories\Crm\OrganisationUnitFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,6 +20,9 @@ use Illuminate\Support\Str;
  * @property int $id
  * @property int|null $parent_id
  * @property OrganisationUnitType $type
+ * @property LocationType|null $location_type Only locations have one
+ * @property string|null $timezone
+ * @property list<string>|null $service_areas
  * @property string $name
  * @property string $slug
  * @property string $email
@@ -29,6 +33,8 @@ use Illuminate\Support\Str;
  * @property-read OrganisationUnit|null $parent
  * @property-read Collection<int, OrganisationUnit> $children
  * @property-read Address|null $address
+ * @property-read Collection<int, OpeningHour> $openingHours
+ * @property-read Collection<int, OpeningHourException> $openingHourExceptions
  * @property-read int|null $children_count
  */
 class OrganisationUnit extends Model
@@ -46,6 +52,9 @@ class OrganisationUnit extends Model
     protected $fillable = [
         'parent_id',
         'type',
+        'location_type',
+        'timezone',
+        'service_areas',
         'name',
         'slug',
         'email',
@@ -64,6 +73,8 @@ class OrganisationUnit extends Model
     {
         return [
             'type' => OrganisationUnitType::class,
+            'location_type' => LocationType::class,
+            'service_areas' => 'array',
             'socials' => 'array',
             'notification_emails' => 'array',
         ];
@@ -120,6 +131,30 @@ class OrganisationUnit extends Model
     public function address(): MorphOne
     {
         return $this->morphOne(Address::class, 'addressable');
+    }
+
+    /**
+     * @return HasMany<OpeningHour, $this>
+     */
+    public function openingHours(): HasMany
+    {
+        return $this->hasMany(OpeningHour::class);
+    }
+
+    /**
+     * @return HasMany<OpeningHourException, $this>
+     */
+    public function openingHourExceptions(): HasMany
+    {
+        return $this->hasMany(OpeningHourException::class);
+    }
+
+    /**
+     * The IANA timezone the location's hours are in, falling back to the app timezone when unset
+     */
+    public function localTimezone(): string
+    {
+        return $this->timezone ?: (string) config('app.timezone');
     }
 
     /**

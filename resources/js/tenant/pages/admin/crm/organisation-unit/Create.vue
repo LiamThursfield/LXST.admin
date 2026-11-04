@@ -11,6 +11,7 @@ defineProps<OrganisationUnitFormOptions>();
         :allowed-parent-types="allowedParentTypes"
         :parent-options="parentOptions"
         :social-media="socialMedia"
+        :location-types="locationTypes"
         :create="true"
     />
 </template>

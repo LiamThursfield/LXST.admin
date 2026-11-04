@@ -126,7 +126,10 @@ class CmsSeeder extends Seeder
             ['headline', TemplateFieldType::Text, 'Headline', true],
             ['intro', TemplateFieldType::Textarea, 'Intro', false, ['rows' => 4]],
             ['years_running', TemplateFieldType::Number, 'Years running', false, ['min' => 0, 'max' => 100]],
-            ...($crm ? [['office', TemplateFieldType::CrmOrganisationUnit, 'Office', false, ['organisation_unit_type' => OrganisationUnitType::Location->value]]] : []),
+            ...($crm ? [
+                ['office', TemplateFieldType::CrmOrganisationUnit, 'Office', false, ['organisation_unit_type' => OrganisationUnitType::Location->value]],
+                ['opening_hours', TemplateFieldType::CrmOpeningHours, 'Opening hours', false],
+            ] : []),
         ]);
 
         $heroSection = $template('hero-section', TemplateType::Component, 'Hero Section', 'A background image with a heading, a subheading, a short intro and a link.', [
@@ -386,6 +389,7 @@ class CmsSeeder extends Seeder
             'intro' => 'Book a summer date before the end of the month and get a free uplighting package.',
             'years_running' => 10,
             'office' => $office,
+            'opening_hours' => $office,
         ], ['published_at' => $now->addWeek()]);
         $draft = $page('coming-soon', 'coming-soon', 'Coming soon', $templates['standard'], $layouts['default'], $standard('Corporate events', ['Something new is on the way.']), ['is_enabled' => false]);
         $offer = $page('winter-offer', 'winter-offer', 'Winter offer', $templates['landing'], $layouts['default'], [

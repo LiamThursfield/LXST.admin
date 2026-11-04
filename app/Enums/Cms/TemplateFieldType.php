@@ -25,6 +25,7 @@ enum TemplateFieldType: string
     case CmsMenu = 'cms_menu';
     case CrmForm = 'crm_form';
     case CrmOrganisationUnit = 'crm_organisation_unit';
+    case CrmOpeningHours = 'crm_opening_hours';
 
     /**
      * Whether the type's content editor exists, so it can be offered in the template builder.
@@ -41,7 +42,7 @@ enum TemplateFieldType: string
     public function requiredModule(): ?TenantModule
     {
         return match ($this) {
-            self::CrmForm, self::CrmOrganisationUnit => TenantModule::Crm,
+            self::CrmForm, self::CrmOrganisationUnit, self::CrmOpeningHours => TenantModule::Crm,
             default => null,
         };
     }

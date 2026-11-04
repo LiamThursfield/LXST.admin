@@ -44,6 +44,12 @@ return [
         'crm_last_name' => 'Contact: last name',
         'crm_telephone' => 'Contact: telephone',
     ],
+    'location_type' => [
+        'premises' => 'Premises customers visit',
+        'mobile' => 'Mobile, travels to customers',
+        'online' => 'Online',
+        'by_appointment' => 'By appointment only',
+    ],
     'organisation_unit_type' => [
         'company' => 'Company',
         'location' => 'Location',
@@ -104,6 +110,7 @@ return [
         'cms_menu' => 'Menu',
         'crm_form' => 'CRM form',
         'crm_organisation_unit' => 'CRM organisation unit',
+        'crm_opening_hours' => 'CRM opening hours',
     ],
 
     'template_type' => [

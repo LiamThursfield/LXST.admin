@@ -7,9 +7,13 @@ import {
     store,
     update,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Crm/OrganisationUnitController';
+import { browserTimezone, timezoneOptions } from '@/lib/timezone';
 import AddressFields from '@/tenant/components/crm/AddressFields.vue';
+import OpeningHourExceptionsFields from '@/tenant/components/crm/OpeningHourExceptionsFields.vue';
+import WeeklyHoursFields from '@/tenant/components/crm/WeeklyHoursFields.vue';
 import type {
     AddressData,
+    LocationType,
     OrganisationUnitData,
     OrganisationUnitFormOptions,
     OrganisationUnitType,
@@ -70,7 +74,22 @@ const form = useForm({
     ) as Record<string, string>,
     notification_emails: [...(unit?.notification_emails ?? [])],
     address: { ...emptyAddress, ...(unit?.address ?? {}) } as AddressData,
+    location_type: (unit?.location_type ?? 'premises') as LocationType,
+    timezone: unit?.timezone ?? browserTimezone(),
+    service_areas: [...(unit?.service_areas ?? [])],
+    opening_hours: (unit?.opening_hours ?? []).map((hour) => ({ ...hour })),
+    opening_hour_exceptions: (unit?.opening_hour_exceptions ?? []).map(
+        (exception) => ({
+            ...exception,
+            periods: exception.periods.map((period) => ({
+                ...period,
+                label: period.label ?? null,
+            })),
+        }),
+    ),
 });
+
+const timezones = timezoneOptions(form.timezone);
 
 /** The parent types allowed for the chosen type: none for a company, which is always at the top. */
 const allowedParentTypes = computed(
@@ -364,6 +383,78 @@ function onSubmit() {
                 :errors="errors"
                 :readonly="readonly"
             />
+
+            <template v-if="form.type === 'location'">
+                <UPageCard
+                    variant="subtle"
+                    :title="trans('crm.opening_hours.location_title')"
+                >
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <UFormField
+                            :label="
+                                trans('crm.opening_hours.fields.location_type')
+                            "
+                            name="location_type"
+                            :error="form.errors.location_type"
+                        >
+                            <USelect
+                                v-model="form.location_type"
+                                :disabled="readonly"
+                                :items="locationTypes"
+                                class="w-full"
+                            />
+                        </UFormField>
+
+                        <UFormField
+                            :label="trans('crm.opening_hours.fields.timezone')"
+                            name="timezone"
+                            :error="form.errors.timezone"
+                        >
+                            <USelectMenu
+                                v-model="form.timezone"
+                                :disabled="readonly"
+                                :items="timezones"
+                                class="w-full"
+                            />
+                        </UFormField>
+
+                        <UFormField
+                            v-if="form.location_type === 'mobile'"
+                            class="md:col-span-2"
+                            :label="
+                                trans('crm.opening_hours.fields.service_areas')
+                            "
+                            :help="
+                                readonly
+                                    ? undefined
+                                    : trans(
+                                          'crm.opening_hours.fields.service_areas_help',
+                                      )
+                            "
+                            name="service_areas"
+                            :error="form.errors.service_areas"
+                        >
+                            <UInputTags
+                                v-model="form.service_areas"
+                                :disabled="readonly"
+                                class="w-full"
+                            />
+                        </UFormField>
+                    </div>
+                </UPageCard>
+
+                <WeeklyHoursFields
+                    v-model="form.opening_hours"
+                    :errors="errors"
+                    :readonly="readonly"
+                />
+
+                <OpeningHourExceptionsFields
+                    v-model="form.opening_hour_exceptions"
+                    :errors="errors"
+                    :readonly="readonly"
+                />
+            </template>
 
             <SubmitOnEnter />
 

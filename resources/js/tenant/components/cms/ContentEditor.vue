@@ -22,6 +22,7 @@ import {
 import { opening, richTextWords, textValues } from './contentSummary';
 import ComponentContentField from './fields/ComponentContentField.vue';
 import CrmFormContentField from './fields/CrmFormContentField.vue';
+import CrmOpeningHoursContentField from './fields/CrmOpeningHoursContentField.vue';
 import CrmOrganisationUnitContentField from './fields/CrmOrganisationUnitContentField.vue';
 import ImageContentField from './fields/ImageContentField.vue';
 import LinkContentField from './fields/LinkContentField.vue';
@@ -111,6 +112,7 @@ const editors: Record<string, Component> = {
     cms_menu: MenuContentField,
     crm_form: CrmFormContentField,
     crm_organisation_unit: CrmOrganisationUnitContentField,
+    crm_opening_hours: CrmOpeningHoursContentField,
 };
 
 /** Components and repeaters show their own fields' errors, so they get the errors and their prefix. */
