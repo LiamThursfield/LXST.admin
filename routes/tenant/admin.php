@@ -6,6 +6,7 @@ use App\Http\Controllers\Tenant\Admin\Bookings\ResourceController;
 use App\Http\Controllers\Tenant\Admin\Bookings\RotaController;
 use App\Http\Controllers\Tenant\Admin\Bookings\ServiceCategoryController;
 use App\Http\Controllers\Tenant\Admin\Bookings\ServiceController;
+use App\Http\Controllers\Tenant\Admin\Bookings\StaffController;
 use App\Http\Controllers\Tenant\Admin\Bookings\StaffHoursController;
 use App\Http\Controllers\Tenant\Admin\Bookings\TimeOffController;
 use App\Http\Controllers\Tenant\Admin\Cms\ContentImportController;
@@ -122,6 +123,7 @@ Route::name('cms.')->prefix('cms')->middleware(['tenant.module:cms', 'content.ch
 Route::name('bookings.')->prefix('bookings')->middleware('tenant.module:bookings')->group(function () {
     Route::resource('services', ServiceController::class);
     Route::resource('service-categories', ServiceCategoryController::class)->except('show');
+    Route::resource('staff', StaffController::class)->parameters(['staff' => 'resource']);
     Route::resource('resources', ResourceController::class);
     Route::get('rota', [RotaController::class, 'index'])->name('rota.index');
     Route::put('rota', [RotaController::class, 'update'])->name('rota.update');

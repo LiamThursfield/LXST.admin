@@ -7,6 +7,7 @@ defineProps<BookableResourceFormOptions>();
 
 <template>
     <ResourceForm
+        :for-staff="forStaff"
         :types="types"
         :has-locations="hasLocations"
         :locations="locations"

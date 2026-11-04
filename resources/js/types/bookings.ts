@@ -99,6 +99,8 @@ export type BookableResourceData = {
 
 /** The select options the resource form needs. */
 export type BookableResourceFormOptions = {
+    /** People, rather than spaces, equipment and vehicles. */
+    forStaff: boolean;
     types: SelectItem[];
     hasLocations: boolean;
     locations: SelectItem[];

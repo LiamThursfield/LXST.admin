@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import {
-    index,
-    store,
-    update,
-} from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/ResourceController';
+import ResourceController from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/ResourceController';
+import StaffController from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/StaffController';
 import FileField from '@/tenant/components/file-manager/FileField.vue';
 import type {
     BookableResourceData,
@@ -15,8 +12,9 @@ import type {
 import WorkingHoursFields from './WorkingHoursFields.vue';
 
 /**
- * Creates, edits or shows a resource: a person, space, piece of equipment or vehicle, its usual
- * working hours, and the services it can do.
+ * Creates, edits or shows a person, space, piece of equipment or vehicle, its usual working hours,
+ * and the services it can do. People and everything else have their own lists, so a person's form
+ * doesn't offer a type.
  */
 const props = withDefaults(
     defineProps<
@@ -37,8 +35,13 @@ const { trans } = useTrans();
 
 const resource = props.bookableResource;
 
+const controller = props.forStaff ? StaffController : ResourceController;
+const copy = props.forStaff ? 'bookings.staff' : 'bookings.resources';
+
 const form = useForm({
-    type: resource?.type ?? (props.types[0].value as string),
+    type:
+        resource?.type ??
+        (props.forStaff ? 'person' : (props.types[0].value as string)),
     name: resource?.name ?? '',
     slug: resource?.slug ?? '',
     description: resource?.description ?? '',
@@ -60,7 +63,6 @@ const errors = computed(
     () => form.errors as Record<string, string | undefined>,
 );
 
-const isPerson = computed(() => form.type === 'person');
 const hasCapacity = computed(() => form.type === 'space');
 
 const userItems = computed(() => [
@@ -75,18 +77,14 @@ const locationItems = computed(() => [
 
 const title = computed(() => {
     if (props.create) {
-        return trans('bookings.resources.create.title');
+        return trans(`${copy}.create.title`);
     }
 
-    return trans(
-        props.readonly
-            ? 'bookings.resources.show.title'
-            : 'bookings.resources.edit.title',
-    );
+    return trans(props.readonly ? `${copy}.show.title` : `${copy}.edit.title`);
 });
 
 const breadcrumbs = computed(() => [
-    { label: trans('bookings.resources.index.title'), to: index.url() },
+    { label: trans(`${copy}.index.title`), to: controller.index.url() },
     { label: resource?.name ?? title.value },
 ]);
 
@@ -110,9 +108,9 @@ function toggleService(serviceId: string | number, chosen: boolean) {
 
 function submit() {
     if (resource) {
-        form.submit(update(resource.id));
+        form.submit(controller.update(resource.id));
     } else {
-        form.submit(store());
+        form.submit(controller.store());
     }
 }
 </script>
@@ -124,9 +122,7 @@ function submit() {
         :is-dirty="form.isDirty"
         :processing="form.processing"
         :readonly="readonly"
-        :submit-label="
-            create ? trans('bookings.resources.create.submit') : undefined
-        "
+        :submit-label="create ? trans(`${copy}.create.submit`) : undefined"
         @submit="submit"
     >
         <UPageCard
@@ -135,6 +131,7 @@ function submit() {
         >
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <UFormField
+                    v-if="!forStaff"
                     :label="trans('bookings.resources.fields.type')"
                     name="type"
                     :error="form.errors.type"
@@ -161,7 +158,7 @@ function submit() {
                     />
                 </UFormField>
 
-                <template v-if="isPerson">
+                <template v-if="forStaff">
                     <UFormField
                         :label="trans('bookings.resources.fields.job_title')"
                         name="job_title"

@@ -30,6 +30,7 @@ return [
     'bookings' => ':Bookings',
     'services' => ':Services',
     'service_categories' => 'Categories',
+    'staff' => ':Staff_members',
     'resources' => ':Resources',
     'rota' => 'Rota',
     'time_off' => 'Time off',

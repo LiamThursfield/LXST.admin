@@ -71,7 +71,7 @@ return [
             'is_bookable_online_help' => 'Turn off to take these only in person or by phone.',
             'locations' => ':Locations',
             'locations_help' => 'Leave blank to offer at every :location.',
-            'resources' => ':Resources who can do this',
+            'resources' => 'Who can do this',
         ],
         'options' => [
             'add' => 'Add a variation or add-on',
@@ -138,6 +138,29 @@ return [
         ],
     ],
 
+    'staff' => [
+        'index' => [
+            'title' => ':Staff_members',
+            'create' => 'New :staff_member',
+            'empty' => 'No :staff_members yet',
+        ],
+        'create' => [
+            'title' => 'New :staff_member',
+            'submit' => 'Create :staff_member',
+        ],
+        'edit' => [
+            'title' => 'Edit :staff_member',
+        ],
+        'show' => [
+            'title' => 'View :staff_member',
+        ],
+        'flash' => [
+            'created' => ':Staff_member created.',
+            'updated' => ':Staff_member updated.',
+            'deleted' => ':Staff_member deleted.',
+        ],
+    ],
+
     'resources' => [
         'index' => [
             'title' => ':Resources',
@@ -158,6 +181,7 @@ return [
         'columns' => [
             'name' => 'Name',
             'type' => 'Type',
+            'job_title' => 'Job title',
             'location' => ':Location',
             'services' => ':Services',
             'active' => 'Active',
@@ -214,8 +238,8 @@ return [
 
     'rota' => [
         'title' => 'Rota',
-        'empty' => 'No active :resources yet.',
-        'resource' => ':Resource',
+        'empty' => 'Nothing on the rota yet.',
+        'resource' => 'Who or what',
         'previous_week' => 'Previous week',
         'next_week' => 'Next week',
         'this_week' => 'This week',
@@ -251,7 +275,7 @@ return [
             'none_linked' => 'Your sign in isn\'t linked to a :staff_member yet, so ask a manager to link it first.',
         ],
         'columns' => [
-            'resource' => ':Resource',
+            'resource' => 'Who or what',
             'type' => 'Type',
             'starts_on' => 'From',
             'ends_on' => 'To',
@@ -259,7 +283,7 @@ return [
             'reason' => 'Reason',
         ],
         'fields' => [
-            'resource' => ':Resource',
+            'resource' => 'Who or what',
             'type' => 'Type',
             'starts_on' => 'From',
             'ends_on' => 'To',

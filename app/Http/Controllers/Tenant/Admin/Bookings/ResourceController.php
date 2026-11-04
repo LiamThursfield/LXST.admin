@@ -22,8 +22,15 @@ use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
+/**
+ * Resources that aren't people: spaces, equipment and vehicles. People have their own list, under
+ * the tenant's word for them, through StaffController.
+ */
 class ResourceController extends Controller
 {
+    /** Whether this controller looks after people, rather than everything else */
+    protected bool $forStaff = false;
+
     public function index(ResourceIndexRequest $request, ResourceIndexQuery $query): Response
     {
         $terminology = app(Terminology::class);
@@ -40,14 +47,17 @@ class ResourceController extends Controller
             },
             'columns' => [
                 ['accessorKey' => 'name', 'header' => __('bookings.resources.columns.name')],
-                ['accessorKey' => 'type_label', 'header' => __('bookings.resources.columns.type')],
+                $this->forStaff
+                    ? ['accessorKey' => 'job_title', 'header' => __('bookings.resources.columns.job_title')]
+                    : ['accessorKey' => 'type_label', 'header' => __('bookings.resources.columns.type')],
                 ['accessorKey' => 'location_name', 'header' => $terminology->translate('bookings.resources.columns.location')],
                 ['accessorKey' => 'services_count', 'header' => $terminology->translate('bookings.resources.columns.services')],
                 ['accessorKey' => 'is_active', 'header' => __('bookings.resources.columns.active')],
                 ['accessorKey' => 'actions', 'header' => ''],
             ],
-            'resources' => ResourceResource::collection($query->handle($request)),
-            'types' => ResourceType::asSelectItems(),
+            'resources' => ResourceResource::collection($query->handle($request, $this->forStaff)),
+            'types' => $this->types(),
+            'forStaff' => $this->forStaff,
             'canCreate' => $request->user()?->can('create', BookableResource::class) ?? false,
         ]);
     }
@@ -68,12 +78,13 @@ class ResourceController extends Controller
             $resource->services()->sync($request->servicesAttributes());
         });
 
-        return redirect()->route('admin.bookings.resources.index')
-            ->with('success', app(Terminology::class)->translate('bookings.resources.flash.created'));
+        return redirect()->route($this->indexRoute())
+            ->with('success', app(Terminology::class)->translate($this->copy('flash.created')));
     }
 
     public function show(BookableResource $resource): Response
     {
+        $this->ensureBelongsHere($resource);
         Gate::authorize('view', $resource);
 
         return Inertia::render('admin/bookings/resource/Show', [
@@ -84,6 +95,7 @@ class ResourceController extends Controller
 
     public function edit(BookableResource $resource): Response
     {
+        $this->ensureBelongsHere($resource);
         Gate::authorize('update', $resource);
 
         return Inertia::render('admin/bookings/resource/Edit', [
@@ -94,6 +106,8 @@ class ResourceController extends Controller
 
     public function update(ResourceUpdateRequest $request, BookableResource $resource): RedirectResponse
     {
+        $this->ensureBelongsHere($resource);
+
         DB::transaction(function () use ($request, $resource) {
             $resource->update($request->resourceAttributes());
 
@@ -102,8 +116,8 @@ class ResourceController extends Controller
             $resource->services()->sync($request->servicesAttributes());
         });
 
-        return redirect()->route('admin.bookings.resources.index')
-            ->with('success', app(Terminology::class)->translate('bookings.resources.flash.updated'));
+        return redirect()->route($this->indexRoute())
+            ->with('success', app(Terminology::class)->translate($this->copy('flash.updated')));
     }
 
     /**
@@ -111,11 +125,47 @@ class ResourceController extends Controller
      */
     public function destroy(BookableResource $resource): RedirectResponse
     {
+        $this->ensureBelongsHere($resource);
         Gate::authorize('delete', $resource);
 
         $resource->delete();
 
-        return redirect()->back()->with('success', app(Terminology::class)->translate('bookings.resources.flash.deleted'));
+        return redirect()->back()->with('success', app(Terminology::class)->translate($this->copy('flash.deleted')));
+    }
+
+    /**
+     * A person is only found under staff, and anything else only under resources
+     */
+    protected function ensureBelongsHere(BookableResource $resource): void
+    {
+        abort_unless($resource->type->isPerson() === $this->forStaff, 404);
+    }
+
+    protected function indexRoute(): string
+    {
+        return $this->forStaff ? 'admin.bookings.staff.index' : 'admin.bookings.resources.index';
+    }
+
+    protected function copy(string $key): string
+    {
+        return ($this->forStaff ? 'bookings.staff.' : 'bookings.resources.').$key;
+    }
+
+    /**
+     * The types a resource can be, which a person isn't: they're always of the person type
+     *
+     * @return list<array{value: string, label: string}>
+     */
+    protected function types(): array
+    {
+        if ($this->forStaff) {
+            return [];
+        }
+
+        return array_values(array_map(
+            fn (ResourceType $type) => $type->toSelectItem(),
+            array_filter(ResourceType::cases(), fn (ResourceType $type) => ! $type->isPerson()),
+        ));
     }
 
     /**
@@ -128,7 +178,8 @@ class ResourceController extends Controller
         $hasLocations = tenant()?->hasModule(TenantModule::Crm) ?? false;
 
         return [
-            'types' => ResourceType::asSelectItems(),
+            'forStaff' => $this->forStaff,
+            'types' => $this->types(),
             'hasLocations' => $hasLocations,
             'locations' => $hasLocations
                 ? OrganisationUnit::query()->where('type', OrganisationUnitType::Location)->orderBy('name')->get()

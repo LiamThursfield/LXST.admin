@@ -18,6 +18,7 @@ namespace App\Services\Navigation\Constants;
  * ├── Bookings
  * │   ├── Services
  * │   ├── Service categories
+ * │   ├── Staff
  * │   ├── Resources
  * │   ├── Rota
  * │   ├── Time off
@@ -64,6 +65,8 @@ class TenantMenu
     public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICES = 'services';
 
     public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICE_CATEGORIES = 'service-categories';
+
+    public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_STAFF = 'staff';
 
     public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_RESOURCES = 'resources';
 

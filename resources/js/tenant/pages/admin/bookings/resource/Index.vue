@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import {
-    create,
-    index,
-} from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/ResourceController';
+import ResourceController from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/ResourceController';
+import StaffController from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/StaffController';
 import RowActions from '@/components/RowActions.vue';
 import type { BookableResourceData, SelectItem } from '@/types';
 
@@ -25,10 +23,14 @@ const props = defineProps<{
         };
     };
     types: SelectItem[];
+    forStaff: boolean;
     canCreate: boolean;
 }>();
 
 const { trans } = useTrans();
+
+const controller = props.forStaff ? StaffController : ResourceController;
+const copy = props.forStaff ? 'bookings.staff' : 'bookings.resources';
 
 /** 'any' means no filter for the select input. */
 const typeItems = computed(() => [
@@ -37,10 +39,17 @@ const typeItems = computed(() => [
 ]);
 
 const { filters, hasFilters, chips, remove, clear, goToPage } = useListFilters({
-    url: () => index.url(),
+    url: () => controller.index.url(),
     initial: {
         name: props.filter?.name || '',
         type: props.filter?.type ?? 'any',
+    },
+    blanks: { type: 'any' },
+    labels: {
+        type: {
+            label: trans('bookings.resources.columns.type'),
+            items: () => props.types,
+        },
     },
 });
 </script>
@@ -48,23 +57,21 @@ const { filters, hasFilters, chips, remove, clear, goToPage } = useListFilters({
 <template>
     <ListLayout
         v-model:search="filters.name"
-        :title="trans('bookings.resources.index.title')"
+        :title="trans(`${copy}.index.title`)"
         :columns="columns"
         :rows="resources.data"
         :pagination="resources.meta"
         :search-placeholder="trans('bookings.resources.fields.name')"
         :chips="chips"
         :has-filters="hasFilters"
-        :empty-title="trans('bookings.resources.index.empty')"
-        :create-label="
-            canCreate ? trans('bookings.resources.index.create') : undefined
-        "
-        :create-href="canCreate ? create.url() : undefined"
+        :empty-title="trans(`${copy}.index.empty`)"
+        :create-label="canCreate ? trans(`${copy}.index.create`) : undefined"
+        :create-href="canCreate ? controller.create.url() : undefined"
         @remove-filter="remove"
         @clear-filters="clear"
         @page="goToPage"
     >
-        <template #filters>
+        <template v-if="!forStaff" #filters>
             <USelect
                 v-model="filters.type"
                 class="w-full sm:w-44"

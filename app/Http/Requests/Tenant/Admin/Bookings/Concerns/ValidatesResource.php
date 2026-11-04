@@ -31,7 +31,8 @@ trait ValidatesResource
         $type = ResourceType::tryFrom((string) $this->input('type'));
 
         return [
-            'type' => ['required', Rule::enum(ResourceType::class)],
+            // A person can't become a space or the like, as they're in different lists
+            'type' => ['required', Rule::enum(ResourceType::class), Rule::in($this->allowedTypes())],
             'name' => ['required', 'string', 'max:120'],
             // Unique across every resource, including deleted ones
             'slug' => ['nullable', 'string', 'max:120', 'alpha_dash', Rule::unique('bookings_resources', 'slug')->ignore($resource?->id)],
@@ -68,6 +69,19 @@ trait ValidatesResource
             'services.*.price' => ['nullable', 'numeric', 'decimal:0,2', 'min:0', 'max:1000000'],
             'services.*.duration_minutes' => ['nullable', 'integer', 'min:1', 'max:1440'],
         ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    protected function allowedTypes(): array
+    {
+        $forStaff = $this->routeIs('admin.bookings.staff.*');
+
+        return array_values(array_map(
+            fn (ResourceType $type) => $type->value,
+            array_filter(ResourceType::cases(), fn (ResourceType $type) => $type->isPerson() === $forStaff),
+        ));
     }
 
     /**

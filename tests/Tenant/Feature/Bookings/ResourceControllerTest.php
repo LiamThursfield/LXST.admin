@@ -8,6 +8,8 @@ use App\Models\Bookings\WorkingHour;
 use App\Models\Crm\OrganisationUnit;
 use App\Models\User;
 use App\Services\Authorisation\Enums\BookingsPermission;
+use App\Services\Navigation\Constants\TenantMenu;
+use App\Services\Navigation\NavigationService;
 use Inertia\Testing\AssertableInertia as Assert;
 
 function validResourceData(array $overrides = []): array
@@ -29,27 +31,28 @@ describe('access', function () {
     test('users without the view permission cannot see resources', function () {
         $this->actingAs($this->createUserWithPermissions([]));
 
-        $this->get(route('admin.bookings.resources.index'))->assertForbidden();
+        $this->get(route('admin.bookings.staff.index'))->assertForbidden();
     });
 
     test('users with only the view permission can see resources but not change them', function () {
         $this->actingAs($this->createUserWithPermissions([BookingsPermission::ViewResources]));
         $resource = BookableResource::factory()->create();
 
-        $this->get(route('admin.bookings.resources.index'))
+        $this->get(route('admin.bookings.staff.index'))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page->has('resources.data', 1)->where('canCreate', false));
 
-        $this->get(route('admin.bookings.resources.show', $resource))->assertOk();
-        $this->post(route('admin.bookings.resources.store'), validResourceData())->assertForbidden();
-        $this->put(route('admin.bookings.resources.update', $resource), validResourceData())->assertForbidden();
-        $this->delete(route('admin.bookings.resources.destroy', $resource))->assertForbidden();
+        $this->get(route('admin.bookings.staff.show', $resource))->assertOk();
+        $this->post(route('admin.bookings.staff.store'), validResourceData())->assertForbidden();
+        $this->put(route('admin.bookings.staff.update', $resource), validResourceData())->assertForbidden();
+        $this->delete(route('admin.bookings.staff.destroy', $resource))->assertForbidden();
     });
 
     test('the pages return not found without the Bookings module', function () {
         $this->actingAs($this->createUserWithPermissions(BookingsPermission::cases()));
         tenant()->update(['modules' => [TenantModule::Crm]]);
 
+        $this->get(route('admin.bookings.staff.index'))->assertNotFound();
         $this->get(route('admin.bookings.resources.index'))->assertNotFound();
         $this->get(route('admin.bookings.rota.index'))->assertNotFound();
         $this->get(route('admin.bookings.time-off.index'))->assertNotFound();
@@ -67,7 +70,7 @@ describe('saving', function () {
         $haircut = Service::factory()->create();
         $colour = Service::factory()->create();
 
-        $this->post(route('admin.bookings.resources.store'), validResourceData([
+        $this->post(route('admin.bookings.staff.store'), validResourceData([
             'user_id' => $user->id,
             'working_hours' => [
                 ['day_of_week' => 1, 'starts_at' => '09:00', 'ends_at' => '13:00'],
@@ -77,7 +80,7 @@ describe('saving', function () {
                 ['id' => $haircut->id, 'price' => '45.50', 'duration_minutes' => 30],
                 ['id' => $colour->id, 'price' => null, 'duration_minutes' => null],
             ],
-        ]))->assertRedirect(route('admin.bookings.resources.index'));
+        ]))->assertRedirect(route('admin.bookings.staff.index'));
 
         $resource = BookableResource::query()->sole();
 
@@ -90,42 +93,85 @@ describe('saving', function () {
     });
 
     test('details that do not apply to the type are cleared', function () {
-        $user = User::factory()->create();
-        $resource = BookableResource::factory()->forUser($user)->create();
+        $room = BookableResource::factory()->space(8)->create();
 
-        $this->put(route('admin.bookings.resources.update', $resource), validResourceData([
-            'type' => 'space',
-            'name' => 'Room 1',
-            'user_id' => $user->id,
+        $this->put(route('admin.bookings.resources.update', $room), validResourceData([
+            'type' => 'equipment',
+            'name' => 'Projector',
+            'user_id' => User::factory()->create()->id,
             'capacity' => 8,
         ]))->assertSessionHasNoErrors();
 
-        $resource->refresh();
+        $room->refresh();
 
-        expect($resource->type)->toBe(ResourceType::Space)
-            ->and($resource->user_id)->toBeNull()
-            ->and($resource->job_title)->toBeNull()
-            ->and($resource->capacity)->toBe(8);
+        expect($room->type)->toBe(ResourceType::Equipment)
+            ->and($room->user_id)->toBeNull()
+            ->and($room->job_title)->toBeNull()
+            ->and($room->capacity)->toBeNull();
+    });
+
+    test('people and everything else stay in their own lists', function () {
+        $person = BookableResource::factory()->create(['name' => 'Sam']);
+        $room = BookableResource::factory()->space()->create(['name' => 'Room 1']);
+
+        $this->get(route('admin.bookings.staff.index'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('forStaff', true)
+                ->has('resources.data', 1)
+                ->where('resources.data.0.name', 'Sam')
+                ->where('resources.data.0.actions.1.url', route('admin.bookings.staff.edit', $person))
+            );
+
+        $this->get(route('admin.bookings.resources.index'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('forStaff', false)
+                ->has('resources.data', 1)
+                ->where('resources.data.0.name', 'Room 1')
+                ->has('types', 3)
+                ->where('resources.data.0.actions.1.url', route('admin.bookings.resources.edit', $room))
+            );
+
+        $this->get(route('admin.bookings.resources.show', $person))->assertNotFound();
+        $this->get(route('admin.bookings.staff.edit', $room))->assertNotFound();
+        $this->delete(route('admin.bookings.staff.destroy', $room))->assertNotFound();
+        $this->put(route('admin.bookings.staff.update', $person), validResourceData(['type' => 'space']))->assertSessionHasErrors('type');
+        $this->post(route('admin.bookings.resources.store'), validResourceData())->assertSessionHasErrors('type');
+    });
+
+    test('each list uses the tenant\'s word for it', function () {
+        tenant()->update(['industry' => 'fitness']);
+
+        $menu = json_encode(app(NavigationService::class)->resolveMenuForUser(TenantMenu::MENU_MAIN, auth()->user())->toArray());
+
+        expect($menu)->toContain('"Coaches"')->toContain('"Spaces"')->toContain('"Coach hours"');
+
+        $this->post(route('admin.bookings.staff.store'), validResourceData())
+            ->assertSessionHas('success', 'Coach created.')
+            ->assertRedirect(route('admin.bookings.staff.index'));
+
+        $this->post(route('admin.bookings.resources.store'), validResourceData(['type' => 'space', 'name' => 'Studio']))
+            ->assertSessionHas('success', 'Space created.')
+            ->assertRedirect(route('admin.bookings.resources.index'));
     });
 
     test('a user can only be linked to one person, until that person is deleted', function () {
         $user = User::factory()->create();
         $first = BookableResource::factory()->forUser($user)->create();
 
-        $this->post(route('admin.bookings.resources.store'), validResourceData(['user_id' => $user->id]))
+        $this->post(route('admin.bookings.staff.store'), validResourceData(['user_id' => $user->id]))
             ->assertSessionHasErrors('user_id');
 
-        $this->delete(route('admin.bookings.resources.destroy', $first))->assertRedirect();
+        $this->delete(route('admin.bookings.staff.destroy', $first))->assertRedirect();
 
         expect($first->refresh()->trashed())->toBeTrue()
             ->and($first->user_id)->toBeNull();
 
-        $this->post(route('admin.bookings.resources.store'), validResourceData(['user_id' => $user->id]))
+        $this->post(route('admin.bookings.staff.store'), validResourceData(['user_id' => $user->id]))
             ->assertSessionHasNoErrors();
     });
 
     test('working hours cannot overlap, including one running past midnight', function (array $hours) {
-        $this->post(route('admin.bookings.resources.store'), validResourceData(['working_hours' => $hours]))
+        $this->post(route('admin.bookings.staff.store'), validResourceData(['working_hours' => $hours]))
             ->assertSessionHasErrors('working_hours');
     })->with([
         'overlapping' => [[
@@ -142,7 +188,7 @@ describe('saving', function () {
         $resource = BookableResource::factory()->create();
         WorkingHour::factory()->for($resource, 'resource')->create(['day_of_week' => 1]);
 
-        $this->put(route('admin.bookings.resources.update', $resource), validResourceData([
+        $this->put(route('admin.bookings.staff.update', $resource), validResourceData([
             'working_hours' => [['day_of_week' => 3, 'starts_at' => '10:00', 'ends_at' => '12:00']],
         ]))->assertSessionHasNoErrors();
 
@@ -154,7 +200,7 @@ describe('saving', function () {
         $deleted = Service::factory()->create();
         $deleted->delete();
 
-        $this->post(route('admin.bookings.resources.store'), validResourceData([
+        $this->post(route('admin.bookings.staff.store'), validResourceData([
             'location_id' => $company->id,
             'services' => [['id' => $deleted->id]],
         ]))->assertSessionHasErrors(['location_id', 'services.0.id']);
@@ -166,10 +212,10 @@ describe('saving', function () {
 
         tenant()->update(['modules' => [TenantModule::Bookings]]);
 
-        $this->get(route('admin.bookings.resources.edit', $resource))
+        $this->get(route('admin.bookings.staff.edit', $resource))
             ->assertInertia(fn (Assert $page) => $page->where('hasLocations', false)->has('locations', 0));
 
-        $this->put(route('admin.bookings.resources.update', $resource), validResourceData(['location_id' => null]))
+        $this->put(route('admin.bookings.staff.update', $resource), validResourceData(['location_id' => null]))
             ->assertSessionHasNoErrors();
 
         expect($resource->refresh()->location_id)->toBe($location->id);

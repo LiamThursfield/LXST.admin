@@ -40,6 +40,13 @@ const { filters, hasFilters, chips, remove, clear, goToPage } = useListFilters({
     initial: {
         status: props.filter?.status ?? 'any',
     },
+    blanks: { status: 'any' },
+    labels: {
+        status: {
+            label: trans('bookings.time_off.columns.status'),
+            items: () => props.statuses,
+        },
+    },
 });
 </script>
 

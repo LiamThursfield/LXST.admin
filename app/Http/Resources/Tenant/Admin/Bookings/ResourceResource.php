@@ -23,19 +23,20 @@ class ResourceResource extends JsonResource
         $resource = $this->resource;
         $user = $request->user();
         $actions = [];
+        $routes = $resource->type->isPerson() ? 'admin.bookings.staff' : 'admin.bookings.resources';
 
         if ($user?->can('view', $resource)) {
-            $actions[] = Action::make(__('common.actions.view'), route('admin.bookings.resources.show', $resource))
+            $actions[] = Action::make(__('common.actions.view'), route("{$routes}.show", $resource))
                 ->icon('i-lucide-eye');
         }
 
         if ($user?->can('update', $resource)) {
-            $actions[] = Action::make(__('common.actions.edit'), route('admin.bookings.resources.edit', $resource))
+            $actions[] = Action::make(__('common.actions.edit'), route("{$routes}.edit", $resource))
                 ->icon('i-lucide-pencil');
         }
 
         if ($user?->can('delete', $resource)) {
-            $actions[] = Action::make(__('common.actions.delete'), route('admin.bookings.resources.destroy', $resource))
+            $actions[] = Action::make(__('common.actions.delete'), route("{$routes}.destroy", $resource))
                 ->icon('i-lucide-trash')
                 ->method('DELETE')
                 ->requireConfirmation(__('bookings.resources.confirm_delete', ['name' => $resource->name]));

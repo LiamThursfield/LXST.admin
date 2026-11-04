@@ -119,12 +119,21 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         activePatterns: ['admin.bookings.service-categories.*'],
                     ))->gate(BookingsPermission::ViewServices),
                     (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_STAFF,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_STAFF]),
+                        label: 'navigation.staff',
+                        type: MenuItemType::LINK,
+                        to: 'admin.bookings.staff.index',
+                        icon: 'i-lucide-users',
+                        activePatterns: ['admin.bookings.staff.*'],
+                    ))->gate(BookingsPermission::ViewResources),
+                    (new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_RESOURCES,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_RESOURCES]),
                         label: 'navigation.resources',
                         type: MenuItemType::LINK,
                         to: 'admin.bookings.resources.index',
-                        icon: 'i-lucide-users',
+                        icon: 'i-lucide-box',
                         activePatterns: ['admin.bookings.resources.*'],
                     ))->gate(BookingsPermission::ViewResources),
                     (new MenuItem(
