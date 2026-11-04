@@ -3,6 +3,7 @@
 namespace App\Services\Navigation\Registrars;
 
 use App\Enums\TenantModule;
+use App\Services\Authorisation\Enums\BookingsPermission;
 use App\Services\Authorisation\Enums\CmsPermission;
 use App\Services\Authorisation\Enums\CorePermission;
 use App\Services\Authorisation\Enums\CrmPermission;
@@ -37,6 +38,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
         $registry->addMenu(new Menu, $this->menuKey);
 
         $this->registerDashboardSection($registry);
+        $this->registerBookingsSection($registry);
         $this->registerCmsSection($registry);
         $this->registerCrmSection($registry);
         $this->registerDjSection($registry);
@@ -69,6 +71,52 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         exact: true,
                     ),
                 ]),
+                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
+            ),
+            $sectionKey,
+            $this->menuKey
+        );
+    }
+
+    /**
+     * Register the Bookings section of the tenant Main Menu
+     * Every item requires the Bookings module, so the whole section is hidden when it is switched off
+     *
+     * @throws DuplicateMenuSectionKeyException
+     * @throws MenuKeyDoesNotExistException
+     */
+    protected function registerBookingsSection(NavigationRegistry $registry): void
+    {
+        $sectionKey = TenantMenu::MENU_MAIN_SECTION_BOOKINGS;
+
+        $registry->addSectionToMenu(
+            new MenuSection(
+                menuItems: Collection::wrap([
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_LABEL,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_LABEL]),
+                        label: 'navigation.bookings',
+                        type: MenuItemType::LABEL,
+                    ),
+                    (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICES,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICES]),
+                        label: 'navigation.services',
+                        type: MenuItemType::LINK,
+                        to: 'admin.bookings.services.index',
+                        icon: 'i-lucide-concierge-bell',
+                        activePatterns: ['admin.bookings.services.*'],
+                    ))->gate(BookingsPermission::ViewServices),
+                    (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICE_CATEGORIES,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICE_CATEGORIES]),
+                        label: 'navigation.service_categories',
+                        type: MenuItemType::LINK,
+                        to: 'admin.bookings.service-categories.index',
+                        icon: 'i-lucide-tag',
+                        activePatterns: ['admin.bookings.service-categories.*'],
+                    ))->gate(BookingsPermission::ViewServices),
+                ])->each(fn (MenuItem $item) => $item->module(TenantModule::Bookings)),
                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
             ),
             $sectionKey,

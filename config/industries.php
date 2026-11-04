@@ -21,62 +21,62 @@ return [
 
     'profiles' => [
         'hospitality' => [
-            'suggested_modules' => [TenantModule::Cms, TenantModule::Crm],
+            'suggested_modules' => [TenantModule::Bookings, TenantModule::Cms, TenantModule::Crm],
             'booking_types' => [BookingType::Table, BookingType::Ticket, BookingType::Enquiry],
             'customer_fields' => ['allergies', 'dietary_needs', 'seating_preference'],
         ],
         'beauty' => [
-            'suggested_modules' => [TenantModule::Cms, TenantModule::Crm],
+            'suggested_modules' => [TenantModule::Bookings, TenantModule::Cms, TenantModule::Crm],
             'booking_types' => [BookingType::Appointment, BookingType::Enquiry],
             'customer_fields' => ['colour_formula', 'patch_test_date', 'allergies'],
         ],
         'health' => [
-            'suggested_modules' => [TenantModule::Cms, TenantModule::Crm],
+            'suggested_modules' => [TenantModule::Bookings, TenantModule::Cms, TenantModule::Crm],
             'booking_types' => [BookingType::Appointment, BookingType::GroupClass],
             'customer_fields' => ['medical_history', 'injuries', 'allergies', 'emergency_contact'],
         ],
         'fitness' => [
-            'suggested_modules' => [TenantModule::Cms, TenantModule::Crm],
+            'suggested_modules' => [TenantModule::Bookings, TenantModule::Cms, TenantModule::Crm],
             'booking_types' => [BookingType::GroupClass, BookingType::Appointment, BookingType::Hire],
             'customer_fields' => ['injuries', 'fitness_goals', 'emergency_contact'],
         ],
         'events' => [
-            'suggested_modules' => [TenantModule::Cms, TenantModule::Crm, TenantModule::Dj],
+            'suggested_modules' => [TenantModule::Bookings, TenantModule::Cms, TenantModule::Crm, TenantModule::Dj],
             'booking_types' => [BookingType::Enquiry, BookingType::Ticket, BookingType::Hire],
             'customer_fields' => ['event_type', 'event_date', 'venue'],
         ],
         'trades' => [
-            'suggested_modules' => [TenantModule::Cms, TenantModule::Crm],
+            'suggested_modules' => [TenantModule::Bookings, TenantModule::Cms, TenantModule::Crm],
             'booking_types' => [BookingType::Visit, BookingType::Enquiry],
             'customer_fields' => ['property_address', 'access_notes', 'vehicle_registration'],
         ],
         'pets' => [
-            'suggested_modules' => [TenantModule::Cms, TenantModule::Crm],
+            'suggested_modules' => [TenantModule::Bookings, TenantModule::Cms, TenantModule::Crm],
             'booking_types' => [BookingType::Appointment, BookingType::Visit, BookingType::GroupClass],
             'customer_fields' => ['pets', 'breed', 'vet_details', 'allergies'],
         ],
         'education' => [
-            'suggested_modules' => [TenantModule::Cms, TenantModule::Crm],
+            'suggested_modules' => [TenantModule::Bookings, TenantModule::Cms, TenantModule::Crm],
             'booking_types' => [BookingType::GroupClass, BookingType::Appointment],
             'customer_fields' => ['school_year', 'learning_needs', 'emergency_contact'],
         ],
         'rentals' => [
-            'suggested_modules' => [TenantModule::Cms, TenantModule::Crm],
+            'suggested_modules' => [TenantModule::Bookings, TenantModule::Cms, TenantModule::Crm],
             'booking_types' => [BookingType::Hire, BookingType::Enquiry],
             'customer_fields' => ['company_name', 'access_notes'],
         ],
         'professional' => [
-            'suggested_modules' => [TenantModule::Cms, TenantModule::Crm],
+            'suggested_modules' => [TenantModule::Bookings, TenantModule::Cms, TenantModule::Crm],
             'booking_types' => [BookingType::Appointment, BookingType::Enquiry],
             'customer_fields' => ['company_name', 'referred_by'],
         ],
         'retail' => [
-            'suggested_modules' => [TenantModule::Cms, TenantModule::Crm],
+            'suggested_modules' => [TenantModule::Bookings, TenantModule::Cms, TenantModule::Crm],
             'booking_types' => [BookingType::Enquiry, BookingType::Appointment],
             'customer_fields' => ['delivery_address'],
         ],
         'other' => [
-            'suggested_modules' => [TenantModule::Cms, TenantModule::Crm],
+            'suggested_modules' => [TenantModule::Bookings, TenantModule::Cms, TenantModule::Crm],
             'booking_types' => [BookingType::Appointment, BookingType::Enquiry],
             'customer_fields' => [],
         ],

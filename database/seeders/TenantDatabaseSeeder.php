@@ -55,6 +55,11 @@ class TenantDatabaseSeeder extends Seeder
             $this->call(CmsSeeder::class);
         }
 
+        // After the CRM, as services can be limited to its locations
+        if ($tenant->hasModule(TenantModule::Bookings)) {
+            $this->call(BookingsSeeder::class);
+        }
+
         if ($tenant->hasModule(TenantModule::Tracker)) {
             // Tracker data belongs to a user: the admin, so it's there when signing in as them
             $this->callWith(TrackerSeeder::class, ['user' => RoleUserSeeder::userFor(RoleEnum::Admin)]);

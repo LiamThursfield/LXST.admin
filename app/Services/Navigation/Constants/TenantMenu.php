@@ -15,6 +15,9 @@ namespace App\Services\Navigation\Constants;
  * The current - core - tenant menu is as follows (this does not include the child items in each section):
  * Main Menu
  * ├── Dashboard
+ * ├── Bookings
+ * │   ├── Services
+ * │   └── Service categories
  * ├── CMS
  * │   ├── Pages
  * │   ├── Layouts
@@ -49,6 +52,14 @@ class TenantMenu
     public const string MENU_MAIN = 'tenant_main';
 
     public const string MENU_MAIN_SECTION_DASHBOARD = 'dashboard';
+
+    public const string MENU_MAIN_SECTION_BOOKINGS = 'bookings';
+
+    public const string MENU_MAIN_SECTION_BOOKINGS_LABEL = 'bookings-label';
+
+    public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICES = 'services';
+
+    public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICE_CATEGORIES = 'service-categories';
 
     public const string MENU_MAIN_SECTION_CMS = 'cms';
 
