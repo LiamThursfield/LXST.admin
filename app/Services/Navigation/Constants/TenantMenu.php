@@ -170,6 +170,8 @@ class TenantMenu
 
     public const string MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_EMAIL_PREVIEWS = 'email-previews';
 
+    public const string MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_INDUSTRY = 'industry';
+
     public const string MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_THEME = 'theme';
 
     public const string MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_MAIL = 'mail';

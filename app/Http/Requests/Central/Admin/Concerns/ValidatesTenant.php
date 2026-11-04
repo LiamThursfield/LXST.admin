@@ -4,6 +4,7 @@ namespace App\Http\Requests\Central\Admin\Concerns;
 
 use App\Enums\TenantModule;
 use App\Models\Tenant;
+use App\Services\Industry\IndustryProfiles;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 
@@ -20,6 +21,7 @@ trait ValidatesTenant
         return [
             // A short handle for the tenant, as `central:make:tenant` makes (e.g. acme-ltd)
             'name' => ['required', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('tenants', 'name')->ignore($tenant?->getTenantKey())],
+            'industry' => ['sometimes', 'required', 'string', Rule::in(app(IndustryProfiles::class)->keys())],
             'modules' => ['nullable', 'array'],
             'modules.*' => [Rule::enum(TenantModule::class)],
         ];

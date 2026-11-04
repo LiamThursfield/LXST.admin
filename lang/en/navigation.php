@@ -62,6 +62,7 @@ return [
     'create_user' => 'Create User',
     'site_settings' => 'Site Settings',
     'general_settings' => 'General',
+    'industry_settings' => 'Industry',
     'theme_settings' => 'Theme',
     'mail_settings' => 'Mail',
     'email_previews' => 'Email previews',

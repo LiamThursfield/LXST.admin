@@ -72,6 +72,10 @@ const details = computed(() => [
     { label: trans('tenants.columns.name'), value: tenant.value.name },
     { label: trans('tenants.columns.id'), value: tenant.value.id, mono: true },
     {
+        label: trans('tenants.columns.industry'),
+        value: tenant.value.industry.label,
+    },
+    {
         label: trans('tenants.columns.status'),
         value: tenant.value.is_disabled
             ? trans('tenants.status.disabled')

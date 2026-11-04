@@ -12,6 +12,9 @@ use App\Http\Requests\Central\Admin\TenantUpdateRequest;
 use App\Http\Resources\Central\Admin\TenantResource;
 use App\Models\Tenant;
 use App\Services\Central\TenantProvisioner;
+use App\Services\Cms\Api\ContentVersion;
+use App\Services\Industry\IndustryProfile;
+use App\Services\Industry\IndustryProfiles;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -40,6 +43,7 @@ class TenantController extends Controller
                 ['accessorKey' => 'name', 'header' => __('tenants.columns.name')],
                 ['accessorKey' => 'id', 'header' => __('tenants.columns.id')],
                 ['accessorKey' => 'domains', 'header' => __('tenants.columns.domains')],
+                ['accessorKey' => 'industry', 'header' => __('tenants.columns.industry')],
                 ['accessorKey' => 'modules', 'header' => __('tenants.columns.modules')],
                 ['accessorKey' => 'created_at', 'header' => __('tenants.columns.created_at')],
                 ['accessorKey' => 'actions', 'header' => ''],
@@ -49,10 +53,11 @@ class TenantController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(IndustryProfiles $profiles): Response
     {
         return Inertia::render('admin/tenant/Create', [
             'modules' => TenantModule::asSelectItems(),
+            'industries' => $this->industryOptions($profiles),
         ]);
     }
 
@@ -68,6 +73,7 @@ class TenantController extends Controller
                 $request->string('domain')->toString(),
                 $request->modules(),
                 $request->admin(),
+                $request->validated('industry'),
             );
         } catch (Throwable $exception) {
             report($exception);
@@ -90,13 +96,14 @@ class TenantController extends Controller
         ]);
     }
 
-    public function edit(Tenant $tenant): Response
+    public function edit(Tenant $tenant, IndustryProfiles $profiles): Response
     {
         $tenant->load('domains');
 
         return Inertia::render('admin/tenant/Edit', [
             'tenant' => new TenantResource($tenant),
             'modules' => TenantModule::asSelectItems(),
+            'industries' => $this->industryOptions($profiles),
         ]);
     }
 
@@ -105,10 +112,28 @@ class TenantController extends Controller
         $tenant->update([
             'name' => $request->string('name')->toString(),
             'modules' => $request->modules(),
+            'industry' => $request->validated('industry', $tenant->industry),
         ]);
+
+        // The tenant's headless API shows its industry and words
+        if ($tenant->wasChanged('industry')) {
+            $tenant->run(fn () => app(ContentVersion::class)->bump());
+        }
 
         return redirect()->route('central.admin.tenants.show', $tenant)
             ->with('success', __('tenants.flash.updated', ['name' => $tenant->name]));
+    }
+
+    /**
+     * @return list<array{value: string, label: string, description: string, suggested_modules: list<string>}>
+     */
+    protected function industryOptions(IndustryProfiles $profiles): array
+    {
+        return array_map(fn (IndustryProfile $profile) => [
+            ...$profile->toSelectItem(),
+            'description' => $profile->description(),
+            'suggested_modules' => array_map(fn (TenantModule $module) => $module->value, $profile->suggestedModules),
+        ], $profiles->all());
     }
 
     /**

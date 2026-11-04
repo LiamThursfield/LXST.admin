@@ -5,6 +5,7 @@ use App\Models\Tenant;
 use App\Models\User;
 use App\Services\Authorisation\Enums\Role;
 use App\Services\Central\TenantProvisioner;
+use App\Services\Cms\Api\ContentVersion;
 use Illuminate\Mail\Transport\ArrayTransport;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
@@ -83,6 +84,32 @@ describe('creating', function () {
         expect(Tenant::query()->sole()->domains()->value('domain'))->toBe('acme.'.config('tenancy.identification.central_domains')[0]);
     });
 
+    test('the create page offers every industry with what it suggests', function () {
+        $this->get(route('central.admin.tenants.create'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('industries', count(config('industries.profiles')))
+                ->where('industries.0.value', 'hospitality')
+                ->where('industries.0.suggested_modules', ['cms', 'crm'])
+            );
+    });
+
+    test('a tenant is created in the chosen industry', function () {
+        Event::fake([TenantCreated::class]);
+
+        $this->post(route('central.admin.tenants.store'), tenantInput(['industry' => 'beauty']))->assertSessionHasNoErrors();
+
+        expect(Tenant::query()->sole()->industryProfile()->key)->toBe('beauty');
+    });
+
+    test('a tenant with no industry chosen is in the general one', function () {
+        Event::fake([TenantCreated::class]);
+
+        $this->post(route('central.admin.tenants.store'), tenantInput())->assertSessionHasNoErrors();
+
+        expect(Tenant::query()->sole()->industry)->toBe('other');
+    });
+
     test('a tenant can be created without an admin', function () {
         Event::fake([TenantCreated::class]);
 
@@ -107,6 +134,7 @@ describe('creating', function () {
         'domain taken' => [['domain' => 'taken.test'], ['domain']],
         'central domain' => [['domain' => 'localhost'], ['domain']],
         'unknown module' => [['modules' => ['blog']], ['modules.0']],
+        'unknown industry' => [['industry' => 'piracy'], ['industry']],
         'admin without a name' => [['admin_email' => 'ada@example.com'], ['admin_first_name', 'admin_last_name']],
         'admin email' => [['admin_email' => 'not-an-email', 'admin_first_name' => 'Ada', 'admin_last_name' => 'L'], ['admin_email']],
     ]);
@@ -161,6 +189,32 @@ describe('editing', function () {
 
         expect($tenant->name)->toBe('acme-ltd')
             ->and($tenant->modules->all())->toBe([TenantModule::Cms, TenantModule::Tracker]);
+    });
+
+    test('the industry can be changed, leaving the modules as they are and refreshing its API', function () {
+        $tenant = Tenant::query()->create(['name' => 'acme', 'modules' => [TenantModule::Tracker]]);
+        $version = $tenant->run(fn () => app(ContentVersion::class)->current());
+
+        $this->get(route('central.admin.tenants.edit', $tenant))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('tenant.data.industry.value', 'other')
+                ->has('industries', count(config('industries.profiles')))
+            );
+
+        $this->put(route('central.admin.tenants.update', $tenant), [
+            'name' => 'acme',
+            'industry' => 'health',
+            'modules' => ['tracker'],
+        ])->assertSessionHasNoErrors();
+
+        $tenant->refresh();
+
+        expect($tenant->industry)->toBe('health')
+            ->and($tenant->modules->all())->toBe([TenantModule::Tracker])
+            ->and($tenant->run(fn () => app(ContentVersion::class)->current()))->not->toBe($version);
+
+        $this->get(route('central.admin.tenants.show', $tenant))
+            ->assertInertia(fn (Assert $page) => $page->where('tenant.data.industry.label', __('industries.names.health')));
     });
 
     test('a tenant keeps its own name, but can\'t take another\'s', function () {

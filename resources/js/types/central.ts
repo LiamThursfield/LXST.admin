@@ -12,6 +12,7 @@ export type TenantData = {
     domains: TenantDomainData[];
     /** The tenant's admin on its first full domain, if it has one. */
     admin_url: string | null;
+    industry: { value: string; label: string };
     modules: Array<{ value: string; label: string }>;
     is_disabled: boolean;
     disabled_at: string | null;
@@ -28,4 +29,12 @@ export type CentralUserData = {
     /** Whether this is the logged in user */
     is_you: boolean;
     actions?: any[];
+};
+
+/** An industry a tenant can be in, as offered on the central tenant form. */
+export type TenantIndustryOption = {
+    value: string;
+    label: string;
+    description: string;
+    suggested_modules: string[];
 };

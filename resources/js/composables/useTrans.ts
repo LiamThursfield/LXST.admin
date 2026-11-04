@@ -109,9 +109,25 @@ export function choosePluralForm(line: string, count: number): string {
 /**
  * Translates keys from the lang/{locale}/*.php files shared by HandleInertiaRequests.
  * Missing keys return the key itself, matching Laravel's __() behaviour.
+ *
+ * The tenant's words (see lang/en/industries.php) fill any line's :customer, :Bookings and so on.
+ * Replacements passed in win, so a preview can show words that aren't saved yet.
  */
 export function useTrans(): UseTransReturn {
     const page = usePage();
+
+    function fillLine(
+        line: string,
+        replacements: TranslationReplacements,
+    ): string {
+        // Most lines have no placeholders at all, so skip the replacing
+        return line.includes(':')
+            ? replacePlaceholders(line, {
+                  ...page.props.terminology,
+                  ...replacements,
+              })
+            : line;
+    }
 
     function trans(
         key: string,
@@ -119,7 +135,7 @@ export function useTrans(): UseTransReturn {
     ): string {
         const line = findTranslation(page.props.translations, key);
 
-        return line === null ? key : replacePlaceholders(line, replacements);
+        return line === null ? key : fillLine(line, replacements);
     }
 
     function transChoice(
@@ -133,7 +149,7 @@ export function useTrans(): UseTransReturn {
             return key;
         }
 
-        return replacePlaceholders(choosePluralForm(line, count), {
+        return fillLine(choosePluralForm(line, count), {
             count,
             ...replacements,
         });

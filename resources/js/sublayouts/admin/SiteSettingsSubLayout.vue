@@ -5,6 +5,7 @@ import { edit as editDj } from '@/actions/App/Http/Controllers/Tenant/Admin/Dj/D
 import { index as apiTokens } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/ApiTokenController';
 import { index as emailPreviews } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/EmailPreviewController';
 import { edit as editGeneral } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/GeneralSettingsController';
+import { edit as editIndustry } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/IndustrySettingsController';
 import { edit as editIntegrations } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/IntegrationSettingsController';
 import { edit as editMail } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/MailSettingsController';
 import { edit as editTheme } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/ThemeSettingsController';
@@ -37,6 +38,12 @@ const links = computed(() =>
                 label: trans('site_settings.general.nav'),
                 icon: 'i-lucide-settings',
                 to: editGeneral.url(),
+            },
+            {
+                key: 'industry',
+                label: trans('site_settings.industry.nav'),
+                icon: 'i-lucide-store',
+                to: editIndustry.url(),
             },
             {
                 key: 'theme',

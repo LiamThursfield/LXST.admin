@@ -5,18 +5,20 @@ import {
     store,
     update,
 } from '@/actions/App/Http/Controllers/Central/Admin/TenantController';
-import type { SelectItem, TenantData } from '@/types';
+import type { SelectItem, TenantData, TenantIndustryOption } from '@/types';
 
 const props = defineProps<{
     /** The tenant being edited; left out when creating one */
     tenant?: TenantData;
     modules: SelectItem[];
+    industries: TenantIndustryOption[];
 }>();
 
 const { trans } = useTrans();
 
 const form = useForm({
     name: props.tenant?.name ?? '',
+    industry: props.tenant?.industry.value ?? 'other',
     modules: props.tenant
         ? props.tenant.modules.map((module) => module.value)
         : props.modules.map((module) => String(module.value)),
@@ -25,6 +27,28 @@ const form = useForm({
     admin_last_name: '',
     admin_email: '',
 });
+
+const selectedIndustry = computed(() =>
+    props.industries.find((industry) => industry.value === form.industry),
+);
+
+const suggestedModuleNames = computed(() =>
+    props.modules
+        .filter((module) =>
+            selectedIndustry.value?.suggested_modules.includes(
+                String(module.value),
+            ),
+        )
+        .map((module) => module.label)
+        .join(', '),
+);
+
+/** A new tenant starts with what suits its industry; an existing one keeps what it has. */
+function onIndustryChange() {
+    if (!props.tenant && selectedIndustry.value) {
+        form.modules = [...selectedIndustry.value.suggested_modules];
+    }
+}
 
 function toggleModule(value: string, enabled: boolean | 'indeterminate') {
     form.modules =
@@ -48,6 +72,7 @@ function onSubmit() {
     if (props.tenant) {
         form.transform((data) => ({
             name: data.name,
+            industry: data.industry,
             modules: data.modules,
         })).submit(update({ tenant: props.tenant.id }));
 
@@ -96,6 +121,22 @@ function onSubmit() {
                         class="w-full font-mono"
                     />
                 </UFormField>
+
+                <UFormField
+                    :label="trans('tenants.fields.industry')"
+                    :description="trans('tenants.fields.industry_help')"
+                    :help="selectedIndustry?.description"
+                    :error="form.errors.industry"
+                    class="md:col-span-2"
+                    required
+                >
+                    <USelect
+                        v-model="form.industry"
+                        :items="industries"
+                        class="w-full"
+                        @update:model-value="onIndustryChange"
+                    />
+                </UFormField>
             </div>
         </UPageCard>
 
@@ -119,6 +160,13 @@ function onSubmit() {
                         "
                     />
                 </div>
+                <p v-if="suggestedModuleNames" class="text-muted mt-3 text-sm">
+                    {{
+                        trans('tenants.fields.modules_suggested', {
+                            modules: suggestedModuleNames,
+                        })
+                    }}
+                </p>
             </UFormField>
         </UPageCard>
 

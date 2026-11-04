@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import type { SelectItem } from '@/types';
+import type { SelectItem, TenantIndustryOption } from '@/types';
 import TenantForm from './components/TenantForm.vue';
 
 defineProps<{
     modules: SelectItem[];
+    industries: TenantIndustryOption[];
 }>();
 </script>
 
 <template>
-    <TenantForm :modules="modules" />
+    <TenantForm :modules="modules" :industries="industries" />
 </template>

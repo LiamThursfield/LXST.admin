@@ -27,11 +27,12 @@ class TenantProvisioner
      *
      * @throws Throwable when provisioning fails, after cleaning up
      */
-    public function provision(string $name, string $domain, Collection $modules, ?array $admin = null): Tenant
+    public function provision(string $name, string $domain, Collection $modules, ?array $admin = null, ?string $industry = null): Tenant
     {
         // Made before saving, so it can be cleaned up when the database pipeline (which runs while
         // it saves) fails part way
         $tenant = new Tenant(['name' => $name, 'modules' => $modules]);
+        $tenant->industry = $industry ?? $tenant->industry;
 
         try {
             $tenant->save();
