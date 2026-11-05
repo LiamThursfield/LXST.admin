@@ -4,11 +4,13 @@ namespace App\Http\Requests\Tenant\Admin\Bookings;
 
 use App\Enums\Bookings\HireUnit;
 use App\Enums\Bookings\ServiceOptionType;
+use App\Enums\Bookings\WaitlistStatus;
 use App\Enums\BookingType;
 use App\Enums\Crm\OrganisationUnitType;
 use App\Enums\TenantModule;
 use App\Models\Bookings\Booking;
 use App\Models\Bookings\Service;
+use App\Models\Bookings\WaitlistEntry;
 use App\Models\Crm\OrganisationUnit;
 use Closure;
 use Illuminate\Foundation\Http\FormRequest;
@@ -48,6 +50,10 @@ class BookingStoreRequest extends FormRequest
             ],
             // A walk-in starts now, and only something booked at a time can be one
             'walk_in' => [Rule::excludeIf(! $atTime), 'boolean'],
+            // Repeating is only for something booked ahead at a time
+            'repeat_weeks' => [Rule::excludeIf(! $needsTime), 'nullable', 'integer', 'between:1,4'],
+            'repeat_times' => [Rule::excludeIf(! $needsTime || ! $this->filled('repeat_weeks')), 'required', 'integer', 'between:2,52'],
+            'waitlist_entry_id' => ['nullable', 'integer', Rule::exists(WaitlistEntry::class, 'id')->where('status', WaitlistStatus::Waiting->value)],
             'date' => [Rule::requiredIf($needsTime), Rule::excludeIf(! $needsTime), 'date_format:Y-m-d'],
             'time' => [Rule::requiredIf($needsTime), Rule::excludeIf(! $needsTime), 'date_format:H:i'],
             'session_id' => [Rule::requiredIf($onSession), Rule::excludeIf(! $onSession), 'integer'],

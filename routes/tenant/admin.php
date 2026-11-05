@@ -13,6 +13,7 @@ use App\Http\Controllers\Tenant\Admin\Bookings\ServiceSessionController;
 use App\Http\Controllers\Tenant\Admin\Bookings\StaffController;
 use App\Http\Controllers\Tenant\Admin\Bookings\StaffHoursController;
 use App\Http\Controllers\Tenant\Admin\Bookings\TimeOffController;
+use App\Http\Controllers\Tenant\Admin\Bookings\WaitlistController;
 use App\Http\Controllers\Tenant\Admin\Cms\ContentImportController;
 use App\Http\Controllers\Tenant\Admin\Cms\LayoutController;
 use App\Http\Controllers\Tenant\Admin\Cms\MenuController;
@@ -132,6 +133,8 @@ Route::name('bookings.')->prefix('bookings')->middleware('tenant.module:bookings
     Route::put('bookings/{booking}/schedule', [BookingController::class, 'schedule'])->name('bookings.schedule');
     Route::resource('bookings', BookingController::class)->only(['index', 'create', 'store', 'show']);
     Route::resource('sessions', ServiceSessionController::class)->except('show');
+    Route::post('waitlist/{entry}/book', [WaitlistController::class, 'book'])->name('waitlist.book');
+    Route::resource('waitlist', WaitlistController::class)->only(['index', 'create', 'store', 'destroy'])->parameters(['waitlist' => 'entry']);
     Route::resource('services', ServiceController::class);
     Route::resource('service-categories', ServiceCategoryController::class)->except('show');
     Route::resource('staff', StaffController::class)->parameters(['staff' => 'resource']);

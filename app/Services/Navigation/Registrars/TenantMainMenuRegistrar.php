@@ -128,6 +128,15 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         activePatterns: ['admin.bookings.sessions.*'],
                     ))->gate(BookingsPermission::ViewBookings),
                     (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_WAITLIST,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_WAITLIST]),
+                        label: 'navigation.waitlist',
+                        type: MenuItemType::LINK,
+                        to: 'admin.bookings.waitlist.index',
+                        icon: 'i-lucide-list-ordered',
+                        activePatterns: ['admin.bookings.waitlist.*'],
+                    ))->gate(BookingsPermission::ViewBookings),
+                    (new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICES,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICES]),
                         label: 'navigation.services',

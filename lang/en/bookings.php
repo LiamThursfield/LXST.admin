@@ -219,6 +219,8 @@ return [
             'user_help' => 'Lets them ask for their own time off.',
             'no_user' => 'Nobody',
             'capacity' => 'Holds',
+            'combine_group' => 'Joins with',
+            'combine_group_help' => 'Give tables the same name, e.g. Window, to let them be joined for a bigger party at the same :location.',
             'capacity_help' => 'How many people it holds, e.g. the seats at a table.',
             'location' => ':Location',
             'no_location' => 'Not tied to one',
@@ -420,6 +422,8 @@ return [
             'created' => ':Booking created.',
             'updated' => ':Booking updated.',
             'moved' => ':Booking moved.',
+            'series_created' => ':count :bookings created, repeating.',
+            'series_partly_created' => ':count of :total :bookings created. These dates didn\'t fit, so weren\'t booked: :dates.',
         ],
         'ignore_rules' => [
             'label' => 'Ignore booking rules',
@@ -427,6 +431,16 @@ return [
             'badge' => 'Rules ignored',
         ],
         'late_cancellation' => 'Late cancellation',
+        'repeat' => [
+            'label' => 'Repeat',
+            'none' => 'Doesn\'t repeat',
+            'every' => '{1} Every week|[2,*] Every :count weeks',
+            'times' => 'How many times in all',
+            'help' => 'Dates that don\'t fit are skipped and listed afterwards.',
+        ],
+        'series' => [
+            'title' => 'Repeating series',
+        ],
         'walk_in' => [
             'label' => 'Walk-in, starting now',
             'help' => 'Checked in straight away with whoever is free now.',
@@ -470,6 +484,7 @@ return [
             'location' => ':Location',
             'resources' => 'With',
             'places' => 'Places left',
+            'waiting' => 'Waiting',
         ],
         'fields' => [
             'service' => ':Service',
@@ -482,6 +497,8 @@ return [
             'capacity_help' => 'Leave blank to use the :service\'s.',
             'resources' => 'With',
             'resources_help' => 'Who and what this ties up, so they can\'t be booked at the same time.',
+            'repeat_times' => 'Weeks in all',
+            'repeat_times_help' => 'Repeats weekly at the same time. Weeks where someone or something is busy are skipped.',
         ],
         'help' => 'Classes, groups and events are booked on these times.',
         'no_services' => 'Add a :service with the class or event ticket booking type first.',
@@ -493,7 +510,8 @@ return [
             'below_taken' => 'More places are already taken than that.',
         ],
         'flash' => [
-            'created' => 'Added to the timetable.',
+            'created' => '{1} Added to the timetable.|[2,*] :count added to the timetable.',
+            'partly_created' => ':count of :total added to the timetable. These weeks were busy, so were skipped: :dates.',
             'updated' => 'Timetable updated.',
             'deleted' => 'Removed from the timetable.',
         ],
@@ -507,6 +525,50 @@ return [
             'min_notice' => 'This needs :notice notice.',
             'max_advance' => 'This can only be booked up to :days days ahead.',
             'max_per_customer' => 'This :customer already has :count upcoming, the most allowed at once.',
+        ],
+    ],
+
+    'waitlist' => [
+        'index' => [
+            'title' => 'Waitlist',
+            'create' => 'Add to waitlist',
+            'empty' => 'Nobody is waiting',
+            'all_statuses' => 'All statuses',
+        ],
+        'create' => [
+            'title' => 'Add to waitlist',
+            'submit' => 'Add to waitlist',
+            'help' => 'When there\'s room, book them from the waitlist. Messages offering it to them come later.',
+        ],
+        'columns' => [
+            'customer' => ':Customer',
+            'service' => ':Service',
+            'wanted' => 'Wants',
+            'quantity' => 'Places',
+            'status' => 'Status',
+        ],
+        'fields' => [
+            'service' => ':Service',
+            'session' => 'Date and time',
+            'wanted_on' => 'Date',
+            'location' => ':Location',
+            'quantity' => 'Places',
+            'customer_name' => 'Name',
+            'customer_email' => 'Email',
+            'customer_phone' => 'Phone',
+            'notes' => 'Notes',
+        ],
+        'place_free' => 'Place free',
+        'actions' => [
+            'book' => 'Book',
+            'remove' => 'Remove',
+            'view_booking' => 'View :booking',
+        ],
+        'confirm_remove' => 'Take :name off the waitlist?',
+        'flash' => [
+            'added' => 'Added to the waitlist.',
+            'booked' => 'Booked from the waitlist.',
+            'removed' => 'Taken off the waitlist.',
         ],
     ],
 ];

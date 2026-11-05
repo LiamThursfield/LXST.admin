@@ -59,6 +59,7 @@ return [
                 TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_CALENDAR => ['sortOrder' => 1],
                 TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_BOOKINGS => ['sortOrder' => 2],
                 TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_SESSIONS => ['sortOrder' => 4],
+                TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_WAITLIST => ['sortOrder' => 6],
                 TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICES => ['sortOrder' => 10],
                 TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICE_CATEGORIES => ['sortOrder' => 20],
                 TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_STAFF => ['sortOrder' => 25],

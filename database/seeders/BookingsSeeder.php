@@ -9,6 +9,7 @@ use App\Enums\Bookings\ServiceOptionType;
 use App\Enums\Bookings\ServicePriceType;
 use App\Enums\Bookings\TimeOffStatus;
 use App\Enums\Bookings\TimeOffType;
+use App\Enums\Bookings\WaitlistStatus;
 use App\Enums\BookingType;
 use App\Enums\Crm\OrganisationUnitType;
 use App\Enums\TenantModule;
@@ -17,9 +18,11 @@ use App\Models\Bookings\Booking;
 use App\Models\Bookings\Service;
 use App\Models\Bookings\ServiceCategory;
 use App\Models\Bookings\ServiceSession;
+use App\Models\Bookings\WaitlistEntry;
 use App\Models\Crm\OrganisationUnit;
 use App\Services\Authorisation\Enums\Role;
 use App\Services\Bookings\BookingCreator;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -28,7 +31,8 @@ use Illuminate\Support\Str;
  * so every part of the form has something to show. With the CRM, one is limited to a single location.
  * Also one resource of each type who can do them, with working hours, shifts this week, and time off
  * both waiting and approved. Then timetable entries for the class and event, and bookings of each
- * kind, made through BookingCreator, and past ones including a walk-in. Dates are relative to now.
+ * kind, made through BookingCreator, a weekly series, someone on the waitlist, and past ones including
+ * a walk-in. Two tables can be joined for a bigger party. Dates are relative to now.
  *
  * Run within a tenant, e.g. `php artisan tenants:seed --class=BookingsSeeder`.
  * Safe to re-run: a category, service or resource that already exists is left alone.
@@ -190,6 +194,18 @@ class BookingsSeeder extends Seeder
 
         $creator->cancel($creator->create($consultation, null, [...$customer('Jo Marsh'), 'date' => $date, 'time' => '15:00']));
 
+        // Weekly, starting the week after, with whoever is free
+        $creator->createSeries($consultation, null, [...$customer('Robin Hale'), 'date' => CarbonImmutable::parse($date)->addWeek()->toDateString(), 'time' => '16:00'], everyWeeks: 1, times: 3);
+
+        // Someone waiting for the group session, should a place come up
+        WaitlistEntry::query()->create([
+            'service_id' => $session->service_id,
+            'session_id' => $session->id,
+            ...$customer('Ellis Ward'),
+            'quantity' => 1,
+            'status' => WaitlistStatus::Waiting,
+        ]);
+
         // Past bookings can't be made through the creator, which only takes times to come
         Booking::factory()->past()->create([
             'service_id' => $consultation->id,
@@ -234,6 +250,14 @@ class BookingsSeeder extends Seeder
             'name' => 'Projector',
         ]);
 
+        // Two tables that can be joined for a bigger party
+        $tables = array_map(fn (int $number) => $this->seedResource("table-{$number}", [
+            'type' => ResourceType::Space,
+            'name' => "Table {$number}",
+            'capacity' => 4,
+            'combine_group' => 'Window',
+        ]), [1, 2]);
+
         $van = $this->seedResource('van', [
             'type' => ResourceType::Vehicle,
             'name' => 'Van',
@@ -255,6 +279,12 @@ class BookingsSeeder extends Seeder
 
         if ($room->wasRecentlyCreated) {
             $room->services()->sync($this->serviceIds(['group-session', 'room-hire', 'open-evening', 'table-booking']));
+        }
+
+        foreach ($tables as $table) {
+            if ($table->wasRecentlyCreated) {
+                $table->services()->sync($this->serviceIds(['table-booking']));
+            }
         }
 
         if ($van->wasRecentlyCreated) {

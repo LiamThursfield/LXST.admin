@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property int $service_id
  * @property int|null $session_id
+ * @property string|null $series_id
  * @property int|null $location_id
  * @property int|null $contact_id
  * @property string $customer_name
@@ -57,6 +58,7 @@ class Booking extends Model
     protected $fillable = [
         'service_id',
         'session_id',
+        'series_id',
         'location_id',
         'contact_id',
         'customer_name',

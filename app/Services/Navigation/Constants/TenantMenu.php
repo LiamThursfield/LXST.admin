@@ -19,6 +19,7 @@ namespace App\Services\Navigation\Constants;
  * │   ├── Calendar
  * │   ├── Bookings
  * │   ├── Timetable
+ * │   ├── Waitlist
  * │   ├── Services
  * │   ├── Service categories
  * │   ├── Staff
@@ -70,6 +71,8 @@ class TenantMenu
     public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_BOOKINGS = 'bookings';
 
     public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_SESSIONS = 'sessions';
+
+    public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_WAITLIST = 'waitlist';
 
     public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICES = 'services';
 

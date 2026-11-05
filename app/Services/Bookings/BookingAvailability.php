@@ -32,6 +32,9 @@ class BookingAvailability
     /** How far apart the times offered are */
     public const int SLOT_MINUTES = 15;
 
+    /** The most tables joined for one party */
+    public const int MAX_COMBINED = 3;
+
     /** When a whole-day hire starts if the location has no hours to go by */
     protected const string DEFAULT_DAY_START = '09:00';
 
@@ -115,35 +118,112 @@ class BookingAvailability
         $chosen = [];
         $end = null;
 
+        $usable = function (BookableResource $candidate, CarbonImmutable $candidateEnd) use ($service, $location, $start, $busy): bool {
+            [$from, $until] = $this->blockedRange($service, $start, $candidateEnd);
+
+            return $this->locationIsOpen($service, $location, $start, $candidateEnd)
+                && $this->isWorking($service, $candidate, $start, $candidateEnd)
+                && ! $this->overlaps($busy[$candidate->id] ?? [], $from, $until);
+        };
+
         foreach ($types as $type) {
-            $resource = null;
+            $picked = null;
+            $joinsTables = $service->booking_type === BookingType::Table && $type === ResourceType::Space;
 
             foreach ($candidates[$type->value] ?? [] as $candidate) {
-                $candidateEnd = $end ?? $this->endFor($service, $candidate, $start, $quantity, $adjustment);
-                [$from, $until] = $this->blockedRange($service, $start, $candidateEnd);
+                if ($joinsTables && $candidate->capacity !== null && $candidate->capacity < $quantity) {
+                    continue;
+                }
 
-                if (
-                    $this->locationIsOpen($service, $location, $start, $candidateEnd)
-                    && $this->isWorking($service, $candidate, $start, $candidateEnd)
-                    && ! $this->overlaps($busy[$candidate->id] ?? [], $from, $until)
-                ) {
-                    $resource = $candidate;
+                $candidateEnd = $end ?? $this->endFor($service, $candidate, $start, $quantity, $adjustment);
+
+                if ($usable($candidate, $candidateEnd)) {
+                    $picked = [$candidate];
                     $end = $candidateEnd;
 
                     break;
                 }
             }
 
-            if ($resource === null || $end === null) {
+            // No one table fits the party, so try joining tables from the same group
+            if ($picked === null && $joinsTables) {
+                foreach ($this->tableCombinations($candidates[$type->value] ?? [], $quantity) as $combination) {
+                    $combinationEnd = $end ?? $this->endFor($service, $combination[0], $start, $quantity, $adjustment);
+
+                    if (array_all($combination, fn (BookableResource $table) => $usable($table, $combinationEnd))) {
+                        $picked = $combination;
+                        $end = $combinationEnd;
+
+                        break;
+                    }
+                }
+            }
+
+            if ($picked === null || $end === null) {
                 return null;
             }
 
-            $chosen[] = $resource;
+            array_push($chosen, ...$picked);
         }
 
         [$blockedFrom, $blockedUntil] = $this->blockedRange($service, $start, $end);
 
         return new BookingSlot($start, $end, $blockedFrom, $blockedUntil, $chosen);
+    }
+
+    /**
+     * Ways to seat a party at tables joined together: tables in the same group at the same location,
+     * fewest tables first, then the fewest spare seats
+     *
+     * @param  list<BookableResource>  $tables
+     * @return list<list<BookableResource>>
+     */
+    protected function tableCombinations(array $tables, int $quantity): array
+    {
+        $groups = [];
+
+        foreach ($tables as $table) {
+            if ($table->combine_group !== null && $table->capacity !== null) {
+                $groups["{$table->location_id}|{$table->combine_group}"][] = $table;
+            }
+        }
+
+        $combinations = [];
+
+        foreach ($groups as $group) {
+            foreach ($this->subsets($group, self::MAX_COMBINED) as $subset) {
+                $seats = array_sum(array_map(fn (BookableResource $table) => (int) $table->capacity, $subset));
+
+                if (count($subset) > 1 && $seats >= $quantity) {
+                    $combinations[] = ['tables' => $subset, 'seats' => $seats];
+                }
+            }
+        }
+
+        usort($combinations, fn (array $first, array $second) => [count($first['tables']), $first['seats']] <=> [count($second['tables']), $second['seats']]);
+
+        return array_map(fn (array $combination) => $combination['tables'], $combinations);
+    }
+
+    /**
+     * Every group of up to a number of the items, keeping their order
+     *
+     * @param  list<BookableResource>  $items
+     * @return list<list<BookableResource>>
+     */
+    protected function subsets(array $items, int $most): array
+    {
+        $subsets = [[]];
+
+        foreach ($items as $item) {
+            foreach ($subsets as $subset) {
+                if (count($subset) < $most) {
+                    $subsets[] = [...$subset, $item];
+                }
+            }
+        }
+
+        return $subsets;
     }
 
     /**
@@ -331,9 +411,6 @@ class BookingAvailability
             ->when($location, fn (Builder $query) => $query->where(fn (Builder $query) => $query
                 ->whereNull('location_id')
                 ->orWhere('location_id', $location?->id)))
-            ->when($isTable, fn (Builder $query) => $query->where(fn (Builder $query) => $query
-                ->whereNull('capacity')
-                ->orWhere('capacity', '>=', $quantity)))
             ->with([
                 'workingHours',
                 'shifts' => fn ($query) => $query->whereBetween('works_on', [$from, $to]),

@@ -28,6 +28,7 @@ use Illuminate\Support\Str;
  * @property int|null $user_id
  * @property string|null $job_title
  * @property int|null $capacity
+ * @property string|null $combine_group
  * @property bool $is_active
  * @property bool $is_public
  */
@@ -53,6 +54,7 @@ class BookableResource extends Model
         'user_id',
         'job_title',
         'capacity',
+        'combine_group',
         'is_active',
         'is_public',
     ];

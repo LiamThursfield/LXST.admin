@@ -11,6 +11,7 @@ use App\Models\Bookings\ServiceOption;
 use App\Models\Bookings\ServiceSession;
 use App\Models\Bookings\Shift;
 use App\Models\Bookings\TimeOff;
+use App\Models\Bookings\WaitlistEntry;
 use App\Models\Bookings\WorkingHour;
 use App\Models\Crm\OrganisationUnit;
 use Database\Seeders\BookingsSeeder;
@@ -27,12 +28,15 @@ it('seeds a service of every booking type, and is safe to re-run', function () {
         ->and(ServiceOption::query()->count())->toBe(3)
         ->and(Service::query()->firstWhere('slug', 'room-hire')->locations()->count())->toBe(1)
         ->and(BookableResource::query()->pluck('type')->unique()->count())->toBe(count(ResourceType::cases()))
-        ->and(BookableResource::query()->count())->toBe(5)
+        ->and(BookableResource::query()->count())->toBe(7)
+        ->and(BookableResource::query()->where('combine_group', 'Window')->count())->toBe(2)
         ->and(WorkingHour::query()->count())->toBe(25)
         ->and(Shift::query()->count())->toBe(1)
         ->and(TimeOff::query()->count())->toBe(3)
         ->and(ServiceSession::query()->count())->toBe(2)
-        ->and(Booking::query()->count())->toBe(9)
+        ->and(Booking::query()->count())->toBe(12)
+        ->and(Booking::query()->whereNotNull('series_id')->count())->toBe(3)
+        ->and(WaitlistEntry::query()->count())->toBe(1)
         ->and(Booking::query()->where('is_walk_in', true)->count())->toBe(1)
         ->and(Booking::query()->where('status', BookingStatus::Cancelled)->count())->toBe(1)
         ->and(Booking::query()->whereNotNull('cancelled_at')->count())->toBe(1)
