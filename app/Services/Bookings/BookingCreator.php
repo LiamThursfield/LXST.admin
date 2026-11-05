@@ -3,6 +3,7 @@
 namespace App\Services\Bookings;
 
 use App\Enums\Bookings\BookingStatus;
+use App\Enums\Bookings\MessageChannel;
 use App\Enums\BookingType;
 use App\Enums\TenantModule;
 use App\Models\Bookings\BookableResource;
@@ -82,7 +83,7 @@ class BookingCreator
      * The service's rules are kept unless ignore_rules is set, which staff can choose. Approval is
      * only for bookings customers make, as staff confirm their own.
      *
-     * @param  array{date?: string|null, time?: string|null, walk_in?: bool|null, ignore_rules?: bool|null, series_id?: string|null, session_id?: int|null, quantity?: int|null, option_ids?: list<int>, resource_ids?: list<int>, customer_name: string, customer_email?: string|null, customer_phone?: string|null, notes?: string|null}  $details
+     * @param  array{date?: string|null, time?: string|null, walk_in?: bool|null, ignore_rules?: bool|null, series_id?: string|null, channel?: string|null, session_id?: int|null, quantity?: int|null, option_ids?: list<int>, resource_ids?: list<int>, customer_name: string, customer_email?: string|null, customer_phone?: string|null, notes?: string|null}  $details
      *
      * @throws ValidationException When the time or places have gone
      */
@@ -118,6 +119,9 @@ class BookingCreator
             }
 
             $booking->contact_id = $this->contactIdFor($details);
+            $booking->channel = MessageChannel::tryFrom((string) ($details['channel'] ?? ''))
+                ?? Contact::query()->find($booking->contact_id)->preferred_channel
+                ?? MessageChannel::Email;
             $booking->save();
 
             $booking->resources()->sync($this->pendingResourceIds);

@@ -67,6 +67,8 @@ return [
                 TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_ROTA => ['sortOrder' => 40],
                 TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_TIME_OFF => ['sortOrder' => 50],
                 TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_STAFF_HOURS => ['sortOrder' => 60],
+                TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGES => ['sortOrder' => 70],
+                TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGE_LOG => ['sortOrder' => 80],
             ],
             TenantMenu::MENU_MAIN_SECTION_CMS => [
                 'sortOrder' => 20,
@@ -171,6 +173,7 @@ return [
                     TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_INDUSTRY => ['sortOrder' => 1],
                     TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_THEME => ['sortOrder' => 2],
                     TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_MAIL => ['sortOrder' => 3],
+                    TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_MESSAGING => ['sortOrder' => 3],
                     TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_INTEGRATIONS => ['sortOrder' => 4],
                     TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_EMAIL_PREVIEWS => ['sortOrder' => 5],
                     TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_DJ => ['sortOrder' => 6],

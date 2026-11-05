@@ -3,6 +3,7 @@
 namespace App\Models\Bookings;
 
 use App\Enums\Bookings\BookingStatus;
+use App\Enums\Bookings\MessageChannel;
 use App\Enums\Bookings\ServicePriceType;
 use App\Models\Crm\Contact;
 use App\Models\Crm\OrganisationUnit;
@@ -26,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $customer_name
  * @property string|null $customer_email
  * @property string|null $customer_phone
+ * @property MessageChannel $channel
  * @property BookingStatus $status
  * @property CarbonInterface|null $starts_at In UTC
  * @property CarbonInterface|null $ends_at In UTC
@@ -64,6 +66,7 @@ class Booking extends Model
         'customer_name',
         'customer_email',
         'customer_phone',
+        'channel',
         'status',
         'starts_at',
         'ends_at',
@@ -91,6 +94,7 @@ class Booking extends Model
     {
         return [
             'status' => BookingStatus::class,
+            'channel' => MessageChannel::class,
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
             'blocked_from' => 'datetime',
@@ -147,6 +151,16 @@ class Booking extends Model
     public function resources(): BelongsToMany
     {
         return $this->belongsToMany(BookableResource::class, 'bookings_booking_resource', 'booking_id', 'resource_id')->withTrashed();
+    }
+
+    /**
+     * The messages sent about it, newest first
+     *
+     * @return HasMany<MessageLog, $this>
+     */
+    public function messages(): HasMany
+    {
+        return $this->hasMany(MessageLog::class)->latest('id');
     }
 
     /**

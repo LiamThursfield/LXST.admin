@@ -7,6 +7,8 @@ enum BookingsPermission: string
     case ViewBookings = 'bookings.view-bookings';
     case ManageBookings = 'bookings.manage-bookings';
 
+    case ManageMessages = 'bookings.manage-messages';
+
     case ViewServices = 'bookings.view-services';
     case ManageServices = 'bookings.manage-services';
 

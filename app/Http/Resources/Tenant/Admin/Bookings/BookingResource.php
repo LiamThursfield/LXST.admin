@@ -7,6 +7,7 @@ use App\Http\Resources\Traits\HasActions;
 use App\Models\Bookings\BookableResource;
 use App\Models\Bookings\Booking;
 use App\Models\Bookings\BookingOption;
+use App\Models\Bookings\MessageLog;
 use App\Support\UI\Action;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -50,6 +51,18 @@ class BookingResource extends JsonResource
             'customer_name' => $booking->customer_name,
             'customer_email' => $booking->customer_email,
             'customer_phone' => $booking->customer_phone,
+            'channel' => $booking->channel->value,
+            'channel_label' => $booking->channel->label(),
+            'messages' => $this->whenLoaded('messages', fn () => $booking->messages->map(fn (MessageLog $message) => [
+                'id' => $message->id,
+                'event_label' => $message->event->label(),
+                'channel_label' => $message->channel->label(),
+                'recipient' => $message->recipient,
+                'status' => $message->status->value,
+                'status_label' => $message->status->label(),
+                'note' => $message->note,
+                'when' => $message->created_at?->setTimezone($booking->timezone)->format('D j M Y, H:i'),
+            ])->values()),
             'contact_id' => $booking->contact_id,
             'service_name' => $booking->service_name,
             'location_name' => $this->whenLoaded('location', fn () => $booking->location?->name),

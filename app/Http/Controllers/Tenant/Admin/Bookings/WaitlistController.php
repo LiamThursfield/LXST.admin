@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant\Admin\Bookings;
 
+use App\Enums\Bookings\MessageEvent;
 use App\Enums\Bookings\WaitlistStatus;
 use App\Enums\BookingType;
 use App\Enums\Crm\OrganisationUnitType;
@@ -16,6 +17,7 @@ use App\Models\Bookings\WaitlistEntry;
 use App\Models\Crm\OrganisationUnit;
 use App\Services\Bookings\BookingAvailability;
 use App\Services\Bookings\BookingCreator;
+use App\Services\Bookings\BookingMessenger;
 use App\Services\Industry\Terminology;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -146,6 +148,8 @@ class WaitlistController extends Controller
 
             return $booking;
         });
+
+        app(BookingMessenger::class)->send($booking, MessageEvent::Booked);
 
         return redirect()->route('admin.bookings.bookings.show', $booking)
             ->with('success', app(Terminology::class)->translate('bookings.waitlist.flash.booked'));

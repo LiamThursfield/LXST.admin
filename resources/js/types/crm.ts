@@ -83,6 +83,9 @@ export type ContactData = {
     marketing_email: boolean;
     marketing_sms: boolean;
     marketing_telephone: boolean;
+    preferred_channel: string | null;
+    sms_opted_out: boolean;
+    whatsapp_opted_out: boolean;
     created_at: string | null;
     deleted_at: string | null;
     addresses?: Array<AddressData & { id: number }>;

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Tenant\Admin\Bookings;
 
 use App\Enums\Bookings\BookingStatus;
+use App\Enums\Bookings\MessageChannel;
+use App\Enums\Bookings\MessageEvent;
 use App\Enums\Bookings\ResourceType;
 use App\Enums\Bookings\WaitlistStatus;
 use App\Enums\Crm\OrganisationUnitType;
@@ -22,6 +24,7 @@ use App\Models\Bookings\ServiceOption;
 use App\Models\Bookings\WaitlistEntry;
 use App\Models\Crm\OrganisationUnit;
 use App\Services\Bookings\BookingCreator;
+use App\Services\Bookings\BookingMessenger;
 use App\Services\Industry\Terminology;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
@@ -96,6 +99,7 @@ class BookingController extends Controller
                 ->values(),
             'hasLocations' => $hasLocations,
             'locations' => $hasLocations ? $this->locationOptions() : [],
+            'channels' => MessageChannel::asSelectItems(),
             // Booking someone from the waitlist starts from what they asked for
             'prefill' => $entry === null ? null : [
                 'waitlist_entry_id' => $entry->id,
@@ -115,7 +119,7 @@ class BookingController extends Controller
     {
         /** @var Service $service */
         $service = $request->service();
-        /** @var array{date?: string|null, time?: string|null, walk_in?: bool|null, ignore_rules?: bool|null, session_id?: int|null, quantity?: int|null, option_ids?: list<int>, resource_ids?: list<int>, customer_name: string, customer_email?: string|null, customer_phone?: string|null, notes?: string|null} $details */
+        /** @var array{date?: string|null, time?: string|null, walk_in?: bool|null, ignore_rules?: bool|null, channel?: string|null, session_id?: int|null, quantity?: int|null, option_ids?: list<int>, resource_ids?: list<int>, customer_name: string, customer_email?: string|null, customer_phone?: string|null, notes?: string|null} $details */
         $details = $request->safe()->except(['service_id', 'location_id', 'repeat_weeks', 'repeat_times', 'waitlist_entry_id']);
         $terminology = app(Terminology::class);
 
@@ -138,6 +142,11 @@ class BookingController extends Controller
             $message = $terminology->translate('bookings.bookings.flash.created');
         }
 
+        // A walk-in is there in person, so has nothing to be told. A series is told once, about the first.
+        if (! $booking->is_walk_in) {
+            app(BookingMessenger::class)->send($booking, MessageEvent::Booked);
+        }
+
         if ($request->filled('waitlist_entry_id')) {
             WaitlistEntry::query()->whereKey($request->integer('waitlist_entry_id'))->update(['status' => WaitlistStatus::Booked, 'booking_id' => $booking->id]);
         }
@@ -152,7 +161,7 @@ class BookingController extends Controller
         $canManage = $request->user()?->can('update', $booking) ?? false;
 
         return Inertia::render('admin/bookings/booking/Show', [
-            'booking' => new BookingResource($booking->load(['resources', 'location', 'options'])),
+            'booking' => new BookingResource($booking->load(['resources', 'location', 'options', 'messages'])),
             // The rest of a repeating series, to move between them
             'series' => $booking->series_id === null ? [] : Booking::query()
                 ->where('series_id', $booking->series_id)
@@ -177,12 +186,13 @@ class BookingController extends Controller
         ]);
     }
 
-    public function status(BookingStatusRequest $request, Booking $booking, BookingCreator $creator): RedirectResponse
+    public function status(BookingStatusRequest $request, Booking $booking, BookingCreator $creator, BookingMessenger $messenger): RedirectResponse
     {
         $status = BookingStatus::from($request->string('status')->toString());
 
         if ($status === BookingStatus::Cancelled) {
             $creator->cancel($booking);
+            $messenger->send($booking, MessageEvent::Cancelled);
         } else {
             $booking->update(['status' => $status]);
         }
@@ -193,7 +203,7 @@ class BookingController extends Controller
     /**
      * Moves a booking to another time or resource, e.g. dragged on the calendar
      */
-    public function move(BookingMoveRequest $request, Booking $booking, BookingCreator $creator): RedirectResponse
+    public function move(BookingMoveRequest $request, Booking $booking, BookingCreator $creator, BookingMessenger $messenger): RedirectResponse
     {
         $creator->move(
             $booking,
@@ -202,13 +212,15 @@ class BookingController extends Controller
             $request->filled('resource_id') ? $request->integer('resource_id') : null,
         );
 
+        $messenger->send($booking, MessageEvent::Changed);
+
         return redirect()->back()->with('success', app(Terminology::class)->translate('bookings.bookings.flash.moved'));
     }
 
     /**
      * Gives an enquiry a time, which confirms it
      */
-    public function schedule(BookingScheduleRequest $request, Booking $booking, BookingCreator $creator): RedirectResponse
+    public function schedule(BookingScheduleRequest $request, Booking $booking, BookingCreator $creator, BookingMessenger $messenger): RedirectResponse
     {
         /** @var list<int|string> $resourceIds */
         $resourceIds = $request->validated('resource_ids') ?? [];
@@ -220,6 +232,9 @@ class BookingController extends Controller
             $request->integer('duration_minutes'),
             array_map(intval(...), $resourceIds),
         );
+
+        // An enquiry given a time is now a booking, so the customer is told as for any other
+        $messenger->send($booking, MessageEvent::Booked);
 
         return redirect()->back()->with('success', app(Terminology::class)->translate('bookings.bookings.flash.updated'));
     }

@@ -21,6 +21,7 @@ const props = defineProps<{
     hasLocations: boolean;
     locations: SelectItem[];
     prefill: BookingPrefill | null;
+    channels: SelectItem[];
 }>();
 
 const { trans, transChoice } = useTrans();
@@ -50,6 +51,7 @@ const form = useForm({
     customer_name: prefill?.customer_name ?? '',
     customer_email: prefill?.customer_email ?? '',
     customer_phone: prefill?.customer_phone ?? '',
+    channel: null as string | null,
     notes: prefill?.notes ?? '',
 });
 
@@ -199,6 +201,14 @@ onMounted(() => {
         loadAvailability();
     }
 });
+
+const channelItems = computed(() => [
+    {
+        value: null as unknown as string,
+        label: trans('bookings.bookings.channel.preference'),
+    },
+    ...props.channels,
+]);
 
 const repeatItems = computed(() => [
     {
@@ -495,6 +505,19 @@ const breadcrumbs = computed(() => [
                     />
                 </UFormField>
             </div>
+
+            <UFormField
+                :label="trans('bookings.bookings.channel.label')"
+                :help="trans('bookings.bookings.channel.help')"
+                name="channel"
+                :error="form.errors.channel"
+            >
+                <USelect
+                    v-model="form.channel"
+                    :items="channelItems"
+                    class="w-full"
+                />
+            </UFormField>
 
             <UFormField
                 :label="trans('bookings.bookings.fields.notes')"

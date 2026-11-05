@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Tenant\Admin\Bookings;
 
 use App\Enums\Bookings\HireUnit;
+use App\Enums\Bookings\MessageChannel;
 use App\Enums\Bookings\ServiceOptionType;
 use App\Enums\Bookings\WaitlistStatus;
 use App\Enums\BookingType;
@@ -12,6 +13,7 @@ use App\Models\Bookings\Booking;
 use App\Models\Bookings\Service;
 use App\Models\Bookings\WaitlistEntry;
 use App\Models\Crm\OrganisationUnit;
+use App\Services\Messaging\PhoneNumber;
 use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -65,7 +67,15 @@ class BookingStoreRequest extends FormRequest
             'ignore_rules' => ['boolean'],
             'customer_name' => ['required', 'string', 'max:255'],
             'customer_email' => ['nullable', 'email', 'max:255'],
-            'customer_phone' => ['nullable', 'string', 'max:50'],
+            // Null uses the contact's preference, or email
+            'channel' => ['nullable', Rule::enum(MessageChannel::class)],
+            'customer_phone' => [
+                Rule::requiredIf(in_array($this->input('channel'), [MessageChannel::Sms->value, MessageChannel::WhatsApp->value], true)),
+                'nullable',
+                'string',
+                'max:50',
+                $this->internationalPhoneRule(),
+            ],
             'notes' => ['nullable', 'string', 'max:5000'],
         ];
     }
@@ -80,6 +90,20 @@ class BookingStoreRequest extends FormRequest
         $id = $this->validated('location_id');
 
         return is_numeric($id) ? OrganisationUnit::query()->find((int) $id) : null;
+    }
+
+    /**
+     * Texts and WhatsApp need a number in international format, e.g. +447700900123
+     */
+    protected function internationalPhoneRule(): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail): void {
+            $wantsPhone = in_array($this->input('channel'), [MessageChannel::Sms->value, MessageChannel::WhatsApp->value], true);
+
+            if ($wantsPhone && PhoneNumber::international(is_string($value) ? $value : null) === null) {
+                $fail(__('bookings.bookings.validation.international_phone'));
+            }
+        };
     }
 
     protected function offeredAtLocationRule(): Closure

@@ -58,9 +58,24 @@ const form = useForm({
     marketing_email: contact?.marketing_email ?? false,
     marketing_sms: contact?.marketing_sms ?? false,
     marketing_telephone: contact?.marketing_telephone ?? false,
+    preferred_channel: contact?.preferred_channel ?? null,
+    sms_opted_out: contact?.sms_opted_out ?? false,
+    whatsapp_opted_out: contact?.whatsapp_opted_out ?? false,
     // Any address ids are ignored: the server replaces the contact's addresses with this list
     addresses: [...(contact?.addresses ?? [])] as AddressData[],
 });
+
+/** Booking messages: 'email', 'sms' or 'whatsapp', with no preference meaning email. */
+const channelItems = computed(() => [
+    {
+        value: null as unknown as string,
+        label: trans('crm.contacts.messaging.no_preference'),
+    },
+    ...['email', 'sms', 'whatsapp'].map((channel) => ({
+        value: channel,
+        label: trans(`enums.message_channel.${channel}`),
+    })),
+]);
 
 const marketingFields = [
     'marketing_email',
@@ -242,6 +257,40 @@ function onSubmit() {
                         :disabled="readonly"
                         :label="trans(`crm.contacts.marketing.${field}`)"
                         :name="field"
+                    />
+                </div>
+            </UPageCard>
+
+            <UPageCard
+                variant="subtle"
+                :title="trans('crm.contacts.messaging.title')"
+            >
+                <UFormField
+                    :label="trans('crm.contacts.messaging.preferred_channel')"
+                    name="preferred_channel"
+                    :error="form.errors.preferred_channel"
+                >
+                    <USelect
+                        v-model="form.preferred_channel"
+                        :items="channelItems"
+                        :disabled="readonly"
+                        class="w-full"
+                    />
+                </UFormField>
+                <div class="flex flex-col gap-2">
+                    <UCheckbox
+                        v-model="form.sms_opted_out"
+                        :disabled="readonly"
+                        :label="trans('crm.contacts.messaging.sms_opted_out')"
+                        name="sms_opted_out"
+                    />
+                    <UCheckbox
+                        v-model="form.whatsapp_opted_out"
+                        :disabled="readonly"
+                        :label="
+                            trans('crm.contacts.messaging.whatsapp_opted_out')
+                        "
+                        name="whatsapp_opted_out"
                     />
                 </div>
             </UPageCard>

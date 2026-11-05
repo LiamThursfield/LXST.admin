@@ -8,11 +8,7 @@ export type TaskScheduleData = {
 
 /** An occurrence's evaluation status (see backend `TaskOccurrenceStatus`). */
 export type TaskOccurrenceStatus =
-    | 'pending'
-    | 'on-track'
-    | 'met'
-    | 'missed'
-    | 'skipped';
+    'pending' | 'on-track' | 'met' | 'missed' | 'skipped';
 
 /** A logged entry, with its value in the task's display unit. */
 export type TaskEntryData = {
