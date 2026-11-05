@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenant\Admin\Bookings;
 
 use App\Enums\Bookings\HireUnit;
+use App\Enums\Bookings\ResourceType;
 use App\Enums\Bookings\ServiceOptionType;
 use App\Enums\Bookings\ServicePriceType;
 use App\Enums\BookingType;
@@ -168,10 +169,15 @@ class ServiceController extends Controller
         return [
             'bookingTypes' => collect([...$tenantTypes, ...BookingType::cases()])
                 ->unique(fn (BookingType $type) => $type->value)
-                ->map(fn (BookingType $type) => [...$type->toSelectItem(), 'details' => $type->details()])
+                ->map(fn (BookingType $type) => [
+                    ...$type->toSelectItem(),
+                    'details' => $type->details(),
+                    'default_resource_types' => array_map(fn (ResourceType $resourceType) => $resourceType->value, $type->defaultResourceTypes()),
+                ])
                 ->values(),
             'priceTypes' => ServicePriceType::asSelectItems(),
             'hireUnits' => HireUnit::asSelectItems(),
+            'resourceTypes' => ResourceType::asSelectItems(),
             'optionTypes' => ServiceOptionType::asSelectItems(),
             'categories' => ServiceCategory::query()->orderBy('order')->orderBy('name')->get()
                 ->map(fn (ServiceCategory $category) => ['value' => $category->id, 'label' => $category->name])

@@ -76,6 +76,7 @@ class ServiceResource extends JsonResource
             'min_hire_units' => $service->min_hire_units,
             'max_hire_units' => $service->max_hire_units,
             'travel_minutes' => $service->travel_minutes,
+            'required_resource_types' => $service->required_resource_types,
             'is_bookable_online' => $service->is_bookable_online,
             'options' => $this->whenLoaded('options', fn () => $service->options->map(fn (ServiceOption $option) => [
                 'id' => $option->id,

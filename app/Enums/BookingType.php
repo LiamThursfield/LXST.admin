@@ -2,6 +2,7 @@
 
 namespace App\Enums;
 
+use App\Enums\Bookings\ResourceType;
 use App\Enums\Traits\HasLabels;
 
 /**
@@ -32,6 +33,8 @@ enum BookingType: string
 
     public const string DETAIL_TRAVEL = 'travel';
 
+    public const string DETAIL_RESOURCES = 'resources';
+
     /**
      * Which details of a service apply to this type
      *
@@ -40,13 +43,43 @@ enum BookingType: string
     public function details(): array
     {
         return match ($this) {
-            self::Appointment => [self::DETAIL_DURATION, self::DETAIL_BUFFERS],
+            self::Appointment => [self::DETAIL_DURATION, self::DETAIL_BUFFERS, self::DETAIL_RESOURCES],
             self::GroupClass, self::Ticket => [self::DETAIL_DURATION, self::DETAIL_BUFFERS, self::DETAIL_CAPACITY],
-            self::Table => [self::DETAIL_DURATION, self::DETAIL_BUFFERS, self::DETAIL_PARTY_SIZE],
-            self::Hire => [self::DETAIL_BUFFERS, self::DETAIL_HIRE],
-            self::Visit => [self::DETAIL_DURATION, self::DETAIL_BUFFERS, self::DETAIL_TRAVEL],
+            self::Table => [self::DETAIL_DURATION, self::DETAIL_BUFFERS, self::DETAIL_PARTY_SIZE, self::DETAIL_RESOURCES],
+            self::Hire => [self::DETAIL_BUFFERS, self::DETAIL_HIRE, self::DETAIL_RESOURCES],
+            self::Visit => [self::DETAIL_DURATION, self::DETAIL_BUFFERS, self::DETAIL_TRAVEL, self::DETAIL_RESOURCES],
             self::Enquiry => [],
         };
+    }
+
+    /**
+     * The kinds of resource a booking takes, unless the service says otherwise
+     *
+     * @return list<ResourceType>
+     */
+    public function defaultResourceTypes(): array
+    {
+        return match ($this) {
+            self::Appointment, self::Visit => [ResourceType::Person],
+            self::Table, self::Hire => [ResourceType::Space],
+            self::GroupClass, self::Ticket, self::Enquiry => [],
+        };
+    }
+
+    /**
+     * Whether bookings take places on a scheduled session, rather than being given a time of their own
+     */
+    public function usesSessions(): bool
+    {
+        return $this === self::GroupClass || $this === self::Ticket;
+    }
+
+    /**
+     * Whether the price is per place or hire unit, rather than for the whole booking
+     */
+    public function pricesPerUnit(): bool
+    {
+        return in_array($this, [self::GroupClass, self::Ticket, self::Hire], true);
     }
 
     public function uses(string $detail): bool

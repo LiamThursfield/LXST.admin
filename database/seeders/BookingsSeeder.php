@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\Bookings\BookingStatus;
 use App\Enums\Bookings\HireUnit;
 use App\Enums\Bookings\ResourceType;
 use App\Enums\Bookings\ServiceOptionType;
@@ -12,17 +13,22 @@ use App\Enums\BookingType;
 use App\Enums\Crm\OrganisationUnitType;
 use App\Enums\TenantModule;
 use App\Models\Bookings\BookableResource;
+use App\Models\Bookings\Booking;
 use App\Models\Bookings\Service;
 use App\Models\Bookings\ServiceCategory;
+use App\Models\Bookings\ServiceSession;
 use App\Models\Crm\OrganisationUnit;
 use App\Services\Authorisation\Enums\Role;
+use App\Services\Bookings\BookingCreator;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 /**
  * Seeds example services: one of each booking type, each kind of price, with variations and add-ons,
  * so every part of the form has something to show. With the CRM, one is limited to a single location.
  * Also one resource of each type who can do them, with working hours, shifts this week, and time off
- * both waiting and approved. Dates are relative to now.
+ * both waiting and approved. Then timetable entries for the class and event, and bookings of each
+ * kind, made through BookingCreator. Dates are relative to now.
  *
  * Run within a tenant, e.g. `php artisan tenants:seed --class=BookingsSeeder`.
  * Safe to re-run: a category, service or resource that already exists is left alone.
@@ -129,6 +135,64 @@ class BookingsSeeder extends Seeder
         ]);
 
         $this->seedResources();
+        $this->seedSessions();
+        $this->seedBookings();
+    }
+
+    protected function seedSessions(): void
+    {
+        if (ServiceSession::query()->exists()) {
+            return;
+        }
+
+        $room = BookableResource::query()->where('slug', 'main-room')->value('id');
+        // Wednesday of next week: far enough off to miss the seeded time off
+        $wednesday = now()->startOfWeek()->addWeek()->addDays(2)->startOfDay();
+
+        foreach ([['group-session', 18, 60], ['open-evening', 19, 180]] as [$slug, $hour, $minutes]) {
+            $service = Service::query()->where('slug', $slug)->firstOrFail();
+            $start = $slug === 'open-evening' ? $wednesday->copy()->addDay()->setTime($hour, 0) : $wednesday->copy()->setTime($hour, 0);
+
+            $session = ServiceSession::query()->create([
+                'service_id' => $service->id,
+                'starts_at' => $start,
+                'ends_at' => $start->copy()->addMinutes($minutes),
+            ]);
+            $session->resources()->sync($room === null ? [] : [$room]);
+        }
+    }
+
+    protected function seedBookings(): void
+    {
+        if (Booking::query()->exists()) {
+            return;
+        }
+
+        $creator = app(BookingCreator::class);
+        $date = now()->startOfWeek()->addWeek()->addDays(2)->toDateString();
+        $service = fn (string $slug) => Service::query()->where('slug', $slug)->firstOrFail();
+        $customer = fn (string $name) => ['customer_name' => $name, 'customer_email' => Str::slug($name, '.').'@example.test'];
+
+        $consultation = $service('consultation');
+        $creator->create($consultation, null, [...$customer('Morgan Reed'), 'date' => $date, 'time' => '10:00', 'option_ids' => [$consultation->options()->where('name', 'Deluxe')->value('id')]]);
+        $creator->create($service('home-visit'), null, [...$customer('Priya Shah'), 'date' => $date, 'time' => '14:00']);
+        $creator->create($service('table-booking'), null, [...$customer('Tom Baker'), 'date' => $date, 'time' => '12:00', 'quantity' => 4]);
+        $creator->create($service('room-hire'), null, [...$customer('Lee Carter'), 'date' => $date, 'time' => '14:00', 'quantity' => 2]);
+
+        $session = ServiceSession::query()->where('service_id', $service('group-session')->id)->firstOrFail();
+        $creator->create($service('group-session'), null, [...$customer('Ana Lopez'), 'session_id' => $session->id, 'quantity' => 2]);
+
+        $creator->create($service('large-project'), null, [...$customer('Sasha Green'), 'notes' => 'Looking for a quote for the spring.']);
+
+        $cancelled = $creator->create($consultation, null, [...$customer('Jo Marsh'), 'date' => $date, 'time' => '15:00']);
+        $cancelled->update(['status' => BookingStatus::Cancelled]);
+
+        // Past bookings can't be made through the creator, which only takes times to come
+        Booking::factory()->past()->create([
+            'service_id' => $consultation->id,
+            'service_name' => $consultation->name,
+            ...$customer('Dee Walsh'),
+        ]);
     }
 
     protected function seedResources(): void

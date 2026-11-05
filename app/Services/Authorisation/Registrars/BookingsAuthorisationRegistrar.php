@@ -19,9 +19,10 @@ class BookingsAuthorisationRegistrar implements AuthorisationRegistrar
         $registry->assignPermissionsToRole(Role::Admin, BookingsPermission::cases());
         $registry->assignPermissionsToRole(Role::Editor, BookingsPermission::cases());
 
-        // Viewer can view services and the rota, and ask for their own time off. Other people's
+        // Viewer can view bookings, services and the rota, and ask for their own time off. Other people's
         // time off can say why they're away, so it isn't included.
         $registry->assignPermissionsToRole(Role::Viewer, [
+            BookingsPermission::ViewBookings,
             BookingsPermission::ViewServices,
             BookingsPermission::ViewResources,
             BookingsPermission::RequestTimeOff,

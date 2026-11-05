@@ -56,6 +56,7 @@ const form = useForm({
     min_hire_units: service?.min_hire_units ?? 1,
     max_hire_units: service?.max_hire_units ?? null,
     travel_minutes: service?.travel_minutes ?? 0,
+    required_resource_types: service?.required_resource_types ?? null,
     options: (service?.options ?? []).map((option) => ({
         ...option,
     })) as ServiceOptionData[],
@@ -74,6 +75,21 @@ const details = computed(
 );
 
 const uses = (detail: string) => details.value.includes(detail);
+
+/** What each booking needs: the service's own choice, or its booking type's default. */
+const neededTypes = computed(
+    () =>
+        form.required_resource_types ??
+        props.bookingTypes.find((type) => type.value === form.booking_type)
+            ?.default_resource_types ??
+        [],
+);
+
+function toggleNeededType(type: string, needed: boolean) {
+    form.required_resource_types = needed
+        ? [...neededTypes.value, type]
+        : neededTypes.value.filter((existing) => existing !== type);
+}
 
 const hasAmount = computed(() => form.price_type !== 'on_quote');
 
@@ -177,6 +193,37 @@ function submit() {
                     :disabled="readonly"
                     class="w-full"
                 />
+            </UFormField>
+
+            <UFormField
+                v-if="uses('resources')"
+                :label="
+                    trans('bookings.services.fields.required_resource_types')
+                "
+                :help="
+                    trans(
+                        'bookings.services.fields.required_resource_types_help',
+                    )
+                "
+                name="required_resource_types"
+                :error="form.errors.required_resource_types"
+            >
+                <div class="flex flex-wrap gap-4">
+                    <UCheckbox
+                        v-for="type in resourceTypes"
+                        :key="type.value"
+                        :model-value="neededTypes.includes(String(type.value))"
+                        :label="type.label"
+                        :disabled="readonly"
+                        @update:model-value="
+                            (needed) =>
+                                toggleNeededType(
+                                    String(type.value),
+                                    needed === true,
+                                )
+                        "
+                    />
+                </div>
             </UFormField>
 
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">

@@ -28,6 +28,8 @@ return [
     'view_redirects' => 'View Redirects',
 
     'bookings' => ':Bookings',
+    'booking_list' => ':Bookings',
+    'timetable' => 'Timetable',
     'services' => ':Services',
     'service_categories' => 'Categories',
     'staff' => ':Staff_members',

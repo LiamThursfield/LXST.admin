@@ -2,10 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Tenant\Admin\Bookings\BookingAvailabilityController;
+use App\Http\Controllers\Tenant\Admin\Bookings\BookingController;
 use App\Http\Controllers\Tenant\Admin\Bookings\ResourceController;
 use App\Http\Controllers\Tenant\Admin\Bookings\RotaController;
 use App\Http\Controllers\Tenant\Admin\Bookings\ServiceCategoryController;
 use App\Http\Controllers\Tenant\Admin\Bookings\ServiceController;
+use App\Http\Controllers\Tenant\Admin\Bookings\ServiceSessionController;
 use App\Http\Controllers\Tenant\Admin\Bookings\StaffController;
 use App\Http\Controllers\Tenant\Admin\Bookings\StaffHoursController;
 use App\Http\Controllers\Tenant\Admin\Bookings\TimeOffController;
@@ -121,6 +124,11 @@ Route::name('cms.')->prefix('cms')->middleware(['tenant.module:cms', 'content.ch
 });
 
 Route::name('bookings.')->prefix('bookings')->middleware('tenant.module:bookings')->group(function () {
+    Route::get('bookings/availability', BookingAvailabilityController::class)->name('bookings.availability');
+    Route::post('bookings/{booking}/status', [BookingController::class, 'status'])->name('bookings.status');
+    Route::put('bookings/{booking}/schedule', [BookingController::class, 'schedule'])->name('bookings.schedule');
+    Route::resource('bookings', BookingController::class)->only(['index', 'create', 'store', 'show']);
+    Route::resource('sessions', ServiceSessionController::class)->except('show');
     Route::resource('services', ServiceController::class);
     Route::resource('service-categories', ServiceCategoryController::class)->except('show');
     Route::resource('staff', StaffController::class)->parameters(['staff' => 'resource']);

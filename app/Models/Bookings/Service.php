@@ -3,6 +3,7 @@
 namespace App\Models\Bookings;
 
 use App\Enums\Bookings\HireUnit;
+use App\Enums\Bookings\ResourceType;
 use App\Enums\Bookings\ServicePriceType;
 use App\Enums\BookingType;
 use App\Models\Crm\OrganisationUnit;
@@ -40,6 +41,7 @@ use Illuminate\Support\Str;
  * @property int|null $min_hire_units
  * @property int|null $max_hire_units
  * @property int|null $travel_minutes
+ * @property list<string>|null $required_resource_types Null uses the booking type's default
  * @property bool $is_bookable_online
  */
 class Service extends Model
@@ -76,6 +78,7 @@ class Service extends Model
         'min_hire_units',
         'max_hire_units',
         'travel_minutes',
+        'required_resource_types',
         'is_bookable_online',
     ];
 
@@ -100,6 +103,7 @@ class Service extends Model
             'min_hire_units' => 'integer',
             'max_hire_units' => 'integer',
             'travel_minutes' => 'integer',
+            'required_resource_types' => 'array',
             'is_bookable_online' => 'boolean',
         ];
     }
@@ -166,6 +170,18 @@ class Service extends Model
     public function locations(): BelongsToMany
     {
         return $this->belongsToMany(OrganisationUnit::class, 'bookings_service_location', 'service_id', 'organisation_unit_id');
+    }
+
+    /**
+     * The kinds of resource a booking takes one of each of, e.g. a stylist and a chair
+     *
+     * @return list<ResourceType>
+     */
+    public function requiredResourceTypes(): array
+    {
+        return $this->required_resource_types === null
+            ? $this->booking_type->defaultResourceTypes()
+            : array_map(fn (string $type) => ResourceType::from($type), $this->required_resource_types);
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Tenant\Admin\Bookings\Concerns;
 
 use App\Enums\Bookings\HireUnit;
+use App\Enums\Bookings\ResourceType;
 use App\Enums\Bookings\ServiceOptionType;
 use App\Enums\Bookings\ServicePriceType;
 use App\Enums\BookingType;
@@ -56,6 +57,9 @@ trait ValidatesService
             'min_hire_units' => [$this->excludeUnlessUsing(BookingType::DETAIL_HIRE), 'required', 'integer', 'min:1', 'max:10000'],
             'max_hire_units' => [$this->excludeUnlessUsing(BookingType::DETAIL_HIRE), 'nullable', 'integer', 'gte:min_hire_units', 'max:10000'],
             'travel_minutes' => [$this->excludeUnlessUsing(BookingType::DETAIL_TRAVEL), 'nullable', 'integer', 'min:0', 'max:1440'],
+
+            'required_resource_types' => [$this->excludeUnlessUsing(BookingType::DETAIL_RESOURCES), 'nullable', 'array'],
+            'required_resource_types.*' => [$this->excludeUnlessUsing(BookingType::DETAIL_RESOURCES), 'distinct', Rule::enum(ResourceType::class)],
 
             'options' => ['nullable', 'array', 'max:50'],
             'options.*' => ['array'],
@@ -115,6 +119,7 @@ trait ValidatesService
             'min_hire_units' => $attributes['min_hire_units'] ?? null,
             'max_hire_units' => $attributes['max_hire_units'] ?? null,
             'travel_minutes' => $attributes['travel_minutes'] ?? null,
+            'required_resource_types' => ($attributes['required_resource_types'] ?? []) ?: null,
         ];
     }
 
