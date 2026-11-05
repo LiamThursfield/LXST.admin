@@ -40,6 +40,11 @@ return [
         'cancelled' => 'Cancelled',
         'no_show' => 'No-show',
     ],
+    'waitlist_status' => [
+        'waiting' => 'Waiting',
+        'booked' => 'Booked',
+        'removed' => 'Removed',
+    ],
     'resource_type' => [
         'person' => 'Person',
         'space' => 'Space',

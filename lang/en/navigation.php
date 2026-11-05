@@ -31,6 +31,7 @@ return [
     'calendar' => 'Calendar',
     'booking_list' => ':Bookings',
     'timetable' => 'Timetable',
+    'waitlist' => 'Waitlist',
     'services' => ':Services',
     'service_categories' => 'Categories',
     'staff' => ':Staff_members',

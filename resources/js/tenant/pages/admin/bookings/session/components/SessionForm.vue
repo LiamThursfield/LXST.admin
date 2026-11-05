@@ -29,6 +29,7 @@ const form = useForm({
         session?.duration_minutes ?? props.services[0]?.duration_minutes ?? 60,
     capacity: session?.capacity ?? null,
     resource_ids: [...(session?.resource_ids ?? [])],
+    repeat_times: 1,
 });
 
 const locationItems = computed(() => [
@@ -165,6 +166,22 @@ function submit() {
                     v-model.number="form.capacity"
                     type="number"
                     min="1"
+                    class="w-full"
+                />
+            </UFormField>
+
+            <UFormField
+                v-if="!session"
+                :label="trans('bookings.sessions.fields.repeat_times')"
+                :help="trans('bookings.sessions.fields.repeat_times_help')"
+                name="repeat_times"
+                :error="form.errors.repeat_times"
+            >
+                <UInput
+                    v-model.number="form.repeat_times"
+                    type="number"
+                    min="1"
+                    max="52"
                     class="w-full"
                 />
             </UFormField>

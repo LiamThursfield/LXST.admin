@@ -50,6 +50,7 @@ const form = useForm({
     user_id: resource?.user_id ?? null,
     job_title: resource?.job_title ?? '',
     capacity: resource?.capacity ?? null,
+    combine_group: resource?.combine_group ?? '',
     is_active: resource?.is_active ?? true,
     is_public: resource?.is_public ?? false,
     working_hours: (resource?.working_hours ?? []).map((hour) => ({ ...hour })),
@@ -197,6 +198,22 @@ function submit() {
                         v-model.number="form.capacity"
                         type="number"
                         min="1"
+                        :disabled="readonly"
+                        class="w-full"
+                    />
+                </UFormField>
+
+                <UFormField
+                    v-if="hasCapacity"
+                    :label="trans('bookings.resources.fields.combine_group')"
+                    :help="
+                        trans('bookings.resources.fields.combine_group_help')
+                    "
+                    name="combine_group"
+                    :error="form.errors.combine_group"
+                >
+                    <UInput
+                        v-model="form.combine_group"
                         :disabled="readonly"
                         class="w-full"
                     />

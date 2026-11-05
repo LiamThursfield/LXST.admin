@@ -63,6 +63,7 @@ class ServiceSessionResource extends JsonResource
             'duration_minutes' => (int) $session->starts_at->diffInMinutes($session->ends_at),
             'capacity' => $session->capacity,
             'places_left' => $availability->placesLeft($session),
+            'waiting' => $session->getAttribute('waitlist_entries_count'),
             'resource_ids' => $session->resources->map(fn (BookableResource $resource) => $resource->id)->values(),
             'resource_names' => $session->resources->map(fn (BookableResource $resource) => $resource->name)->join(', '),
         ]);

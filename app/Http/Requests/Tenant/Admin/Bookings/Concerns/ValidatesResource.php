@@ -50,6 +50,7 @@ trait ValidatesResource
             ],
             'job_title' => [Rule::excludeIf(! ($type?->isPerson() ?? false)), 'nullable', 'string', 'max:120'],
             'capacity' => [Rule::excludeIf(! ($type?->hasCapacity() ?? false)), 'nullable', 'integer', 'min:1', 'max:100000'],
+            'combine_group' => [Rule::excludeIf(! ($type?->hasCapacity() ?? false)), 'nullable', 'string', 'max:60'],
 
             // Locations are part of the CRM, so without it a resource's is left as it is
             'location_id' => [
@@ -127,6 +128,7 @@ trait ValidatesResource
             'user_id' => $attributes['user_id'] ?? null,
             'job_title' => $attributes['job_title'] ?? null,
             'capacity' => $attributes['capacity'] ?? null,
+            'combine_group' => filled($attributes['combine_group'] ?? null) ? trim((string) $attributes['combine_group']) : null,
         ];
     }
 

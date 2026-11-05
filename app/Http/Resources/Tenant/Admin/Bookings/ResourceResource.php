@@ -68,6 +68,7 @@ class ResourceResource extends JsonResource
             'user_id' => $resource->user_id,
             'job_title' => $resource->job_title,
             'capacity' => $resource->capacity,
+            'combine_group' => $resource->combine_group,
             'is_active' => $resource->is_active,
             'is_public' => $resource->is_public,
             'services_count' => $resource->services_count ?? null,

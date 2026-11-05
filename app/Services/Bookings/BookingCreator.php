@@ -35,6 +35,35 @@ class BookingCreator
     ) {}
 
     /**
+     * Books the same time every few weeks, as a linked series. The first has to fit, as it's what was
+     * asked for; after that, the dates that fit are booked and the rest are given back to sort out.
+     *
+     * @param  array{date: string, time: string, ignore_rules?: bool|null, quantity?: int|null, option_ids?: list<int>, resource_ids?: list<int>, customer_name: string, customer_email?: string|null, customer_phone?: string|null, notes?: string|null}  $details
+     * @return array{booked: list<Booking>, skipped: list<string>}
+     *
+     * @throws ValidationException When the first doesn't fit
+     */
+    public function createSeries(Service $service, ?OrganisationUnit $location, array $details, int $everyWeeks, int $times, ?User $createdBy = null): array
+    {
+        $seriesId = (string) Str::uuid();
+        $first = CarbonImmutable::parse($details['date']);
+        $booked = [$this->create($service, $location, [...$details, 'series_id' => $seriesId], $createdBy)];
+        $skipped = [];
+
+        for ($occurrence = 1; $occurrence < $times; $occurrence++) {
+            $date = $first->addWeeks($occurrence * $everyWeeks)->toDateString();
+
+            try {
+                $booked[] = $this->create($service, $location, [...$details, 'date' => $date, 'series_id' => $seriesId], $createdBy);
+            } catch (ValidationException) {
+                $skipped[] = $date;
+            }
+        }
+
+        return ['booked' => $booked, 'skipped' => $skipped];
+    }
+
+    /**
      * Cancels a booking, noting when it's inside the service's cancellation window
      */
     public function cancel(Booking $booking): void
@@ -53,7 +82,7 @@ class BookingCreator
      * The service's rules are kept unless ignore_rules is set, which staff can choose. Approval is
      * only for bookings customers make, as staff confirm their own.
      *
-     * @param  array{date?: string|null, time?: string|null, walk_in?: bool|null, ignore_rules?: bool|null, session_id?: int|null, quantity?: int|null, option_ids?: list<int>, resource_ids?: list<int>, customer_name: string, customer_email?: string|null, customer_phone?: string|null, notes?: string|null}  $details
+     * @param  array{date?: string|null, time?: string|null, walk_in?: bool|null, ignore_rules?: bool|null, series_id?: string|null, session_id?: int|null, quantity?: int|null, option_ids?: list<int>, resource_ids?: list<int>, customer_name: string, customer_email?: string|null, customer_phone?: string|null, notes?: string|null}  $details
      *
      * @throws ValidationException When the time or places have gone
      */
@@ -77,6 +106,7 @@ class BookingCreator
                 'notes' => $details['notes'] ?? null,
                 'created_by_id' => $createdBy?->id,
                 'rules_ignored' => (bool) ($details['ignore_rules'] ?? false),
+                'series_id' => $details['series_id'] ?? null,
             ]);
 
             if (! $booking->rules_ignored && ($problems = $this->rules->problems($service, $booking)) !== []) {

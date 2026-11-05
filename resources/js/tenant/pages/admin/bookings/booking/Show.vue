@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { router, useForm } from '@inertiajs/vue3';
+import { Link, router, useForm } from '@inertiajs/vue3';
 import {
     index,
     schedule,
@@ -13,6 +13,13 @@ const props = defineProps<{
     currency: string;
     canManage: boolean;
     resources: SelectItem[];
+    series: Array<{
+        id: number;
+        when: string | null;
+        status_label: string;
+        url: string;
+        current: boolean;
+    }>;
 }>();
 
 const { trans } = useTrans();
@@ -215,6 +222,28 @@ function setTime() {
                     </dd>
                 </div>
             </dl>
+        </UPageCard>
+
+        <UPageCard
+            v-if="series.length"
+            variant="subtle"
+            :title="trans('bookings.bookings.series.title')"
+        >
+            <ul class="flex flex-col gap-1 text-sm">
+                <li
+                    v-for="other in series"
+                    :key="other.id"
+                    class="flex justify-between gap-2"
+                >
+                    <span v-if="other.current" class="font-medium">
+                        {{ other.when }}
+                    </span>
+                    <Link v-else :href="other.url" class="text-primary">
+                        {{ other.when }}
+                    </Link>
+                    <span class="text-muted">{{ other.status_label }}</span>
+                </li>
+            </ul>
         </UPageCard>
 
         <UModal

@@ -5,7 +5,11 @@ import {
     index,
     store,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/BookingController';
-import type { BookableServiceOption, SelectItem } from '@/types';
+import type {
+    BookableServiceOption,
+    BookingPrefill,
+    SelectItem,
+} from '@/types';
 
 type Availability = {
     slots: Array<{ time: string; resources: string[] }>;
@@ -16,25 +20,37 @@ const props = defineProps<{
     services: BookableServiceOption[];
     hasLocations: boolean;
     locations: SelectItem[];
+    prefill: BookingPrefill | null;
 }>();
 
-const { trans } = useTrans();
+const { trans, transChoice } = useTrans();
+
+const prefill = props.prefill;
 
 const form = useForm({
-    service_id: (props.services[0]?.value ?? null) as number | null,
-    location_id: null as number | null,
+    waitlist_entry_id: prefill?.waitlist_entry_id ?? null,
+    service_id: (prefill?.service_id ?? props.services[0]?.value ?? null) as
+        number | null,
+    location_id: (prefill?.location_id ?? null) as number | null,
     walk_in: false,
     ignore_rules: false,
-    date: '',
+    date: prefill?.date ?? '',
     time: null as string | null,
     session_id: null as number | null,
-    quantity: props.services[0]?.min_quantity ?? 1,
+    quantity:
+        prefill?.quantity ??
+        props.services.find((option) => option.value === prefill?.service_id)
+            ?.min_quantity ??
+        props.services[0]?.min_quantity ??
+        1,
     option_ids: [] as number[],
     resource_ids: [] as number[],
-    customer_name: '',
-    customer_email: '',
-    customer_phone: '',
-    notes: '',
+    repeat_weeks: null as number | null,
+    repeat_times: 4,
+    customer_name: prefill?.customer_name ?? '',
+    customer_email: prefill?.customer_email ?? '',
+    customer_phone: prefill?.customer_phone ?? '',
+    notes: prefill?.notes ?? '',
 });
 
 const service = computed(() =>
@@ -179,10 +195,23 @@ watch(
 );
 
 onMounted(() => {
-    if (usesSessions.value) {
+    if (usesSessions.value || form.date) {
         loadAvailability();
     }
 });
+
+const repeatItems = computed(() => [
+    {
+        value: null as unknown as number,
+        label: trans('bookings.bookings.repeat.none'),
+    },
+    ...[1, 2, 3, 4].map((weeks) => ({
+        value: weeks,
+        label: transChoice('bookings.bookings.repeat.every', weeks, {
+            count: weeks,
+        }),
+    })),
+]);
 
 function toggleOption(id: number, type: string, chosen: boolean) {
     const others = form.option_ids.filter((existing) => existing !== id);
@@ -382,6 +411,44 @@ const breadcrumbs = computed(() => [
                     </UFormField>
                 </div>
             </template>
+            <div
+                v-if="!isEnquiry && !usesSessions && !form.walk_in"
+                class="grid grid-cols-1 gap-4 md:grid-cols-2"
+            >
+                <UFormField
+                    :label="trans('bookings.bookings.repeat.label')"
+                    :help="
+                        form.repeat_weeks
+                            ? trans('bookings.bookings.repeat.help')
+                            : undefined
+                    "
+                    name="repeat_weeks"
+                    :error="form.errors.repeat_weeks"
+                >
+                    <USelect
+                        v-model="form.repeat_weeks"
+                        :items="repeatItems"
+                        class="w-full"
+                    />
+                </UFormField>
+
+                <UFormField
+                    v-if="form.repeat_weeks"
+                    :label="trans('bookings.bookings.repeat.times')"
+                    name="repeat_times"
+                    :error="form.errors.repeat_times"
+                    required
+                >
+                    <UInput
+                        v-model.number="form.repeat_times"
+                        type="number"
+                        min="2"
+                        max="52"
+                        class="w-full"
+                    />
+                </UFormField>
+            </div>
+
             <USwitch
                 v-if="!isEnquiry"
                 v-model="form.ignore_rules"

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tenant\Admin\Bookings;
 
 use App\Enums\Bookings\BookingStatus;
 use App\Enums\Bookings\ResourceType;
+use App\Enums\Bookings\WaitlistStatus;
 use App\Enums\Crm\OrganisationUnitType;
 use App\Enums\TenantModule;
 use App\Http\Controllers\Controller;
@@ -18,9 +19,11 @@ use App\Models\Bookings\BookableResource;
 use App\Models\Bookings\Booking;
 use App\Models\Bookings\Service;
 use App\Models\Bookings\ServiceOption;
+use App\Models\Bookings\WaitlistEntry;
 use App\Models\Crm\OrganisationUnit;
 use App\Services\Bookings\BookingCreator;
 use App\Services\Industry\Terminology;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -57,9 +60,13 @@ class BookingController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
         Gate::authorize('create', Booking::class);
+
+        $entry = $request->filled('waitlist_entry_id')
+            ? WaitlistEntry::query()->where('status', WaitlistStatus::Waiting)->find($request->integer('waitlist_entry_id'))
+            : null;
 
         $hasLocations = tenant()?->hasModule(TenantModule::Crm) ?? false;
 
@@ -89,6 +96,18 @@ class BookingController extends Controller
                 ->values(),
             'hasLocations' => $hasLocations,
             'locations' => $hasLocations ? $this->locationOptions() : [],
+            // Booking someone from the waitlist starts from what they asked for
+            'prefill' => $entry === null ? null : [
+                'waitlist_entry_id' => $entry->id,
+                'service_id' => $entry->service_id,
+                'location_id' => $entry->location_id,
+                'date' => $entry->wanted_on?->toDateString(),
+                'quantity' => $entry->quantity,
+                'customer_name' => $entry->customer_name,
+                'customer_email' => $entry->customer_email,
+                'customer_phone' => $entry->customer_phone,
+                'notes' => $entry->notes,
+            ],
         ]);
     }
 
@@ -97,12 +116,33 @@ class BookingController extends Controller
         /** @var Service $service */
         $service = $request->service();
         /** @var array{date?: string|null, time?: string|null, walk_in?: bool|null, ignore_rules?: bool|null, session_id?: int|null, quantity?: int|null, option_ids?: list<int>, resource_ids?: list<int>, customer_name: string, customer_email?: string|null, customer_phone?: string|null, notes?: string|null} $details */
-        $details = $request->safe()->except(['service_id', 'location_id']);
+        $details = $request->safe()->except(['service_id', 'location_id', 'repeat_weeks', 'repeat_times', 'waitlist_entry_id']);
+        $terminology = app(Terminology::class);
 
-        $booking = $creator->create($service, $request->location(), $details, $request->user());
+        // Only what passed validation, as repeating is ignored for a walk-in, a session or an enquiry
+        $repeatWeeks = $request->validated('repeat_weeks');
 
-        return redirect()->route('admin.bookings.bookings.show', $booking)
-            ->with('success', app(Terminology::class)->translate('bookings.bookings.flash.created'));
+        if (is_numeric($repeatWeeks)) {
+            /** @var array{date: string, time: string, ignore_rules?: bool|null, quantity?: int|null, option_ids?: list<int>, resource_ids?: list<int>, customer_name: string, customer_email?: string|null, customer_phone?: string|null, notes?: string|null} $details */
+            $series = $creator->createSeries($service, $request->location(), $details, (int) $repeatWeeks, $request->integer('repeat_times'), $request->user());
+            $booking = $series['booked'][0];
+            $message = $series['skipped'] === []
+                ? $terminology->translate('bookings.bookings.flash.series_created', ['count' => count($series['booked'])])
+                : $terminology->translate('bookings.bookings.flash.series_partly_created', [
+                    'count' => count($series['booked']),
+                    'total' => count($series['booked']) + count($series['skipped']),
+                    'dates' => implode(', ', array_map(fn (string $date) => CarbonImmutable::parse($date)->format('D j M'), $series['skipped'])),
+                ]);
+        } else {
+            $booking = $creator->create($service, $request->location(), $details, $request->user());
+            $message = $terminology->translate('bookings.bookings.flash.created');
+        }
+
+        if ($request->filled('waitlist_entry_id')) {
+            WaitlistEntry::query()->whereKey($request->integer('waitlist_entry_id'))->update(['status' => WaitlistStatus::Booked, 'booking_id' => $booking->id]);
+        }
+
+        return redirect()->route('admin.bookings.bookings.show', $booking)->with('success', $message);
     }
 
     public function show(Request $request, Booking $booking): Response
@@ -113,6 +153,19 @@ class BookingController extends Controller
 
         return Inertia::render('admin/bookings/booking/Show', [
             'booking' => new BookingResource($booking->load(['resources', 'location', 'options'])),
+            // The rest of a repeating series, to move between them
+            'series' => $booking->series_id === null ? [] : Booking::query()
+                ->where('series_id', $booking->series_id)
+                ->orderBy('starts_at')
+                ->get()
+                ->map(fn (Booking $other) => [
+                    'id' => $other->id,
+                    'when' => $other->starts_at?->setTimezone($other->timezone)->format('D j M Y, H:i'),
+                    'status_label' => $other->status->label(),
+                    'url' => route('admin.bookings.bookings.show', $other),
+                    'current' => $other->is($booking),
+                ])
+                ->values(),
             'statuses' => BookingStatus::asSelectItems(),
             'currency' => Service::CURRENCY,
             'canManage' => $canManage,

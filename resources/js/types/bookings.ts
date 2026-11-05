@@ -97,6 +97,7 @@ export type BookableResourceData = {
     user_id: number | null;
     job_title: string | null;
     capacity: number | null;
+    combine_group: string | null;
     is_active: boolean;
     is_public: boolean;
     services_count: number | null;
@@ -174,6 +175,7 @@ export type BookingData = {
     resource_names?: string[];
     quantity: number;
     is_walk_in: boolean;
+    series_id: string | null;
     is_late_cancellation: boolean;
     rules_ignored: boolean;
     price_type: string;
@@ -212,6 +214,7 @@ export type ServiceSessionData = {
     duration_minutes: number;
     capacity: number | null;
     places_left: number;
+    waiting: number | null;
     resource_ids: number[];
     resource_names: string;
     actions?: any[];
@@ -257,4 +260,31 @@ export type CalendarColumn = {
     follows_location: boolean;
     periods: Array<{ start: number; end: number }>;
     items: CalendarItem[];
+};
+
+export type WaitlistEntryData = {
+    id: number;
+    customer_name: string;
+    customer_email: string | null;
+    service_name: string | null;
+    wanted: string | null;
+    quantity: number;
+    status: string;
+    status_label: string;
+    place_free: boolean;
+    notes: string | null;
+    actions?: any[];
+};
+
+/** What the booking form starts from when booking someone off the waitlist. */
+export type BookingPrefill = {
+    waitlist_entry_id: number;
+    service_id: number;
+    location_id: number | null;
+    date: string | null;
+    quantity: number;
+    customer_name: string;
+    customer_email: string | null;
+    customer_phone: string | null;
+    notes: string | null;
 };

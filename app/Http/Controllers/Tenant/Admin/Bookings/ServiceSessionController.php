@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenant\Admin\Bookings;
 
 use App\Enums\Bookings\BookingStatus;
+use App\Enums\Bookings\WaitlistStatus;
 use App\Enums\BookingType;
 use App\Enums\Crm\OrganisationUnitType;
 use App\Enums\TenantModule;
@@ -44,11 +45,13 @@ class ServiceSessionController extends Controller
                 ['accessorKey' => 'location_name', 'header' => $terminology->translate('bookings.sessions.columns.location')],
                 ['accessorKey' => 'resource_names', 'header' => __('bookings.sessions.columns.resources')],
                 ['accessorKey' => 'places_left', 'header' => __('bookings.sessions.columns.places')],
+                ['accessorKey' => 'waiting', 'header' => __('bookings.sessions.columns.waiting')],
                 ['accessorKey' => 'actions', 'header' => ''],
             ],
             'sessions' => ServiceSessionResource::collection(
                 ServiceSession::query()
                     ->with(['service', 'location', 'resources'])
+                    ->withCount(['waitlistEntries' => fn ($query) => $query->where('status', WaitlistStatus::Waiting)])
                     ->where('ends_at', '>=', now()->subDay())
                     ->orderBy('starts_at')
                     ->paginate($request->integer('per_page', 15))
@@ -64,12 +67,28 @@ class ServiceSessionController extends Controller
         return Inertia::render('admin/bookings/session/Create', $this->formOptions());
     }
 
+    /**
+     * Adds an entry, repeated weekly when asked. The first has to fit; after that, weeks where
+     * someone or something is busy are skipped and listed.
+     */
     public function store(ServiceSessionStoreRequest $request): RedirectResponse
     {
         $this->save(new ServiceSession, $request);
 
-        return redirect()->route('admin.bookings.sessions.index')
-            ->with('success', __('bookings.sessions.flash.created'));
+        $skipped = [];
+        $times = $request->integer('repeat_times', 1);
+
+        for ($week = 1; $week < $times; $week++) {
+            try {
+                $this->save(new ServiceSession, $request, $week);
+            } catch (ValidationException) {
+                $skipped[] = CarbonImmutable::parse($request->string('date')->toString())->addWeeks($week)->format('D j M');
+            }
+        }
+
+        return redirect()->route('admin.bookings.sessions.index')->with('success', $skipped === []
+            ? trans_choice('bookings.sessions.flash.created', $times, ['count' => $times])
+            : __('bookings.sessions.flash.partly_created', ['count' => $times - count($skipped), 'total' => $times, 'dates' => implode(', ', $skipped)]));
     }
 
     public function edit(ServiceSession $session): Response
@@ -110,16 +129,16 @@ class ServiceSessionController extends Controller
      * Refuses resources that are busy, or fewer places than are already taken. Moving a session moves
      * the bookings on it.
      */
-    protected function save(ServiceSession $session, FormRequest $request): void
+    protected function save(ServiceSession $session, FormRequest $request, int $weeksLater = 0): void
     {
-        DB::transaction(function () use ($session, $request) {
+        DB::transaction(function () use ($session, $request, $weeksLater) {
             /** @var array{service_id: int|string, location_id?: int|string|null, date: string, time: string, duration_minutes: int|string, capacity?: int|string|null, resource_ids?: list<int|string>} $validated */
             $validated = $request->validated();
             $resourceIds = array_map(intval(...), $validated['resource_ids'] ?? []);
             $hasLocations = tenant()?->hasModule(TenantModule::Crm) ?? false;
             $locationId = $hasLocations ? ($validated['location_id'] ?? null) : $session->location_id;
             $location = OrganisationUnit::query()->find($locationId);
-            $start = CarbonImmutable::parse("{$validated['date']} {$validated['time']}", $this->availability->timezoneFor($location));
+            $start = CarbonImmutable::parse("{$validated['date']} {$validated['time']}", $this->availability->timezoneFor($location))->addWeeks($weeksLater);
             $end = $start->addMinutes((int) $validated['duration_minutes']);
 
             BookableResource::query()->whereKey($resourceIds)->orderBy('id')->lockForUpdate()->get();

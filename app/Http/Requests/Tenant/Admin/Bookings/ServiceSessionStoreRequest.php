@@ -25,6 +25,9 @@ class ServiceSessionStoreRequest extends FormRequest
      */
     public function rules(): array
     {
-        return $this->sessionRules();
+        return [
+            ...$this->sessionRules(),
+            'repeat_times' => ['nullable', 'integer', 'between:1,52'],
+        ];
     }
 }
