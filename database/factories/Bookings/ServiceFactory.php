@@ -3,6 +3,7 @@
 namespace Database\Factories\Bookings;
 
 use App\Enums\Bookings\HireUnit;
+use App\Enums\Bookings\ResourceType;
 use App\Enums\Bookings\ServicePriceType;
 use App\Enums\BookingType;
 use App\Models\Bookings\Service;
@@ -92,6 +93,18 @@ class ServiceFactory extends Factory
             'price_type' => ServicePriceType::OnQuote,
             'price' => null,
             'duration_minutes' => null,
+        ]);
+    }
+
+    /**
+     * Each booking takes one of each of these, e.g. a person and a space
+     *
+     * @param  list<ResourceType>  $types
+     */
+    public function needing(array $types): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'required_resource_types' => array_map(fn (ResourceType $type) => $type->value, $types),
         ]);
     }
 

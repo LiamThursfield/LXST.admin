@@ -11,6 +11,7 @@ defineProps<ServiceFormOptions & { service: { data: ServiceData } }>();
         :booking-types="bookingTypes"
         :price-types="priceTypes"
         :hire-units="hireUnits"
+        :resource-types="resourceTypes"
         :option-types="optionTypes"
         :categories="categories"
         :has-locations="hasLocations"

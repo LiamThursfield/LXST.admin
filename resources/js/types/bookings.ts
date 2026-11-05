@@ -31,6 +31,7 @@ export type ServiceData = {
     min_hire_units: number | null;
     max_hire_units: number | null;
     travel_minutes: number | null;
+    required_resource_types: string[] | null;
     is_bookable_online: boolean;
     options?: ServiceOptionData[];
     location_ids?: number[];
@@ -41,6 +42,7 @@ export type ServiceData = {
 /** A booking type, with which details of a service apply to it. */
 export type ServiceBookingTypeOption = SelectItem & {
     details: string[];
+    default_resource_types: string[];
 };
 
 /** The select options the service form needs. */
@@ -48,6 +50,7 @@ export type ServiceFormOptions = {
     bookingTypes: ServiceBookingTypeOption[];
     priceTypes: SelectItem[];
     hireUnits: SelectItem[];
+    resourceTypes: SelectItem[];
     optionTypes: SelectItem[];
     categories: SelectItem[];
     hasLocations: boolean;
@@ -146,4 +149,75 @@ export type StaffHoursRow = {
     job_title: string | null;
     hours: number;
     days_off: number;
+};
+
+export type BookingData = {
+    id: number;
+    when: string | null;
+    ends: string | null;
+    timezone: string;
+    status: string;
+    status_label: string;
+    needs_time: boolean;
+    next_statuses: string[];
+    customer_name: string;
+    customer_email: string | null;
+    customer_phone: string | null;
+    contact_id: number | null;
+    service_name: string;
+    location_name?: string | null;
+    resource_names?: string[];
+    quantity: number;
+    price_type: string;
+    price: string | null;
+    notes: string | null;
+    options?: string[];
+    actions?: any[];
+};
+
+/** A service as the booking form needs it. */
+export type BookableServiceOption = {
+    value: number;
+    label: string;
+    booking_type: string;
+    hire_unit: string | null;
+    min_quantity: number;
+    max_quantity: number | null;
+    location_ids: number[];
+    options: Array<{ value: number; label: string; type: string }>;
+    resource_types: Array<{
+        value: string;
+        label: string;
+        resources: SelectItem[];
+    }>;
+};
+
+export type ServiceSessionData = {
+    id: number;
+    service_id: number;
+    service_name: string | null;
+    location_id: number | null;
+    location_name: string | null;
+    when: string;
+    date: string;
+    time: string;
+    duration_minutes: number;
+    capacity: number | null;
+    places_left: number;
+    resource_ids: number[];
+    resource_names: string;
+    actions?: any[];
+};
+
+/** The select options the timetable form needs. */
+export type ServiceSessionFormOptions = {
+    services: Array<
+        SelectItem & {
+            duration_minutes: number | null;
+            capacity: number | null;
+        }
+    >;
+    hasLocations: boolean;
+    locations: SelectItem[];
+    resources: SelectItem[];
 };

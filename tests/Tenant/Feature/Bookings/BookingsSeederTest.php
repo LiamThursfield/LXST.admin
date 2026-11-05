@@ -1,11 +1,14 @@
 <?php
 
+use App\Enums\Bookings\BookingStatus;
 use App\Enums\Bookings\ResourceType;
 use App\Enums\BookingType;
 use App\Models\Bookings\BookableResource;
+use App\Models\Bookings\Booking;
 use App\Models\Bookings\Service;
 use App\Models\Bookings\ServiceCategory;
 use App\Models\Bookings\ServiceOption;
+use App\Models\Bookings\ServiceSession;
 use App\Models\Bookings\Shift;
 use App\Models\Bookings\TimeOff;
 use App\Models\Bookings\WorkingHour;
@@ -28,6 +31,10 @@ it('seeds a service of every booking type, and is safe to re-run', function () {
         ->and(WorkingHour::query()->count())->toBe(25)
         ->and(Shift::query()->count())->toBe(1)
         ->and(TimeOff::query()->count())->toBe(3)
+        ->and(ServiceSession::query()->count())->toBe(2)
+        ->and(Booking::query()->count())->toBe(8)
+        ->and(Booking::query()->where('status', BookingStatus::Cancelled)->count())->toBe(1)
+        ->and(Booking::query()->whereNull('starts_at')->count())->toBe(1)
         ->and(BookableResource::query()->firstWhere('slug', 'sam-taylor')->services()->count())->toBe(2)
         ->and(BookableResource::query()->firstWhere('slug', 'sam-taylor')->services()->firstWhere('slug', 'consultation')->pivot->price)->toBe(5000);
 });

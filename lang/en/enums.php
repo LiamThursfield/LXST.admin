@@ -32,6 +32,14 @@ return [
         'ticket' => 'Event ticket',
         'enquiry' => 'Enquiry or quote',
     ],
+    'booking_status' => [
+        'requested' => 'Requested',
+        'confirmed' => 'Confirmed',
+        'checked_in' => 'Checked in',
+        'completed' => 'Completed',
+        'cancelled' => 'Cancelled',
+        'no_show' => 'No-show',
+    ],
     'resource_type' => [
         'person' => 'Person',
         'space' => 'Space',
