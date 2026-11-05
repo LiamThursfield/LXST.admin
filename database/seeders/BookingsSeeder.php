@@ -50,6 +50,8 @@ class BookingsSeeder extends Seeder
             'price' => 3500,
             'duration_minutes' => 45,
             'buffer_after_minutes' => 15,
+            'min_notice_minutes' => 120,
+            'cancellation_hours' => 24,
         ]);
 
         if ($consultation->wasRecentlyCreated) {
@@ -132,6 +134,8 @@ class BookingsSeeder extends Seeder
             'booking_type' => BookingType::Enquiry,
             'price_type' => ServicePriceType::OnQuote,
             'is_bookable_online' => false,
+            'requires_approval' => true,
+            'max_per_customer' => 1,
         ]);
 
         $this->seedResources();
@@ -184,8 +188,7 @@ class BookingsSeeder extends Seeder
 
         $creator->create($service('large-project'), null, [...$customer('Sasha Green'), 'notes' => 'Looking for a quote for the spring.']);
 
-        $cancelled = $creator->create($consultation, null, [...$customer('Jo Marsh'), 'date' => $date, 'time' => '15:00']);
-        $cancelled->update(['status' => BookingStatus::Cancelled]);
+        $creator->cancel($creator->create($consultation, null, [...$customer('Jo Marsh'), 'date' => $date, 'time' => '15:00']));
 
         // Past bookings can't be made through the creator, which only takes times to come
         Booking::factory()->past()->create([

@@ -32,6 +32,11 @@ export type ServiceData = {
     max_hire_units: number | null;
     travel_minutes: number | null;
     required_resource_types: string[] | null;
+    min_notice_minutes: number | null;
+    max_advance_days: number | null;
+    cancellation_hours: number | null;
+    max_per_customer: number | null;
+    requires_approval: boolean;
     is_bookable_online: boolean;
     options?: ServiceOptionData[];
     location_ids?: number[];
@@ -169,6 +174,8 @@ export type BookingData = {
     resource_names?: string[];
     quantity: number;
     is_walk_in: boolean;
+    is_late_cancellation: boolean;
+    rules_ignored: boolean;
     price_type: string;
     price: string | null;
     notes: string | null;

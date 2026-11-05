@@ -56,6 +56,7 @@ class BookingStoreRequest extends FormRequest
             'option_ids.*' => ['integer', Rule::exists('bookings_service_options', 'id')->where('service_id', $service->id ?? 0)],
             'resource_ids' => ['nullable', 'array'],
             'resource_ids.*' => ['integer'],
+            'ignore_rules' => ['boolean'],
             'customer_name' => ['required', 'string', 'max:255'],
             'customer_email' => ['nullable', 'email', 'max:255'],
             'customer_phone' => ['nullable', 'string', 'max:50'],

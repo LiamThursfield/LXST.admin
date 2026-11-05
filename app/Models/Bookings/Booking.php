@@ -37,6 +37,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property ServicePriceType $price_type
  * @property int|null $price In minor units, e.g. pence
  * @property string|null $notes
+ * @property CarbonInterface|null $cancelled_at
+ * @property bool $is_late_cancellation
+ * @property bool $rules_ignored
  * @property int|null $created_by_id
  */
 class Booking extends Model
@@ -71,6 +74,9 @@ class Booking extends Model
         'price_type',
         'price',
         'notes',
+        'cancelled_at',
+        'is_late_cancellation',
+        'rules_ignored',
         'created_by_id',
     ];
 
@@ -91,6 +97,9 @@ class Booking extends Model
             'is_walk_in' => 'boolean',
             'price_type' => ServicePriceType::class,
             'price' => 'integer',
+            'cancelled_at' => 'datetime',
+            'is_late_cancellation' => 'boolean',
+            'rules_ignored' => 'boolean',
         ];
     }
 

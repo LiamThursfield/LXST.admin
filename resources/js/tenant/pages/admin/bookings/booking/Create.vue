@@ -24,6 +24,7 @@ const form = useForm({
     service_id: (props.services[0]?.value ?? null) as number | null,
     location_id: null as number | null,
     walk_in: false,
+    ignore_rules: false,
     date: '',
     time: null as string | null,
     session_id: null as number | null,
@@ -143,6 +144,7 @@ async function loadAvailability() {
                 quantity: form.quantity,
                 option_ids: form.option_ids,
                 resource_ids: form.resource_ids,
+                ignore_rules: form.ignore_rules ? 1 : 0,
             },
         }),
     )) as Availability;
@@ -159,6 +161,7 @@ watch(
         form.option_ids,
         form.resource_ids,
         form.walk_in,
+        form.ignore_rules,
     ],
     () => reload(),
     { deep: true },
@@ -379,6 +382,12 @@ const breadcrumbs = computed(() => [
                     </UFormField>
                 </div>
             </template>
+            <USwitch
+                v-if="!isEnquiry"
+                v-model="form.ignore_rules"
+                :label="trans('bookings.bookings.ignore_rules.label')"
+                :description="trans('bookings.bookings.ignore_rules.help')"
+            />
         </UPageCard>
 
         <UPageCard

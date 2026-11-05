@@ -90,6 +90,18 @@ function setTime() {
                     :label="booking.status_label"
                 />
                 <UBadge
+                    v-if="booking.is_late_cancellation"
+                    color="warning"
+                    variant="subtle"
+                    :label="trans('bookings.bookings.late_cancellation')"
+                />
+                <UBadge
+                    v-if="booking.rules_ignored"
+                    color="neutral"
+                    variant="outline"
+                    :label="trans('bookings.bookings.ignore_rules.badge')"
+                />
+                <UBadge
                     v-if="booking.is_walk_in"
                     color="neutral"
                     variant="outline"

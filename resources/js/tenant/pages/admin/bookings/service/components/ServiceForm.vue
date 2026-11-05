@@ -57,6 +57,11 @@ const form = useForm({
     max_hire_units: service?.max_hire_units ?? null,
     travel_minutes: service?.travel_minutes ?? 0,
     required_resource_types: service?.required_resource_types ?? null,
+    min_notice_minutes: service?.min_notice_minutes ?? null,
+    max_advance_days: service?.max_advance_days ?? null,
+    cancellation_hours: service?.cancellation_hours ?? null,
+    max_per_customer: service?.max_per_customer ?? null,
+    requires_approval: service?.requires_approval ?? false,
     options: (service?.options ?? []).map((option) => ({
         ...option,
     })) as ServiceOptionData[],
@@ -450,6 +455,85 @@ function submit() {
                     />
                 </UFormField>
             </div>
+        </UPageCard>
+
+        <UPageCard
+            variant="subtle"
+            :title="trans('bookings.services.sections.rules')"
+        >
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <UFormField
+                    :label="
+                        trans('bookings.services.fields.min_notice_minutes')
+                    "
+                    :help="trans('bookings.services.fields.min_notice_help')"
+                    name="min_notice_minutes"
+                    :error="form.errors.min_notice_minutes"
+                >
+                    <UInput
+                        v-model.nullable.number="form.min_notice_minutes"
+                        type="number"
+                        min="0"
+                        :disabled="readonly"
+                        class="w-full"
+                    />
+                </UFormField>
+                <UFormField
+                    :label="trans('bookings.services.fields.max_advance_days')"
+                    :help="trans('bookings.services.fields.max_advance_help')"
+                    name="max_advance_days"
+                    :error="form.errors.max_advance_days"
+                >
+                    <UInput
+                        v-model.nullable.number="form.max_advance_days"
+                        type="number"
+                        min="1"
+                        :disabled="readonly"
+                        class="w-full"
+                    />
+                </UFormField>
+                <UFormField
+                    :label="
+                        trans('bookings.services.fields.cancellation_hours')
+                    "
+                    :help="trans('bookings.services.fields.cancellation_help')"
+                    name="cancellation_hours"
+                    :error="form.errors.cancellation_hours"
+                >
+                    <UInput
+                        v-model.nullable.number="form.cancellation_hours"
+                        type="number"
+                        min="0"
+                        :disabled="readonly"
+                        class="w-full"
+                    />
+                </UFormField>
+                <UFormField
+                    :label="trans('bookings.services.fields.max_per_customer')"
+                    :help="
+                        trans('bookings.services.fields.max_per_customer_help')
+                    "
+                    name="max_per_customer"
+                    :error="form.errors.max_per_customer"
+                >
+                    <UInput
+                        v-model.nullable.number="form.max_per_customer"
+                        type="number"
+                        min="1"
+                        :disabled="readonly"
+                        class="w-full"
+                    />
+                </UFormField>
+            </div>
+
+            <USwitch
+                v-model="form.requires_approval"
+                :disabled="readonly"
+                :label="trans('bookings.services.fields.requires_approval')"
+                :description="
+                    trans('bookings.services.fields.requires_approval_help')
+                "
+            />
         </UPageCard>
 
         <UPageCard

@@ -43,6 +43,11 @@ use Illuminate\Support\Str;
  * @property int|null $travel_minutes
  * @property list<string>|null $required_resource_types Null uses the booking type's default
  * @property bool $is_bookable_online
+ * @property int|null $min_notice_minutes
+ * @property int|null $max_advance_days
+ * @property int|null $cancellation_hours
+ * @property int|null $max_per_customer
+ * @property bool $requires_approval
  */
 class Service extends Model
 {
@@ -79,6 +84,11 @@ class Service extends Model
         'max_hire_units',
         'travel_minutes',
         'required_resource_types',
+        'min_notice_minutes',
+        'max_advance_days',
+        'cancellation_hours',
+        'max_per_customer',
+        'requires_approval',
         'is_bookable_online',
     ];
 
@@ -105,6 +115,11 @@ class Service extends Model
             'travel_minutes' => 'integer',
             'required_resource_types' => 'array',
             'is_bookable_online' => 'boolean',
+            'min_notice_minutes' => 'integer',
+            'max_advance_days' => 'integer',
+            'cancellation_hours' => 'integer',
+            'max_per_customer' => 'integer',
+            'requires_approval' => 'boolean',
         ];
     }
 

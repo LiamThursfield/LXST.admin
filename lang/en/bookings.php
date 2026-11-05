@@ -40,6 +40,7 @@ return [
             'price' => 'Price',
             'options' => 'Variations and add-ons',
             'options_description' => ':Customers choose one variation, and any add-ons.',
+            'rules' => 'Booking rules',
             'availability' => 'Where it\'s offered',
         ],
         'fields' => [
@@ -71,6 +72,16 @@ return [
             'required_resource_types_help' => 'One of each is taken from those who can do this :service.',
             'is_bookable_online' => 'Can be booked online',
             'is_bookable_online_help' => 'Turn off to take these only in person or by phone.',
+            'min_notice_minutes' => 'Notice needed (minutes)',
+            'min_notice_help' => 'How soon before it starts it can be booked. Leave blank for none.',
+            'max_advance_days' => 'Bookable up to (days ahead)',
+            'max_advance_help' => 'Leave blank for no limit.',
+            'cancellation_hours' => 'Cancellation window (hours)',
+            'cancellation_help' => 'Cancelling within this many hours of the start counts as late. Leave blank for none.',
+            'max_per_customer' => 'Most at once per :customer',
+            'max_per_customer_help' => 'Upcoming :bookings one :customer can hold, matched by email. Leave blank for no limit.',
+            'requires_approval' => 'Online :bookings need approval',
+            'requires_approval_help' => 'They wait as requested until confirmed. :Bookings made here are confirmed straight away.',
             'locations' => ':Locations',
             'locations_help' => 'Leave blank to offer at every :location.',
             'resources' => 'Who can do this',
@@ -410,6 +421,12 @@ return [
             'updated' => ':Booking updated.',
             'moved' => ':Booking moved.',
         ],
+        'ignore_rules' => [
+            'label' => 'Ignore booking rules',
+            'help' => 'Allows times the :service\'s notice, how far ahead and limits wouldn\'t.',
+            'badge' => 'Rules ignored',
+        ],
+        'late_cancellation' => 'Late cancellation',
         'walk_in' => [
             'label' => 'Walk-in, starting now',
             'help' => 'Checked in straight away with whoever is free now.',
@@ -479,6 +496,17 @@ return [
             'created' => 'Added to the timetable.',
             'updated' => 'Timetable updated.',
             'deleted' => 'Removed from the timetable.',
+        ],
+    ],
+
+    'rules' => [
+        'minutes' => '{1} :count minute|[2,*] :count minutes',
+        'hours' => '{1} :count hour|[2,*] :count hours',
+        'days' => '{1} :count day|[2,*] :count days',
+        'validation' => [
+            'min_notice' => 'This needs :notice notice.',
+            'max_advance' => 'This can only be booked up to :days days ahead.',
+            'max_per_customer' => 'This :customer already has :count upcoming, the most allowed at once.',
         ],
     ],
 ];

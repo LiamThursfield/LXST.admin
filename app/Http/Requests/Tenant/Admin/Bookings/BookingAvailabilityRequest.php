@@ -32,6 +32,7 @@ class BookingAvailabilityRequest extends FormRequest
             'quantity' => ['nullable', 'integer', 'min:1', 'max:100000'],
             'option_ids' => ['nullable', 'array'],
             'option_ids.*' => ['integer'],
+            'ignore_rules' => ['boolean'],
             'resource_ids' => ['nullable', 'array'],
             'resource_ids.*' => ['integer'],
         ];

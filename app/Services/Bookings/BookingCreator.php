@@ -29,19 +29,37 @@ class BookingCreator
     /** @var list<int> The resources chosen for the booking being made */
     protected array $pendingResourceIds = [];
 
-    public function __construct(protected BookingAvailability $availability) {}
+    public function __construct(
+        protected BookingAvailability $availability,
+        protected BookingRules $rules,
+    ) {}
+
+    /**
+     * Cancels a booking, noting when it's inside the service's cancellation window
+     */
+    public function cancel(Booking $booking): void
+    {
+        $booking->update([
+            'status' => BookingStatus::Cancelled,
+            'cancelled_at' => now(),
+            'is_late_cancellation' => $this->rules->isLateToCancel($booking),
+        ]);
+    }
 
     /**
      * A walk-in starts now, so skips the rule that a booking has to be in the future, and is
      * checked in straight away.
      *
-     * @param  array{date?: string|null, time?: string|null, walk_in?: bool|null, session_id?: int|null, quantity?: int|null, option_ids?: list<int>, resource_ids?: list<int>, customer_name: string, customer_email?: string|null, customer_phone?: string|null, notes?: string|null}  $details
+     * The service's rules are kept unless ignore_rules is set, which staff can choose. Approval is
+     * only for bookings customers make, as staff confirm their own.
+     *
+     * @param  array{date?: string|null, time?: string|null, walk_in?: bool|null, ignore_rules?: bool|null, session_id?: int|null, quantity?: int|null, option_ids?: list<int>, resource_ids?: list<int>, customer_name: string, customer_email?: string|null, customer_phone?: string|null, notes?: string|null}  $details
      *
      * @throws ValidationException When the time or places have gone
      */
-    public function create(Service $service, ?OrganisationUnit $location, array $details, ?User $createdBy = null): Booking
+    public function create(Service $service, ?OrganisationUnit $location, array $details, ?User $createdBy = null, bool $byCustomer = false): Booking
     {
-        return DB::transaction(function () use ($service, $location, $details, $createdBy) {
+        return DB::transaction(function () use ($service, $location, $details, $createdBy, $byCustomer) {
             $quantity = max(1, (int) ($details['quantity'] ?? 1));
             /** @var Collection<int, ServiceOption> $options */
             $options = $service->options()->whereKey($details['option_ids'] ?? [])->get();
@@ -57,9 +75,19 @@ class BookingCreator
                 'customer_email' => $details['customer_email'] ?? null,
                 'customer_phone' => $details['customer_phone'] ?? null,
                 'notes' => $details['notes'] ?? null,
-                'contact_id' => $this->contactIdFor($details),
                 'created_by_id' => $createdBy?->id,
+                'rules_ignored' => (bool) ($details['ignore_rules'] ?? false),
             ]);
+
+            if (! $booking->rules_ignored && ($problems = $this->rules->problems($service, $booking)) !== []) {
+                throw ValidationException::withMessages($problems);
+            }
+
+            if ($byCustomer && $service->requires_approval && $booking->status === BookingStatus::Confirmed) {
+                $booking->status = BookingStatus::Requested;
+            }
+
+            $booking->contact_id = $this->contactIdFor($details);
             $booking->save();
 
             $booking->resources()->sync($this->pendingResourceIds);

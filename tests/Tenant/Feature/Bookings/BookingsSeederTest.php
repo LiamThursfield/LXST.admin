@@ -35,6 +35,7 @@ it('seeds a service of every booking type, and is safe to re-run', function () {
         ->and(Booking::query()->count())->toBe(9)
         ->and(Booking::query()->where('is_walk_in', true)->count())->toBe(1)
         ->and(Booking::query()->where('status', BookingStatus::Cancelled)->count())->toBe(1)
+        ->and(Booking::query()->whereNotNull('cancelled_at')->count())->toBe(1)
         ->and(Booking::query()->whereNull('starts_at')->count())->toBe(1)
         ->and(BookableResource::query()->firstWhere('slug', 'sam-taylor')->services()->count())->toBe(2)
         ->and(BookableResource::query()->firstWhere('slug', 'sam-taylor')->services()->firstWhere('slug', 'consultation')->pivot->price)->toBe(5000);
