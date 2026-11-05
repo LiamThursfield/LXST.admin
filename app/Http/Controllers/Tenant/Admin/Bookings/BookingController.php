@@ -9,6 +9,7 @@ use App\Enums\TenantModule;
 use App\Http\Controllers\Controller;
 use App\Http\Queries\Tenant\Admin\Bookings\BookingIndexQuery;
 use App\Http\Requests\Tenant\Admin\Bookings\BookingIndexRequest;
+use App\Http\Requests\Tenant\Admin\Bookings\BookingMoveRequest;
 use App\Http\Requests\Tenant\Admin\Bookings\BookingScheduleRequest;
 use App\Http\Requests\Tenant\Admin\Bookings\BookingStatusRequest;
 use App\Http\Requests\Tenant\Admin\Bookings\BookingStoreRequest;
@@ -95,7 +96,7 @@ class BookingController extends Controller
     {
         /** @var Service $service */
         $service = $request->service();
-        /** @var array{date?: string|null, time?: string|null, session_id?: int|null, quantity?: int|null, option_ids?: list<int>, resource_ids?: list<int>, customer_name: string, customer_email?: string|null, customer_phone?: string|null, notes?: string|null} $details */
+        /** @var array{date?: string|null, time?: string|null, walk_in?: bool|null, session_id?: int|null, quantity?: int|null, option_ids?: list<int>, resource_ids?: list<int>, customer_name: string, customer_email?: string|null, customer_phone?: string|null, notes?: string|null} $details */
         $details = $request->safe()->except(['service_id', 'location_id']);
 
         $booking = $creator->create($service, $request->location(), $details, $request->user());
@@ -128,6 +129,21 @@ class BookingController extends Controller
         $booking->update(['status' => BookingStatus::from($request->string('status')->toString())]);
 
         return redirect()->back()->with('success', app(Terminology::class)->translate('bookings.bookings.flash.updated'));
+    }
+
+    /**
+     * Moves a booking to another time or resource, e.g. dragged on the calendar
+     */
+    public function move(BookingMoveRequest $request, Booking $booking, BookingCreator $creator): RedirectResponse
+    {
+        $creator->move(
+            $booking,
+            $request->string('date')->toString(),
+            $request->string('time')->toString(),
+            $request->filled('resource_id') ? $request->integer('resource_id') : null,
+        );
+
+        return redirect()->back()->with('success', app(Terminology::class)->translate('bookings.bookings.flash.moved'));
     }
 
     /**

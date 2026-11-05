@@ -101,6 +101,15 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         type: MenuItemType::LABEL,
                     ),
                     (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_CALENDAR,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_CALENDAR]),
+                        label: 'navigation.calendar',
+                        type: MenuItemType::LINK,
+                        to: 'admin.bookings.calendar.index',
+                        icon: 'i-lucide-calendar-range',
+                        activePatterns: ['admin.bookings.calendar.*'],
+                    ))->gate(BookingsPermission::ViewBookings),
+                    (new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_BOOKINGS,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_BOOKINGS]),
                         label: 'navigation.booking_list',

@@ -16,6 +16,7 @@ namespace App\Services\Navigation\Constants;
  * Main Menu
  * ├── Dashboard
  * ├── Bookings
+ * │   ├── Calendar
  * │   ├── Bookings
  * │   ├── Timetable
  * │   ├── Services
@@ -63,6 +64,8 @@ class TenantMenu
     public const string MENU_MAIN_SECTION_BOOKINGS = 'bookings';
 
     public const string MENU_MAIN_SECTION_BOOKINGS_LABEL = 'bookings-label';
+
+    public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_CALENDAR = 'calendar';
 
     public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_BOOKINGS = 'bookings';
 

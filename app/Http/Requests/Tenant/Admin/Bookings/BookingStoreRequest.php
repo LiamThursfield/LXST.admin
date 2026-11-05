@@ -34,6 +34,7 @@ class BookingStoreRequest extends FormRequest
     {
         $service = $this->service();
         $atTime = $service !== null && $service->booking_type !== BookingType::Enquiry && ! $service->booking_type->usesSessions();
+        $needsTime = $atTime && ! $this->boolean('walk_in');
         $onSession = $service !== null && $service->booking_type->usesSessions();
 
         return [
@@ -45,8 +46,10 @@ class BookingStoreRequest extends FormRequest
                 Rule::exists(OrganisationUnit::class, 'id')->where('type', OrganisationUnitType::Location->value),
                 $this->offeredAtLocationRule(),
             ],
-            'date' => [Rule::requiredIf($atTime), Rule::excludeIf(! $atTime), 'date_format:Y-m-d'],
-            'time' => [Rule::requiredIf($atTime), Rule::excludeIf(! $atTime), 'date_format:H:i'],
+            // A walk-in starts now, and only something booked at a time can be one
+            'walk_in' => [Rule::excludeIf(! $atTime), 'boolean'],
+            'date' => [Rule::requiredIf($needsTime), Rule::excludeIf(! $needsTime), 'date_format:Y-m-d'],
+            'time' => [Rule::requiredIf($needsTime), Rule::excludeIf(! $needsTime), 'date_format:H:i'],
             'session_id' => [Rule::requiredIf($onSession), Rule::excludeIf(! $onSession), 'integer'],
             'quantity' => ['nullable', 'integer', 'min:1', 'max:100000', $this->quantityRule()],
             'option_ids' => ['nullable', 'array', $this->oneVariationRule()],

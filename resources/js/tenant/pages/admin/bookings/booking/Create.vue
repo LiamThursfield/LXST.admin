@@ -23,6 +23,7 @@ const { trans } = useTrans();
 const form = useForm({
     service_id: (props.services[0]?.value ?? null) as number | null,
     location_id: null as number | null,
+    walk_in: false,
     date: '',
     time: null as string | null,
     session_id: null as number | null,
@@ -127,6 +128,7 @@ async function loadAvailability() {
     if (
         !service.value ||
         isEnquiry.value ||
+        form.walk_in ||
         (!usesSessions.value && !form.date)
     ) {
         return;
@@ -156,6 +158,7 @@ watch(
         form.quantity,
         form.option_ids,
         form.resource_ids,
+        form.walk_in,
     ],
     () => reload(),
     { deep: true },
@@ -327,40 +330,55 @@ const breadcrumbs = computed(() => [
                 />
             </UFormField>
 
-            <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField
-                    :label="trans('bookings.bookings.fields.date')"
-                    name="date"
-                    :error="form.errors.date"
-                    required
-                >
-                    <UInput v-model="form.date" type="date" class="w-full" />
-                </UFormField>
+            <template v-else>
+                <USwitch
+                    v-model="form.walk_in"
+                    :label="trans('bookings.bookings.walk_in.label')"
+                    :description="trans('bookings.bookings.walk_in.help')"
+                />
 
-                <UFormField
-                    :label="trans('bookings.bookings.fields.time')"
-                    name="time"
-                    :error="form.errors.time"
-                    :help="
-                        !form.date
-                            ? trans(
-                                  'bookings.bookings.availability.choose_first',
-                              )
-                            : loaded && !slotItems.length
-                              ? trans('bookings.bookings.availability.none')
-                              : undefined
-                    "
-                    required
+                <div
+                    v-if="!form.walk_in"
+                    class="grid grid-cols-1 gap-4 md:grid-cols-2"
                 >
-                    <USelect
-                        v-model="form.time"
-                        :items="slotItems"
-                        :disabled="!slotItems.length"
-                        :loading="http.processing"
-                        class="w-full"
-                    />
-                </UFormField>
-            </div>
+                    <UFormField
+                        :label="trans('bookings.bookings.fields.date')"
+                        name="date"
+                        :error="form.errors.date"
+                        required
+                    >
+                        <UInput
+                            v-model="form.date"
+                            type="date"
+                            class="w-full"
+                        />
+                    </UFormField>
+
+                    <UFormField
+                        :label="trans('bookings.bookings.fields.time')"
+                        name="time"
+                        :error="form.errors.time"
+                        :help="
+                            !form.date
+                                ? trans(
+                                      'bookings.bookings.availability.choose_first',
+                                  )
+                                : loaded && !slotItems.length
+                                  ? trans('bookings.bookings.availability.none')
+                                  : undefined
+                        "
+                        required
+                    >
+                        <USelect
+                            v-model="form.time"
+                            :items="slotItems"
+                            :disabled="!slotItems.length"
+                            :loading="http.processing"
+                            class="w-full"
+                        />
+                    </UFormField>
+                </div>
+            </template>
         </UPageCard>
 
         <UPageCard
