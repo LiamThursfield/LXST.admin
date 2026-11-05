@@ -89,6 +89,12 @@ function setTime() {
                     variant="subtle"
                     :label="booking.status_label"
                 />
+                <UBadge
+                    v-if="booking.is_walk_in"
+                    color="neutral"
+                    variant="outline"
+                    :label="trans('bookings.bookings.walk_in.badge')"
+                />
                 <template v-if="canManage">
                     <UButton
                         v-if="

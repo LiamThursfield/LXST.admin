@@ -28,7 +28,7 @@ use Illuminate\Support\Str;
  * so every part of the form has something to show. With the CRM, one is limited to a single location.
  * Also one resource of each type who can do them, with working hours, shifts this week, and time off
  * both waiting and approved. Then timetable entries for the class and event, and bookings of each
- * kind, made through BookingCreator. Dates are relative to now.
+ * kind, made through BookingCreator, and past ones including a walk-in. Dates are relative to now.
  *
  * Run within a tenant, e.g. `php artisan tenants:seed --class=BookingsSeeder`.
  * Safe to re-run: a category, service or resource that already exists is left alone.
@@ -192,6 +192,12 @@ class BookingsSeeder extends Seeder
             'service_id' => $consultation->id,
             'service_name' => $consultation->name,
             ...$customer('Dee Walsh'),
+        ]);
+        Booking::factory()->past()->walkIn()->create([
+            'service_id' => $consultation->id,
+            'service_name' => $consultation->name,
+            'status' => BookingStatus::Completed,
+            ...$customer('Kit Moss'),
         ]);
     }
 

@@ -218,13 +218,14 @@ class BookingAvailability
      *
      * @param  list<int>  $resourceIds
      */
-    public function isFree(array $resourceIds, CarbonImmutable $from, CarbonImmutable $until, ?int $exceptSessionId = null): bool
+    public function isFree(array $resourceIds, CarbonImmutable $from, CarbonImmutable $until, ?int $exceptSessionId = null, ?int $exceptBookingId = null): bool
     {
         if ($resourceIds === []) {
             return true;
         }
 
         $booked = Booking::query()
+            ->when($exceptBookingId, fn (Builder $query) => $query->whereKeyNot($exceptBookingId))
             ->whereIn('status', BookingStatus::holdingTime())
             ->where('blocked_from', '<', $until->utc())
             ->where('blocked_until', '>', $from->utc())

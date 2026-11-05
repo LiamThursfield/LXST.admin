@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Tenant\Admin\Bookings\BookingAvailabilityController;
+use App\Http\Controllers\Tenant\Admin\Bookings\BookingCalendarController;
 use App\Http\Controllers\Tenant\Admin\Bookings\BookingController;
 use App\Http\Controllers\Tenant\Admin\Bookings\ResourceController;
 use App\Http\Controllers\Tenant\Admin\Bookings\RotaController;
@@ -125,6 +126,8 @@ Route::name('cms.')->prefix('cms')->middleware(['tenant.module:cms', 'content.ch
 
 Route::name('bookings.')->prefix('bookings')->middleware('tenant.module:bookings')->group(function () {
     Route::get('bookings/availability', BookingAvailabilityController::class)->name('bookings.availability');
+    Route::get('calendar', BookingCalendarController::class)->name('calendar.index');
+    Route::put('bookings/{booking}/move', [BookingController::class, 'move'])->name('bookings.move');
     Route::post('bookings/{booking}/status', [BookingController::class, 'status'])->name('bookings.status');
     Route::put('bookings/{booking}/schedule', [BookingController::class, 'schedule'])->name('bookings.schedule');
     Route::resource('bookings', BookingController::class)->only(['index', 'create', 'store', 'show']);

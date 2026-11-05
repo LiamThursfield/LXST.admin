@@ -32,6 +32,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonInterface|null $blocked_until In UTC
  * @property string $timezone
  * @property int $quantity
+ * @property bool $is_walk_in
  * @property string $service_name
  * @property ServicePriceType $price_type
  * @property int|null $price In minor units, e.g. pence
@@ -65,6 +66,7 @@ class Booking extends Model
         'blocked_until',
         'timezone',
         'quantity',
+        'is_walk_in',
         'service_name',
         'price_type',
         'price',
@@ -86,6 +88,7 @@ class Booking extends Model
             'blocked_from' => 'datetime',
             'blocked_until' => 'datetime',
             'quantity' => 'integer',
+            'is_walk_in' => 'boolean',
             'price_type' => ServicePriceType::class,
             'price' => 'integer',
         ];
@@ -141,6 +144,17 @@ class Booking extends Model
     public function options(): HasMany
     {
         return $this->hasMany(BookingOption::class);
+    }
+
+    /**
+     * Whether it can be moved to another time or resource: it has a time of its own, rather than a
+     * session's, and hasn't started or ended
+     */
+    public function isMovable(): bool
+    {
+        return $this->starts_at !== null
+            && $this->session_id === null
+            && in_array($this->status, [BookingStatus::Requested, BookingStatus::Confirmed], true);
     }
 
     /**

@@ -13,6 +13,7 @@ use App\Models\Bookings\ServiceSession;
 use App\Models\Crm\Contact;
 use App\Models\Crm\OrganisationUnit;
 use App\Models\User;
+use App\Services\Industry\Terminology;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -31,7 +32,10 @@ class BookingCreator
     public function __construct(protected BookingAvailability $availability) {}
 
     /**
-     * @param  array{date?: string|null, time?: string|null, session_id?: int|null, quantity?: int|null, option_ids?: list<int>, resource_ids?: list<int>, customer_name: string, customer_email?: string|null, customer_phone?: string|null, notes?: string|null}  $details
+     * A walk-in starts now, so skips the rule that a booking has to be in the future, and is
+     * checked in straight away.
+     *
+     * @param  array{date?: string|null, time?: string|null, walk_in?: bool|null, session_id?: int|null, quantity?: int|null, option_ids?: list<int>, resource_ids?: list<int>, customer_name: string, customer_email?: string|null, customer_phone?: string|null, notes?: string|null}  $details
      *
      * @throws ValidationException When the time or places have gone
      */
@@ -104,6 +108,65 @@ class BookingCreator
     }
 
     /**
+     * Moves a booking to another time, keeping its length and buffers, and optionally swaps one of its
+     * resources for another of the same type. Only clashes are refused: someone moving a booking by
+     * hand may mean it to be out of hours.
+     *
+     * @throws ValidationException When it can't be moved there
+     */
+    public function move(Booking $booking, string $date, string $time, ?int $resourceId = null): void
+    {
+        if (! $booking->isMovable() || $booking->starts_at === null || $booking->ends_at === null) {
+            throw ValidationException::withMessages(['booking' => app(Terminology::class)->translate('bookings.bookings.validation.not_movable')]);
+        }
+
+        DB::transaction(function () use ($booking, $date, $time, $resourceId) {
+            $resourceIds = array_values($booking->resources()->pluck('bookings_resources.id')->map(intval(...))->all());
+
+            if ($resourceId !== null && ! in_array($resourceId, $resourceIds, true)) {
+                $resourceIds = $this->swapResource($booking, $resourceIds, $resourceId);
+            }
+
+            $this->lockResources(array_values(array_unique([...$resourceIds, ...$booking->resources()->pluck('bookings_resources.id')->map(intval(...))->all()])));
+
+            $start = CarbonImmutable::parse("{$date} {$time}", $booking->timezone);
+            $end = $start->addSeconds((int) $booking->starts_at->diffInSeconds($booking->ends_at));
+            $blockedFrom = $start->subSeconds((int) ($booking->blocked_from ?? $booking->starts_at)->diffInSeconds($booking->starts_at));
+            $blockedUntil = $end->addSeconds((int) $booking->ends_at->diffInSeconds($booking->blocked_until ?? $booking->ends_at));
+
+            if (! $this->availability->isFree($resourceIds, $blockedFrom, $blockedUntil, exceptBookingId: $booking->id)) {
+                throw ValidationException::withMessages(['time' => __('bookings.bookings.validation.time_taken')]);
+            }
+
+            $booking->update([
+                'starts_at' => $start->utc(),
+                'ends_at' => $end->utc(),
+                'blocked_from' => $blockedFrom->utc(),
+                'blocked_until' => $blockedUntil->utc(),
+            ]);
+            $booking->resources()->sync($resourceIds);
+        });
+    }
+
+    /**
+     * Replaces the booking's resource of the new one's type, which has to be able to do the service
+     *
+     * @param  list<int>  $resourceIds
+     * @return list<int>
+     */
+    protected function swapResource(Booking $booking, array $resourceIds, int $resourceId): array
+    {
+        $resource = $booking->service?->resources()->where('is_active', true)->find($resourceId);
+        $replaced = $resource === null ? null : $booking->resources->first(fn (BookableResource $current) => $current->type === $resource->type);
+
+        if ($resource === null || $replaced === null) {
+            throw ValidationException::withMessages(['resource_id' => app(Terminology::class)->translate('bookings.bookings.validation.cannot_move_to_resource')]);
+        }
+
+        return array_map(fn (int $id) => $id === $replaced->id ? $resource->id : $id, $resourceIds);
+    }
+
+    /**
      * @param  Collection<int, ServiceOption>  $options
      */
     protected function newEnquiry(Service $service, ?OrganisationUnit $location, int $quantity, Collection $options): Booking
@@ -137,7 +200,7 @@ class BookingCreator
     }
 
     /**
-     * @param  array{date?: string|null, time?: string|null, resource_ids?: list<int>}  $details
+     * @param  array{date?: string|null, time?: string|null, walk_in?: bool|null, resource_ids?: list<int>}  $details
      * @param  Collection<int, ServiceOption>  $options
      */
     protected function newAtTime(Service $service, ?OrganisationUnit $location, array $details, int $quantity, Collection $options): Booking
@@ -145,18 +208,24 @@ class BookingCreator
         $this->lockResources(array_values(array_map(fn (BookableResource $resource) => $resource->id, $service->resources()->get()->all())));
 
         $timezone = $this->availability->timezoneFor($location);
-        $start = CarbonImmutable::parse(($details['date'] ?? '').' '.($details['time'] ?? ''), $timezone);
-        $slot = $start->isFuture()
+        $walkIn = (bool) ($details['walk_in'] ?? false);
+        $start = $walkIn
+            ? CarbonImmutable::now($timezone)->startOfMinute()
+            : CarbonImmutable::parse(($details['date'] ?? '').' '.($details['time'] ?? ''), $timezone);
+        $slot = $walkIn || $start->isFuture()
             ? $this->availability->slotAt($service, $location, $start, $quantity, array_values(array_map(fn (ServiceOption $option) => $option->id, $options->all())), $details['resource_ids'] ?? [])
             : null;
 
         if ($slot === null) {
-            throw ValidationException::withMessages(['time' => __('bookings.bookings.validation.time_taken')]);
+            throw ValidationException::withMessages([
+                'time' => __($walkIn ? 'bookings.bookings.validation.nobody_free_now' : 'bookings.bookings.validation.time_taken'),
+            ]);
         }
 
-        $booking = $this->newBooking($service, $location?->id, BookingStatus::Confirmed, $timezone, $quantity, $options, $slot->resources);
+        $booking = $this->newBooking($service, $location?->id, $walkIn ? BookingStatus::CheckedIn : BookingStatus::Confirmed, $timezone, $quantity, $options, $slot->resources);
 
         $booking->fill([
+            'is_walk_in' => $walkIn,
             'starts_at' => $slot->startsAt->utc(),
             'ends_at' => $slot->endsAt->utc(),
             'blocked_from' => $slot->blockedFrom->utc(),

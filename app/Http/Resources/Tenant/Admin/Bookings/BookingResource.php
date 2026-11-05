@@ -55,6 +55,7 @@ class BookingResource extends JsonResource
             'location_name' => $this->whenLoaded('location', fn () => $booking->location?->name),
             'resource_names' => $this->whenLoaded('resources', fn () => $booking->resources->map(fn (BookableResource $resource) => $resource->name)->values()),
             'quantity' => $booking->quantity,
+            'is_walk_in' => $booking->is_walk_in,
             'price_type' => $booking->price_type->value,
             'price' => $booking->price === null ? null : number_format($booking->price / 100, 2, '.', ''),
             'notes' => $booking->notes,

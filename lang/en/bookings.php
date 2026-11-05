@@ -401,11 +401,37 @@ return [
             'not_at_location' => 'That :service isn\'t offered at this :location.',
             'quantity_range' => 'This has to be from :min to :max.',
             'one_variation' => 'Choose only one variation.',
+            'nobody_free_now' => 'Nobody who can do this is free right now.',
+            'not_movable' => 'Only :bookings with a time of their own that haven\'t started can be moved.',
+            'cannot_move_to_resource' => 'That can\'t take this :booking.',
         ],
         'flash' => [
             'created' => ':Booking created.',
             'updated' => ':Booking updated.',
+            'moved' => ':Booking moved.',
         ],
+        'walk_in' => [
+            'label' => 'Walk-in, starting now',
+            'help' => 'Checked in straight away with whoever is free now.',
+            'badge' => 'Walk-in',
+        ],
+    ],
+
+    'calendar' => [
+        'title' => 'Calendar',
+        'day' => 'Day',
+        'week' => 'Week',
+        'today' => 'Today',
+        'previous' => 'Previous',
+        'next' => 'Next',
+        'location' => ':Location',
+        'all_locations' => 'All :locations',
+        'resource' => 'Whose week',
+        'empty' => 'No active :resources or :staff_members yet.',
+        'off' => 'Off',
+        'drag_help' => 'Drag a :booking to move it, or double-click to open it. Only clashes are checked, so it can be moved out of hours.',
+        'move_failed' => 'Couldn\'t move that :booking',
+        'session' => ':count booked',
     ],
 
     'sessions' => [

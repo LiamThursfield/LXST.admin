@@ -65,6 +65,17 @@ class BookingFactory extends Factory
         ]);
     }
 
+    /**
+     * Booked in person to start straight away, and checked in
+     */
+    public function walkIn(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_walk_in' => true,
+            'status' => BookingStatus::CheckedIn,
+        ]);
+    }
+
     public function past(): static
     {
         $start = now()->subWeek()->startOfHour();

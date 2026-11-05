@@ -168,6 +168,7 @@ export type BookingData = {
     location_name?: string | null;
     resource_names?: string[];
     quantity: number;
+    is_walk_in: boolean;
     price_type: string;
     price: string | null;
     notes: string | null;
@@ -220,4 +221,33 @@ export type ServiceSessionFormOptions = {
     hasLocations: boolean;
     locations: SelectItem[];
     resources: SelectItem[];
+};
+
+/** Something on the calendar, placed in minutes from the start of its column's date. */
+export type CalendarItem = {
+    kind: 'booking' | 'session';
+    id: number;
+    title: string | null;
+    subtitle?: string;
+    status?: string;
+    is_walk_in?: boolean;
+    booked?: number;
+    start: number;
+    end: number;
+    movable: boolean;
+    url: string;
+};
+
+/** One resource on one date. */
+export type CalendarColumn = {
+    key: string;
+    resource_id: number;
+    resource_name: string;
+    type_label: string;
+    date: string;
+    day_of_week: number;
+    off: boolean;
+    follows_location: boolean;
+    periods: Array<{ start: number; end: number }>;
+    items: CalendarItem[];
 };
