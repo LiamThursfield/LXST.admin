@@ -116,6 +116,27 @@ class ServiceFactory extends Factory
         ]);
     }
 
+    /**
+     * Needs a day's notice, books up to a month ahead, counts cancelling within a day of the
+     * start as late, and allows one upcoming booking per customer
+     */
+    public function withRules(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'min_notice_minutes' => 1440,
+            'max_advance_days' => 30,
+            'cancellation_hours' => 24,
+            'max_per_customer' => 1,
+        ]);
+    }
+
+    public function needingApproval(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'requires_approval' => true,
+        ]);
+    }
+
     public function notBookableOnline(): static
     {
         return $this->state(fn (array $attributes) => [

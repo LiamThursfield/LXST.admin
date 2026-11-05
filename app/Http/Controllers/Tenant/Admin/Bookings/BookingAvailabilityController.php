@@ -10,6 +10,7 @@ use App\Models\Bookings\Service;
 use App\Models\Bookings\ServiceSession;
 use App\Models\Crm\OrganisationUnit;
 use App\Services\Bookings\BookingAvailability;
+use App\Services\Bookings\BookingRules;
 use Illuminate\Http\JsonResponse;
 
 class BookingAvailabilityController extends Controller
@@ -17,8 +18,9 @@ class BookingAvailabilityController extends Controller
     /**
      * The free times on a date, or the upcoming sessions with places, for the booking form
      */
-    public function __invoke(BookingAvailabilityRequest $request, BookingAvailability $availability): JsonResponse
+    public function __invoke(BookingAvailabilityRequest $request, BookingAvailability $availability, BookingRules $rules): JsonResponse
     {
+        $keepRules = ! $request->boolean('ignore_rules');
         $service = Service::query()->findOrFail($request->integer('service_id'));
         $location = $request->filled('location_id') ? OrganisationUnit::query()->find($request->integer('location_id')) : null;
         $quantity = max(1, $request->integer('quantity', 1));
@@ -32,11 +34,14 @@ class BookingAvailabilityController extends Controller
         if ($service->booking_type->usesSessions()) {
             return response()->json([
                 'slots' => [],
-                'sessions' => $availability->sessions($service, $location, $quantity)->map(fn (ServiceSession $session) => [
-                    'id' => $session->id,
-                    'when' => $session->starts_at->copy()->setTimezone($availability->timezoneFor($session->location))->format('D j M Y, H:i'),
-                    'places_left' => $availability->placesLeft($session),
-                ])->values(),
+                'sessions' => $availability->sessions($service, $location, $quantity)
+                    ->filter(fn (ServiceSession $session) => ! $keepRules || $rules->allowsStart($service, $session->starts_at))
+                    ->values()
+                    ->map(fn (ServiceSession $session) => [
+                        'id' => $session->id,
+                        'when' => $session->starts_at->copy()->setTimezone($availability->timezoneFor($session->location))->format('D j M Y, H:i'),
+                        'places_left' => $availability->placesLeft($session),
+                    ])->values(),
             ]);
         }
 
@@ -48,6 +53,9 @@ class BookingAvailabilityController extends Controller
             array_map(intval(...), $optionIds),
             array_map(intval(...), $resourceIds),
         );
+
+        // Times the rules don't allow aren't offered, unless staff have chosen to ignore them
+        $slots = array_values(array_filter($slots, fn (BookingSlot $slot) => ! $keepRules || $rules->allowsStart($service, $slot->startsAt)));
 
         return response()->json([
             'slots' => array_map(fn (BookingSlot $slot) => [

@@ -96,7 +96,7 @@ class BookingController extends Controller
     {
         /** @var Service $service */
         $service = $request->service();
-        /** @var array{date?: string|null, time?: string|null, walk_in?: bool|null, session_id?: int|null, quantity?: int|null, option_ids?: list<int>, resource_ids?: list<int>, customer_name: string, customer_email?: string|null, customer_phone?: string|null, notes?: string|null} $details */
+        /** @var array{date?: string|null, time?: string|null, walk_in?: bool|null, ignore_rules?: bool|null, session_id?: int|null, quantity?: int|null, option_ids?: list<int>, resource_ids?: list<int>, customer_name: string, customer_email?: string|null, customer_phone?: string|null, notes?: string|null} $details */
         $details = $request->safe()->except(['service_id', 'location_id']);
 
         $booking = $creator->create($service, $request->location(), $details, $request->user());
@@ -124,9 +124,15 @@ class BookingController extends Controller
         ]);
     }
 
-    public function status(BookingStatusRequest $request, Booking $booking): RedirectResponse
+    public function status(BookingStatusRequest $request, Booking $booking, BookingCreator $creator): RedirectResponse
     {
-        $booking->update(['status' => BookingStatus::from($request->string('status')->toString())]);
+        $status = BookingStatus::from($request->string('status')->toString());
+
+        if ($status === BookingStatus::Cancelled) {
+            $creator->cancel($booking);
+        } else {
+            $booking->update(['status' => $status]);
+        }
 
         return redirect()->back()->with('success', app(Terminology::class)->translate('bookings.bookings.flash.updated'));
     }

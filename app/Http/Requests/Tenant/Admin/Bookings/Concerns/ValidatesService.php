@@ -43,6 +43,11 @@ trait ValidatesService
             'image_file_id' => ['nullable', 'integer', $image],
             'booking_type' => ['required', Rule::enum(BookingType::class)],
             'is_bookable_online' => ['boolean'],
+            'min_notice_minutes' => ['nullable', 'integer', 'min:0', 'max:525600'],
+            'max_advance_days' => ['nullable', 'integer', 'min:1', 'max:3650'],
+            'cancellation_hours' => ['nullable', 'integer', 'min:0', 'max:8760'],
+            'max_per_customer' => ['nullable', 'integer', 'min:1', 'max:1000'],
+            'requires_approval' => ['boolean'],
 
             'price_type' => ['required', Rule::enum(ServicePriceType::class)],
             'price' => [Rule::excludeIf(! $this->priceHasAmount()), 'required', 'numeric', 'decimal:0,2', 'min:0', 'max:'.self::MAX_PRICE],

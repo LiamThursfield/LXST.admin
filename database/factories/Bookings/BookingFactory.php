@@ -76,6 +76,15 @@ class BookingFactory extends Factory
         ]);
     }
 
+    public function cancelledLate(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => BookingStatus::Cancelled,
+            'cancelled_at' => now(),
+            'is_late_cancellation' => true,
+        ]);
+    }
+
     public function past(): static
     {
         $start = now()->subWeek()->startOfHour();

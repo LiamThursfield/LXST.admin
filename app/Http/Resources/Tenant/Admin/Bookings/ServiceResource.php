@@ -78,6 +78,11 @@ class ServiceResource extends JsonResource
             'travel_minutes' => $service->travel_minutes,
             'required_resource_types' => $service->required_resource_types,
             'is_bookable_online' => $service->is_bookable_online,
+            'min_notice_minutes' => $service->min_notice_minutes,
+            'max_advance_days' => $service->max_advance_days,
+            'cancellation_hours' => $service->cancellation_hours,
+            'max_per_customer' => $service->max_per_customer,
+            'requires_approval' => $service->requires_approval,
             'options' => $this->whenLoaded('options', fn () => $service->options->map(fn (ServiceOption $option) => [
                 'id' => $option->id,
                 'type' => $option->type->value,
