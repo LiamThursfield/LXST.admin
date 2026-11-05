@@ -45,6 +45,22 @@ return [
         'booked' => 'Booked',
         'removed' => 'Removed',
     ],
+    'message_channel' => [
+        'email' => 'Email',
+        'sms' => 'Text message',
+        'whatsapp' => 'WhatsApp',
+    ],
+    'message_event' => [
+        'booked' => 'Booked',
+        'changed' => 'Changed',
+        'cancelled' => 'Cancelled',
+    ],
+    'message_status' => [
+        'queued' => 'Sending',
+        'sent' => 'Sent',
+        'failed' => 'Failed',
+        'skipped' => 'Not sent',
+    ],
     'resource_type' => [
         'person' => 'Person',
         'space' => 'Space',

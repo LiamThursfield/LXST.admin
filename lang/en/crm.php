@@ -42,6 +42,13 @@ return [
             'is_spam' => 'Spam',
             'is_spam_help' => 'Spam contacts are kept, but treated as not genuine.',
         ],
+        'messaging' => [
+            'title' => ':Booking messages',
+            'preferred_channel' => 'Tell them by',
+            'no_preference' => 'Email, unless a :booking says otherwise',
+            'sms_opted_out' => 'Don\'t send texts',
+            'whatsapp_opted_out' => 'Don\'t send WhatsApp messages',
+        ],
         'marketing' => [
             'title' => 'Marketing preferences',
             'description' => 'What the contact has agreed to be contacted about.',

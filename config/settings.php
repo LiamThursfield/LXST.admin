@@ -4,6 +4,7 @@ use App\Models\Settings\DjSettings;
 use App\Models\Settings\GeneralSettings;
 use App\Models\Settings\IntegrationSettings;
 use App\Models\Settings\MailSettings;
+use App\Models\Settings\MessagingSettings;
 use App\Models\Settings\ThemeSettings;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelSettings\SettingsCasts\DataCast;
@@ -23,6 +24,7 @@ return [
         IntegrationSettings::class,
         DjSettings::class,
         MailSettings::class,
+        MessagingSettings::class,
         ThemeSettings::class,
     ],
 

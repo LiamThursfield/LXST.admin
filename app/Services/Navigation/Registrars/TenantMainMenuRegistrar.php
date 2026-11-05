@@ -164,6 +164,24 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         activePatterns: ['admin.bookings.staff.*'],
                     ))->gate(BookingsPermission::ViewResources),
                     (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGES,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGES]),
+                        label: 'navigation.booking_messages',
+                        type: MenuItemType::LINK,
+                        to: 'admin.bookings.messages.index',
+                        icon: 'i-lucide-message-square-text',
+                        activePatterns: ['admin.bookings.messages.*'],
+                    ))->gate(BookingsPermission::ManageMessages),
+                    (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGE_LOG,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGE_LOG]),
+                        label: 'navigation.message_log',
+                        type: MenuItemType::LINK,
+                        to: 'admin.bookings.message-log.index',
+                        icon: 'i-lucide-scroll-text',
+                        activePatterns: ['admin.bookings.message-log.*'],
+                    ))->gate(BookingsPermission::ViewBookings),
+                    (new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_RESOURCES,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_RESOURCES]),
                         label: 'navigation.resources',
@@ -746,6 +764,12 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                                 label: 'navigation.mail_settings',
                                 to: 'admin.site-settings.mail.edit',
                             )->gate(SettingsPermission::ViewSettings),
+                            (new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_MESSAGING,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_MESSAGING]),
+                                label: 'navigation.messaging_settings',
+                                to: 'admin.site-settings.messaging.edit',
+                            ))->gate(SettingsPermission::ViewSettings)->module(TenantModule::Bookings),
                             new MenuChildItem(
                                 key: TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_INTEGRATIONS,
                                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_INTEGRATIONS]),

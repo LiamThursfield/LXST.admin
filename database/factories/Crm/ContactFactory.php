@@ -2,6 +2,7 @@
 
 namespace Database\Factories\Crm;
 
+use App\Enums\Bookings\MessageChannel;
 use App\Models\Crm\Contact;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -29,6 +30,9 @@ class ContactFactory extends Factory
             'marketing_email' => false,
             'marketing_sms' => false,
             'marketing_telephone' => false,
+            'preferred_channel' => null,
+            'sms_opted_out' => false,
+            'whatsapp_opted_out' => false,
         ];
     }
 
@@ -51,6 +55,17 @@ class ContactFactory extends Factory
             'marketing_email' => true,
             'marketing_sms' => true,
             'marketing_telephone' => true,
+        ]);
+    }
+
+    /**
+     * Prefers to hear about bookings by text, and has a number to text
+     */
+    public function prefersTexts(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'preferred_channel' => MessageChannel::Sms,
+            'telephone' => '+447700900123',
         ]);
     }
 }

@@ -84,6 +84,9 @@ class ContactResource extends JsonResource
             'marketing_email' => $contact->marketing_email,
             'marketing_sms' => $contact->marketing_sms,
             'marketing_telephone' => $contact->marketing_telephone,
+            'preferred_channel' => $contact->preferred_channel?->value,
+            'sms_opted_out' => $contact->sms_opted_out,
+            'whatsapp_opted_out' => $contact->whatsapp_opted_out,
             'created_at' => $contact->created_at?->toIso8601String(),
             'deleted_at' => $contact->deleted_at?->toIso8601String(),
             'addresses' => $this->whenLoaded('addresses', fn () => $contact->addresses

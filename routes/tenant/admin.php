@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Http\Controllers\Tenant\Admin\Bookings\BookingAvailabilityController;
 use App\Http\Controllers\Tenant\Admin\Bookings\BookingCalendarController;
 use App\Http\Controllers\Tenant\Admin\Bookings\BookingController;
+use App\Http\Controllers\Tenant\Admin\Bookings\MessageLogController;
+use App\Http\Controllers\Tenant\Admin\Bookings\MessageTemplateController;
 use App\Http\Controllers\Tenant\Admin\Bookings\ResourceController;
 use App\Http\Controllers\Tenant\Admin\Bookings\RotaController;
 use App\Http\Controllers\Tenant\Admin\Bookings\ServiceCategoryController;
@@ -68,6 +70,7 @@ use App\Http\Controllers\Tenant\Admin\SiteSettings\GeneralSettingsController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\IndustrySettingsController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\IntegrationSettingsController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\MailSettingsController;
+use App\Http\Controllers\Tenant\Admin\SiteSettings\MessagingSettingsController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\ThemeSettingsController;
 use App\Http\Controllers\Tenant\Admin\Tracker\CategoryController;
 use App\Http\Controllers\Tenant\Admin\Tracker\HolidayController;
@@ -128,6 +131,10 @@ Route::name('cms.')->prefix('cms')->middleware(['tenant.module:cms', 'content.ch
 Route::name('bookings.')->prefix('bookings')->middleware('tenant.module:bookings')->group(function () {
     Route::get('bookings/availability', BookingAvailabilityController::class)->name('bookings.availability');
     Route::get('calendar', BookingCalendarController::class)->name('calendar.index');
+    Route::get('messages', [MessageTemplateController::class, 'index'])->name('messages.index');
+    Route::get('messages/{event}/edit', [MessageTemplateController::class, 'edit'])->name('messages.edit');
+    Route::put('messages/{event}', [MessageTemplateController::class, 'update'])->name('messages.update');
+    Route::get('message-log', MessageLogController::class)->name('message-log.index');
     Route::put('bookings/{booking}/move', [BookingController::class, 'move'])->name('bookings.move');
     Route::post('bookings/{booking}/status', [BookingController::class, 'status'])->name('bookings.status');
     Route::put('bookings/{booking}/schedule', [BookingController::class, 'schedule'])->name('bookings.schedule');
@@ -258,6 +265,13 @@ Route::resource('site-settings/api-tokens', ApiTokenController::class)
     ->parameters(['api-tokens' => 'apiToken']);
 
 // Previews only read, so they're outside the group below, which refreshes the API's cache
+// Texts and WhatsApp are only used for bookings, so far
+Route::name('site-settings.messaging.')->prefix('site-settings/messaging')->middleware('tenant.module:bookings')->group(function () {
+    Route::get('/', [MessagingSettingsController::class, 'edit'])->name('edit');
+    Route::put('/', [MessagingSettingsController::class, 'update'])->name('update');
+    Route::post('test', [MessagingSettingsController::class, 'test'])->middleware('throttle:5,1')->name('test');
+});
+
 Route::name('site-settings.email-previews.')->prefix('site-settings/email-previews')->group(function () {
     Route::get('/', [EmailPreviewController::class, 'index'])->name('index');
     Route::get('{preview}', [EmailPreviewController::class, 'show'])->name('show');

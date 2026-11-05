@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Tenant\Admin\Crm\Concerns;
 
+use App\Enums\Bookings\MessageChannel;
 use App\Models\Crm\Contact;
 use Closure;
 use Illuminate\Support\Str;
@@ -43,6 +44,9 @@ trait ValidatesContact
             'marketing_email' => ['boolean'],
             'marketing_sms' => ['boolean'],
             'marketing_telephone' => ['boolean'],
+            'preferred_channel' => ['nullable', Rule::enum(MessageChannel::class)],
+            'sms_opted_out' => ['boolean'],
+            'whatsapp_opted_out' => ['boolean'],
 
             'addresses' => ['nullable', 'array', 'max:10', $this->distinctAddressesRule()],
             'addresses.*' => ['array'],

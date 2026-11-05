@@ -169,6 +169,18 @@ export type BookingData = {
     customer_name: string;
     customer_email: string | null;
     customer_phone: string | null;
+    channel: string;
+    channel_label: string;
+    messages?: Array<{
+        id: number;
+        event_label: string;
+        channel_label: string;
+        recipient: string | null;
+        status: string;
+        status_label: string;
+        note: string | null;
+        when: string | null;
+    }>;
     contact_id: number | null;
     service_name: string;
     location_name?: string | null;

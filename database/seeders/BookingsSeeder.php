@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\Bookings\BookingStatus;
 use App\Enums\Bookings\HireUnit;
+use App\Enums\Bookings\MessageEvent;
 use App\Enums\Bookings\ResourceType;
 use App\Enums\Bookings\ServiceOptionType;
 use App\Enums\Bookings\ServicePriceType;
@@ -15,6 +16,8 @@ use App\Enums\Crm\OrganisationUnitType;
 use App\Enums\TenantModule;
 use App\Models\Bookings\BookableResource;
 use App\Models\Bookings\Booking;
+use App\Models\Bookings\MessageLog;
+use App\Models\Bookings\MessageTemplate;
 use App\Models\Bookings\Service;
 use App\Models\Bookings\ServiceCategory;
 use App\Models\Bookings\ServiceSession;
@@ -145,6 +148,31 @@ class BookingsSeeder extends Seeder
         $this->seedResources();
         $this->seedSessions();
         $this->seedBookings();
+        $this->seedMessages();
+    }
+
+    /**
+     * The tenant's own wording for one message, and a few sent, including a failure to look into
+     */
+    protected function seedMessages(): void
+    {
+        MessageTemplate::query()->firstOrCreate(['event' => MessageEvent::Booked->value], [
+            'sms_body' => '{business}: see you {date} at {time} for {service}. Reply STOP to opt out.',
+        ]);
+
+        if (MessageLog::query()->exists()) {
+            return;
+        }
+
+        foreach (Booking::query()->whereNotNull('customer_email')->whereNotNull('starts_at')->orderBy('id')->limit(3)->get() as $booking) {
+            MessageLog::factory()->for($booking)->create(['recipient' => $booking->customer_email]);
+        }
+
+        $failed = Booking::query()->whereNotNull('starts_at')->orderByDesc('id')->first();
+
+        if ($failed !== null) {
+            MessageLog::factory()->for($failed)->failed()->create();
+        }
     }
 
     protected function seedSessions(): void

@@ -225,6 +225,46 @@ function setTime() {
         </UPageCard>
 
         <UPageCard
+            variant="subtle"
+            :title="trans('bookings.bookings.messages_title')"
+            :description="booking.channel_label"
+        >
+            <p v-if="!booking.messages?.length" class="text-muted text-sm">
+                {{ trans('bookings.bookings.no_messages') }}
+            </p>
+            <ul v-else class="flex flex-col gap-2 text-sm">
+                <li v-for="message in booking.messages" :key="message.id">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="font-medium">{{
+                            message.event_label
+                        }}</span>
+                        <span class="text-muted">
+                            {{ message.channel_label }}
+                            <template v-if="message.recipient">
+                                · {{ message.recipient }}
+                            </template>
+                            · {{ message.when }}
+                        </span>
+                        <UBadge
+                            :color="
+                                message.status === 'failed'
+                                    ? 'error'
+                                    : message.status === 'sent'
+                                      ? 'success'
+                                      : 'neutral'
+                            "
+                            variant="subtle"
+                            :label="message.status_label"
+                        />
+                    </div>
+                    <p v-if="message.note" class="text-muted">
+                        {{ message.note }}
+                    </p>
+                </li>
+            </ul>
+        </UPageCard>
+
+        <UPageCard
             v-if="series.length"
             variant="subtle"
             :title="trans('bookings.bookings.series.title')"

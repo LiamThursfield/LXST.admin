@@ -2,6 +2,7 @@
 
 namespace App\Models\Crm;
 
+use App\Enums\Bookings\MessageChannel;
 use Database\Factories\Crm\ContactFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -21,6 +22,9 @@ use Illuminate\Support\Collection;
  * @property string|null $first_name
  * @property string|null $last_name
  * @property string|null $telephone
+ * @property MessageChannel|null $preferred_channel
+ * @property bool $sms_opted_out
+ * @property bool $whatsapp_opted_out
  * @property string $email
  * @property bool $marketing_email
  * @property bool $marketing_sms
@@ -52,6 +56,9 @@ class Contact extends Model
         'first_name',
         'last_name',
         'telephone',
+        'preferred_channel',
+        'sms_opted_out',
+        'whatsapp_opted_out',
         'email',
         'marketing_email',
         'marketing_sms',
@@ -70,6 +77,9 @@ class Contact extends Model
             'marketing_email' => 'boolean',
             'marketing_sms' => 'boolean',
             'marketing_telephone' => 'boolean',
+            'preferred_channel' => MessageChannel::class,
+            'sms_opted_out' => 'boolean',
+            'whatsapp_opted_out' => 'boolean',
         ];
     }
 

@@ -5,6 +5,8 @@ use App\Enums\Bookings\ResourceType;
 use App\Enums\BookingType;
 use App\Models\Bookings\BookableResource;
 use App\Models\Bookings\Booking;
+use App\Models\Bookings\MessageLog;
+use App\Models\Bookings\MessageTemplate;
 use App\Models\Bookings\Service;
 use App\Models\Bookings\ServiceCategory;
 use App\Models\Bookings\ServiceOption;
@@ -37,6 +39,8 @@ it('seeds a service of every booking type, and is safe to re-run', function () {
         ->and(Booking::query()->count())->toBe(12)
         ->and(Booking::query()->whereNotNull('series_id')->count())->toBe(3)
         ->and(WaitlistEntry::query()->count())->toBe(1)
+        ->and(MessageTemplate::query()->count())->toBe(1)
+        ->and(MessageLog::query()->count())->toBe(4)
         ->and(Booking::query()->where('is_walk_in', true)->count())->toBe(1)
         ->and(Booking::query()->where('status', BookingStatus::Cancelled)->count())->toBe(1)
         ->and(Booking::query()->whereNotNull('cancelled_at')->count())->toBe(1)
