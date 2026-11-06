@@ -2,7 +2,9 @@
 
 namespace App\Models\Bookings;
 
+use App\Enums\Bookings\DepositType;
 use App\Enums\Bookings\HireUnit;
+use App\Enums\Bookings\PaymentRequirement;
 use App\Enums\Bookings\ResourceType;
 use App\Enums\Bookings\ServicePriceType;
 use App\Enums\BookingType;
@@ -48,6 +50,9 @@ use Illuminate\Support\Str;
  * @property int|null $cancellation_hours
  * @property int|null $max_per_customer
  * @property bool $requires_approval
+ * @property PaymentRequirement $payment_requirement
+ * @property DepositType|null $deposit_type
+ * @property int|null $deposit_amount In minor units when fixed, or a whole percentage
  */
 class Service extends Model
 {
@@ -89,6 +94,9 @@ class Service extends Model
         'cancellation_hours',
         'max_per_customer',
         'requires_approval',
+        'payment_requirement',
+        'deposit_type',
+        'deposit_amount',
         'is_bookable_online',
     ];
 
@@ -120,6 +128,9 @@ class Service extends Model
             'cancellation_hours' => 'integer',
             'max_per_customer' => 'integer',
             'requires_approval' => 'boolean',
+            'payment_requirement' => PaymentRequirement::class,
+            'deposit_type' => DepositType::class,
+            'deposit_amount' => 'integer',
         ];
     }
 

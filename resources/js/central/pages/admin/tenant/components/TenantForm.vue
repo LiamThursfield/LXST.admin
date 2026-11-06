@@ -26,6 +26,8 @@ const form = useForm({
     admin_first_name: '',
     admin_last_name: '',
     admin_email: '',
+    platform_fee_percent: props.tenant?.platform_fee_percent ?? '',
+    platform_fee_fixed: props.tenant?.platform_fee_fixed ?? '',
 });
 
 const selectedIndustry = computed(() =>
@@ -74,6 +76,8 @@ function onSubmit() {
             name: data.name,
             industry: data.industry,
             modules: data.modules,
+            platform_fee_percent: data.platform_fee_percent,
+            platform_fee_fixed: data.platform_fee_fixed,
         })).submit(update({ tenant: props.tenant.id }));
 
         return;
@@ -168,6 +172,51 @@ function onSubmit() {
                     }}
                 </p>
             </UFormField>
+        </UPageCard>
+
+        <UPageCard
+            v-if="tenant"
+            variant="subtle"
+            :title="trans('tenants.sections.payments')"
+            :description="
+                trans(
+                    tenant.stripe_connected
+                        ? 'tenants.fields.stripe_connected'
+                        : 'tenants.fields.stripe_not_connected',
+                )
+            "
+        >
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <UFormField
+                    :label="trans('tenants.fields.platform_fee_percent')"
+                    :error="form.errors.platform_fee_percent"
+                >
+                    <UInput
+                        v-model="form.platform_fee_percent"
+                        type="number"
+                        min="0"
+                        max="50"
+                        step="0.01"
+                        class="w-full"
+                    />
+                </UFormField>
+
+                <UFormField
+                    :label="trans('tenants.fields.platform_fee_fixed')"
+                    :error="form.errors.platform_fee_fixed"
+                >
+                    <UInput
+                        v-model="form.platform_fee_fixed"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        class="w-full"
+                    />
+                </UFormField>
+            </div>
+            <p class="text-muted text-sm">
+                {{ trans('tenants.fields.platform_fee_help') }}
+            </p>
         </UPageCard>
 
         <UPageCard

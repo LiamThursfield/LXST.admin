@@ -14,6 +14,9 @@ export type TenantData = {
     admin_url: string | null;
     industry: { value: string; label: string };
     modules: Array<{ value: string; label: string }>;
+    platform_fee_percent: string | null;
+    platform_fee_fixed: string | null;
+    stripe_connected: boolean;
     is_disabled: boolean;
     disabled_at: string | null;
     created_at: string | null;

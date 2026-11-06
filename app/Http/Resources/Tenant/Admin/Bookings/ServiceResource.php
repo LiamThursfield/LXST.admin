@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Tenant\Admin\Bookings;
 
+use App\Enums\Bookings\DepositType;
 use App\Http\Resources\Traits\HasActions;
 use App\Models\Bookings\Service;
 use App\Models\Bookings\ServiceOption;
@@ -83,6 +84,10 @@ class ServiceResource extends JsonResource
             'cancellation_hours' => $service->cancellation_hours,
             'max_per_customer' => $service->max_per_customer,
             'requires_approval' => $service->requires_approval,
+            'payment_requirement' => $service->payment_requirement->value,
+            'deposit_type' => $service->deposit_type?->value,
+            'deposit_amount' => $service->deposit_amount === null ? null
+                : ($service->deposit_type === DepositType::Percent ? (string) $service->deposit_amount : $this->toMajorUnits($service->deposit_amount)),
             'options' => $this->whenLoaded('options', fn () => $service->options->map(fn (ServiceOption $option) => [
                 'id' => $option->id,
                 'type' => $option->type->value,

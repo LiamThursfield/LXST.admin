@@ -63,6 +63,9 @@ class TenantResource extends JsonResource
                 ->map(fn (TenantModule $module) => ['value' => $module->value, 'label' => $module->label()])
                 ->values()
                 ->all(),
+            'platform_fee_percent' => $tenant->getAttribute('platform_fee_percent') === null ? null : (string) $tenant->getAttribute('platform_fee_percent'),
+            'platform_fee_fixed' => $tenant->getAttribute('platform_fee_fixed') === null ? null : number_format((int) $tenant->getAttribute('platform_fee_fixed') / 100, 2, '.', ''),
+            'stripe_connected' => $tenant->canTakePayments(),
             'is_disabled' => $tenant->isDisabled(),
             'disabled_at' => $tenant->disabled_at?->toIso8601String(),
             'created_at' => $tenant->created_at->toIso8601String(),

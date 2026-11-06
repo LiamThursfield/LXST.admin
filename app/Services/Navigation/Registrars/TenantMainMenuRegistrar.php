@@ -164,6 +164,15 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         activePatterns: ['admin.bookings.staff.*'],
                     ))->gate(BookingsPermission::ViewResources),
                     (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_PAYMENTS,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_PAYMENTS]),
+                        label: 'navigation.payments',
+                        type: MenuItemType::LINK,
+                        to: 'admin.bookings.payments.index',
+                        icon: 'i-lucide-banknote',
+                        activePatterns: ['admin.bookings.payments.*'],
+                    ))->gate(BookingsPermission::ViewPayments),
+                    (new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGES,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGES]),
                         label: 'navigation.booking_messages',
@@ -764,6 +773,12 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                                 label: 'navigation.mail_settings',
                                 to: 'admin.site-settings.mail.edit',
                             )->gate(SettingsPermission::ViewSettings),
+                            (new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_PAYMENTS,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_PAYMENTS]),
+                                label: 'navigation.payment_settings',
+                                to: 'admin.site-settings.payments.edit',
+                            ))->gate(SettingsPermission::ViewSettings)->module(TenantModule::Bookings),
                             (new MenuChildItem(
                                 key: TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_MESSAGING,
                                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS, TenantMenu::MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_MESSAGING]),

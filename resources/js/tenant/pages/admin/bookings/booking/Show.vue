@@ -6,7 +6,8 @@ import {
     schedule,
     status as updateStatus,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/BookingController';
-import type { BookingData, SelectItem } from '@/types';
+import BookingPaymentController from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/BookingPaymentController';
+import type { BookingData, BookingPaymentSummary, SelectItem } from '@/types';
 
 const props = defineProps<{
     booking: { data: BookingData };
@@ -15,6 +16,7 @@ const props = defineProps<{
     canManage: boolean;
     resources: SelectItem[];
     messagePresets: string[];
+    payments: BookingPaymentSummary | null;
     series: Array<{
         id: number;
         when: string | null;
@@ -56,6 +58,37 @@ const moves = computed(() =>
         ? booking.value.next_statuses.filter((next) => next === 'cancelled')
         : booking.value.next_statuses,
 );
+
+const requestOpen = ref(false);
+const recordOpen = ref(false);
+
+const requestForm = useForm({ amount: props.payments?.suggested ?? '' });
+const recordForm = useForm({
+    amount: props.payments?.suggested ?? '',
+    method: 'cash',
+    note: '',
+});
+
+function requestPayment() {
+    requestForm.post(BookingPaymentController.store.url(booking.value.id), {
+        preserveScroll: true,
+        onSuccess: () => (requestOpen.value = false),
+    });
+}
+
+function recordPayment() {
+    recordForm.post(BookingPaymentController.record.url(booking.value.id), {
+        preserveScroll: true,
+        onSuccess: () => (recordOpen.value = false),
+    });
+}
+
+const toast = useToast();
+
+async function copyLink(link: string) {
+    await navigator.clipboard.writeText(link);
+    toast.add({ title: trans('bookings.payments.link_copied') });
+}
 
 const messageOpen = ref(false);
 
@@ -243,6 +276,197 @@ function setTime() {
                 </div>
             </dl>
         </UPageCard>
+
+        <UPageCard
+            v-if="payments"
+            variant="subtle"
+            :title="trans('bookings.payments.section')"
+        >
+            <dl class="grid grid-cols-3 gap-3 text-sm">
+                <div>
+                    <dt class="font-medium">
+                        {{ trans('bookings.payments.price') }}
+                    </dt>
+                    <dd class="text-muted">{{ payments.price ?? '–' }}</dd>
+                </div>
+                <div>
+                    <dt class="font-medium">
+                        {{ trans('bookings.payments.paid') }}
+                    </dt>
+                    <dd class="text-muted">{{ payments.paid }}</dd>
+                </div>
+                <div>
+                    <dt class="font-medium">
+                        {{ trans('bookings.payments.outstanding') }}
+                    </dt>
+                    <dd class="text-muted">
+                        {{ payments.outstanding ?? '–' }}
+                    </dd>
+                </div>
+            </dl>
+
+            <p v-if="payments.price === null" class="text-muted text-sm">
+                {{ trans('bookings.payments.on_quote') }}
+            </p>
+
+            <p v-if="!payments.list.length" class="text-muted text-sm">
+                {{ trans('bookings.payments.none') }}
+            </p>
+            <ul v-else class="flex flex-col gap-2 text-sm">
+                <li
+                    v-for="payment in payments.list"
+                    :key="payment.id"
+                    class="flex flex-wrap items-center gap-2"
+                >
+                    <span class="font-medium">{{ payment.amount }}</span>
+                    <span class="text-muted">
+                        {{ payment.method_label }} · {{ payment.when }}
+                    </span>
+                    <UBadge
+                        :color="
+                            payment.status === 'paid' ? 'success' : 'neutral'
+                        "
+                        variant="subtle"
+                        :label="payment.status_label"
+                    />
+                    <UButton
+                        v-if="payment.link"
+                        size="xs"
+                        color="neutral"
+                        variant="ghost"
+                        icon="i-lucide-copy"
+                        :label="trans('bookings.payments.copy_link')"
+                        @click="copyLink(payment.link)"
+                    />
+                </li>
+            </ul>
+
+            <div
+                v-if="payments.canManage && !payments.settled"
+                class="flex flex-wrap gap-2"
+            >
+                <UButton
+                    v-if="payments.canRequest"
+                    icon="i-lucide-link"
+                    :label="trans('bookings.payments.request')"
+                    @click="requestOpen = true"
+                />
+                <UButton
+                    color="neutral"
+                    variant="subtle"
+                    icon="i-lucide-banknote"
+                    :label="trans('bookings.payments.record')"
+                    @click="recordOpen = true"
+                />
+            </div>
+            <p
+                v-if="payments.canManage && !payments.canRequest"
+                class="text-muted text-sm"
+            >
+                {{ trans('bookings.payments.not_set_up') }}
+            </p>
+        </UPageCard>
+
+        <UModal
+            v-model:open="requestOpen"
+            :title="trans('bookings.payments.request')"
+            :description="trans('bookings.payments.request_help')"
+        >
+            <template #body>
+                <UFormField
+                    :label="
+                        trans('bookings.payments.amount', { currency: 'GBP' })
+                    "
+                    :error="requestForm.errors.amount"
+                    required
+                >
+                    <UInput
+                        v-model="requestForm.amount"
+                        type="number"
+                        min="0.30"
+                        step="0.01"
+                        class="w-full"
+                    />
+                </UFormField>
+            </template>
+            <template #footer>
+                <div class="flex w-full justify-end gap-2">
+                    <UButton
+                        color="neutral"
+                        variant="ghost"
+                        :label="trans('common.actions.cancel')"
+                        @click="requestOpen = false"
+                    />
+                    <UButton
+                        icon="i-lucide-send"
+                        :label="trans('bookings.payments.request')"
+                        :loading="requestForm.processing"
+                        @click="requestPayment"
+                    />
+                </div>
+            </template>
+        </UModal>
+
+        <UModal
+            v-model:open="recordOpen"
+            :title="trans('bookings.payments.record')"
+            :description="trans('bookings.payments.record_help')"
+        >
+            <template #body>
+                <div class="flex flex-col gap-4">
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <UFormField
+                            :label="
+                                trans('bookings.payments.amount', {
+                                    currency: 'GBP',
+                                })
+                            "
+                            :error="recordForm.errors.amount"
+                            required
+                        >
+                            <UInput
+                                v-model="recordForm.amount"
+                                type="number"
+                                min="0.01"
+                                step="0.01"
+                                class="w-full"
+                            />
+                        </UFormField>
+                        <UFormField
+                            :label="trans('bookings.payments.method')"
+                            :error="recordForm.errors.method"
+                        >
+                            <USelect
+                                v-model="recordForm.method"
+                                :items="payments?.methods ?? []"
+                                class="w-full"
+                            />
+                        </UFormField>
+                    </div>
+                    <UFormField
+                        :label="trans('bookings.payments.note')"
+                        :error="recordForm.errors.note"
+                    >
+                        <UInput v-model="recordForm.note" class="w-full" />
+                    </UFormField>
+                </div>
+            </template>
+            <template #footer>
+                <div class="flex w-full justify-end gap-2">
+                    <UButton
+                        color="neutral"
+                        variant="ghost"
+                        :label="trans('common.actions.cancel')"
+                        @click="recordOpen = false"
+                    />
+                    <UButton
+                        :label="trans('common.actions.save')"
+                        :loading="recordForm.processing"
+                        @click="recordPayment"
+                    />
+                </div>
+            </template>
+        </UModal>
 
         <UPageCard
             variant="subtle"

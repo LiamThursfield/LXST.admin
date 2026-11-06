@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Tenant\Admin\Bookings\BookingAvailabilityController;
 use App\Http\Controllers\Tenant\Admin\Bookings\BookingCalendarController;
 use App\Http\Controllers\Tenant\Admin\Bookings\BookingController;
+use App\Http\Controllers\Tenant\Admin\Bookings\BookingPaymentController;
 use App\Http\Controllers\Tenant\Admin\Bookings\MessageLogController;
 use App\Http\Controllers\Tenant\Admin\Bookings\MessageTemplateController;
 use App\Http\Controllers\Tenant\Admin\Bookings\ResourceController;
@@ -71,6 +72,7 @@ use App\Http\Controllers\Tenant\Admin\SiteSettings\IndustrySettingsController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\IntegrationSettingsController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\MailSettingsController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\MessagingSettingsController;
+use App\Http\Controllers\Tenant\Admin\SiteSettings\PaymentSettingsController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\ThemeSettingsController;
 use App\Http\Controllers\Tenant\Admin\Tracker\CategoryController;
 use App\Http\Controllers\Tenant\Admin\Tracker\HolidayController;
@@ -137,6 +139,9 @@ Route::name('bookings.')->prefix('bookings')->middleware('tenant.module:bookings
     Route::get('message-log', MessageLogController::class)->name('message-log.index');
     Route::put('bookings/{booking}/move', [BookingController::class, 'move'])->name('bookings.move');
     Route::post('bookings/{booking}/message', [BookingController::class, 'message'])->middleware('throttle:20,1')->name('bookings.message');
+    Route::post('bookings/{booking}/payment-requests', [BookingPaymentController::class, 'store'])->middleware('throttle:20,1')->name('bookings.payment-requests.store');
+    Route::post('bookings/{booking}/payments', [BookingPaymentController::class, 'record'])->name('bookings.payments.store');
+    Route::get('payments', [BookingPaymentController::class, 'index'])->name('payments.index');
     Route::post('bookings/{booking}/status', [BookingController::class, 'status'])->name('bookings.status');
     Route::put('bookings/{booking}/schedule', [BookingController::class, 'schedule'])->name('bookings.schedule');
     Route::resource('bookings', BookingController::class)->only(['index', 'create', 'store', 'show']);
@@ -266,6 +271,16 @@ Route::resource('site-settings/api-tokens', ApiTokenController::class)
     ->parameters(['api-tokens' => 'apiToken']);
 
 // Previews only read, so they're outside the group below, which refreshes the API's cache
+// Taking payments is only for bookings, so far (#180)
+Route::name('site-settings.payments.')->prefix('site-settings/payments')->middleware('tenant.module:bookings')->group(function () {
+    Route::get('/', [PaymentSettingsController::class, 'edit'])->name('edit');
+    Route::post('connect', [PaymentSettingsController::class, 'connect'])->name('connect');
+    // Stripe sends the business here when their setup link has run out, so it can't change anything
+    Route::get('refresh', [PaymentSettingsController::class, 'refresh'])->name('refresh');
+    Route::get('return', [PaymentSettingsController::class, 'return'])->name('return');
+    Route::delete('/', [PaymentSettingsController::class, 'disconnect'])->name('disconnect');
+});
+
 // Texts and WhatsApp are only used for bookings, so far
 Route::name('site-settings.messaging.')->prefix('site-settings/messaging')->middleware('tenant.module:bookings')->group(function () {
     Route::get('/', [MessagingSettingsController::class, 'edit'])->name('edit');

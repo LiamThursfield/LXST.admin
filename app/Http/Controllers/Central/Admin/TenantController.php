@@ -113,6 +113,9 @@ class TenantController extends Controller
             'name' => $request->string('name')->toString(),
             'modules' => $request->modules(),
             'industry' => $request->validated('industry', $tenant->industry),
+            'platform_fee_percent' => $request->filled('platform_fee_percent') ? $request->validated('platform_fee_percent') : null,
+            // Entered in pounds, kept in pence
+            'platform_fee_fixed' => $request->filled('platform_fee_fixed') ? (int) round((float) $request->validated('platform_fee_fixed') * 100) : null,
         ]);
 
         // The tenant's headless API shows its industry and words

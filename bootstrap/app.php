@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Webhooks\StripeWebhookController;
 use App\Http\Middleware\AuthenticateGuestPass;
 use App\Http\Middleware\AuthenticateTenantToken;
 use App\Http\Middleware\BumpsContentVersion;
@@ -35,6 +36,12 @@ return Application::configure(basePath: dirname(__DIR__))
                     ->domain($domain)
                     ->as('central.admin.')
                     ->group(base_path('routes/central/admin.php'));
+
+                // Stripe's news about every tenant's connected account comes here, signed, without a session or CSRF token
+                Route::middleware('api')
+                    ->domain($domain)
+                    ->post('webhooks/stripe', StripeWebhookController::class)
+                    ->name('central.webhooks.stripe');
             }
 
             Route::middleware([

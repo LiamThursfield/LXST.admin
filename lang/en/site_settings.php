@@ -146,6 +146,28 @@ return [
         ],
     ],
 
+    'payments' => [
+        'nav' => 'Payments',
+        'title' => 'Payments',
+        'description' => 'Take payments for :bookings online through your own Stripe account. Payments go straight to you, and refunds and disputes are handled in your Stripe dashboard.',
+        'platform_not_ready' => 'Payments aren\'t available on this platform yet.',
+        'status' => 'Stripe account',
+        'not_connected' => 'Not connected',
+        'incomplete' => 'Connected, but Stripe needs more details before you can take payments.',
+        'ready' => 'Connected and ready to take payments.',
+        'connect' => 'Connect with Stripe',
+        'continue' => 'Finish setting up with Stripe',
+        'disconnect' => 'Disconnect',
+        'confirm_disconnect' => 'Stop taking payments through this Stripe account? It stays yours in Stripe.',
+        'disconnected' => 'Stripe account disconnected.',
+        'connect_failed' => 'Couldn\'t reach Stripe. Please try again.',
+        'fee' => 'Platform fee',
+        'fee_value' => ':percent% per payment',
+        'fee_fixed' => ':fixed per payment',
+        'fee_both' => ':percent% plus :fixed per payment',
+        'fee_help' => 'Taken off each online payment by Stripe, on top of Stripe\'s own fees.',
+    ],
+
     'messaging' => [
         'nav' => 'Texts and WhatsApp',
         'title' => 'Texts and WhatsApp',

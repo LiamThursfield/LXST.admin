@@ -32,6 +32,9 @@ export type ServiceData = {
     max_hire_units: number | null;
     travel_minutes: number | null;
     required_resource_types: string[] | null;
+    payment_requirement: string;
+    deposit_type: string | null;
+    deposit_amount: string | null;
     min_notice_minutes: number | null;
     max_advance_days: number | null;
     cancellation_hours: number | null;
@@ -55,6 +58,8 @@ export type ServiceFormOptions = {
     bookingTypes: ServiceBookingTypeOption[];
     priceTypes: SelectItem[];
     hireUnits: SelectItem[];
+    paymentRequirements: SelectItem[];
+    depositTypes: SelectItem[];
     resourceTypes: SelectItem[];
     optionTypes: SelectItem[];
     categories: SelectItem[];
@@ -299,4 +304,34 @@ export type BookingPrefill = {
     customer_email: string | null;
     customer_phone: string | null;
     notes: string | null;
+};
+
+export type PaymentRow = {
+    id: number;
+    when: string | null;
+    amount: string;
+    fee: string | null;
+    method: string;
+    method_label: string;
+    status: string;
+    status_label: string;
+    note: string | null;
+    /** The customer's link, while it can still be paid. */
+    link: string | null;
+    customer_name?: string;
+    booking_url?: string;
+};
+
+export type BookingPaymentSummary = {
+    price: string | null;
+    paid: string;
+    outstanding: string | null;
+    /** Whether everything has been paid. */
+    settled: boolean;
+    /** In pounds, ready for the amount field. */
+    suggested: string | null;
+    canRequest: boolean;
+    canManage: boolean;
+    methods: SelectItem[];
+    list: PaymentRow[];
 };

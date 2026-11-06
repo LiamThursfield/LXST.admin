@@ -50,6 +50,11 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'industry',
             'industry_overrides',
             'disabled_at',
+            'stripe_account_id',
+            'stripe_charges_enabled',
+            'stripe_details_submitted',
+            'platform_fee_percent',
+            'platform_fee_fixed',
         ]);
     }
 
@@ -62,7 +67,31 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'modules' => AsEnumCollection::of(TenantModule::class),
             'industry_overrides' => 'array',
             'disabled_at' => 'datetime',
+            'stripe_charges_enabled' => 'boolean',
+            'stripe_details_submitted' => 'boolean',
+            'platform_fee_percent' => 'decimal:2',
+            'platform_fee_fixed' => 'integer',
         ];
+    }
+
+    /**
+     * Whether the tenant's Stripe account can take payments
+     */
+    public function canTakePayments(): bool
+    {
+        return filled($this->getAttribute('stripe_account_id')) && (bool) $this->getAttribute('stripe_charges_enabled');
+    }
+
+    /**
+     * What the platform takes from a payment, in minor units: its percentage, plus any fixed amount,
+     * never more than the payment itself
+     */
+    public function platformFeeFor(int $amount): int
+    {
+        $percent = (float) ($this->getAttribute('platform_fee_percent') ?? 0);
+        $fixed = (int) ($this->getAttribute('platform_fee_fixed') ?? 0);
+
+        return min($amount, (int) round($amount * $percent / 100) + $fixed);
     }
 
     /**

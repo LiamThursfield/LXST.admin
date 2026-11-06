@@ -9,6 +9,7 @@ import { edit as editIndustry } from '@/actions/App/Http/Controllers/Tenant/Admi
 import { edit as editIntegrations } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/IntegrationSettingsController';
 import { edit as editMail } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/MailSettingsController';
 import { edit as editMessaging } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/MessagingSettingsController';
+import { edit as editPayments } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/PaymentSettingsController';
 import { edit as editTheme } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/ThemeSettingsController';
 
 const { trans } = useTrans();
@@ -57,6 +58,12 @@ const links = computed(() =>
                 label: trans('site_settings.mail.nav'),
                 icon: 'i-lucide-mail',
                 to: editMail.url(),
+            },
+            {
+                key: 'payments',
+                label: trans('site_settings.payments.nav'),
+                icon: 'i-lucide-credit-card',
+                to: editPayments.url(),
             },
             {
                 key: 'messaging',
