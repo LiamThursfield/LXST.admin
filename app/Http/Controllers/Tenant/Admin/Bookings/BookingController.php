@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant\Admin\Bookings;
 use App\Enums\Bookings\BookingStatus;
 use App\Enums\Bookings\MessageChannel;
 use App\Enums\Bookings\MessageEvent;
+use App\Enums\Bookings\MessageStatus;
 use App\Enums\Bookings\ResourceType;
 use App\Enums\Bookings\WaitlistStatus;
 use App\Enums\Crm\OrganisationUnitType;
@@ -12,6 +13,7 @@ use App\Enums\TenantModule;
 use App\Http\Controllers\Controller;
 use App\Http\Queries\Tenant\Admin\Bookings\BookingIndexQuery;
 use App\Http\Requests\Tenant\Admin\Bookings\BookingIndexRequest;
+use App\Http\Requests\Tenant\Admin\Bookings\BookingMessageRequest;
 use App\Http\Requests\Tenant\Admin\Bookings\BookingMoveRequest;
 use App\Http\Requests\Tenant\Admin\Bookings\BookingScheduleRequest;
 use App\Http\Requests\Tenant\Admin\Bookings\BookingStatusRequest;
@@ -176,6 +178,7 @@ class BookingController extends Controller
                 ])
                 ->values(),
             'statuses' => BookingStatus::asSelectItems(),
+            'messagePresets' => $this->messagePresets(),
             'currency' => Service::CURRENCY,
             'canManage' => $canManage,
             'resources' => $canManage && $booking->needsTime()
@@ -218,6 +221,19 @@ class BookingController extends Controller
     }
 
     /**
+     * Sends the customer a one-off message, e.g. "your table is ready"
+     */
+    public function message(BookingMessageRequest $request, Booking $booking, BookingMessenger $messenger): RedirectResponse
+    {
+        $log = $messenger->sendCustom($booking, $request->string('body')->toString());
+
+        return redirect()->back()->with(
+            $log->status === MessageStatus::Skipped ? 'error' : 'success',
+            __($log->status === MessageStatus::Skipped ? 'bookings.messages.custom.not_sent' : 'bookings.messages.custom.sent'),
+        );
+    }
+
+    /**
      * Gives an enquiry a time, which confirms it
      */
     public function schedule(BookingScheduleRequest $request, Booking $booking, BookingCreator $creator, BookingMessenger $messenger): RedirectResponse
@@ -237,6 +253,19 @@ class BookingController extends Controller
         $messenger->send($booking, MessageEvent::Booked);
 
         return redirect()->back()->with('success', app(Terminology::class)->translate('bookings.bookings.flash.updated'));
+    }
+
+    /**
+     * Ready-made one-off messages, in the tenant's words
+     *
+     * @return list<string>
+     */
+    protected function messagePresets(): array
+    {
+        /** @var array<string, string> $presets */
+        $presets = (array) __('bookings.messages.custom.presets');
+
+        return array_map(fn (string $key) => app(Terminology::class)->translate("bookings.messages.custom.presets.{$key}"), array_keys($presets));
     }
 
     /**

@@ -29,6 +29,20 @@ class MessageTemplateFactory extends Factory
         ];
     }
 
+    /**
+     * A reminder sent the given number of hours before, in the default wording
+     */
+    public function reminder(int $hours = 24): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'event' => MessageEvent::Reminder,
+            'offset_hours' => $hours,
+            'email_subject' => null,
+            'email_body' => null,
+            'sms_body' => null,
+        ]);
+    }
+
     public function disabled(): static
     {
         return $this->state(fn (array $attributes) => [

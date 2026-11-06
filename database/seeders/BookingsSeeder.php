@@ -160,6 +160,12 @@ class BookingsSeeder extends Seeder
             'sms_body' => '{business}: see you {date} at {time} for {service}. Reply STOP to opt out.',
         ]);
 
+        // Follow-ups are off by default; this one's on, a few hours after the booking
+        MessageTemplate::query()->firstOrCreate(['event' => MessageEvent::FollowUp->value], [
+            'is_enabled' => true,
+            'offset_hours' => 3,
+        ]);
+
         if (MessageLog::query()->exists()) {
             return;
         }
@@ -172,6 +178,7 @@ class BookingsSeeder extends Seeder
 
         if ($failed !== null) {
             MessageLog::factory()->for($failed)->failed()->create();
+            MessageLog::factory()->for($failed)->custom()->create(['recipient' => $failed->customer_email]);
         }
     }
 

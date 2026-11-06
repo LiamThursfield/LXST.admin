@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property MessageEvent $event
  * @property bool $is_enabled
+ * @property int|null $offset_hours
  * @property string|null $email_subject
  * @property string|null $email_body
  * @property string|null $sms_body
@@ -33,6 +34,7 @@ class MessageTemplate extends Model
     protected $fillable = [
         'event',
         'is_enabled',
+        'offset_hours',
         'email_subject',
         'email_body',
         'sms_body',
@@ -49,6 +51,7 @@ class MessageTemplate extends Model
         return [
             'event' => MessageEvent::class,
             'is_enabled' => 'boolean',
+            'offset_hours' => 'integer',
         ];
     }
 }

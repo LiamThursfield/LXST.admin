@@ -33,7 +33,21 @@ class BookingMessenger
             return null;
         }
 
-        [$channel, $notes] = $this->channelFor($booking, $wording['whatsapp_template_sid']);
+        return $this->queue($booking, $event, $wording['whatsapp_template_sid']);
+    }
+
+    /**
+     * A one-off message written by staff, e.g. "your table is ready". WhatsApp only allows a
+     * business to start with an approved template, so it goes by text instead.
+     */
+    public function sendCustom(Booking $booking, string $body): MessageLog
+    {
+        return $this->queue($booking, MessageEvent::Custom, null, $body);
+    }
+
+    protected function queue(Booking $booking, MessageEvent $event, ?string $whatsAppTemplate, ?string $body = null): MessageLog
+    {
+        [$channel, $notes] = $this->channelFor($booking, $whatsAppTemplate);
 
         $recipient = $channel === MessageChannel::Email ? $booking->customer_email : $this->messages->phoneFor($booking);
 
@@ -42,6 +56,7 @@ class BookingMessenger
                 'booking_id' => $booking->id,
                 'event' => $event,
                 'channel' => $channel,
+                'body' => $body,
                 'status' => MessageStatus::Skipped,
                 'note' => implode(' ', [...$notes, __('bookings.messages.log.no_contact_details')]),
             ]);
@@ -52,6 +67,7 @@ class BookingMessenger
             'event' => $event,
             'channel' => $channel,
             'recipient' => $recipient,
+            'body' => $body,
             'status' => MessageStatus::Queued,
             'note' => $notes === [] ? null : implode(' ', $notes),
         ]);

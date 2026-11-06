@@ -24,6 +24,8 @@ class MessageTemplateUpdateRequest extends FormRequest
     {
         return [
             'is_enabled' => ['boolean'],
+            // Up to a month before or after
+            'offset_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
             'email_subject' => ['nullable', 'string', 'max:255'],
             'email_body' => ['nullable', 'string', 'max:5000'],
             // Long texts are split into several and cost more, so they're kept to a few

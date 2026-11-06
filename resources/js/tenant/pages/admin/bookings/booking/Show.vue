@@ -2,6 +2,7 @@
 import { Link, router, useForm } from '@inertiajs/vue3';
 import {
     index,
+    message,
     schedule,
     status as updateStatus,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/BookingController';
@@ -13,6 +14,7 @@ const props = defineProps<{
     currency: string;
     canManage: boolean;
     resources: SelectItem[];
+    messagePresets: string[];
     series: Array<{
         id: number;
         when: string | null;
@@ -54,6 +56,24 @@ const moves = computed(() =>
         ? booking.value.next_statuses.filter((next) => next === 'cancelled')
         : booking.value.next_statuses,
 );
+
+const messageOpen = ref(false);
+
+const messageForm = useForm({ body: '' });
+
+const presetItems = computed(() =>
+    props.messagePresets.map((preset) => ({ value: preset, label: preset })),
+);
+
+function sendMessage() {
+    messageForm.submit(message(booking.value.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+            messageOpen.value = false;
+            messageForm.reset();
+        },
+    });
+}
 
 const setTimeOpen = ref(false);
 
@@ -229,6 +249,15 @@ function setTime() {
             :title="trans('bookings.bookings.messages_title')"
             :description="booking.channel_label"
         >
+            <div v-if="canManage">
+                <UButton
+                    color="neutral"
+                    variant="subtle"
+                    icon="i-lucide-message-square-plus"
+                    :label="trans('bookings.messages.custom.button')"
+                    @click="messageOpen = true"
+                />
+            </div>
             <p v-if="!booking.messages?.length" class="text-muted text-sm">
                 {{ trans('bookings.bookings.no_messages') }}
             </p>
@@ -285,6 +314,59 @@ function setTime() {
                 </li>
             </ul>
         </UPageCard>
+
+        <UModal
+            v-model:open="messageOpen"
+            :title="trans('bookings.messages.custom.title')"
+            :description="trans('bookings.messages.custom.description')"
+        >
+            <template #body>
+                <div class="flex flex-col gap-4">
+                    <UFormField
+                        v-if="presetItems.length"
+                        :label="trans('bookings.messages.custom.preset')"
+                    >
+                        <USelect
+                            :items="presetItems"
+                            class="w-full"
+                            @update:model-value="
+                                (preset) => (messageForm.body = String(preset))
+                            "
+                        />
+                    </UFormField>
+                    <UFormField
+                        :label="trans('bookings.messages.custom.body')"
+                        :error="messageForm.errors.body"
+                        required
+                    >
+                        <UTextarea
+                            v-model="messageForm.body"
+                            :rows="4"
+                            :maxlength="480"
+                            class="w-full"
+                        />
+                    </UFormField>
+                </div>
+            </template>
+
+            <template #footer>
+                <div class="flex w-full justify-end gap-2">
+                    <UButton
+                        color="neutral"
+                        variant="ghost"
+                        :label="trans('common.actions.cancel')"
+                        @click="messageOpen = false"
+                    />
+                    <UButton
+                        icon="i-lucide-send"
+                        :label="trans('bookings.messages.custom.send')"
+                        :loading="messageForm.processing"
+                        :disabled="!messageForm.body.trim()"
+                        @click="sendMessage"
+                    />
+                </div>
+            </template>
+        </UModal>
 
         <UModal
             v-model:open="setTimeOpen"

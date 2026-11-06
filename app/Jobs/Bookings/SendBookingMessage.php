@@ -3,6 +3,7 @@
 namespace App\Jobs\Bookings;
 
 use App\Enums\Bookings\MessageChannel;
+use App\Enums\Bookings\MessageEvent;
 use App\Enums\Bookings\MessageStatus;
 use App\Mail\Bookings\BookingMessageMail;
 use App\Models\Bookings\MessageLog;
@@ -36,6 +37,16 @@ class SendBookingMessage implements ShouldQueue
         }
 
         $wording = $messages->wordingFor($log->event);
+
+        // A one-off message has its own text, sent as written
+        if ($log->event === MessageEvent::Custom) {
+            $wording = [
+                ...$wording,
+                'email_subject' => $messages->customSubject(),
+                'email_body' => (string) $log->body,
+                'sms_body' => (string) $log->body,
+            ];
+        }
 
         try {
             $providerId = match ($log->channel) {

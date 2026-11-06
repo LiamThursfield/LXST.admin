@@ -8,13 +8,15 @@ defineProps<{
         label: string;
         description: string;
         is_enabled: boolean;
+        offset_hours: number | null;
+        is_scheduled: boolean;
         has_whatsapp_template: boolean;
     }>;
     canSendSms: boolean;
     canSendWhatsApp: boolean;
 }>();
 
-const { trans } = useTrans();
+const { trans, transChoice } = useTrans();
 </script>
 
 <template>
@@ -54,6 +56,20 @@ const { trans } = useTrans();
                         </div>
                     </div>
                     <div class="flex shrink-0 items-center gap-2">
+                        <UBadge
+                            v-if="event.is_scheduled && event.offset_hours"
+                            color="neutral"
+                            variant="outline"
+                            :label="
+                                transChoice(
+                                    event.value === 'reminder'
+                                        ? 'bookings.messages.hours_before'
+                                        : 'bookings.messages.hours_after',
+                                    event.offset_hours,
+                                    { count: event.offset_hours },
+                                )
+                            "
+                        />
                         <UBadge
                             v-if="
                                 canSendWhatsApp && event.has_whatsapp_template

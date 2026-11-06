@@ -33,6 +33,17 @@ class MessageLogFactory extends Factory
         ];
     }
 
+    /**
+     * A one-off message written by staff
+     */
+    public function custom(string $body = 'Hi, we\'re ready for you now.'): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'event' => MessageEvent::Custom,
+            'body' => $body,
+        ]);
+    }
+
     public function failed(string $note = 'The number is not reachable.'): static
     {
         return $this->state(fn (array $attributes) => [
