@@ -65,6 +65,27 @@ return [
         'failed' => 'Failed',
         'skipped' => 'Not sent',
     ],
+    'payment_requirement' => [
+        'none' => 'Nothing up front',
+        'deposit' => 'A deposit',
+        'full' => 'Full payment',
+    ],
+    'deposit_type' => [
+        'fixed' => 'A set amount',
+        'percent' => 'A percentage of the price',
+    ],
+    'payment_status' => [
+        'pending' => 'Waiting',
+        'paid' => 'Paid',
+        'failed' => 'Failed',
+        'expired' => 'Link ran out',
+    ],
+    'payment_method' => [
+        'online' => 'Online',
+        'cash' => 'Cash',
+        'card' => 'Card in person',
+        'other' => 'Other',
+    ],
     'resource_type' => [
         'person' => 'Person',
         'space' => 'Space',

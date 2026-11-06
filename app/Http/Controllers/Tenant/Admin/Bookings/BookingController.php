@@ -6,6 +6,7 @@ use App\Enums\Bookings\BookingStatus;
 use App\Enums\Bookings\MessageChannel;
 use App\Enums\Bookings\MessageEvent;
 use App\Enums\Bookings\MessageStatus;
+use App\Enums\Bookings\PaymentMethod;
 use App\Enums\Bookings\ResourceType;
 use App\Enums\Bookings\WaitlistStatus;
 use App\Enums\Crm\OrganisationUnitType;
@@ -21,13 +22,18 @@ use App\Http\Requests\Tenant\Admin\Bookings\BookingStoreRequest;
 use App\Http\Resources\Tenant\Admin\Bookings\BookingResource;
 use App\Models\Bookings\BookableResource;
 use App\Models\Bookings\Booking;
+use App\Models\Bookings\Payment;
 use App\Models\Bookings\Service;
 use App\Models\Bookings\ServiceOption;
 use App\Models\Bookings\WaitlistEntry;
 use App\Models\Crm\OrganisationUnit;
+use App\Models\Tenant;
+use App\Services\Authorisation\Enums\BookingsPermission;
 use App\Services\Bookings\BookingCreator;
 use App\Services\Bookings\BookingMessenger;
+use App\Services\Bookings\BookingPayments;
 use App\Services\Industry\Terminology;
+use App\Services\Payments\StripeGateway;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -179,6 +185,7 @@ class BookingController extends Controller
                 ->values(),
             'statuses' => BookingStatus::asSelectItems(),
             'messagePresets' => $this->messagePresets(),
+            'payments' => $this->paymentSummary($request, $booking),
             'currency' => Service::CURRENCY,
             'canManage' => $canManage,
             'resources' => $canManage && $booking->needsTime()
@@ -253,6 +260,35 @@ class BookingController extends Controller
         $messenger->send($booking, MessageEvent::Booked);
 
         return redirect()->back()->with('success', app(Terminology::class)->translate('bookings.bookings.flash.updated'));
+    }
+
+    /**
+     * What's been paid, what's left, and whether more can be asked for, for those who can see payments
+     *
+     * @return array<string, mixed>|null
+     */
+    protected function paymentSummary(Request $request, Booking $booking): ?array
+    {
+        if (! ($request->user()?->can(BookingsPermission::ViewPayments) ?? false)) {
+            return null;
+        }
+
+        $payments = app(BookingPayments::class);
+        $outstanding = $payments->outstanding($booking);
+        $suggested = $payments->suggested($booking);
+        $tenant = tenant();
+
+        return [
+            'price' => $booking->price === null ? null : $payments->format($booking->price),
+            'paid' => $payments->format($payments->paid($booking)),
+            'outstanding' => $outstanding === null ? null : $payments->format($outstanding),
+            'settled' => $outstanding === 0,
+            'suggested' => $suggested === null ? null : number_format($suggested / 100, 2, '.', ''),
+            'canRequest' => $tenant instanceof Tenant && $tenant->canTakePayments() && app(StripeGateway::class)->isConfigured(),
+            'canManage' => $request->user()->can(BookingsPermission::ManagePayments),
+            'methods' => array_values(array_map(fn (PaymentMethod $method) => $method->toSelectItem(), array_filter(PaymentMethod::cases(), fn (PaymentMethod $method) => $method->isInPerson()))),
+            'list' => $booking->payments()->latest('id')->get()->map(fn (Payment $payment) => BookingPaymentController::row($payment->setRelation('booking', $booking), $payments))->values(),
+        ];
     }
 
     /**

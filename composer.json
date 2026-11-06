@@ -30,6 +30,7 @@
         "spatie/laravel-query-builder": "^7.2",
         "spatie/laravel-settings": "^3.9",
         "stancl/tenancy": "dev-master",
+        "stripe/stripe-php": "~22.0.0",
         "symfony/html-sanitizer": "^8.1",
         "symfony/http-client": "^8.1",
         "symfony/mailgun-mailer": "^8.1",

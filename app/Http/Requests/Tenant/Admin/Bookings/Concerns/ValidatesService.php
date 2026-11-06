@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Tenant\Admin\Bookings\Concerns;
 
+use App\Enums\Bookings\DepositType;
 use App\Enums\Bookings\HireUnit;
+use App\Enums\Bookings\PaymentRequirement;
 use App\Enums\Bookings\ResourceType;
 use App\Enums\Bookings\ServiceOptionType;
 use App\Enums\Bookings\ServicePriceType;
@@ -48,6 +50,15 @@ trait ValidatesService
             'cancellation_hours' => ['nullable', 'integer', 'min:0', 'max:8760'],
             'max_per_customer' => ['nullable', 'integer', 'min:1', 'max:1000'],
             'requires_approval' => ['boolean'],
+            'payment_requirement' => ['nullable', Rule::enum(PaymentRequirement::class)],
+            'deposit_type' => [Rule::excludeIf(! $this->wantsDeposit()), 'required', Rule::enum(DepositType::class)],
+            'deposit_amount' => [
+                Rule::excludeIf(! $this->wantsDeposit()),
+                'required',
+                'numeric',
+                'gt:0',
+                $this->input('deposit_type') === DepositType::Percent->value ? 'max:100' : 'max:'.self::MAX_PRICE,
+            ],
 
             'price_type' => ['required', Rule::enum(ServicePriceType::class)],
             'price' => [Rule::excludeIf(! $this->priceHasAmount()), 'required', 'numeric', 'decimal:0,2', 'min:0', 'max:'.self::MAX_PRICE],
@@ -125,6 +136,12 @@ trait ValidatesService
             'max_hire_units' => $attributes['max_hire_units'] ?? null,
             'travel_minutes' => $attributes['travel_minutes'] ?? null,
             'required_resource_types' => ($attributes['required_resource_types'] ?? []) ?: null,
+            'payment_requirement' => $attributes['payment_requirement'] ?? PaymentRequirement::None->value,
+            'deposit_type' => $attributes['deposit_type'] ?? null,
+            // A fixed deposit is entered in pounds and kept in pence; a percentage is kept as it is
+            'deposit_amount' => isset($attributes['deposit_amount'])
+                ? (($attributes['deposit_type'] ?? null) === DepositType::Percent->value ? (int) round((float) $attributes['deposit_amount']) : $this->toMinorUnits($attributes['deposit_amount']))
+                : null,
         ];
     }
 
@@ -163,6 +180,11 @@ trait ValidatesService
         $ids = $this->validated('location_ids') ?? [];
 
         return array_map(intval(...), $ids);
+    }
+
+    protected function wantsDeposit(): bool
+    {
+        return $this->input('payment_requirement') === PaymentRequirement::Deposit->value;
     }
 
     protected function excludeUnlessUsing(string $detail): mixed

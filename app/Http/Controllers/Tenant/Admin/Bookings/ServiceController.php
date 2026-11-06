@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Tenant\Admin\Bookings;
 
+use App\Enums\Bookings\DepositType;
 use App\Enums\Bookings\HireUnit;
+use App\Enums\Bookings\PaymentRequirement;
 use App\Enums\Bookings\ResourceType;
 use App\Enums\Bookings\ServiceOptionType;
 use App\Enums\Bookings\ServicePriceType;
@@ -177,6 +179,8 @@ class ServiceController extends Controller
                 ->values(),
             'priceTypes' => ServicePriceType::asSelectItems(),
             'hireUnits' => HireUnit::asSelectItems(),
+            'paymentRequirements' => PaymentRequirement::asSelectItems(),
+            'depositTypes' => DepositType::asSelectItems(),
             'resourceTypes' => ResourceType::asSelectItems(),
             'optionTypes' => ServiceOptionType::asSelectItems(),
             'categories' => ServiceCategory::query()->orderBy('order')->orderBy('name')->get()

@@ -217,6 +217,26 @@ describe('editing', function () {
             ->assertInertia(fn (Assert $page) => $page->where('tenant.data.industry.label', __('industries.names.health')));
     });
 
+    test('a platform fee can be set per tenant, in pounds, and cleared', function () {
+        Event::fake([TenantCreated::class]);
+        $tenant = Tenant::query()->create(['name' => 'acme']);
+
+        $this->put(route('central.admin.tenants.update', $tenant), ['name' => 'acme', 'platform_fee_percent' => '60'])
+            ->assertSessionHasErrors('platform_fee_percent');
+        $this->put(route('central.admin.tenants.update', $tenant), ['name' => 'acme', 'platform_fee_percent' => '2.5', 'platform_fee_fixed' => '0.20'])
+            ->assertSessionHasNoErrors();
+
+        expect($tenant->fresh()->platformFeeFor(1000))->toBe(45);
+
+        $this->get(route('central.admin.tenants.edit', $tenant))
+            ->assertInertia(fn (Assert $page) => $page->where('tenant.data.platform_fee_percent', '2.50')->where('tenant.data.platform_fee_fixed', '0.20'));
+
+        $this->put(route('central.admin.tenants.update', $tenant), ['name' => 'acme', 'platform_fee_percent' => '', 'platform_fee_fixed' => ''])
+            ->assertSessionHasNoErrors();
+
+        expect($tenant->fresh()->platformFeeFor(1000))->toBe(0);
+    });
+
     test('a tenant keeps its own name, but can\'t take another\'s', function () {
         Event::fake([TenantCreated::class]);
         $tenant = Tenant::query()->create(['name' => 'acme']);

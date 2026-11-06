@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Tenant\Public\Bookings\PaymentController;
 use App\Http\Controllers\Tenant\Public\Dj\HostedRequestController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,3 +27,8 @@ Route::name('dj.')->middleware('tenant.module:dj')->group(function () {
     Route::get('request/{gig:public_id}', [HostedRequestController::class, 'gig'])->name('request.gig');
     Route::get('setlist/{songList:public_id}', [HostedRequestController::class, 'setlist'])->name('setlist');
 });
+
+// The link sent to a customer to pay towards a booking (#180)
+Route::get('pay/{publicId}', [PaymentController::class, 'show'])
+    ->middleware(['tenant.module:bookings', 'throttle:60,1'])
+    ->name('bookings.payments.show');

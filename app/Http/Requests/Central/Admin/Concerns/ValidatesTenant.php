@@ -24,6 +24,9 @@ trait ValidatesTenant
             'industry' => ['sometimes', 'required', 'string', Rule::in(app(IndustryProfiles::class)->keys())],
             'modules' => ['nullable', 'array'],
             'modules.*' => [Rule::enum(TenantModule::class)],
+            // What the platform takes from each payment the tenant takes online (#180)
+            'platform_fee_percent' => ['sometimes', 'nullable', 'numeric', 'decimal:0,2', 'min:0', 'max:50'],
+            'platform_fee_fixed' => ['sometimes', 'nullable', 'numeric', 'decimal:0,2', 'min:0', 'max:100'],
         ];
     }
 

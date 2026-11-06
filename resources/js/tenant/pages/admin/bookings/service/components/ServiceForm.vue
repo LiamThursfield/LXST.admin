@@ -62,6 +62,9 @@ const form = useForm({
     cancellation_hours: service?.cancellation_hours ?? null,
     max_per_customer: service?.max_per_customer ?? null,
     requires_approval: service?.requires_approval ?? false,
+    payment_requirement: service?.payment_requirement ?? 'none',
+    deposit_type: service?.deposit_type ?? 'percent',
+    deposit_amount: service?.deposit_amount ?? '',
     options: (service?.options ?? []).map((option) => ({
         ...option,
     })) as ServiceOptionData[],
@@ -454,6 +457,73 @@ function submit() {
                         class="w-full"
                     />
                 </UFormField>
+            </div>
+        </UPageCard>
+
+        <UPageCard
+            variant="subtle"
+            :title="trans('bookings.services.sections.payment')"
+        >
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <UFormField
+                    :label="
+                        trans('bookings.services.fields.payment_requirement')
+                    "
+                    :help="
+                        trans(
+                            'bookings.services.fields.payment_requirement_help',
+                        )
+                    "
+                    name="payment_requirement"
+                    :error="form.errors.payment_requirement"
+                >
+                    <USelect
+                        v-model="form.payment_requirement"
+                        :items="paymentRequirements"
+                        :disabled="readonly"
+                        class="w-full"
+                    />
+                </UFormField>
+
+                <template v-if="form.payment_requirement === 'deposit'">
+                    <UFormField
+                        :label="trans('bookings.services.fields.deposit_type')"
+                        name="deposit_type"
+                        :error="form.errors.deposit_type"
+                    >
+                        <USelect
+                            v-model="form.deposit_type"
+                            :items="depositTypes"
+                            :disabled="readonly"
+                            class="w-full"
+                        />
+                    </UFormField>
+
+                    <UFormField
+                        :label="
+                            form.deposit_type === 'percent'
+                                ? trans(
+                                      'bookings.services.fields.deposit_amount_percent',
+                                  )
+                                : trans(
+                                      'bookings.services.fields.deposit_amount_fixed',
+                                      { currency },
+                                  )
+                        "
+                        name="deposit_amount"
+                        :error="form.errors.deposit_amount"
+                        required
+                    >
+                        <UInput
+                            v-model="form.deposit_amount"
+                            type="number"
+                            min="0"
+                            :step="form.deposit_type === 'percent' ? 1 : 0.01"
+                            :disabled="readonly"
+                            class="w-full"
+                        />
+                    </UFormField>
+                </template>
             </div>
         </UPageCard>
 

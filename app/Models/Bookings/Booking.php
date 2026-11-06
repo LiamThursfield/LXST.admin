@@ -164,6 +164,14 @@ class Booking extends Model
     }
 
     /**
+     * @return HasMany<Payment, $this>
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /**
      * @return HasMany<BookingOption, $this>
      */
     public function options(): HasMany

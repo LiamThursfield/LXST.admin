@@ -3,8 +3,10 @@
 namespace Database\Seeders;
 
 use App\Enums\Bookings\BookingStatus;
+use App\Enums\Bookings\DepositType;
 use App\Enums\Bookings\HireUnit;
 use App\Enums\Bookings\MessageEvent;
+use App\Enums\Bookings\PaymentRequirement;
 use App\Enums\Bookings\ResourceType;
 use App\Enums\Bookings\ServiceOptionType;
 use App\Enums\Bookings\ServicePriceType;
@@ -18,6 +20,7 @@ use App\Models\Bookings\BookableResource;
 use App\Models\Bookings\Booking;
 use App\Models\Bookings\MessageLog;
 use App\Models\Bookings\MessageTemplate;
+use App\Models\Bookings\Payment;
 use App\Models\Bookings\Service;
 use App\Models\Bookings\ServiceCategory;
 use App\Models\Bookings\ServiceSession;
@@ -59,6 +62,9 @@ class BookingsSeeder extends Seeder
             'buffer_after_minutes' => 15,
             'min_notice_minutes' => 120,
             'cancellation_hours' => 24,
+            'payment_requirement' => PaymentRequirement::Deposit,
+            'deposit_type' => DepositType::Percent,
+            'deposit_amount' => 20,
         ]);
 
         if ($consultation->wasRecentlyCreated) {
@@ -149,6 +155,28 @@ class BookingsSeeder extends Seeder
         $this->seedSessions();
         $this->seedBookings();
         $this->seedMessages();
+        $this->seedPayments();
+    }
+
+    /**
+     * A deposit paid online, money taken in person, and a payment link waiting. Made-up Stripe IDs,
+     * as nothing here goes to Stripe.
+     */
+    protected function seedPayments(): void
+    {
+        if (Payment::query()->exists()) {
+            return;
+        }
+
+        $priced = Booking::query()->whereNotNull('price')->whereNotNull('starts_at')->orderBy('id')->limit(3)->get();
+
+        if ($priced->count() < 3) {
+            return;
+        }
+
+        Payment::factory()->for($priced[0])->create(['amount' => (int) round((int) $priced[0]->price * 0.2), 'stripe_checkout_session_id' => 'cs_test_seeded_deposit']);
+        Payment::factory()->for($priced[1])->inPerson()->create(['amount' => (int) $priced[1]->price, 'note' => 'Paid at the desk']);
+        Payment::factory()->for($priced[2])->pending()->create(['amount' => (int) $priced[2]->price, 'stripe_checkout_session_id' => 'cs_test_seeded_link']);
     }
 
     /**

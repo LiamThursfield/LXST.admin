@@ -20,6 +20,7 @@ namespace App\Services\Navigation\Constants;
  * │   ├── Bookings
  * │   ├── Timetable
  * │   ├── Waitlist
+ * │   ├── Payments
  * │   ├── Messages
  * │   ├── Message log
  * │   ├── Services
@@ -75,6 +76,8 @@ class TenantMenu
     public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_SESSIONS = 'sessions';
 
     public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_WAITLIST = 'waitlist';
+
+    public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_PAYMENTS = 'payments';
 
     public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGES = 'messages';
 
@@ -221,6 +224,8 @@ class TenantMenu
     public const string MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_MAIL = 'mail';
 
     public const string MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_MESSAGING = 'messaging';
+
+    public const string MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_PAYMENTS = 'payments';
 
     public const string MENU_MAIN_SECTION_ADMIN_ITEM_SITE_SETTINGS_API_TOKENS = 'api-tokens';
 

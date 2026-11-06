@@ -10,6 +10,8 @@ defineProps<ServiceFormOptions>();
         :booking-types="bookingTypes"
         :price-types="priceTypes"
         :hire-units="hireUnits"
+        :payment-requirements="paymentRequirements"
+        :deposit-types="depositTypes"
         :resource-types="resourceTypes"
         :option-types="optionTypes"
         :categories="categories"
