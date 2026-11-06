@@ -3,6 +3,8 @@
 
 @source "../../js/components/**/*.vue";
 @source "../../js/tenant/**/*.vue";
+/* The theme overrides in the Nuxt UI options, e.g. solid primary buttons */
+@source "../../../vite.tenant.config.ts";
 
 @theme static {
     --font-sans: 'Onest', sans-serif;
@@ -24,7 +26,26 @@
         cursor: default;
     }
 
+    /*
+     * Primary text, links and borders use the 700 shade in light mode and the 400 shade in dark
+     * mode, which pass 4.5:1 against the background for every palette a tenant can choose.
+     * Solid primary (buttons, badges) keeps the bright 500 shade with dark text, except on the
+     * palettes too dark for it (see `siteBranding`), which get white text on the 600 shade.
+     */
+    :root:not(.dark) {
+        --ui-primary: var(--ui-color-primary-700);
+        --ui-primary-solid: var(--ui-color-primary-500);
+        --ui-primary-solid-text: var(--ui-color-neutral-900);
+    }
+
+    :root:not(.dark)[data-primary-solid-text='white'] {
+        --ui-primary-solid: var(--ui-color-primary-600);
+        --ui-primary-solid-text: #fff;
+    }
+
     .dark {
-        --ui-primary: var(--ui-color-primary-500);
+        --ui-primary: var(--ui-color-primary-400);
+        --ui-primary-solid: var(--ui-primary);
+        --ui-primary-solid-text: var(--ui-text-inverted);
     }
 }
