@@ -35,6 +35,10 @@ export type ServiceData = {
     payment_requirement: string;
     deposit_type: string | null;
     deposit_amount: string | null;
+    no_show_fee_type: string | null;
+    no_show_fee_amount: string | null;
+    late_cancellation_fee_type: string | null;
+    late_cancellation_fee_amount: string | null;
     min_notice_minutes: number | null;
     max_advance_days: number | null;
     cancellation_hours: number | null;
@@ -316,6 +320,12 @@ export type PaymentRow = {
     status: string;
     status_label: string;
     note: string | null;
+    purpose: string;
+    purpose_label: string;
+    refunded: string | null;
+    /** In pounds, ready for the amount field, while some can still be refunded. */
+    refundable: string | null;
+    failure_message: string | null;
     /** The customer's link, while it can still be paid. */
     link: string | null;
     customer_name?: string;
@@ -334,4 +344,10 @@ export type BookingPaymentSummary = {
     canManage: boolean;
     methods: SelectItem[];
     list: PaymentRow[];
+    /** The card kept for fees, if one is saved. */
+    card: { label: string; saved_at: string | null } | null;
+    /** The customer's link to save a card, while it's open. */
+    cardLink: string | null;
+    /** The fee that could be charged now, if any. */
+    fee: { purpose: string; label: string; suggested: string | null } | null;
 };

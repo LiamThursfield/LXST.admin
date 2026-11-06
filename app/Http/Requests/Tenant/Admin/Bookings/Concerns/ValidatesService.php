@@ -59,6 +59,8 @@ trait ValidatesService
                 'gt:0',
                 $this->input('deposit_type') === DepositType::Percent->value ? 'max:100' : 'max:'.self::MAX_PRICE,
             ],
+            ...$this->feeRules('no_show_fee'),
+            ...$this->feeRules('late_cancellation_fee'),
 
             'price_type' => ['required', Rule::enum(ServicePriceType::class)],
             'price' => [Rule::excludeIf(! $this->priceHasAmount()), 'required', 'numeric', 'decimal:0,2', 'min:0', 'max:'.self::MAX_PRICE],
@@ -142,6 +144,40 @@ trait ValidatesService
             'deposit_amount' => isset($attributes['deposit_amount'])
                 ? (($attributes['deposit_type'] ?? null) === DepositType::Percent->value ? (int) round((float) $attributes['deposit_amount']) : $this->toMinorUnits($attributes['deposit_amount']))
                 : null,
+            ...$this->feeAttributes('no_show_fee', $attributes),
+            ...$this->feeAttributes('late_cancellation_fee', $attributes),
+        ];
+    }
+
+    /**
+     * A no-show or late cancellation fee: blank for none, or a set amount or a percentage of the price
+     *
+     * @return array<string, mixed>
+     */
+    protected function feeRules(string $fee): array
+    {
+        $isPercent = $this->input("{$fee}_type") === DepositType::Percent->value;
+
+        return [
+            "{$fee}_type" => ["required_with:{$fee}_amount", 'nullable', Rule::enum(DepositType::class)],
+            "{$fee}_amount" => ['nullable', 'numeric', 'gt:0', $isPercent ? 'max:100' : 'max:'.self::MAX_PRICE],
+        ];
+    }
+
+    /**
+     * A fixed fee is entered in pounds and kept in pence; a percentage is kept as it is
+     *
+     * @param  array<string, mixed>  $attributes
+     * @return array<string, mixed>
+     */
+    protected function feeAttributes(string $fee, array $attributes): array
+    {
+        $amount = $attributes["{$fee}_amount"] ?? null;
+        $isPercent = ($attributes["{$fee}_type"] ?? null) === DepositType::Percent->value;
+
+        return [
+            "{$fee}_type" => $amount === null ? null : ($attributes["{$fee}_type"] ?? DepositType::Fixed->value),
+            "{$fee}_amount" => $amount === null ? null : ($isPercent ? (int) round((float) $amount) : $this->toMinorUnits($amount)),
         ];
     }
 

@@ -6,6 +6,7 @@ use App\Enums\Bookings\BookingStatus;
 use App\Enums\Bookings\DepositType;
 use App\Enums\Bookings\HireUnit;
 use App\Enums\Bookings\MessageEvent;
+use App\Enums\Bookings\PaymentMethod;
 use App\Enums\Bookings\PaymentRequirement;
 use App\Enums\Bookings\ResourceType;
 use App\Enums\Bookings\ServiceOptionType;
@@ -21,6 +22,8 @@ use App\Models\Bookings\Booking;
 use App\Models\Bookings\MessageLog;
 use App\Models\Bookings\MessageTemplate;
 use App\Models\Bookings\Payment;
+use App\Models\Bookings\Refund;
+use App\Models\Bookings\SavedCard;
 use App\Models\Bookings\Service;
 use App\Models\Bookings\ServiceCategory;
 use App\Models\Bookings\ServiceSession;
@@ -65,6 +68,10 @@ class BookingsSeeder extends Seeder
             'payment_requirement' => PaymentRequirement::Deposit,
             'deposit_type' => DepositType::Percent,
             'deposit_amount' => 20,
+            'no_show_fee_type' => DepositType::Percent,
+            'no_show_fee_amount' => 50,
+            'late_cancellation_fee_type' => DepositType::Fixed,
+            'late_cancellation_fee_amount' => 1000,
         ]);
 
         if ($consultation->wasRecentlyCreated) {
@@ -156,6 +163,7 @@ class BookingsSeeder extends Seeder
         $this->seedBookings();
         $this->seedMessages();
         $this->seedPayments();
+        $this->seedCardsAndRefunds();
     }
 
     /**
@@ -177,6 +185,28 @@ class BookingsSeeder extends Seeder
         Payment::factory()->for($priced[0])->create(['amount' => (int) round((int) $priced[0]->price * 0.2), 'stripe_checkout_session_id' => 'cs_test_seeded_deposit']);
         Payment::factory()->for($priced[1])->inPerson()->create(['amount' => (int) $priced[1]->price, 'note' => 'Paid at the desk']);
         Payment::factory()->for($priced[2])->pending()->create(['amount' => (int) $priced[2]->price, 'stripe_checkout_session_id' => 'cs_test_seeded_link']);
+    }
+
+    /**
+     * The card kept when the deposit was paid, and part of the money taken in person given back.
+     * Made-up Stripe IDs, as nothing here goes to Stripe.
+     */
+    protected function seedCardsAndRefunds(): void
+    {
+        $deposit = Payment::query()->firstWhere('stripe_checkout_session_id', 'cs_test_seeded_deposit');
+        $inPerson = Payment::query()->where('method', PaymentMethod::Cash)->orderBy('id')->first();
+
+        if ($deposit !== null && ! SavedCard::query()->exists()) {
+            SavedCard::factory()->for($deposit->booking)->create([
+                'stripe_checkout_session_id' => null,
+                'stripe_customer_id' => 'cus_test_seeded',
+                'stripe_payment_method_id' => 'pm_test_seeded',
+            ]);
+        }
+
+        if ($inPerson !== null && ! Refund::query()->exists()) {
+            Refund::factory()->for($inPerson)->inPerson()->create(['amount' => 500, 'reason' => 'Started late']);
+        }
     }
 
     /**

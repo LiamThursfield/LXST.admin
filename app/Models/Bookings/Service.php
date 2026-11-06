@@ -53,6 +53,10 @@ use Illuminate\Support\Str;
  * @property PaymentRequirement $payment_requirement
  * @property DepositType|null $deposit_type
  * @property int|null $deposit_amount In minor units when fixed, or a whole percentage
+ * @property DepositType|null $no_show_fee_type
+ * @property int|null $no_show_fee_amount In minor units when fixed, or a whole percentage
+ * @property DepositType|null $late_cancellation_fee_type
+ * @property int|null $late_cancellation_fee_amount In minor units when fixed, or a whole percentage
  */
 class Service extends Model
 {
@@ -97,6 +101,10 @@ class Service extends Model
         'payment_requirement',
         'deposit_type',
         'deposit_amount',
+        'no_show_fee_type',
+        'no_show_fee_amount',
+        'late_cancellation_fee_type',
+        'late_cancellation_fee_amount',
         'is_bookable_online',
     ];
 
@@ -131,6 +139,10 @@ class Service extends Model
             'payment_requirement' => PaymentRequirement::class,
             'deposit_type' => DepositType::class,
             'deposit_amount' => 'integer',
+            'no_show_fee_type' => DepositType::class,
+            'no_show_fee_amount' => 'integer',
+            'late_cancellation_fee_type' => DepositType::class,
+            'late_cancellation_fee_amount' => 'integer',
         ];
     }
 

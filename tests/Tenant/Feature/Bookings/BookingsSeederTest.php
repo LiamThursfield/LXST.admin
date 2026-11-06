@@ -8,6 +8,8 @@ use App\Models\Bookings\Booking;
 use App\Models\Bookings\MessageLog;
 use App\Models\Bookings\MessageTemplate;
 use App\Models\Bookings\Payment;
+use App\Models\Bookings\Refund;
+use App\Models\Bookings\SavedCard;
 use App\Models\Bookings\Service;
 use App\Models\Bookings\ServiceCategory;
 use App\Models\Bookings\ServiceOption;
@@ -43,6 +45,8 @@ it('seeds a service of every booking type, and is safe to re-run', function () {
         ->and(MessageTemplate::query()->count())->toBe(2)
         ->and(MessageLog::query()->count())->toBe(5)
         ->and(Payment::query()->count())->toBe(3)
+        ->and(SavedCard::query()->count())->toBe(1)
+        ->and(Refund::query()->count())->toBe(1)
         ->and(Booking::query()->where('is_walk_in', true)->count())->toBe(1)
         ->and(Booking::query()->where('status', BookingStatus::Cancelled)->count())->toBe(1)
         ->and(Booking::query()->whereNotNull('cancelled_at')->count())->toBe(1)

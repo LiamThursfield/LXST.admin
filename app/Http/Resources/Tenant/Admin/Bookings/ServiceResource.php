@@ -88,6 +88,12 @@ class ServiceResource extends JsonResource
             'deposit_type' => $service->deposit_type?->value,
             'deposit_amount' => $service->deposit_amount === null ? null
                 : ($service->deposit_type === DepositType::Percent ? (string) $service->deposit_amount : $this->toMajorUnits($service->deposit_amount)),
+            'no_show_fee_type' => $service->no_show_fee_type?->value,
+            'no_show_fee_amount' => $service->no_show_fee_amount === null ? null
+                : ($service->no_show_fee_type === DepositType::Percent ? (string) $service->no_show_fee_amount : $this->toMajorUnits($service->no_show_fee_amount)),
+            'late_cancellation_fee_type' => $service->late_cancellation_fee_type?->value,
+            'late_cancellation_fee_amount' => $service->late_cancellation_fee_amount === null ? null
+                : ($service->late_cancellation_fee_type === DepositType::Percent ? (string) $service->late_cancellation_fee_amount : $this->toMajorUnits($service->late_cancellation_fee_amount)),
             'options' => $this->whenLoaded('options', fn () => $service->options->map(fn (ServiceOption $option) => [
                 'id' => $option->id,
                 'type' => $option->type->value,

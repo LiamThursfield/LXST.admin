@@ -3,6 +3,7 @@
 namespace Database\Factories\Bookings;
 
 use App\Enums\Bookings\PaymentMethod;
+use App\Enums\Bookings\PaymentPurpose;
 use App\Enums\Bookings\PaymentStatus;
 use App\Models\Bookings\Booking;
 use App\Models\Bookings\Payment;
@@ -26,12 +27,14 @@ class PaymentFactory extends Factory
     {
         return [
             'booking_id' => Booking::factory(),
+            'purpose' => PaymentPurpose::Booking,
             'amount' => 1000,
             'currency' => Service::CURRENCY,
             'status' => PaymentStatus::Paid,
             'method' => PaymentMethod::Online,
             'application_fee' => 0,
             'stripe_checkout_session_id' => 'cs_test_'.Str::random(24),
+            'stripe_payment_intent_id' => 'pi_test_'.Str::random(24),
             'paid_at' => now(),
         ];
     }
@@ -45,6 +48,7 @@ class PaymentFactory extends Factory
             'status' => PaymentStatus::Pending,
             'checkout_url' => 'https://checkout.stripe.com/c/pay/'.($attributes['stripe_checkout_session_id'] ?? 'cs_test'),
             'expires_at' => now()->addDay(),
+            'stripe_payment_intent_id' => null,
             'paid_at' => null,
         ]);
     }
@@ -56,6 +60,18 @@ class PaymentFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'method' => $method,
+            'stripe_checkout_session_id' => null,
+            'stripe_payment_intent_id' => null,
+        ]);
+    }
+
+    /**
+     * A no-show or late cancellation fee, charged to a saved card
+     */
+    public function fee(PaymentPurpose $purpose = PaymentPurpose::NoShowFee): static
+    {
+        return $this->state(fn () => [
+            'purpose' => $purpose,
             'stripe_checkout_session_id' => null,
         ]);
     }
