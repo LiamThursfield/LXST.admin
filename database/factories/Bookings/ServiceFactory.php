@@ -2,6 +2,7 @@
 
 namespace Database\Factories\Bookings;
 
+use App\Enums\Bookings\DepositType;
 use App\Enums\Bookings\HireUnit;
 use App\Enums\Bookings\ResourceType;
 use App\Enums\Bookings\ServicePriceType;
@@ -127,6 +128,19 @@ class ServiceFactory extends Factory
             'max_advance_days' => 30,
             'cancellation_hours' => 24,
             'max_per_customer' => 1,
+        ]);
+    }
+
+    /**
+     * Charges half the price for a no-show and a set £10 for a late cancellation
+     */
+    public function withFees(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'no_show_fee_type' => DepositType::Percent,
+            'no_show_fee_amount' => 50,
+            'late_cancellation_fee_type' => DepositType::Fixed,
+            'late_cancellation_fee_amount' => 1000,
         ]);
     }
 

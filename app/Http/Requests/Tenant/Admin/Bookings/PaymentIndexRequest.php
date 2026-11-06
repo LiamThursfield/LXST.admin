@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Tenant\Admin\Bookings;
 
 use App\Enums\Bookings\PaymentMethod;
+use App\Enums\Bookings\PaymentPurpose;
 use App\Enums\Bookings\PaymentStatus;
 use App\Services\Authorisation\Enums\BookingsPermission;
 use Illuminate\Foundation\Http\FormRequest;
@@ -29,6 +30,7 @@ class PaymentIndexRequest extends FormRequest
             'filter' => ['nullable', 'array'],
             'filter.status' => ['nullable', Rule::enum(PaymentStatus::class)],
             'filter.method' => ['nullable', Rule::enum(PaymentMethod::class)],
+            'filter.purpose' => ['nullable', Rule::enum(PaymentPurpose::class)],
         ];
     }
 }

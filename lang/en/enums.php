@@ -80,6 +80,21 @@ return [
         'failed' => 'Failed',
         'expired' => 'Link ran out',
     ],
+    'payment_purpose' => [
+        'booking' => 'Towards the price',
+        'no_show_fee' => 'No-show fee',
+        'late_cancellation_fee' => 'Late cancellation fee',
+    ],
+    'refund_status' => [
+        'pending' => 'Waiting',
+        'succeeded' => 'Refunded',
+        'failed' => 'Failed',
+    ],
+    'saved_card_status' => [
+        'requested' => 'Asked for',
+        'saved' => 'Saved',
+        'expired' => 'Link ran out',
+    ],
     'payment_method' => [
         'online' => 'Online',
         'cash' => 'Cash',

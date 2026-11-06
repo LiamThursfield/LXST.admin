@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Link, router, useForm } from '@inertiajs/vue3';
+import BookingCardController from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/BookingCardController';
 import {
     index,
     message,
@@ -7,7 +8,13 @@ import {
     status as updateStatus,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/BookingController';
 import BookingPaymentController from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/BookingPaymentController';
-import type { BookingData, BookingPaymentSummary, SelectItem } from '@/types';
+import PaymentRefundController from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/PaymentRefundController';
+import type {
+    BookingData,
+    BookingPaymentSummary,
+    PaymentRow,
+    SelectItem,
+} from '@/types';
 
 const props = defineProps<{
     booking: { data: BookingData };
@@ -80,6 +87,48 @@ function recordPayment() {
     recordForm.post(BookingPaymentController.record.url(booking.value.id), {
         preserveScroll: true,
         onSuccess: () => (recordOpen.value = false),
+    });
+}
+
+const refundOpen = ref(false);
+const refunding = ref<PaymentRow | null>(null);
+const refundForm = useForm({ amount: '', reason: '' });
+
+function openRefund(payment: PaymentRow) {
+    refunding.value = payment;
+    refundForm.reset();
+    refundForm.clearErrors();
+    refundForm.amount = payment.refundable ?? '';
+    refundOpen.value = true;
+}
+
+function refundPayment() {
+    if (!refunding.value) {
+        return;
+    }
+
+    refundForm.post(PaymentRefundController.store.url(refunding.value.id), {
+        preserveScroll: true,
+        onSuccess: () => (refundOpen.value = false),
+    });
+}
+
+const cardForm = useForm({});
+
+function requestCard() {
+    cardForm.post(BookingCardController.store.url(booking.value.id), {
+        preserveScroll: true,
+    });
+}
+
+const feeOpen = ref(false);
+const feeForm = useForm({ amount: props.payments?.fee?.suggested ?? '' });
+const feeLabel = computed(() => props.payments?.fee?.label.toLowerCase() ?? '');
+
+function chargeFee() {
+    feeForm.post(BookingCardController.charge.url(booking.value.id), {
+        preserveScroll: true,
+        onSuccess: () => (feeOpen.value = false),
     });
 }
 
@@ -329,6 +378,22 @@ function setTime() {
                         variant="subtle"
                         :label="payment.status_label"
                     />
+                    <UBadge
+                        v-if="payment.purpose !== 'booking'"
+                        color="warning"
+                        variant="subtle"
+                        :label="payment.purpose_label"
+                    />
+                    <span v-if="payment.refunded" class="text-muted">
+                        {{
+                            trans('bookings.payments.refunded', {
+                                amount: payment.refunded,
+                            })
+                        }}
+                    </span>
+                    <span v-if="payment.failure_message" class="text-error">
+                        {{ payment.failure_message }}
+                    </span>
                     <UButton
                         v-if="payment.link"
                         size="xs"
@@ -337,6 +402,15 @@ function setTime() {
                         icon="i-lucide-copy"
                         :label="trans('bookings.payments.copy_link')"
                         @click="copyLink(payment.link)"
+                    />
+                    <UButton
+                        v-if="payments.canManage && payment.refundable"
+                        size="xs"
+                        color="neutral"
+                        variant="ghost"
+                        icon="i-lucide-undo-2"
+                        :label="trans('bookings.payments.refund')"
+                        @click="openRefund(payment)"
                     />
                 </li>
             </ul>
@@ -365,7 +439,174 @@ function setTime() {
             >
                 {{ trans('bookings.payments.not_set_up') }}
             </p>
+
+            <USeparator />
+
+            <div class="flex flex-col gap-2 text-sm">
+                <p class="font-medium">
+                    {{ trans('bookings.payments.cards.title') }}
+                </p>
+                <p v-if="payments.card" class="text-muted">
+                    {{ payments.card.label }}
+                    <template v-if="payments.card.saved_at">
+                        ·
+                        {{
+                            trans('bookings.payments.cards.saved_on', {
+                                date: payments.card.saved_at,
+                            })
+                        }}
+                    </template>
+                </p>
+                <p v-else class="text-muted">
+                    {{ trans('bookings.payments.cards.none') }}
+                    <template v-if="payments.cardLink">
+                        {{ trans('bookings.payments.cards.link_sent') }}
+                    </template>
+                </p>
+
+                <div
+                    v-if="payments.canManage"
+                    class="flex flex-wrap items-center gap-2"
+                >
+                    <UButton
+                        v-if="payments.canRequest && !payments.card"
+                        color="neutral"
+                        variant="subtle"
+                        icon="i-lucide-credit-card"
+                        :label="trans('bookings.payments.cards.request')"
+                        :loading="cardForm.processing"
+                        @click="requestCard"
+                    />
+                    <UButton
+                        v-if="payments.cardLink"
+                        color="neutral"
+                        variant="ghost"
+                        icon="i-lucide-copy"
+                        :label="trans('bookings.payments.copy_link')"
+                        @click="copyLink(payments.cardLink)"
+                    />
+                    <UButton
+                        v-if="
+                            payments.fee && payments.card && payments.canRequest
+                        "
+                        color="warning"
+                        icon="i-lucide-receipt"
+                        :label="
+                            trans('bookings.payments.fees.charge', {
+                                fee: feeLabel,
+                            })
+                        "
+                        @click="feeOpen = true"
+                    />
+                </div>
+                <p
+                    v-if="payments.canManage && payments.fee && !payments.card"
+                    class="text-muted"
+                >
+                    {{
+                        trans('bookings.payments.fees.needs_card', {
+                            fee: feeLabel,
+                        })
+                    }}
+                </p>
+            </div>
         </UPageCard>
+
+        <UModal
+            v-model:open="refundOpen"
+            :title="trans('bookings.payments.refund')"
+            :description="trans('bookings.payments.refund_help')"
+        >
+            <template #body>
+                <div class="flex flex-col gap-4">
+                    <UFormField
+                        :label="
+                            trans('bookings.payments.amount', {
+                                currency: 'GBP',
+                            })
+                        "
+                        :error="refundForm.errors.amount"
+                        required
+                    >
+                        <UInput
+                            v-model="refundForm.amount"
+                            type="number"
+                            min="0.01"
+                            :max="refunding?.refundable ?? undefined"
+                            step="0.01"
+                            class="w-full"
+                        />
+                    </UFormField>
+                    <UFormField
+                        :label="trans('bookings.payments.reason')"
+                        :error="refundForm.errors.reason"
+                    >
+                        <UInput v-model="refundForm.reason" class="w-full" />
+                    </UFormField>
+                </div>
+            </template>
+            <template #footer>
+                <div class="flex w-full justify-end gap-2">
+                    <UButton
+                        color="neutral"
+                        variant="ghost"
+                        :label="trans('common.actions.cancel')"
+                        @click="refundOpen = false"
+                    />
+                    <UButton
+                        icon="i-lucide-undo-2"
+                        :label="trans('bookings.payments.refund')"
+                        :loading="refundForm.processing"
+                        @click="refundPayment"
+                    />
+                </div>
+            </template>
+        </UModal>
+
+        <UModal
+            v-model:open="feeOpen"
+            :title="trans('bookings.payments.fees.charge', { fee: feeLabel })"
+            :description="trans('bookings.payments.fees.charge_help')"
+        >
+            <template #body>
+                <UFormField
+                    :label="
+                        trans('bookings.payments.amount', { currency: 'GBP' })
+                    "
+                    :error="feeForm.errors.amount"
+                    required
+                >
+                    <UInput
+                        v-model="feeForm.amount"
+                        type="number"
+                        min="0.30"
+                        step="0.01"
+                        class="w-full"
+                    />
+                </UFormField>
+            </template>
+            <template #footer>
+                <div class="flex w-full justify-end gap-2">
+                    <UButton
+                        color="neutral"
+                        variant="ghost"
+                        :label="trans('common.actions.cancel')"
+                        @click="feeOpen = false"
+                    />
+                    <UButton
+                        color="warning"
+                        icon="i-lucide-receipt"
+                        :label="
+                            trans('bookings.payments.fees.charge', {
+                                fee: feeLabel,
+                            })
+                        "
+                        :loading="feeForm.processing"
+                        @click="chargeFee"
+                    />
+                </div>
+            </template>
+        </UModal>
 
         <UModal
             v-model:open="requestOpen"

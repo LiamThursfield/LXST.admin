@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Webhooks;
 
 use App\Enums\Bookings\PaymentStatus;
+use App\Enums\Bookings\SavedCardStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
 use App\Services\Bookings\BookingPayments;
@@ -13,8 +14,9 @@ use Stripe\Event;
 use Throwable;
 
 /**
- * Stripe's news about connected accounts: a business finishing its setup, and payments on its account
- * going through or not. One endpoint for every tenant, found by the account the news is about.
+ * Stripe's news about connected accounts: a business finishing its setup, payments on its account
+ * going through or not, cards saved for later fees, and refunds. One endpoint for every tenant,
+ * found by the account the news is about.
  */
 class StripeWebhookController extends Controller
 {
@@ -42,19 +44,62 @@ class StripeWebhookController extends Controller
             return response('OK');
         }
 
+        $object = $event->data->object;
+        $payments = app(BookingPayments::class);
+
+        if (str_starts_with($event->type, 'checkout.session.') && ($object->mode ?? null) === 'setup') {
+            $cardStatus = $this->cardStatusFor($event);
+
+            if ($cardStatus !== null) {
+                $tenant->run(fn () => $payments->settleCard(
+                    (string) $object->id,
+                    $cardStatus,
+                    is_string($object->setup_intent ?? null) ? $object->setup_intent : null,
+                ));
+            }
+
+            return response('OK');
+        }
+
+        if (in_array($event->type, ['refund.created', 'refund.updated', 'refund.failed', 'charge.refund.updated'], true)) {
+            $tenant->run(fn () => $payments->settleRefund((string) $object->id, $object->status ?? null));
+
+            return response('OK');
+        }
+
+        if (in_array($event->type, ['payment_intent.succeeded', 'payment_intent.payment_failed'], true)) {
+            $tenant->run(fn () => $payments->settleIntent(
+                (string) $object->id,
+                $event->type === 'payment_intent.succeeded' ? PaymentStatus::Paid : PaymentStatus::Failed,
+                $object->last_payment_error->message ?? null,
+            ));
+
+            return response('OK');
+        }
+
         $status = $this->paymentStatusFor($event);
 
         if ($status !== null) {
-            $session = $event->data->object;
-
-            $tenant->run(fn () => app(BookingPayments::class)->settle(
-                (string) $session->id,
+            $tenant->run(fn () => $payments->settle(
+                (string) $object->id,
                 $status,
-                is_string($session->payment_intent ?? null) ? $session->payment_intent : null,
+                is_string($object->payment_intent ?? null) ? $object->payment_intent : null,
             ));
         }
 
         return response('OK');
+    }
+
+    /**
+     * A card is saved once its setup page is completed
+     */
+    protected function cardStatusFor(Event $event): ?SavedCardStatus
+    {
+        return match ($event->type) {
+            'checkout.session.completed' => SavedCardStatus::Saved,
+            'checkout.session.expired' => SavedCardStatus::Expired,
+            default => null,
+        };
     }
 
     /**

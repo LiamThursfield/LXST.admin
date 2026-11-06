@@ -65,6 +65,10 @@ const form = useForm({
     payment_requirement: service?.payment_requirement ?? 'none',
     deposit_type: service?.deposit_type ?? 'percent',
     deposit_amount: service?.deposit_amount ?? '',
+    no_show_fee_type: service?.no_show_fee_type ?? 'fixed',
+    no_show_fee_amount: service?.no_show_fee_amount ?? '',
+    late_cancellation_fee_type: service?.late_cancellation_fee_type ?? 'fixed',
+    late_cancellation_fee_amount: service?.late_cancellation_fee_amount ?? '',
     options: (service?.options ?? []).map((option) => ({
         ...option,
     })) as ServiceOptionData[],
@@ -100,6 +104,9 @@ function toggleNeededType(type: string, needed: boolean) {
 }
 
 const hasAmount = computed(() => form.price_type !== 'on_quote');
+
+/** The fees that can be charged to a saved card, each set the same way. */
+const fees = ['no_show_fee', 'late_cancellation_fee'] as const;
 
 const categoryItems = computed(() => [
     { value: null, label: trans('bookings.services.fields.no_category') },
@@ -524,6 +531,57 @@ function submit() {
                         />
                     </UFormField>
                 </template>
+            </div>
+
+            <p class="text-muted text-sm">
+                {{ trans('bookings.services.fields.fees_help') }}
+            </p>
+
+            <div
+                v-for="fee in fees"
+                :key="fee"
+                class="grid grid-cols-1 gap-4 md:grid-cols-3"
+            >
+                <p class="text-sm font-medium md:pt-7">
+                    {{ trans(`bookings.services.fields.${fee}`) }}
+                </p>
+                <UFormField
+                    :label="trans('bookings.services.fields.fee_type')"
+                    :name="`${fee}_type`"
+                    :error="form.errors[`${fee}_type`]"
+                >
+                    <USelect
+                        v-model="form[`${fee}_type`]"
+                        :items="depositTypes"
+                        :disabled="readonly"
+                        class="w-full"
+                    />
+                </UFormField>
+                <UFormField
+                    :label="
+                        form[`${fee}_type`] === 'percent'
+                            ? trans(
+                                  'bookings.services.fields.fee_amount_percent',
+                              )
+                            : trans(
+                                  'bookings.services.fields.fee_amount_fixed',
+                                  {
+                                      currency,
+                                  },
+                              )
+                    "
+                    :name="`${fee}_amount`"
+                    :error="form.errors[`${fee}_amount`]"
+                >
+                    <UInput
+                        v-model="form[`${fee}_amount`]"
+                        type="number"
+                        min="0"
+                        :step="form[`${fee}_type`] === 'percent' ? 1 : 0.01"
+                        :disabled="readonly"
+                        class="w-full"
+                    />
+                </UFormField>
             </div>
         </UPageCard>
 

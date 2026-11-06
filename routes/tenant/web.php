@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Tenant\Public\Bookings\PaymentController;
+use App\Http\Controllers\Tenant\Public\Bookings\SavedCardController;
 use App\Http\Controllers\Tenant\Public\Dj\HostedRequestController;
 use Illuminate\Support\Facades\Route;
 
@@ -32,3 +33,8 @@ Route::name('dj.')->middleware('tenant.module:dj')->group(function () {
 Route::get('pay/{publicId}', [PaymentController::class, 'show'])
     ->middleware(['tenant.module:bookings', 'throttle:60,1'])
     ->name('bookings.payments.show');
+
+// The link sent to a customer to save a card for later fees (#180)
+Route::get('card/{publicId}', [SavedCardController::class, 'show'])
+    ->middleware(['tenant.module:bookings', 'throttle:60,1'])
+    ->name('bookings.cards.show');

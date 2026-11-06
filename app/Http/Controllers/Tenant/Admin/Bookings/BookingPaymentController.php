@@ -25,8 +25,8 @@ class BookingPaymentController extends Controller
 {
     public function index(PaymentIndexRequest $request, BookingPayments $payments): Response
     {
-        $list = QueryBuilder::for(Payment::query()->with('booking'), $request)
-            ->allowedFilters(AllowedFilter::exact('status'), AllowedFilter::exact('method'))
+        $list = QueryBuilder::for(Payment::query()->with(['booking', 'refunds']), $request)
+            ->allowedFilters(AllowedFilter::exact('status'), AllowedFilter::exact('method'), AllowedFilter::exact('purpose'))
             ->defaultSort('-id')
             ->paginate($request->integer('per_page', 15))
             ->appends($request->query());
@@ -41,7 +41,9 @@ class BookingPaymentController extends Controller
             'columns' => [
                 ['accessorKey' => 'when', 'header' => __('bookings.payments.columns.when')],
                 ['accessorKey' => 'customer_name', 'header' => app(Terminology::class)->translate('bookings.payments.columns.customer')],
+                ['accessorKey' => 'purpose_label', 'header' => __('bookings.payments.columns.purpose')],
                 ['accessorKey' => 'amount', 'header' => __('bookings.payments.columns.amount')],
+                ['accessorKey' => 'refunded', 'header' => __('bookings.payments.columns.refunded')],
                 ['accessorKey' => 'fee', 'header' => __('bookings.payments.columns.fee')],
                 ['accessorKey' => 'method_label', 'header' => __('bookings.payments.columns.method')],
                 ['accessorKey' => 'status_label', 'header' => __('bookings.payments.columns.status')],
@@ -88,6 +90,9 @@ class BookingPaymentController extends Controller
      */
     public static function row(Payment $payment, BookingPayments $payments): array
     {
+        $refunded = $payments->refunded($payment);
+        $refundable = $payments->refundable($payment);
+
         return [
             'id' => $payment->id,
             'when' => ($payment->paid_at ?? $payment->created_at)?->setTimezone($payment->booking->timezone)->format('D j M Y, H:i'),
@@ -98,6 +103,12 @@ class BookingPaymentController extends Controller
             'status' => $payment->status->value,
             'status_label' => $payment->status->label(),
             'note' => $payment->note,
+            'purpose' => $payment->purpose->value,
+            'purpose_label' => $payment->purpose->label(),
+            'refunded' => $refunded > 0 ? $payments->format($refunded) : null,
+            // In pounds, ready for the amount field
+            'refundable' => $refundable > 0 ? number_format($refundable / 100, 2, '.', '') : null,
+            'failure_message' => $payment->failure_message,
             'link' => $payment->isPayable() ? route('bookings.payments.show', $payment->public_id) : null,
         ];
     }

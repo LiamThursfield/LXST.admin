@@ -8,6 +8,7 @@ use App\Enums\Bookings\MessageEvent;
 use App\Enums\Bookings\MessageStatus;
 use App\Enums\Bookings\PaymentMethod;
 use App\Enums\Bookings\ResourceType;
+use App\Enums\Bookings\SavedCardStatus;
 use App\Enums\Bookings\WaitlistStatus;
 use App\Enums\Crm\OrganisationUnitType;
 use App\Enums\TenantModule;
@@ -263,7 +264,8 @@ class BookingController extends Controller
     }
 
     /**
-     * What's been paid, what's left, and whether more can be asked for, for those who can see payments
+     * What's been paid, what's left, whether more can be asked for, the card kept for fees, and any
+     * fee due, for those who can see payments
      *
      * @return array<string, mixed>|null
      */
@@ -277,6 +279,10 @@ class BookingController extends Controller
         $outstanding = $payments->outstanding($booking);
         $suggested = $payments->suggested($booking);
         $tenant = tenant();
+        $card = $payments->savedCard($booking);
+        $cardLink = $booking->savedCards()->where('status', SavedCardStatus::Requested)->latest('id')->first();
+        $fee = $payments->chargeableFee($booking);
+        $suggestedFee = $fee === null ? null : $payments->feeFor($booking, $fee);
 
         return [
             'price' => $booking->price === null ? null : $payments->format($booking->price),
@@ -287,7 +293,14 @@ class BookingController extends Controller
             'canRequest' => $tenant instanceof Tenant && $tenant->canTakePayments() && app(StripeGateway::class)->isConfigured(),
             'canManage' => $request->user()->can(BookingsPermission::ManagePayments),
             'methods' => array_values(array_map(fn (PaymentMethod $method) => $method->toSelectItem(), array_filter(PaymentMethod::cases(), fn (PaymentMethod $method) => $method->isInPerson()))),
-            'list' => $booking->payments()->latest('id')->get()->map(fn (Payment $payment) => BookingPaymentController::row($payment->setRelation('booking', $booking), $payments))->values(),
+            'list' => $booking->payments()->with('refunds')->latest('id')->get()->map(fn (Payment $payment) => BookingPaymentController::row($payment->setRelation('booking', $booking), $payments))->values(),
+            'card' => $card === null ? null : ['label' => $card->label(), 'saved_at' => $card->saved_at?->setTimezone($booking->timezone)->format('D j M Y')],
+            'cardLink' => $cardLink !== null && $cardLink->isOpen() ? route('bookings.cards.show', $cardLink->public_id) : null,
+            'fee' => $fee === null ? null : [
+                'purpose' => $fee->value,
+                'label' => $fee->label(),
+                'suggested' => $suggestedFee === null ? null : number_format($suggestedFee / 100, 2, '.', ''),
+            ],
         ];
     }
 

@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Tenant\Admin\Bookings\BookingAvailabilityController;
 use App\Http\Controllers\Tenant\Admin\Bookings\BookingCalendarController;
+use App\Http\Controllers\Tenant\Admin\Bookings\BookingCardController;
 use App\Http\Controllers\Tenant\Admin\Bookings\BookingController;
 use App\Http\Controllers\Tenant\Admin\Bookings\BookingPaymentController;
 use App\Http\Controllers\Tenant\Admin\Bookings\MessageLogController;
 use App\Http\Controllers\Tenant\Admin\Bookings\MessageTemplateController;
+use App\Http\Controllers\Tenant\Admin\Bookings\PaymentRefundController;
 use App\Http\Controllers\Tenant\Admin\Bookings\ResourceController;
 use App\Http\Controllers\Tenant\Admin\Bookings\RotaController;
 use App\Http\Controllers\Tenant\Admin\Bookings\ServiceCategoryController;
@@ -141,7 +143,10 @@ Route::name('bookings.')->prefix('bookings')->middleware('tenant.module:bookings
     Route::post('bookings/{booking}/message', [BookingController::class, 'message'])->middleware('throttle:20,1')->name('bookings.message');
     Route::post('bookings/{booking}/payment-requests', [BookingPaymentController::class, 'store'])->middleware('throttle:20,1')->name('bookings.payment-requests.store');
     Route::post('bookings/{booking}/payments', [BookingPaymentController::class, 'record'])->name('bookings.payments.store');
+    Route::post('bookings/{booking}/card-requests', [BookingCardController::class, 'store'])->middleware('throttle:20,1')->name('bookings.card-requests.store');
+    Route::post('bookings/{booking}/fees', [BookingCardController::class, 'charge'])->middleware('throttle:20,1')->name('bookings.fees.store');
     Route::get('payments', [BookingPaymentController::class, 'index'])->name('payments.index');
+    Route::post('payments/{payment}/refunds', [PaymentRefundController::class, 'store'])->middleware('throttle:20,1')->name('payments.refunds.store');
     Route::post('bookings/{booking}/status', [BookingController::class, 'status'])->name('bookings.status');
     Route::put('bookings/{booking}/schedule', [BookingController::class, 'schedule'])->name('bookings.schedule');
     Route::resource('bookings', BookingController::class)->only(['index', 'create', 'store', 'show']);
