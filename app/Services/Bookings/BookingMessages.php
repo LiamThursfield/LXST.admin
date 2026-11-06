@@ -13,7 +13,7 @@ use App\Services\Messaging\PhoneNumber;
  * The wording of booking messages: a tenant's own, or the default in the tenant's words, filled in
  * with the booking's details. Placeholders are in braces, e.g. {customer_name}.
  *
- * @phpstan-type Wording array{is_enabled: bool, email_subject: string, email_body: string, sms_body: string, whatsapp_template_sid: string|null}
+ * @phpstan-type Wording array{is_enabled: bool, offset_hours: int|null, email_subject: string, email_body: string, sms_body: string, whatsapp_template_sid: string|null}
  */
 class BookingMessages
 {
@@ -40,7 +40,8 @@ class BookingMessages
         $defaults = $this->defaultsFor($event);
 
         return [
-            'is_enabled' => $template->is_enabled ?? true,
+            'is_enabled' => $template->is_enabled ?? $event->isEnabledByDefault(),
+            'offset_hours' => $template->offset_hours ?? $event->defaultOffsetHours(),
             'email_subject' => filled($template?->email_subject) ? (string) $template->email_subject : $defaults['email_subject'],
             'email_body' => filled($template?->email_body) ? (string) $template->email_body : $defaults['email_body'],
             'sms_body' => filled($template?->sms_body) ? (string) $template->sms_body : $defaults['sms_body'],
@@ -60,6 +61,14 @@ class BookingMessages
             'email_body' => $this->terminology->translate("bookings.messages.defaults.{$event->value}.email_body"),
             'sms_body' => $this->terminology->translate("bookings.messages.defaults.{$event->value}.sms_body"),
         ];
+    }
+
+    /**
+     * The email subject of a one-off message
+     */
+    public function customSubject(): string
+    {
+        return $this->terminology->translate('bookings.messages.custom.subject', ['business' => $this->general->site_name]);
     }
 
     /**

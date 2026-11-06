@@ -136,6 +136,7 @@ Route::name('bookings.')->prefix('bookings')->middleware('tenant.module:bookings
     Route::put('messages/{event}', [MessageTemplateController::class, 'update'])->name('messages.update');
     Route::get('message-log', MessageLogController::class)->name('message-log.index');
     Route::put('bookings/{booking}/move', [BookingController::class, 'move'])->name('bookings.move');
+    Route::post('bookings/{booking}/message', [BookingController::class, 'message'])->middleware('throttle:20,1')->name('bookings.message');
     Route::post('bookings/{booking}/status', [BookingController::class, 'status'])->name('bookings.status');
     Route::put('bookings/{booking}/schedule', [BookingController::class, 'schedule'])->name('bookings.schedule');
     Route::resource('bookings', BookingController::class)->only(['index', 'create', 'store', 'show']);

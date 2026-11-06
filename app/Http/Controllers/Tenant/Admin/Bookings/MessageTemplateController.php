@@ -30,8 +30,10 @@ class MessageTemplateController extends Controller
                 'label' => $event->label(),
                 'description' => __("bookings.messages.events.{$event->value}"),
                 'is_enabled' => $messages->wordingFor($event)['is_enabled'],
+                'offset_hours' => $messages->wordingFor($event)['offset_hours'],
+                'is_scheduled' => $event->isScheduled(),
                 'has_whatsapp_template' => filled($messages->wordingFor($event)['whatsapp_template_sid']),
-            ], MessageEvent::cases()),
+            ], MessageEvent::withTemplates()),
             'canSendSms' => $settings->canSendSms(),
             'canSendWhatsApp' => $settings->canSendWhatsApp(),
         ]);
@@ -42,13 +44,20 @@ class MessageTemplateController extends Controller
         Gate::authorize(BookingsPermission::ManageMessages);
 
         $messageEvent = MessageEvent::tryFrom($event) ?? abort(404);
+        abort_unless($messageEvent->hasTemplate(), 404);
         $template = MessageTemplate::query()->firstWhere('event', $messageEvent->value);
 
         return Inertia::render('admin/bookings/message-template/Edit', [
-            'event' => ['value' => $messageEvent->value, 'label' => $messageEvent->label()],
+            'event' => [
+                'value' => $messageEvent->value,
+                'label' => $messageEvent->label(),
+                'is_scheduled' => $messageEvent->isScheduled(),
+                'default_offset_hours' => $messageEvent->defaultOffsetHours(),
+            ],
             // Blank uses the default, which is shown as the placeholder
             'template' => [
-                'is_enabled' => $template->is_enabled ?? true,
+                'is_enabled' => $template->is_enabled ?? $messageEvent->isEnabledByDefault(),
+                'offset_hours' => $template?->offset_hours,
                 'email_subject' => $template?->email_subject,
                 'email_body' => $template?->email_body,
                 'sms_body' => $template?->sms_body,
@@ -62,6 +71,7 @@ class MessageTemplateController extends Controller
     public function update(MessageTemplateUpdateRequest $request, string $event): RedirectResponse
     {
         $messageEvent = MessageEvent::tryFrom($event) ?? abort(404);
+        abort_unless($messageEvent->hasTemplate(), 404);
 
         MessageTemplate::query()->updateOrCreate(['event' => $messageEvent->value], $request->validated());
 

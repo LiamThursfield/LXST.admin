@@ -6,9 +6,15 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/MessageTemplateController';
 
 const props = defineProps<{
-    event: { value: string; label: string };
+    event: {
+        value: string;
+        label: string;
+        is_scheduled: boolean;
+        default_offset_hours: number | null;
+    };
     template: {
         is_enabled: boolean;
+        offset_hours: number | null;
         email_subject: string | null;
         email_body: string | null;
         sms_body: string | null;
@@ -22,6 +28,7 @@ const { trans } = useTrans();
 
 const form = useForm({
     is_enabled: props.template.is_enabled,
+    offset_hours: props.template.offset_hours,
     email_subject: props.template.email_subject ?? '',
     email_body: props.template.email_body ?? '',
     sms_body: props.template.sms_body ?? '',
@@ -57,6 +64,32 @@ const placeholderList = computed(() =>
                 v-model="form.is_enabled"
                 :label="trans('bookings.messages.enabled')"
             />
+
+            <UFormField
+                v-if="event.is_scheduled"
+                :label="
+                    trans(
+                        event.value === 'reminder'
+                            ? 'bookings.messages.fields.offset_hours_before'
+                            : 'bookings.messages.fields.offset_hours_after',
+                    )
+                "
+                :help="
+                    trans('bookings.messages.fields.offset_help', {
+                        hours: String(event.default_offset_hours ?? ''),
+                    })
+                "
+                name="offset_hours"
+                :error="form.errors.offset_hours"
+            >
+                <UInput
+                    v-model.nullable.number="form.offset_hours"
+                    type="number"
+                    min="1"
+                    max="720"
+                    class="w-full"
+                />
+            </UFormField>
 
             <p class="text-muted text-sm">
                 {{ trans('bookings.messages.fields.placeholders') }}

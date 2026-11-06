@@ -54,6 +54,10 @@ return [
         'booked' => 'Booked',
         'changed' => 'Changed',
         'cancelled' => 'Cancelled',
+        'reminder' => 'Reminder',
+        'follow_up' => 'Follow-up',
+        'review_request' => 'Review request',
+        'custom' => 'Message',
     ],
     'message_status' => [
         'queued' => 'Sending',

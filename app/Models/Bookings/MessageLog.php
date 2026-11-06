@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property MessageEvent $event
  * @property MessageChannel $channel
  * @property string|null $recipient
+ * @property string|null $body
  * @property MessageStatus $status
  * @property string|null $note
  * @property string|null $provider_message_id
@@ -42,6 +43,7 @@ class MessageLog extends Model
         'event',
         'channel',
         'recipient',
+        'body',
         'status',
         'note',
         'provider_message_id',
