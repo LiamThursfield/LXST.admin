@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Notification;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
-    $this->withoutVite();
     $this->me = User::factory()->create(['email' => 'me@example.com']);
     $this->actingAs($this->me);
 });

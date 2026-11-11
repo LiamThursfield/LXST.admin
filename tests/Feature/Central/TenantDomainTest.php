@@ -7,7 +7,6 @@ use Stancl\Tenancy\Database\Models\Domain;
 use Stancl\Tenancy\Events\TenantCreated;
 
 beforeEach(function () {
-    $this->withoutVite();
     $this->actingAs(User::factory()->create());
 
     // Stops the tenant database from being created

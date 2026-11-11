@@ -14,7 +14,6 @@ use Stancl\Tenancy\Events\TenantCreated;
 use Stancl\Tenancy\Events\TenantDeleted;
 
 beforeEach(function () {
-    $this->withoutVite();
     $this->actingAs(User::factory()->create());
 });
 
