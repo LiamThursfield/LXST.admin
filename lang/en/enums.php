@@ -102,6 +102,20 @@ return [
         'other' => 'Other',
         'gift_card' => 'Gift card',
     ],
+    'quote_status' => [
+        'draft' => 'Draft',
+        'sent' => 'Sent',
+        'accepted' => 'Accepted',
+        'declined' => 'Declined',
+        'expired' => 'Expired',
+    ],
+    'invoice_status' => [
+        'issued' => 'Issued',
+        'sent' => 'Sent',
+        'paid' => 'Paid',
+        'overdue' => 'Overdue',
+        'void' => 'Void',
+    ],
     'gift_card_kind' => [
         'amount' => 'An amount',
         'service' => 'A service',

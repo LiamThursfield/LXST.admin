@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Tenant\Admin\SiteSettings;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Tenant\Admin\SiteSettings\GiftCardSettingsUpdateRequest;
+use App\Http\Requests\Tenant\Admin\SiteSettings\PaymentSettingsUpdateRequest;
 use App\Models\Settings\BookingsSettings;
 use App\Models\Tenant;
 use App\Models\User;
@@ -19,7 +19,8 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Throwable;
 
 /**
- * Linking the business's own Stripe account, so it can take payments, and how gift cards are sold
+ * Linking the business's own Stripe account, so it can take payments, how gift cards are sold, and
+ * tax and terms for quotes and invoices
  */
 class PaymentSettingsController extends Controller
 {
@@ -43,21 +44,36 @@ class PaymentSettingsController extends Controller
                 'gift_cards_online' => $bookings->gift_cards_online,
                 'shop_url' => route('bookings.gift-cards.shop'),
             ],
+            'documents' => [
+                'tax_rate' => $bookings->tax_rate,
+                'tax_label' => $bookings->tax_label,
+                'tax_number' => $bookings->tax_number,
+                'business_details' => $bookings->business_details,
+                'quote_valid_days' => $bookings->quote_valid_days,
+                'invoice_due_days' => $bookings->invoice_due_days,
+            ],
         ]);
     }
 
     /**
-     * How long gift cards last, and whether they're sold on the public page
+     * How gift cards are sold, and tax and terms for quotes and invoices
      */
-    public function giftCards(GiftCardSettingsUpdateRequest $request, BookingsSettings $bookings): RedirectResponse
+    public function update(PaymentSettingsUpdateRequest $request, BookingsSettings $bookings): RedirectResponse
     {
-        $months = $request->validated('gift_card_months');
+        $number = fn (string $key) => $request->validated($key) === null ? null : (int) $request->validated($key);
+        $text = fn (string $key) => blank($request->validated($key)) ? null : trim((string) $request->validated($key));
 
-        $bookings->gift_card_months = $months === null ? null : (int) $months;
+        $bookings->gift_card_months = $number('gift_card_months');
         $bookings->gift_cards_online = $request->boolean('gift_cards_online');
+        $bookings->tax_rate = $request->validated('tax_rate') === null ? null : (float) $request->validated('tax_rate');
+        $bookings->tax_label = trim($request->string('tax_label')->toString());
+        $bookings->tax_number = $text('tax_number');
+        $bookings->business_details = $text('business_details');
+        $bookings->quote_valid_days = $number('quote_valid_days');
+        $bookings->invoice_due_days = $number('invoice_due_days');
         $bookings->save();
 
-        return redirect()->route('admin.site-settings.payments.edit')->with('success', __('site_settings.payments.gift_cards_updated'));
+        return redirect()->route('admin.site-settings.payments.edit')->with('success', __('site_settings.payments.updated'));
     }
 
     /**

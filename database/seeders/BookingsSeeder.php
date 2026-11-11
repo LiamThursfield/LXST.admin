@@ -5,9 +5,11 @@ namespace Database\Seeders;
 use App\Enums\Bookings\BookingStatus;
 use App\Enums\Bookings\DepositType;
 use App\Enums\Bookings\HireUnit;
+use App\Enums\Bookings\InvoiceStatus;
 use App\Enums\Bookings\MessageEvent;
 use App\Enums\Bookings\PaymentMethod;
 use App\Enums\Bookings\PaymentRequirement;
+use App\Enums\Bookings\QuoteStatus;
 use App\Enums\Bookings\ResourceType;
 use App\Enums\Bookings\ServiceOptionType;
 use App\Enums\Bookings\ServicePriceType;
@@ -23,6 +25,7 @@ use App\Models\Bookings\GiftCard;
 use App\Models\Bookings\MessageLog;
 use App\Models\Bookings\MessageTemplate;
 use App\Models\Bookings\Payment;
+use App\Models\Bookings\Quote;
 use App\Models\Bookings\Refund;
 use App\Models\Bookings\SavedCard;
 use App\Models\Bookings\Service;
@@ -30,8 +33,10 @@ use App\Models\Bookings\ServiceCategory;
 use App\Models\Bookings\ServiceSession;
 use App\Models\Bookings\WaitlistEntry;
 use App\Models\Crm\OrganisationUnit;
+use App\Models\Settings\BookingsSettings;
 use App\Services\Authorisation\Enums\Role;
 use App\Services\Bookings\BookingCreator;
+use App\Services\Bookings\BookingDocuments;
 use App\Services\Bookings\GiftCards;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
@@ -44,7 +49,7 @@ use Illuminate\Support\Str;
  * both waiting and approved. Then timetable entries for the class and event, and bookings of each
  * kind, made through BookingCreator, a weekly series, someone on the waitlist, and past ones including
  * a walk-in. Two tables can be joined for a bigger party. Payments, a saved card, a refund, and gift
- * cards of each kind. Dates are relative to now.
+ * cards of each kind, and quotes and an invoice for the enquiry. Dates are relative to now.
  *
  * Run within a tenant, e.g. `php artisan tenants:seed --class=BookingsSeeder`.
  * Safe to re-run: a category, service or resource that already exists is left alone.
@@ -168,6 +173,44 @@ class BookingsSeeder extends Seeder
         $this->seedPayments();
         $this->seedCardsAndRefunds();
         $this->seedGiftCards();
+        $this->seedQuotesAndInvoices();
+    }
+
+    /**
+     * For the enquiry: a quote it declined, then one it accepted, with tax, and the invoice that
+     * followed, sent and waiting to be paid. Made through the real service, without messaging anyone.
+     */
+    protected function seedQuotesAndInvoices(): void
+    {
+        $enquiry = Booking::query()->whereNull('starts_at')->orderBy('id')->first();
+
+        if ($enquiry === null || Quote::query()->exists()) {
+            return;
+        }
+
+        $documents = app(BookingDocuments::class);
+        $settings = app(BookingsSettings::class);
+        $settings->tax_rate ??= 20.0;
+        $settings->business_details ??= "12 High Street\nAnytown AB1 2CD";
+        $settings->save();
+
+        $declined = $documents->createQuote($enquiry, [
+            ['description' => 'Full project, premium finish', 'quantity' => '1', 'unit_price' => 450000],
+        ], 'Includes all materials.', now()->addDays(30));
+        $declined->update(['status' => QuoteStatus::Sent, 'sent_at' => now()->subDays(10)]);
+        $documents->declineQuote($declined);
+
+        $accepted = $documents->createQuote($enquiry, [
+            ['description' => 'Planning and design', 'quantity' => '1', 'unit_price' => 60000],
+            ['description' => 'Labour (days)', 'quantity' => '4', 'unit_price' => 45000],
+            ['description' => 'Materials', 'quantity' => '1', 'unit_price' => 85000],
+        ], 'Half up front, the rest on completion.', now()->addDays(30));
+        $accepted->update(['status' => QuoteStatus::Sent, 'sent_at' => now()->subDays(5)]);
+        $documents->acceptQuote($accepted);
+
+        $suggested = $documents->suggestedInvoiceLines($enquiry->fresh() ?? $enquiry);
+        $invoice = $documents->createInvoice($enquiry, $suggested['lines'], 'Thank you for your business.', now()->addDays(14), $suggested['quote_id']);
+        $invoice->update(['status' => InvoiceStatus::Sent, 'sent_at' => now()]);
     }
 
     /**

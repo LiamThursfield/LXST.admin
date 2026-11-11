@@ -24,6 +24,7 @@ use App\Http\Resources\Tenant\Admin\Bookings\BookingResource;
 use App\Models\Bookings\BookableResource;
 use App\Models\Bookings\Booking;
 use App\Models\Bookings\Payment;
+use App\Models\Bookings\Quote;
 use App\Models\Bookings\Service;
 use App\Models\Bookings\ServiceOption;
 use App\Models\Bookings\WaitlistEntry;
@@ -31,6 +32,7 @@ use App\Models\Crm\OrganisationUnit;
 use App\Models\Tenant;
 use App\Services\Authorisation\Enums\BookingsPermission;
 use App\Services\Bookings\BookingCreator;
+use App\Services\Bookings\BookingDocuments;
 use App\Services\Bookings\BookingMessenger;
 use App\Services\Bookings\BookingPayments;
 use App\Services\Industry\Terminology;
@@ -187,6 +189,7 @@ class BookingController extends Controller
             'statuses' => BookingStatus::asSelectItems(),
             'messagePresets' => $this->messagePresets(),
             'payments' => $this->paymentSummary($request, $booking),
+            'documents' => $this->documentSummary($request, $booking),
             'currency' => Service::CURRENCY,
             'canManage' => $canManage,
             'resources' => $canManage && $booking->needsTime()
@@ -301,6 +304,44 @@ class BookingController extends Controller
                 'label' => $fee->label(),
                 'suggested' => $suggestedFee === null ? null : number_format($suggestedFee / 100, 2, '.', ''),
             ],
+        ];
+    }
+
+    /**
+     * The booking's quotes and its invoice, for those who can see payments
+     *
+     * @return array<string, mixed>|null
+     */
+    protected function documentSummary(Request $request, Booking $booking): ?array
+    {
+        if (! ($request->user()?->can(BookingsPermission::ViewPayments) ?? false)) {
+            return null;
+        }
+
+        $payments = app(BookingPayments::class);
+        $documents = app(BookingDocuments::class);
+        $invoice = $documents->currentInvoice($booking);
+        $owed = $invoice === null ? null : $documents->owed($invoice);
+
+        return [
+            'quotes' => $booking->quotes()->latest('id')->get()->map(fn (Quote $quote) => [
+                'id' => $quote->id,
+                'number' => $quote->number,
+                'total' => $payments->format($quote->total, $quote->currency),
+                'status' => $quote->currentStatus()->value,
+                'status_label' => $quote->currentStatus()->label(),
+                'url' => route('admin.bookings.quotes.show', $quote),
+            ])->values(),
+            'invoice' => $invoice === null ? null : [
+                'id' => $invoice->id,
+                'number' => $invoice->number,
+                'total' => $payments->format($invoice->total, $invoice->currency),
+                'owed' => $payments->format((int) $owed, $invoice->currency),
+                'status' => $invoice->currentStatus((int) $owed)->value,
+                'status_label' => $invoice->currentStatus((int) $owed)->label(),
+                'url' => route('admin.bookings.invoices.show', $invoice),
+            ],
+            'canManage' => $request->user()->can(BookingsPermission::ManagePayments),
         ];
     }
 

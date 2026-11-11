@@ -3,7 +3,7 @@ import { router, useForm } from '@inertiajs/vue3';
 import {
     connect,
     disconnect,
-    giftCards as updateGiftCards,
+    update,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/PaymentSettingsController';
 import SiteSettingsSubLayout from '@/sublayouts/admin/SiteSettingsSubLayout.vue';
 
@@ -20,6 +20,14 @@ const props = defineProps<{
         gift_cards_online: boolean;
         /** The public page customers buy them on. */
         shop_url: string;
+    };
+    documents: {
+        tax_rate: number | null;
+        tax_label: string;
+        tax_number: string | null;
+        business_details: string | null;
+        quote_valid_days: number | null;
+        invoice_due_days: number | null;
     };
 }>();
 
@@ -70,7 +78,17 @@ function onConnect() {
 const form = useForm({
     gift_card_months: props.giftCards.gift_card_months as number | null,
     gift_cards_online: props.giftCards.gift_cards_online,
+    tax_rate: props.documents.tax_rate as number | null,
+    tax_label: props.documents.tax_label,
+    tax_number: props.documents.tax_number ?? '',
+    business_details: props.documents.business_details ?? '',
+    quote_valid_days: props.documents.quote_valid_days as number | null,
+    invoice_due_days: props.documents.invoice_due_days as number | null,
 });
+
+/** An emptied number field means the setting is off. */
+const blankToNull = (value: number | string | null) =>
+    value === null || String(value) === '' ? null : value;
 
 function discard() {
     form.reset();
@@ -82,13 +100,11 @@ function onSubmit() {
 
     form.transform((data) => ({
         ...data,
-        // An emptied number field means they never expire
-        gift_card_months:
-            data.gift_card_months === null ||
-            String(data.gift_card_months) === ''
-                ? null
-                : data.gift_card_months,
-    })).submit(updateGiftCards(), {
+        gift_card_months: blankToNull(data.gift_card_months),
+        tax_rate: blankToNull(data.tax_rate),
+        quote_valid_days: blankToNull(data.quote_valid_days),
+        invoice_due_days: blankToNull(data.invoice_due_days),
+    })).submit(update(), {
         preserveScroll: true,
         onSuccess: () => form.defaults(),
     });
@@ -107,7 +123,7 @@ function onDisconnect() {
             :title="trans('site_settings.payments.title')"
             :description="trans('site_settings.payments.description')"
             :readonly="!canManage"
-            form-id="gift-card-settings"
+            form-id="payment-settings"
             :is-dirty="form.isDirty"
             :processing="form.processing"
             @discard="discard"
@@ -169,7 +185,7 @@ function onDisconnect() {
             </SettingsRow>
 
             <form
-                id="gift-card-settings"
+                id="payment-settings"
                 class="flex flex-col"
                 @submit.prevent="onSubmit"
             >
@@ -224,6 +240,101 @@ function onDisconnect() {
                             :label="trans('site_settings.payments.shop_link')"
                         />
                     </div>
+                </SettingsRow>
+                <SettingsRow
+                    :label="trans('site_settings.payments.tax_rate')"
+                    :description="trans('site_settings.payments.tax_rate_help')"
+                >
+                    <UFormField :error="form.errors.tax_rate">
+                        <UInput
+                            v-model.nullable="form.tax_rate"
+                            type="number"
+                            min="0.01"
+                            max="100"
+                            step="0.01"
+                            :disabled="!canManage"
+                            class="w-32"
+                        />
+                    </UFormField>
+                </SettingsRow>
+                <SettingsRow
+                    :label="trans('site_settings.payments.tax_label')"
+                    :description="
+                        trans('site_settings.payments.tax_label_help')
+                    "
+                >
+                    <UFormField :error="form.errors.tax_label">
+                        <UInput
+                            v-model="form.tax_label"
+                            :disabled="!canManage"
+                            class="w-32"
+                        />
+                    </UFormField>
+                </SettingsRow>
+                <SettingsRow
+                    :label="trans('site_settings.payments.tax_number')"
+                    :description="
+                        trans('site_settings.payments.tax_number_help')
+                    "
+                >
+                    <UFormField :error="form.errors.tax_number">
+                        <UInput
+                            v-model="form.tax_number"
+                            :disabled="!canManage"
+                            class="w-full"
+                        />
+                    </UFormField>
+                </SettingsRow>
+                <SettingsRow
+                    :label="trans('site_settings.payments.business_details')"
+                    :description="
+                        trans('site_settings.payments.business_details_help')
+                    "
+                >
+                    <UFormField :error="form.errors.business_details">
+                        <UTextarea
+                            v-model="form.business_details"
+                            :rows="4"
+                            :disabled="!canManage"
+                            class="w-full"
+                        />
+                    </UFormField>
+                </SettingsRow>
+                <SettingsRow
+                    :label="trans('site_settings.payments.quote_valid_days')"
+                    :description="
+                        trans('site_settings.payments.quote_valid_days_help')
+                    "
+                >
+                    <UFormField :error="form.errors.quote_valid_days">
+                        <UInput
+                            v-model.nullable="form.quote_valid_days"
+                            type="number"
+                            min="1"
+                            max="365"
+                            step="1"
+                            :disabled="!canManage"
+                            class="w-32"
+                        />
+                    </UFormField>
+                </SettingsRow>
+                <SettingsRow
+                    :label="trans('site_settings.payments.invoice_due_days')"
+                    :description="
+                        trans('site_settings.payments.invoice_due_days_help')
+                    "
+                >
+                    <UFormField :error="form.errors.invoice_due_days">
+                        <UInput
+                            v-model.nullable="form.invoice_due_days"
+                            type="number"
+                            min="0"
+                            max="365"
+                            step="1"
+                            :disabled="!canManage"
+                            class="w-32"
+                        />
+                    </UFormField>
                 </SettingsRow>
             </form>
         </SettingsPage>

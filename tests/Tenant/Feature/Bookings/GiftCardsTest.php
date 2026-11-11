@@ -371,7 +371,7 @@ describe('buying online', function () {
     });
 
     test('the settings save how long cards last and whether they\'re sold online', function () {
-        $this->put(route('admin.site-settings.payments.gift-cards'), ['gift_card_months' => '', 'gift_cards_online' => true])->assertSessionHas('success');
+        $this->put(route('admin.site-settings.payments.update'), ['gift_card_months' => '', 'gift_cards_online' => true, 'tax_label' => 'VAT'])->assertSessionHas('success');
 
         $settings = app(BookingsSettings::class);
         $settings->refresh();
@@ -380,6 +380,6 @@ describe('buying online', function () {
             ->and($settings->gift_cards_online)->toBeTrue();
 
         $this->actingAs($this->createUserWithPermissions([SettingsPermission::ViewSettings]));
-        $this->put(route('admin.site-settings.payments.gift-cards'), ['gift_card_months' => 12, 'gift_cards_online' => false])->assertForbidden();
+        $this->put(route('admin.site-settings.payments.update'), ['gift_card_months' => 12, 'gift_cards_online' => false, 'tax_label' => 'VAT'])->assertForbidden();
     });
 });

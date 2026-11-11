@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Tenant\Public\Bookings\GiftCardController;
 use App\Http\Controllers\Tenant\Public\Bookings\GiftCardShopController;
+use App\Http\Controllers\Tenant\Public\Bookings\InvoiceController;
 use App\Http\Controllers\Tenant\Public\Bookings\PaymentController;
+use App\Http\Controllers\Tenant\Public\Bookings\QuoteController;
 use App\Http\Controllers\Tenant\Public\Bookings\SavedCardController;
 use App\Http\Controllers\Tenant\Public\Dj\HostedRequestController;
 use Illuminate\Support\Facades\Route;
@@ -46,4 +48,13 @@ Route::middleware('tenant.module:bookings')->group(function () {
     Route::get('gift-cards', [GiftCardShopController::class, 'show'])->middleware('throttle:60,1')->name('bookings.gift-cards.shop');
     Route::post('gift-cards', [GiftCardShopController::class, 'store'])->middleware('throttle:10,1')->name('bookings.gift-cards.buy');
     Route::get('gift-card/{publicId}', [GiftCardController::class, 'show'])->middleware('throttle:60,1')->name('bookings.gift-cards.show');
+});
+
+// The links sent to a customer with a quote to accept, and an invoice to see and pay (#180)
+Route::middleware('tenant.module:bookings')->group(function () {
+    Route::get('quote/{publicId}', [QuoteController::class, 'show'])->middleware('throttle:60,1')->name('bookings.quotes.show');
+    Route::post('quote/{publicId}/accept', [QuoteController::class, 'accept'])->middleware('throttle:10,1')->name('bookings.quotes.accept');
+    Route::post('quote/{publicId}/decline', [QuoteController::class, 'decline'])->middleware('throttle:10,1')->name('bookings.quotes.decline');
+    Route::get('invoice/{publicId}', [InvoiceController::class, 'show'])->middleware('throttle:60,1')->name('bookings.invoices.show');
+    Route::post('invoice/{publicId}/pay', [InvoiceController::class, 'pay'])->middleware('throttle:10,1')->name('bookings.invoices.pay');
 });

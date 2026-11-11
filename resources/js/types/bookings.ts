@@ -397,3 +397,82 @@ export type GiftCardDetail = GiftCardRow & {
     canCancel: boolean;
     uses: GiftCardUse[];
 };
+
+export type DocumentLineData = {
+    description: string;
+    /** E.g. 2 or 2.5. */
+    quantity: string;
+    unit_price: string;
+    total: string;
+};
+
+/** A quote or invoice as the admin and the customer see it, with amounts formatted. */
+export type BookingDocumentData = {
+    number: string;
+    business: string;
+    business_details: string | null;
+    tax_number: string | null;
+    customer_name: string;
+    customer_email: string | null;
+    service_name: string;
+    when: string | null;
+    lines: DocumentLineData[];
+    subtotal: string;
+    /** E.g. "VAT (20%)", or null when there's no tax. */
+    tax_label: string | null;
+    tax: string | null;
+    total: string;
+    notes: string | null;
+    /** Invoices only. */
+    paid?: string;
+    owed?: string;
+};
+
+/** A line as the quote and invoice forms edit it, with its price in pounds. */
+export type DocumentFormLine = {
+    description: string;
+    quantity: string;
+    unit_price: string;
+};
+
+export type DocumentFormBooking = {
+    id: number;
+    customer_name: string;
+    service_name: string;
+    when: string | null;
+    url: string;
+};
+
+export type DocumentRow = {
+    id: number;
+    number: string;
+    customer_name: string;
+    service_name: string;
+    total: string;
+    owed?: string;
+    date: string | null;
+    status: string;
+    status_label: string;
+    show_url: string;
+};
+
+export type BookingDocumentSummary = {
+    quotes: Array<{
+        id: number;
+        number: string;
+        total: string;
+        status: string;
+        status_label: string;
+        url: string;
+    }>;
+    invoice: {
+        id: number;
+        number: string;
+        total: string;
+        owed: string;
+        status: string;
+        status_label: string;
+        url: string;
+    } | null;
+    canManage: boolean;
+};
