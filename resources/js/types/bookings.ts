@@ -328,6 +328,8 @@ export type PaymentRow = {
     failure_message: string | null;
     /** The customer's link, while it can still be paid. */
     link: string | null;
+    /** The gift card it was taken from, in the admin. */
+    gift_card_url: string | null;
     customer_name?: string;
     booking_url?: string;
 };
@@ -350,4 +352,48 @@ export type BookingPaymentSummary = {
     cardLink: string | null;
     /** The fee that could be charged now, if any. */
     fee: { purpose: string; label: string; suggested: string | null } | null;
+};
+
+export type GiftCardRow = {
+    id: number;
+    code: string;
+    /** E.g. £50.00, or the service it's for. */
+    value: string;
+    /** What's left, or null while it's waiting to be paid for. */
+    balance: string | null;
+    recipient: string | null;
+    expires_on: string;
+    status: string;
+    status_label: string;
+    show_url: string;
+};
+
+export type GiftCardUse = {
+    id: number;
+    when: string | null;
+    customer_name: string;
+    service_name: string;
+    amount: string;
+    refunded: string | null;
+    booking_url: string;
+};
+
+export type GiftCardDetail = GiftCardRow & {
+    kind: string;
+    kind_label: string;
+    /** Null when given free. */
+    price_paid: string | null;
+    method_label: string;
+    fee: string | null;
+    purchaser_name: string | null;
+    purchaser_email: string | null;
+    recipient_name: string | null;
+    recipient_email: string | null;
+    message: string | null;
+    issued_at: string | null;
+    sent_at: string | null;
+    link: string;
+    canSend: boolean;
+    canCancel: boolean;
+    uses: GiftCardUse[];
 };

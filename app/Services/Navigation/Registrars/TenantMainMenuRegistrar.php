@@ -173,6 +173,15 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         activePatterns: ['admin.bookings.payments.*'],
                     ))->gate(BookingsPermission::ViewPayments),
                     (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_GIFT_CARDS,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_GIFT_CARDS]),
+                        label: 'navigation.gift_cards',
+                        type: MenuItemType::LINK,
+                        to: 'admin.bookings.gift-cards.index',
+                        icon: 'i-lucide-gift',
+                        activePatterns: ['admin.bookings.gift-cards.*'],
+                    ))->gate(BookingsPermission::ViewPayments),
+                    (new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGES,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGES]),
                         label: 'navigation.booking_messages',

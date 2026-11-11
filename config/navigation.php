@@ -68,6 +68,7 @@ return [
                 TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_TIME_OFF => ['sortOrder' => 50],
                 TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_STAFF_HOURS => ['sortOrder' => 60],
                 TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_PAYMENTS => ['sortOrder' => 8],
+                TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_GIFT_CARDS => ['sortOrder' => 9],
                 TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGES => ['sortOrder' => 70],
                 TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGE_LOG => ['sortOrder' => 80],
             ],

@@ -16,11 +16,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Money towards a booking, or a fee for not coming or cancelling late: asked for online through
- * Stripe, charged to a saved card, or taken in person
+ * Stripe, charged to a saved card, taken in person, or taken from a gift card
  *
  * @property int $id
  * @property string $public_id
  * @property int $booking_id
+ * @property int|null $gift_card_id
  * @property PaymentPurpose $purpose
  * @property int $amount In minor units, e.g. pence
  * @property string $currency
@@ -37,6 +38,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $created_by_id
  * @property CarbonInterface|null $created_at
  * @property-read Booking $booking
+ * @property-read GiftCard|null $giftCard
  * @property-read Collection<int, Refund> $refunds
  */
 class Payment extends Model
@@ -53,6 +55,7 @@ class Payment extends Model
      */
     protected $fillable = [
         'booking_id',
+        'gift_card_id',
         'purpose',
         'amount',
         'currency',
@@ -103,6 +106,16 @@ class Payment extends Model
     public function booking(): BelongsTo
     {
         return $this->belongsTo(Booking::class);
+    }
+
+    /**
+     * The gift card it was taken from
+     *
+     * @return BelongsTo<GiftCard, $this>
+     */
+    public function giftCard(): BelongsTo
+    {
+        return $this->belongsTo(GiftCard::class);
     }
 
     /**

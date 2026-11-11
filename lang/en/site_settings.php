@@ -166,6 +166,13 @@ return [
         'fee_fixed' => ':fixed per payment',
         'fee_both' => ':percent% plus :fixed per payment',
         'fee_help' => 'Taken off each online payment by Stripe, on top of Stripe\'s own fees.',
+        'gift_card_months' => 'Months they last',
+        'gift_card_months_help' => 'From when they\'re issued or bought. Leave blank for them never to expire. Check the rules where you trade before choosing.',
+        'gift_cards_online' => 'Sell gift cards online',
+        'gift_cards_online_help' => 'Customers can buy them on your gift card page, paid through Stripe.',
+        'gift_cards_needs_stripe' => 'Connect Stripe to sell them online.',
+        'shop_link' => 'Gift card page',
+        'gift_cards_updated' => 'Gift card settings saved.',
     ],
 
     'messaging' => [

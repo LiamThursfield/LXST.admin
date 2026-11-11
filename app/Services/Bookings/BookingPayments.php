@@ -4,6 +4,7 @@ namespace App\Services\Bookings;
 
 use App\Enums\Bookings\BookingStatus;
 use App\Enums\Bookings\DepositType;
+use App\Enums\Bookings\GiftCardKind;
 use App\Enums\Bookings\PaymentMethod;
 use App\Enums\Bookings\PaymentPurpose;
 use App\Enums\Bookings\PaymentRequirement;
@@ -230,7 +231,7 @@ class BookingPayments
 
     /**
      * Gives back some or all of a payment: through Stripe for one made online, with the platform's
-     * share of its fee, or noted for one taken in person
+     * share of its fee, onto the card for one taken from a gift card, or noted for one taken in person
      *
      * @throws ValidationException When the amount isn't allowed, or Stripe refuses
      */
@@ -279,7 +280,33 @@ class BookingPayments
             ];
         }
 
+        if ($payment->method === PaymentMethod::GiftCard) {
+            return $this->refundToGiftCard($payment, $amount, $refundable, $attributes);
+        }
+
         return $payment->refunds()->create($attributes);
+    }
+
+    /**
+     * Gives a payment taken from a gift card back to the card. A voucher's is only given back whole.
+     *
+     * @param  array<string, mixed>  $attributes
+     *
+     * @throws ValidationException When part of a voucher's payment is given back
+     */
+    protected function refundToGiftCard(Payment $payment, int $amount, int $refundable, array $attributes): Refund
+    {
+        if ($payment->giftCard?->kind === GiftCardKind::Service && $amount !== $refundable) {
+            throw ValidationException::withMessages(['amount' => __('bookings.gift_cards.validation.voucher_refund_whole', ['amount' => $this->format($refundable)])]);
+        }
+
+        return DB::transaction(function () use ($payment, $amount, $attributes) {
+            $refund = $payment->refunds()->create($attributes);
+
+            app(GiftCards::class)->restore($payment, $amount);
+
+            return $refund;
+        });
     }
 
     /**

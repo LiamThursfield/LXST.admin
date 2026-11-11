@@ -100,6 +100,18 @@ return [
         'cash' => 'Cash',
         'card' => 'Card in person',
         'other' => 'Other',
+        'gift_card' => 'Gift card',
+    ],
+    'gift_card_kind' => [
+        'amount' => 'An amount',
+        'service' => 'A service',
+    ],
+    'gift_card_status' => [
+        'pending' => 'Waiting for payment',
+        'active' => 'Ready to use',
+        'used' => 'Used',
+        'expired' => 'Expired',
+        'cancelled' => 'Cancelled',
     ],
     'resource_type' => [
         'person' => 'Person',

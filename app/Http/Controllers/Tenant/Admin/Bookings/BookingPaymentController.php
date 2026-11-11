@@ -110,6 +110,7 @@ class BookingPaymentController extends Controller
             'refundable' => $refundable > 0 ? number_format($refundable / 100, 2, '.', '') : null,
             'failure_message' => $payment->failure_message,
             'link' => $payment->isPayable() ? route('bookings.payments.show', $payment->public_id) : null,
+            'gift_card_url' => $payment->gift_card_id === null ? null : route('admin.bookings.gift-cards.show', $payment->gift_card_id),
         ];
     }
 }

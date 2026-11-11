@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Settings\BookingsSettings;
 use App\Models\Settings\DjSettings;
 use App\Models\Settings\GeneralSettings;
 use App\Models\Settings\IntegrationSettings;
@@ -22,6 +23,7 @@ return [
     'settings' => [
         GeneralSettings::class,
         IntegrationSettings::class,
+        BookingsSettings::class,
         DjSettings::class,
         MailSettings::class,
         MessagingSettings::class,
