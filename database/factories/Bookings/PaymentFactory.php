@@ -6,6 +6,7 @@ use App\Enums\Bookings\PaymentMethod;
 use App\Enums\Bookings\PaymentPurpose;
 use App\Enums\Bookings\PaymentStatus;
 use App\Models\Bookings\Booking;
+use App\Models\Bookings\GiftCard;
 use App\Models\Bookings\Payment;
 use App\Models\Bookings\Service;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -73,6 +74,19 @@ class PaymentFactory extends Factory
         return $this->state(fn () => [
             'purpose' => $purpose,
             'stripe_checkout_session_id' => null,
+        ]);
+    }
+
+    /**
+     * Taken from a gift card
+     */
+    public function fromGiftCard(GiftCard $giftCard): static
+    {
+        return $this->state(fn () => [
+            'gift_card_id' => $giftCard->id,
+            'method' => PaymentMethod::GiftCard,
+            'stripe_checkout_session_id' => null,
+            'stripe_payment_intent_id' => null,
         ]);
     }
 }

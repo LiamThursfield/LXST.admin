@@ -5,6 +5,7 @@ use App\Enums\Bookings\ResourceType;
 use App\Enums\BookingType;
 use App\Models\Bookings\BookableResource;
 use App\Models\Bookings\Booking;
+use App\Models\Bookings\GiftCard;
 use App\Models\Bookings\MessageLog;
 use App\Models\Bookings\MessageTemplate;
 use App\Models\Bookings\Payment;
@@ -44,7 +45,9 @@ it('seeds a service of every booking type, and is safe to re-run', function () {
         ->and(WaitlistEntry::query()->count())->toBe(1)
         ->and(MessageTemplate::query()->count())->toBe(2)
         ->and(MessageLog::query()->count())->toBe(5)
-        ->and(Payment::query()->count())->toBe(3)
+        ->and(Payment::query()->count())->toBe(4)
+        ->and(GiftCard::query()->count())->toBe(4)
+        ->and(GiftCard::query()->firstWhere('code', 'SEED-GIFT-CARD')->balance)->toBe(3000)
         ->and(SavedCard::query()->count())->toBe(1)
         ->and(Refund::query()->count())->toBe(1)
         ->and(Booking::query()->where('is_walk_in', true)->count())->toBe(1)

@@ -7,6 +7,7 @@ import {
     schedule,
     status as updateStatus,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/BookingController';
+import BookingGiftCardController from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/BookingGiftCardController';
 import BookingPaymentController from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/BookingPaymentController';
 import PaymentRefundController from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/PaymentRefundController';
 import type {
@@ -110,6 +111,22 @@ function refundPayment() {
     refundForm.post(PaymentRefundController.store.url(refunding.value.id), {
         preserveScroll: true,
         onSuccess: () => (refundOpen.value = false),
+    });
+}
+
+const giftCardOpen = ref(false);
+const giftCardForm = useForm({ code: '', amount: '' });
+
+function openGiftCard() {
+    giftCardForm.reset();
+    giftCardForm.clearErrors();
+    giftCardOpen.value = true;
+}
+
+function redeemGiftCard() {
+    giftCardForm.post(BookingGiftCardController.store.url(booking.value.id), {
+        preserveScroll: true,
+        onSuccess: () => (giftCardOpen.value = false),
     });
 }
 
@@ -394,6 +411,13 @@ function setTime() {
                     <span v-if="payment.failure_message" class="text-error">
                         {{ payment.failure_message }}
                     </span>
+                    <Link
+                        v-if="payment.gift_card_url"
+                        :href="payment.gift_card_url"
+                        class="text-primary"
+                    >
+                        {{ payment.note }}
+                    </Link>
                     <UButton
                         v-if="payment.link"
                         size="xs"
@@ -431,6 +455,13 @@ function setTime() {
                     icon="i-lucide-banknote"
                     :label="trans('bookings.payments.record')"
                     @click="recordOpen = true"
+                />
+                <UButton
+                    color="neutral"
+                    variant="subtle"
+                    icon="i-lucide-gift"
+                    :label="trans('bookings.gift_cards.redeem')"
+                    @click="openGiftCard"
                 />
             </div>
             <p
@@ -558,6 +589,60 @@ function setTime() {
                         :label="trans('bookings.payments.refund')"
                         :loading="refundForm.processing"
                         @click="refundPayment"
+                    />
+                </div>
+            </template>
+        </UModal>
+
+        <UModal
+            v-model:open="giftCardOpen"
+            :title="trans('bookings.gift_cards.redeem')"
+            :description="trans('bookings.gift_cards.redeem_help')"
+        >
+            <template #body>
+                <div class="flex flex-col gap-4">
+                    <UFormField
+                        :label="trans('bookings.gift_cards.redeem_code')"
+                        :error="giftCardForm.errors.code"
+                        required
+                    >
+                        <UInput
+                            v-model="giftCardForm.code"
+                            autocomplete="off"
+                            class="w-full uppercase"
+                        />
+                    </UFormField>
+                    <UFormField
+                        :label="
+                            trans('bookings.gift_cards.redeem_amount', {
+                                currency: 'GBP',
+                            })
+                        "
+                        :error="giftCardForm.errors.amount"
+                    >
+                        <UInput
+                            v-model="giftCardForm.amount"
+                            type="number"
+                            min="0.01"
+                            step="0.01"
+                            class="w-full"
+                        />
+                    </UFormField>
+                </div>
+            </template>
+            <template #footer>
+                <div class="flex w-full justify-end gap-2">
+                    <UButton
+                        color="neutral"
+                        variant="ghost"
+                        :label="trans('common.actions.cancel')"
+                        @click="giftCardOpen = false"
+                    />
+                    <UButton
+                        icon="i-lucide-gift"
+                        :label="trans('bookings.gift_cards.redeem')"
+                        :loading="giftCardForm.processing"
+                        @click="redeemGiftCard"
                     />
                 </div>
             </template>

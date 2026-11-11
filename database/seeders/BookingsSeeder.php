@@ -19,6 +19,7 @@ use App\Enums\Crm\OrganisationUnitType;
 use App\Enums\TenantModule;
 use App\Models\Bookings\BookableResource;
 use App\Models\Bookings\Booking;
+use App\Models\Bookings\GiftCard;
 use App\Models\Bookings\MessageLog;
 use App\Models\Bookings\MessageTemplate;
 use App\Models\Bookings\Payment;
@@ -31,6 +32,7 @@ use App\Models\Bookings\WaitlistEntry;
 use App\Models\Crm\OrganisationUnit;
 use App\Services\Authorisation\Enums\Role;
 use App\Services\Bookings\BookingCreator;
+use App\Services\Bookings\GiftCards;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -41,7 +43,8 @@ use Illuminate\Support\Str;
  * Also one resource of each type who can do them, with working hours, shifts this week, and time off
  * both waiting and approved. Then timetable entries for the class and event, and bookings of each
  * kind, made through BookingCreator, a weekly series, someone on the waitlist, and past ones including
- * a walk-in. Two tables can be joined for a bigger party. Dates are relative to now.
+ * a walk-in. Two tables can be joined for a bigger party. Payments, a saved card, a refund, and gift
+ * cards of each kind. Dates are relative to now.
  *
  * Run within a tenant, e.g. `php artisan tenants:seed --class=BookingsSeeder`.
  * Safe to re-run: a category, service or resource that already exists is left alone.
@@ -164,6 +167,60 @@ class BookingsSeeder extends Seeder
         $this->seedMessages();
         $this->seedPayments();
         $this->seedCardsAndRefunds();
+        $this->seedGiftCards();
+    }
+
+    /**
+     * A gift card with some used on a booking, a voucher for the consultation, one past its date,
+     * and one waiting to be paid for online. Fixed codes, so they're easy to try on a booking, and
+     * made-up Stripe IDs, as nothing here goes to Stripe or is emailed.
+     */
+    protected function seedGiftCards(): void
+    {
+        if (GiftCard::query()->exists()) {
+            return;
+        }
+
+        $consultation = Service::query()->where('slug', 'consultation')->first();
+
+        $card = GiftCard::factory()->worth(5000)->create([
+            'code' => 'SEED-GIFT-CARD',
+            'purchaser_name' => 'Chris Dale',
+            'purchaser_email' => 'chris.dale@example.test',
+            'recipient_name' => 'Sam Dale',
+            'recipient_email' => 'sam.dale@example.test',
+            'message' => 'Happy birthday!',
+        ]);
+
+        // Some of it used through the real service, on a booking with something left to pay
+        $booking = Booking::query()->whereNotNull('price')->whereNotNull('starts_at')->where('price', '>=', 2000)
+            ->whereDoesntHave('payments')->orderBy('id')->first();
+
+        if ($booking !== null) {
+            app(GiftCards::class)->redeem($booking, $card->code, 2000);
+        }
+
+        if ($consultation !== null) {
+            GiftCard::factory()->forService($consultation)->free()->create([
+                'code' => 'SEED-VCHR-CNSL',
+                'purchaser_name' => null,
+                'purchaser_email' => null,
+                'recipient_name' => 'Jamie Fox',
+                'recipient_email' => 'jamie.fox@example.test',
+            ]);
+        }
+
+        GiftCard::factory()->worth(2500)->expired()->create([
+            'code' => 'SEED-PAST-DATE',
+            'payment_method' => PaymentMethod::Cash,
+            'recipient_email' => null,
+        ]);
+
+        GiftCard::factory()->worth(3000)->pending()->create([
+            'code' => 'SEED-WAIT-PAYS',
+            'stripe_checkout_session_id' => 'cs_test_seeded_gift_card',
+            'checkout_url' => 'https://checkout.stripe.com/c/pay/cs_test_seeded_gift_card',
+        ]);
     }
 
     /**

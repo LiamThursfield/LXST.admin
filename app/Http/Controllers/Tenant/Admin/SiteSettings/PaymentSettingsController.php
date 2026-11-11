@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Tenant\Admin\SiteSettings;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenant\Admin\SiteSettings\GiftCardSettingsUpdateRequest;
+use App\Models\Settings\BookingsSettings;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Services\Authorisation\Enums\SettingsPermission;
@@ -17,11 +19,11 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Throwable;
 
 /**
- * Linking the business's own Stripe account, so it can take payments
+ * Linking the business's own Stripe account, so it can take payments, and how gift cards are sold
  */
 class PaymentSettingsController extends Controller
 {
-    public function edit(Request $request, StripeGateway $stripe, BookingPayments $payments): Response
+    public function edit(Request $request, StripeGateway $stripe, BookingPayments $payments, BookingsSettings $bookings): Response
     {
         Gate::authorize(SettingsPermission::ViewSettings);
 
@@ -36,7 +38,26 @@ class PaymentSettingsController extends Controller
             'chargesEnabled' => (bool) $tenant->getAttribute('stripe_charges_enabled'),
             'fee' => $percent > 0 || $fixed > 0 ? ['percent' => $percent, 'fixed' => $fixed > 0 ? $payments->format($fixed) : null] : null,
             'canManage' => $request->user()?->can(SettingsPermission::ManageSettings) ?? false,
+            'giftCards' => [
+                'gift_card_months' => $bookings->gift_card_months,
+                'gift_cards_online' => $bookings->gift_cards_online,
+                'shop_url' => route('bookings.gift-cards.shop'),
+            ],
         ]);
+    }
+
+    /**
+     * How long gift cards last, and whether they're sold on the public page
+     */
+    public function giftCards(GiftCardSettingsUpdateRequest $request, BookingsSettings $bookings): RedirectResponse
+    {
+        $months = $request->validated('gift_card_months');
+
+        $bookings->gift_card_months = $months === null ? null : (int) $months;
+        $bookings->gift_cards_online = $request->boolean('gift_cards_online');
+        $bookings->save();
+
+        return redirect()->route('admin.site-settings.payments.edit')->with('success', __('site_settings.payments.gift_cards_updated'));
     }
 
     /**

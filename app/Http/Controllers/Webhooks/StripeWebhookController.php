@@ -7,6 +7,7 @@ use App\Enums\Bookings\SavedCardStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
 use App\Services\Bookings\BookingPayments;
+use App\Services\Bookings\GiftCards;
 use App\Services\Payments\StripeGateway;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -15,7 +16,7 @@ use Throwable;
 
 /**
  * Stripe's news about connected accounts: a business finishing its setup, payments on its account
- * going through or not, cards saved for later fees, and refunds. One endpoint for every tenant,
+ * going through or not, gift cards bought, cards saved for later fees, and refunds. One endpoint for every tenant,
  * found by the account the news is about.
  */
 class StripeWebhookController extends Controller
@@ -78,6 +79,17 @@ class StripeWebhookController extends Controller
         }
 
         $status = $this->paymentStatusFor($event);
+
+        // A gift card bought online, rather than a payment towards a booking
+        if ($status !== null && is_string($object->metadata->gift_card_id ?? null)) {
+            $tenant->run(fn () => app(GiftCards::class)->settle(
+                (string) $object->id,
+                $status,
+                is_string($object->payment_intent ?? null) ? $object->payment_intent : null,
+            ));
+
+            return response('OK');
+        }
 
         if ($status !== null) {
             $tenant->run(fn () => $payments->settle(

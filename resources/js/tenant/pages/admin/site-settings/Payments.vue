@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { router } from '@inertiajs/vue3';
+import { router, useForm } from '@inertiajs/vue3';
 import {
     connect,
     disconnect,
+    giftCards as updateGiftCards,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/PaymentSettingsController';
 import SiteSettingsSubLayout from '@/sublayouts/admin/SiteSettingsSubLayout.vue';
 
@@ -14,6 +15,12 @@ const props = defineProps<{
     chargesEnabled: boolean;
     fee: { percent: number; fixed: string | null } | null;
     canManage: boolean;
+    giftCards: {
+        gift_card_months: number | null;
+        gift_cards_online: boolean;
+        /** The public page customers buy them on. */
+        shop_url: string;
+    };
 }>();
 
 const { trans } = useTrans();
@@ -60,6 +67,33 @@ function onConnect() {
     );
 }
 
+const form = useForm({
+    gift_card_months: props.giftCards.gift_card_months as number | null,
+    gift_cards_online: props.giftCards.gift_cards_online,
+});
+
+function discard() {
+    form.reset();
+    form.clearErrors();
+}
+
+function onSubmit() {
+    if (!props.canManage) return;
+
+    form.transform((data) => ({
+        ...data,
+        // An emptied number field means they never expire
+        gift_card_months:
+            data.gift_card_months === null ||
+            String(data.gift_card_months) === ''
+                ? null
+                : data.gift_card_months,
+    })).submit(updateGiftCards(), {
+        preserveScroll: true,
+        onSuccess: () => form.defaults(),
+    });
+}
+
 function onDisconnect() {
     if (window.confirm(trans('site_settings.payments.confirm_disconnect'))) {
         router.delete(disconnect.url());
@@ -73,6 +107,10 @@ function onDisconnect() {
             :title="trans('site_settings.payments.title')"
             :description="trans('site_settings.payments.description')"
             :readonly="!canManage"
+            form-id="gift-card-settings"
+            :is-dirty="form.isDirty"
+            :processing="form.processing"
+            @discard="discard"
         >
             <UAlert
                 v-if="!platformReady"
@@ -129,6 +167,65 @@ function onDisconnect() {
             >
                 <p class="text-sm">{{ feeText }}</p>
             </SettingsRow>
+
+            <form
+                id="gift-card-settings"
+                class="flex flex-col"
+                @submit.prevent="onSubmit"
+            >
+                <SettingsRow
+                    :label="trans('site_settings.payments.gift_card_months')"
+                    :description="
+                        trans('site_settings.payments.gift_card_months_help')
+                    "
+                >
+                    <UFormField :error="form.errors.gift_card_months">
+                        <UInput
+                            v-model.nullable="form.gift_card_months"
+                            type="number"
+                            min="1"
+                            max="120"
+                            :disabled="!canManage"
+                            class="w-32"
+                        />
+                    </UFormField>
+                </SettingsRow>
+
+                <SettingsRow
+                    :label="trans('site_settings.payments.gift_cards_online')"
+                    :description="
+                        chargesEnabled
+                            ? trans(
+                                  'site_settings.payments.gift_cards_online_help',
+                              )
+                            : trans(
+                                  'site_settings.payments.gift_cards_needs_stripe',
+                              )
+                    "
+                >
+                    <div class="flex flex-col items-start gap-2">
+                        <USwitch
+                            v-model="form.gift_cards_online"
+                            :disabled="!canManage"
+                            :aria-label="
+                                trans(
+                                    'site_settings.payments.gift_cards_online',
+                                )
+                            "
+                        />
+                        <UButton
+                            v-if="giftCards.gift_cards_online && chargesEnabled"
+                            :href="giftCards.shop_url"
+                            target="_blank"
+                            size="xs"
+                            color="neutral"
+                            variant="ghost"
+                            icon="i-lucide-external-link"
+                            :label="trans('site_settings.payments.shop_link')"
+                        />
+                    </div>
+                </SettingsRow>
+            </form>
         </SettingsPage>
     </SiteSettingsSubLayout>
 </template>

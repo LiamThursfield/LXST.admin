@@ -5,7 +5,7 @@ namespace App\Enums\Bookings;
 use App\Enums\Traits\HasLabels;
 
 /**
- * How a payment was made: online through Stripe, or in person
+ * How a payment was made: online through Stripe, in person, or from a gift card
  */
 enum PaymentMethod: string
 {
@@ -15,9 +15,10 @@ enum PaymentMethod: string
     case Cash = 'cash';
     case Card = 'card';
     case Other = 'other';
+    case GiftCard = 'gift_card';
 
     public function isInPerson(): bool
     {
-        return $this !== self::Online;
+        return in_array($this, [self::Cash, self::Card, self::Other], true);
     }
 }

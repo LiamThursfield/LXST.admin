@@ -33,6 +33,7 @@ return [
     'timetable' => 'Timetable',
     'waitlist' => 'Waitlist',
     'payments' => 'Payments',
+    'gift_cards' => 'Gift cards',
     'booking_messages' => 'Messages',
     'message_log' => 'Message log',
     'services' => ':Services',
