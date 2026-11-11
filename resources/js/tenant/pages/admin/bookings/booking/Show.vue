@@ -9,9 +9,12 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/BookingController';
 import BookingGiftCardController from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/BookingGiftCardController';
 import BookingPaymentController from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/BookingPaymentController';
+import InvoiceController from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/InvoiceController';
 import PaymentRefundController from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/PaymentRefundController';
+import QuoteController from '@/actions/App/Http/Controllers/Tenant/Admin/Bookings/QuoteController';
 import type {
     BookingData,
+    BookingDocumentSummary,
     BookingPaymentSummary,
     PaymentRow,
     SelectItem,
@@ -25,6 +28,7 @@ const props = defineProps<{
     resources: SelectItem[];
     messagePresets: string[];
     payments: BookingPaymentSummary | null;
+    documents: BookingDocumentSummary | null;
     series: Array<{
         id: number;
         when: string | null;
@@ -540,6 +544,92 @@ function setTime() {
                         })
                     }}
                 </p>
+            </div>
+        </UPageCard>
+
+        <UPageCard
+            v-if="documents"
+            variant="subtle"
+            :title="trans('bookings.documents.section')"
+        >
+            <div class="flex flex-col gap-2 text-sm">
+                <p class="font-medium">
+                    {{ trans('bookings.documents.quotes_title') }}
+                </p>
+                <p v-if="!documents.quotes.length" class="text-muted">
+                    {{ trans('bookings.documents.no_quotes') }}
+                </p>
+                <ul v-else class="flex flex-col gap-1">
+                    <li
+                        v-for="quote in documents.quotes"
+                        :key="quote.id"
+                        class="flex flex-wrap items-center gap-2"
+                    >
+                        <Link :href="quote.url" class="text-primary">
+                            {{ quote.number }}
+                        </Link>
+                        <span>{{ quote.total }}</span>
+                        <UBadge
+                            :color="
+                                quote.status === 'accepted'
+                                    ? 'success'
+                                    : 'neutral'
+                            "
+                            variant="subtle"
+                            :label="quote.status_label"
+                        />
+                    </li>
+                </ul>
+            </div>
+
+            <div class="flex flex-col gap-2 text-sm">
+                <p class="font-medium">
+                    {{ trans('bookings.documents.invoices_title') }}
+                </p>
+                <p v-if="!documents.invoice" class="text-muted">
+                    {{ trans('bookings.documents.no_invoice') }}
+                </p>
+                <p v-else class="flex flex-wrap items-center gap-2">
+                    <Link :href="documents.invoice.url" class="text-primary">
+                        {{ documents.invoice.number }}
+                    </Link>
+                    <span>{{ documents.invoice.total }}</span>
+                    <span class="text-muted">
+                        {{ trans('bookings.documents.totals.owed') }}:
+                        {{ documents.invoice.owed }}
+                    </span>
+                    <UBadge
+                        :color="
+                            documents.invoice.status === 'paid'
+                                ? 'success'
+                                : documents.invoice.status === 'overdue'
+                                  ? 'error'
+                                  : 'neutral'
+                        "
+                        variant="subtle"
+                        :label="documents.invoice.status_label"
+                    />
+                </p>
+            </div>
+
+            <div v-if="documents.canManage" class="flex flex-wrap gap-2">
+                <UButton
+                    as="Link"
+                    :href="QuoteController.create.url(booking.id)"
+                    color="neutral"
+                    variant="subtle"
+                    icon="i-lucide-file-pen-line"
+                    :label="trans('bookings.documents.new_quote')"
+                />
+                <UButton
+                    v-if="!documents.invoice"
+                    as="Link"
+                    :href="InvoiceController.create.url(booking.id)"
+                    color="neutral"
+                    variant="subtle"
+                    icon="i-lucide-file-text"
+                    :label="trans('bookings.documents.new_invoice')"
+                />
             </div>
         </UPageCard>
 

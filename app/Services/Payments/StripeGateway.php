@@ -11,7 +11,7 @@ use Stripe\Webhook;
 /**
  * The few Stripe calls the platform makes: linking a business's own Standard account through Connect,
  * taking payments on it with any platform fee taken off by Stripe on the way, keeping cards for later
- * fees, and refunds. Everything happens on the business's account, so disputes are theirs, in their
+ * fees, refunds, and the business's balance and payouts. Everything happens on the business's account, so disputes are theirs, in their
  * own Stripe dashboard.
  */
 class StripeGateway
@@ -216,6 +216,50 @@ class StripeGateway
         ], ['stripe_account' => $accountId]);
 
         return ['id' => $refund->id, 'status' => $refund->status];
+    }
+
+    /**
+     * The business's latest payouts to its bank, newest first, in minor units
+     *
+     * @return list<array{id: string, amount: int, currency: string, status: string, arrival_date: int}>
+     */
+    public function payouts(string $accountId, int $limit = 10): array
+    {
+        $payouts = $this->client()->payouts->all(['limit' => $limit], ['stripe_account' => $accountId]);
+        $list = [];
+
+        foreach ($payouts->data as $payout) {
+            $list[] = [
+                'id' => (string) $payout->id,
+                'amount' => (int) $payout->amount,
+                'currency' => strtoupper((string) $payout->currency),
+                'status' => (string) $payout->status,
+                'arrival_date' => (int) $payout->arrival_date,
+            ];
+        }
+
+        return $list;
+    }
+
+    /**
+     * What's in the business's Stripe balance: ready to pay out, and still on its way, per currency,
+     * in minor units
+     *
+     * @return array{available: array<string, int>, pending: array<string, int>}
+     */
+    public function balance(string $accountId): array
+    {
+        $balance = $this->client()->balance->retrieve(null, ['stripe_account' => $accountId]);
+        $totals = ['available' => [], 'pending' => []];
+
+        foreach (['available', 'pending'] as $kind) {
+            foreach ($balance->{$kind} ?? [] as $amount) {
+                $currency = strtoupper((string) $amount->currency);
+                $totals[$kind][$currency] = ($totals[$kind][$currency] ?? 0) + (int) $amount->amount;
+            }
+        }
+
+        return $totals;
     }
 
     /**

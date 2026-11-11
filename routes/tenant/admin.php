@@ -9,9 +9,12 @@ use App\Http\Controllers\Tenant\Admin\Bookings\BookingController;
 use App\Http\Controllers\Tenant\Admin\Bookings\BookingGiftCardController;
 use App\Http\Controllers\Tenant\Admin\Bookings\BookingPaymentController;
 use App\Http\Controllers\Tenant\Admin\Bookings\GiftCardController;
+use App\Http\Controllers\Tenant\Admin\Bookings\InvoiceController;
 use App\Http\Controllers\Tenant\Admin\Bookings\MessageLogController;
 use App\Http\Controllers\Tenant\Admin\Bookings\MessageTemplateController;
 use App\Http\Controllers\Tenant\Admin\Bookings\PaymentRefundController;
+use App\Http\Controllers\Tenant\Admin\Bookings\PaymentReportController;
+use App\Http\Controllers\Tenant\Admin\Bookings\QuoteController;
 use App\Http\Controllers\Tenant\Admin\Bookings\ResourceController;
 use App\Http\Controllers\Tenant\Admin\Bookings\RotaController;
 use App\Http\Controllers\Tenant\Admin\Bookings\ServiceCategoryController;
@@ -153,6 +156,18 @@ Route::name('bookings.')->prefix('bookings')->middleware('tenant.module:bookings
     Route::post('gift-cards/{giftCard}/send', [GiftCardController::class, 'send'])->middleware('throttle:20,1')->name('gift-cards.send');
     Route::post('gift-cards/{giftCard}/cancel', [GiftCardController::class, 'cancel'])->name('gift-cards.cancel');
     Route::resource('gift-cards', GiftCardController::class)->only(['index', 'create', 'store', 'show']);
+    Route::get('reports/payments', PaymentReportController::class)->name('reports.payments');
+    Route::get('bookings/{booking}/quotes/create', [QuoteController::class, 'create'])->name('bookings.quotes.create');
+    Route::post('bookings/{booking}/quotes', [QuoteController::class, 'store'])->name('bookings.quotes.store');
+    Route::post('quotes/{quote}/send', [QuoteController::class, 'send'])->middleware('throttle:20,1')->name('quotes.send');
+    Route::post('quotes/{quote}/accept', [QuoteController::class, 'accept'])->name('quotes.accept');
+    Route::post('quotes/{quote}/decline', [QuoteController::class, 'decline'])->name('quotes.decline');
+    Route::resource('quotes', QuoteController::class)->only(['index', 'show', 'edit', 'update']);
+    Route::get('bookings/{booking}/invoices/create', [InvoiceController::class, 'create'])->name('bookings.invoices.create');
+    Route::post('bookings/{booking}/invoices', [InvoiceController::class, 'store'])->name('bookings.invoices.store');
+    Route::post('invoices/{invoice}/send', [InvoiceController::class, 'send'])->middleware('throttle:20,1')->name('invoices.send');
+    Route::post('invoices/{invoice}/void', [InvoiceController::class, 'voidInvoice'])->name('invoices.void');
+    Route::resource('invoices', InvoiceController::class)->only(['index', 'show']);
     Route::post('bookings/{booking}/status', [BookingController::class, 'status'])->name('bookings.status');
     Route::put('bookings/{booking}/schedule', [BookingController::class, 'schedule'])->name('bookings.schedule');
     Route::resource('bookings', BookingController::class)->only(['index', 'create', 'store', 'show']);
@@ -290,7 +305,7 @@ Route::name('site-settings.payments.')->prefix('site-settings/payments')->middle
     Route::get('refresh', [PaymentSettingsController::class, 'refresh'])->name('refresh');
     Route::get('return', [PaymentSettingsController::class, 'return'])->name('return');
     Route::delete('/', [PaymentSettingsController::class, 'disconnect'])->name('disconnect');
-    Route::put('gift-cards', [PaymentSettingsController::class, 'giftCards'])->name('gift-cards');
+    Route::put('/', [PaymentSettingsController::class, 'update'])->name('update');
 });
 
 // Texts and WhatsApp are only used for bookings, so far

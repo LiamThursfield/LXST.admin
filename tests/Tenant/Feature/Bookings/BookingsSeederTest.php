@@ -6,9 +6,11 @@ use App\Enums\BookingType;
 use App\Models\Bookings\BookableResource;
 use App\Models\Bookings\Booking;
 use App\Models\Bookings\GiftCard;
+use App\Models\Bookings\Invoice;
 use App\Models\Bookings\MessageLog;
 use App\Models\Bookings\MessageTemplate;
 use App\Models\Bookings\Payment;
+use App\Models\Bookings\Quote;
 use App\Models\Bookings\Refund;
 use App\Models\Bookings\SavedCard;
 use App\Models\Bookings\Service;
@@ -47,6 +49,9 @@ it('seeds a service of every booking type, and is safe to re-run', function () {
         ->and(MessageLog::query()->count())->toBe(5)
         ->and(Payment::query()->count())->toBe(4)
         ->and(GiftCard::query()->count())->toBe(4)
+        ->and(Quote::query()->count())->toBe(2)
+        ->and(Invoice::query()->count())->toBe(1)
+        ->and(Invoice::query()->sole()->total)->toBe(390000)
         ->and(GiftCard::query()->firstWhere('code', 'SEED-GIFT-CARD')->balance)->toBe(3000)
         ->and(SavedCard::query()->count())->toBe(1)
         ->and(Refund::query()->count())->toBe(1)

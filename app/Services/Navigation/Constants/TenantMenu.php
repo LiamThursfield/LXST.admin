@@ -81,6 +81,12 @@ class TenantMenu
 
     public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_GIFT_CARDS = 'gift-cards';
 
+    public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_QUOTES = 'quotes';
+
+    public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_INVOICES = 'invoices';
+
+    public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_PAYMENT_REPORT = 'payment-report';
+
     public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGES = 'messages';
 
     public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGE_LOG = 'message-log';

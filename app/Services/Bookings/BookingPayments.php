@@ -117,11 +117,12 @@ class BookingPayments
     }
 
     /**
-     * Creates a Stripe payment link for an amount, and sends it to the customer
+     * Creates a Stripe payment link for an amount, and sends it to the customer unless they're
+     * already paying, e.g. from an invoice
      *
      * @throws ValidationException When payments can't be taken, or the amount isn't allowed
      */
-    public function request(Booking $booking, int $amount, ?User $by = null): Payment
+    public function request(Booking $booking, int $amount, ?User $by = null, bool $notify = true): Payment
     {
         $tenant = $this->tenantTakingPayments();
 
@@ -158,6 +159,10 @@ class BookingPayments
 
             return $payment;
         });
+
+        if (! $notify) {
+            return $payment;
+        }
 
         $this->messenger->sendCustom($booking, $this->terminology->translate('bookings.payments.request_message', [
             'amount' => $this->format($amount),

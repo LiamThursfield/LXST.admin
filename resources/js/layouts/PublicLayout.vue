@@ -39,7 +39,7 @@ const themeStyle = computed(() => {
             <link v-if="site?.faviconUrl" rel="icon" :href="site.faviconUrl" />
         </Head>
         <div class="bg-default flex min-h-svh flex-col" :style="themeStyle">
-            <header class="border-default border-b">
+            <header class="border-default border-b print:hidden">
                 <div
                     class="mx-auto flex w-full max-w-2xl items-center gap-3 px-4 py-3"
                 >
