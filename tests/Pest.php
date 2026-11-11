@@ -44,6 +44,7 @@ pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->beforeEach(function (): void {
         flushTestCache();
+        $this->withoutVite();
     })
     ->afterEach(function (): void {
         // Tenants created by a test (e.g. for the tenants:* commands) get their own databases. The

@@ -8,8 +8,6 @@ use Inertia\Testing\AssertableInertia as Assert;
 use Stancl\Tenancy\Events\TenantCreated;
 
 beforeEach(function () {
-    $this->withoutVite();
-
     // Stops the tenant database from being created
     Event::fake([TenantCreated::class]);
 });
