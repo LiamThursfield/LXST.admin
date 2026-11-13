@@ -2,6 +2,7 @@ export * from './admin';
 export * from './auth';
 export * from './central';
 export * from './bookings';
+export * from './catalogue';
 export * from './cms';
 export * from './crm';
 export * from './dj';

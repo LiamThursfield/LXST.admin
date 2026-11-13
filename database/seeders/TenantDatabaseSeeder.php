@@ -60,6 +60,11 @@ class TenantDatabaseSeeder extends Seeder
             $this->call(BookingsSeeder::class);
         }
 
+        // After the bookings, as a price list can show its services, and the File Manager, for images
+        if ($tenant->hasModule(TenantModule::Catalogue)) {
+            $this->call(CatalogueSeeder::class);
+        }
+
         if ($tenant->hasModule(TenantModule::Tracker)) {
             // Tracker data belongs to a user: the admin, so it's there when signing in as them
             $this->callWith(TrackerSeeder::class, ['user' => RoleUserSeeder::userFor(RoleEnum::Admin)]);

@@ -75,6 +75,12 @@ return [
                 TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGES => ['sortOrder' => 70],
                 TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGE_LOG => ['sortOrder' => 80],
             ],
+            TenantMenu::MENU_MAIN_SECTION_CATALOGUE => [
+                'sortOrder' => 15,
+                TenantMenu::MENU_MAIN_SECTION_CATALOGUE_LABEL => ['sortOrder' => 0],
+                TenantMenu::MENU_MAIN_SECTION_CATALOGUE_ITEM_CATALOGUES => ['sortOrder' => 10],
+                TenantMenu::MENU_MAIN_SECTION_CATALOGUE_ITEM_TAGS => ['sortOrder' => 20],
+            ],
             TenantMenu::MENU_MAIN_SECTION_CMS => [
                 'sortOrder' => 20,
                 TenantMenu::MENU_MAIN_SECTION_CMS_LABEL => ['sortOrder' => 0],

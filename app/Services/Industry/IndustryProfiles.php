@@ -35,7 +35,7 @@ class IndustryProfiles
      */
     public function find(?string $key): IndustryProfile
     {
-        /** @var array<string, array{suggested_modules: list<TenantModule>, booking_types: list<BookingType>, customer_fields: list<string>}> $profiles */
+        /** @var array<string, array{suggested_modules: list<TenantModule>, booking_types: list<BookingType>, customer_fields: list<string>, catalogue_tags?: list<string>}> $profiles */
         $profiles = config('industries.profiles');
         $key = $key !== null && isset($profiles[$key]) ? $key : $this->fallbackKey();
         $profile = $profiles[$key];
@@ -45,6 +45,7 @@ class IndustryProfiles
             suggestedModules: $profile['suggested_modules'],
             bookingTypes: $profile['booking_types'],
             customerFields: $profile['customer_fields'],
+            catalogueTags: $profile['catalogue_tags'] ?? [],
         );
     }
 

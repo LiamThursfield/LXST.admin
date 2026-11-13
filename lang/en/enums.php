@@ -316,8 +316,15 @@ return [
         'cli' => 'Live',
     ],
 
+    'tag_kind' => [
+        'allergen' => 'Allergen',
+        'dietary' => 'Dietary',
+        'other' => 'Other',
+    ],
+
     'tenant_module' => [
         'bookings' => 'Bookings',
+        'catalogue' => 'Catalogue',
         'cms' => 'CMS',
         'crm' => 'CRM',
         'dj' => 'DJ',

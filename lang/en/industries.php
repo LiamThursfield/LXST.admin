@@ -56,6 +56,7 @@ return [
         'service' => 'Services',
         'resource' => 'Resources',
         'location' => 'Locations',
+        'catalogue' => 'Catalogues',
     ],
 
     // The words used unless an industry or tenant has its own. Every term must be listed here.
@@ -66,6 +67,7 @@ return [
         'service' => ['singular' => 'service', 'plural' => 'services'],
         'resource' => ['singular' => 'resource', 'plural' => 'resources'],
         'location' => ['singular' => 'location', 'plural' => 'locations'],
+        'catalogue' => ['singular' => 'catalogue', 'plural' => 'catalogues'],
     ],
 
     // Each industry's own words. Anything left out comes from `terms`.
@@ -76,6 +78,7 @@ return [
             'staff_member' => ['singular' => 'team member', 'plural' => 'team members'],
             'resource' => ['singular' => 'table', 'plural' => 'tables'],
             'location' => ['singular' => 'venue', 'plural' => 'venues'],
+            'catalogue' => ['singular' => 'menu', 'plural' => 'menus'],
         ],
         'beauty' => [
             'customer' => ['singular' => 'client', 'plural' => 'clients'],
@@ -84,6 +87,7 @@ return [
             'service' => ['singular' => 'treatment', 'plural' => 'treatments'],
             'resource' => ['singular' => 'chair', 'plural' => 'chairs'],
             'location' => ['singular' => 'salon', 'plural' => 'salons'],
+            'catalogue' => ['singular' => 'price list', 'plural' => 'price lists'],
         ],
         'health' => [
             'customer' => ['singular' => 'patient', 'plural' => 'patients'],
@@ -92,6 +96,7 @@ return [
             'service' => ['singular' => 'treatment', 'plural' => 'treatments'],
             'resource' => ['singular' => 'room', 'plural' => 'rooms'],
             'location' => ['singular' => 'clinic', 'plural' => 'clinics'],
+            'catalogue' => ['singular' => 'price list', 'plural' => 'price lists'],
         ],
         'fitness' => [
             'customer' => ['singular' => 'member', 'plural' => 'members'],
