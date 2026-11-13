@@ -1,6 +1,7 @@
 <?php
 
 use App\Services\Authorisation\Registrars\BookingsAuthorisationRegistrar;
+use App\Services\Authorisation\Registrars\CatalogueAuthorisationRegistrar;
 use App\Services\Authorisation\Registrars\CmsAuthorisationRegistrar;
 use App\Services\Authorisation\Registrars\CoreAuthorisationRegistrar;
 use App\Services\Authorisation\Registrars\CrmAuthorisationRegistrar;
@@ -24,6 +25,7 @@ return [
     'registrars' => [
         CoreAuthorisationRegistrar::class,
         BookingsAuthorisationRegistrar::class,
+        CatalogueAuthorisationRegistrar::class,
         CmsAuthorisationRegistrar::class,
         CrmAuthorisationRegistrar::class,
         DjAuthorisationRegistrar::class,

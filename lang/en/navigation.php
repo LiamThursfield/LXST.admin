@@ -27,6 +27,10 @@ return [
     'redirects' => 'Redirects',
     'view_redirects' => 'View Redirects',
 
+    'catalogue' => ':Catalogues',
+    'catalogues' => ':Catalogues',
+    'catalogue_tags' => 'Tags',
+
     'bookings' => ':Bookings',
     'calendar' => 'Calendar',
     'booking_list' => ':Bookings',

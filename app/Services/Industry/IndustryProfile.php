@@ -14,12 +14,14 @@ readonly class IndustryProfile
      * @param  list<TenantModule>  $suggestedModules
      * @param  list<BookingType>  $bookingTypes
      * @param  list<string>  $customerFields  Keys of config('industries.customer_fields')
+     * @param  list<string>  $catalogueTags  Keys of config('catalogue.tag_presets') it suggests
      */
     public function __construct(
         public string $key,
         public array $suggestedModules,
         public array $bookingTypes,
         public array $customerFields,
+        public array $catalogueTags = [],
     ) {}
 
     public function name(): string

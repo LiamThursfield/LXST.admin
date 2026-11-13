@@ -12,6 +12,7 @@ enum TenantModule: string
     use HasLabels;
 
     case Bookings = 'bookings';
+    case Catalogue = 'catalogue';
     case Cms = 'cms';
     case Crm = 'crm';
     case Dj = 'dj';

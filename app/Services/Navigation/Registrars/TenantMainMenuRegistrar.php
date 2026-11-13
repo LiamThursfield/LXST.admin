@@ -5,6 +5,7 @@ namespace App\Services\Navigation\Registrars;
 use App\Enums\TenantModule;
 use App\Models\Bookings\TimeOff;
 use App\Services\Authorisation\Enums\BookingsPermission;
+use App\Services\Authorisation\Enums\CataloguePermission;
 use App\Services\Authorisation\Enums\CmsPermission;
 use App\Services\Authorisation\Enums\CorePermission;
 use App\Services\Authorisation\Enums\CrmPermission;
@@ -41,6 +42,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
 
         $this->registerDashboardSection($registry);
         $this->registerBookingsSection($registry);
+        $this->registerCatalogueSection($registry);
         $this->registerCmsSection($registry);
         $this->registerCrmSection($registry);
         $this->registerDjSection($registry);
@@ -263,6 +265,52 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         activePatterns: ['admin.bookings.staff-hours.*'],
                     ))->gate(BookingsPermission::ViewStaffReports),
                 ])->each(fn (MenuItem $item) => $item->module(TenantModule::Bookings)),
+                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
+            ),
+            $sectionKey,
+            $this->menuKey
+        );
+    }
+
+    /**
+     * Register the Catalogue section of the tenant Main Menu
+     * Every item requires the Catalogue module, so the whole section is hidden when it is switched off
+     *
+     * @throws DuplicateMenuSectionKeyException
+     * @throws MenuKeyDoesNotExistException
+     */
+    protected function registerCatalogueSection(NavigationRegistry $registry): void
+    {
+        $sectionKey = TenantMenu::MENU_MAIN_SECTION_CATALOGUE;
+
+        $registry->addSectionToMenu(
+            new MenuSection(
+                menuItems: Collection::wrap([
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_CATALOGUE_LABEL,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CATALOGUE_LABEL]),
+                        label: 'navigation.catalogue',
+                        type: MenuItemType::LABEL,
+                    ),
+                    (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_CATALOGUE_ITEM_CATALOGUES,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CATALOGUE_ITEM_CATALOGUES]),
+                        label: 'navigation.catalogues',
+                        type: MenuItemType::LINK,
+                        to: 'admin.catalogue.catalogues.index',
+                        icon: 'i-lucide-book-open',
+                        activePatterns: ['admin.catalogue.catalogues.*'],
+                    ))->gate(CataloguePermission::ViewCatalogues),
+                    (new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_CATALOGUE_ITEM_TAGS,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_CATALOGUE_ITEM_TAGS]),
+                        label: 'navigation.catalogue_tags',
+                        type: MenuItemType::LINK,
+                        to: 'admin.catalogue.tags.index',
+                        icon: 'i-lucide-tags',
+                        activePatterns: ['admin.catalogue.tags.*'],
+                    ))->gate(CataloguePermission::ViewCatalogues),
+                ])->each(fn (MenuItem $item) => $item->module(TenantModule::Catalogue)),
                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
             ),
             $sectionKey,

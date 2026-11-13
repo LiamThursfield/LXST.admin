@@ -105,6 +105,14 @@ class TenantMenu
 
     public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_STAFF_HOURS = 'staff-hours';
 
+    public const string MENU_MAIN_SECTION_CATALOGUE = 'catalogue';
+
+    public const string MENU_MAIN_SECTION_CATALOGUE_LABEL = 'catalogue-label';
+
+    public const string MENU_MAIN_SECTION_CATALOGUE_ITEM_CATALOGUES = 'catalogues';
+
+    public const string MENU_MAIN_SECTION_CATALOGUE_ITEM_TAGS = 'catalogue-tags';
+
     public const string MENU_MAIN_SECTION_CMS = 'cms';
 
     public const string MENU_MAIN_SECTION_CMS_LABEL = 'cms-label';

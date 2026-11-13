@@ -21,12 +21,14 @@ return [
 
     'profiles' => [
         'hospitality' => [
-            'suggested_modules' => [TenantModule::Bookings, TenantModule::Cms, TenantModule::Crm],
+            'suggested_modules' => [TenantModule::Bookings, TenantModule::Catalogue, TenantModule::Cms, TenantModule::Crm],
             'booking_types' => [BookingType::Table, BookingType::Ticket, BookingType::Enquiry],
             'customer_fields' => ['allergies', 'dietary_needs', 'seating_preference'],
+            // Built-in catalogue tag groups from config/catalogue.php. Left out means none.
+            'catalogue_tags' => ['allergens', 'dietary'],
         ],
         'beauty' => [
-            'suggested_modules' => [TenantModule::Bookings, TenantModule::Cms, TenantModule::Crm],
+            'suggested_modules' => [TenantModule::Bookings, TenantModule::Catalogue, TenantModule::Cms, TenantModule::Crm],
             'booking_types' => [BookingType::Appointment, BookingType::Enquiry],
             'customer_fields' => ['colour_formula', 'patch_test_date', 'allergies'],
         ],
@@ -71,7 +73,7 @@ return [
             'customer_fields' => ['company_name', 'referred_by'],
         ],
         'retail' => [
-            'suggested_modules' => [TenantModule::Bookings, TenantModule::Cms, TenantModule::Crm],
+            'suggested_modules' => [TenantModule::Bookings, TenantModule::Catalogue, TenantModule::Cms, TenantModule::Crm],
             'booking_types' => [BookingType::Enquiry, BookingType::Appointment],
             'customer_fields' => ['delivery_address'],
         ],

@@ -24,6 +24,10 @@ use App\Http\Controllers\Tenant\Admin\Bookings\StaffController;
 use App\Http\Controllers\Tenant\Admin\Bookings\StaffHoursController;
 use App\Http\Controllers\Tenant\Admin\Bookings\TimeOffController;
 use App\Http\Controllers\Tenant\Admin\Bookings\WaitlistController;
+use App\Http\Controllers\Tenant\Admin\Catalogue\CatalogueController;
+use App\Http\Controllers\Tenant\Admin\Catalogue\ItemStockController;
+use App\Http\Controllers\Tenant\Admin\Catalogue\TagController as CatalogueTagController;
+use App\Http\Controllers\Tenant\Admin\Catalogue\TagPresetController as CatalogueTagPresetController;
 use App\Http\Controllers\Tenant\Admin\Cms\ContentImportController;
 use App\Http\Controllers\Tenant\Admin\Cms\LayoutController;
 use App\Http\Controllers\Tenant\Admin\Cms\MenuController;
@@ -184,6 +188,16 @@ Route::name('bookings.')->prefix('bookings')->middleware('tenant.module:bookings
     Route::post('time-off/{time_off}/decline', [TimeOffController::class, 'decline'])->name('time-off.decline');
     Route::resource('time-off', TimeOffController::class)->only(['index', 'create', 'store', 'destroy'])->parameters(['time-off' => 'time_off']);
     Route::get('hours', StaffHoursController::class)->name('staff-hours.index');
+});
+
+// Menus, price lists and products. They can be shown on the website, so changes refresh its cache.
+Route::name('catalogue.')->prefix('catalogue')->middleware(['tenant.module:catalogue', 'content.changed'])->group(function () {
+    // Marking an item sold out or counting its stock, without changing the rest of the catalogue
+    Route::patch('catalogues/{catalogue}/items/{item}/stock', [ItemStockController::class, 'update'])
+        ->name('catalogues.items.stock');
+    Route::resource('catalogues', CatalogueController::class);
+    Route::post('tags/presets', [CatalogueTagPresetController::class, 'store'])->name('tags.presets.store');
+    Route::resource('tags', CatalogueTagController::class)->except('show');
 });
 
 Route::name('crm.')->prefix('crm')->middleware(['tenant.module:crm', 'content.changed'])->group(function () {
