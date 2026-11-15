@@ -164,6 +164,12 @@ return [
         Features::registration(),
         Features::resetPasswords(),
         Features::emailVerification(),
+        // Optional for each user, from their Security settings. Turning it on or off, and seeing
+        // the QR code or recovery codes, asks for their password if not confirmed recently.
+        Features::twoFactorAuthentication([
+            'confirm' => true,
+            'confirmPassword' => true,
+        ]),
     ],
 
     /*

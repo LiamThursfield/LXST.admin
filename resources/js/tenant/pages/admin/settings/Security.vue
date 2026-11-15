@@ -1,8 +1,27 @@
 <script setup lang="ts">
 import { Form } from '@inertiajs/vue3';
 import ProfileController from '@/actions/App/Http/Controllers/Tenant/Admin/Settings/ProfileController';
+import ConfirmedTwoFactorAuthenticationController from '@/actions/Laravel/Fortify/Http/Controllers/ConfirmedTwoFactorAuthenticationController';
+import RecoveryCodeController from '@/actions/Laravel/Fortify/Http/Controllers/RecoveryCodeController';
+import TwoFactorAuthenticationController from '@/actions/Laravel/Fortify/Http/Controllers/TwoFactorAuthenticationController';
+import TwoFactorQrCodeController from '@/actions/Laravel/Fortify/Http/Controllers/TwoFactorQrCodeController';
+import TwoFactorSecretKeyController from '@/actions/Laravel/Fortify/Http/Controllers/TwoFactorSecretKeyController';
 import SettingsSubLayout from '@/sublayouts/admin/SettingsSubLayout.vue';
 import PasswordController from '../../../../actions/App/Http/Controllers/Tenant/Admin/Settings/PasswordController';
+
+defineProps<{
+    twoFactorEnabled: boolean;
+}>();
+
+const twoFactorRoutes = {
+    enable: TwoFactorAuthenticationController.store,
+    confirm: ConfirmedTwoFactorAuthenticationController.store,
+    disable: TwoFactorAuthenticationController.destroy,
+    qrCode: TwoFactorQrCodeController.show,
+    secretKey: TwoFactorSecretKeyController.show,
+    recoveryCodes: RecoveryCodeController.index,
+    regenerateRecoveryCodes: RecoveryCodeController.store,
+};
 
 const { trans } = useTrans();
 
@@ -86,6 +105,16 @@ function handleSuccess() {
                         :loading="processing"
                     />
                 </Form>
+            </SettingsRow>
+
+            <SettingsRow
+                :label="trans('settings.two_factor.title')"
+                :description="trans('settings.two_factor.description')"
+            >
+                <TwoFactorAuthentication
+                    :enabled="twoFactorEnabled"
+                    :routes="twoFactorRoutes"
+                />
             </SettingsRow>
 
             <SettingsRow

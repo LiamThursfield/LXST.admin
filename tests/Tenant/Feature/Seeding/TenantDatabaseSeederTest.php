@@ -47,7 +47,13 @@ test('the tenant seeder makes a known user per role, more users, and each module
             ->and($user->email_verified_at)->not->toBeNull();
     }
 
-    expect(User::count())->toBeGreaterThan(count(RoleUserSeeder::USERS))
+    $twoFactorUser = User::query()->where('email', RoleUserSeeder::TWO_FACTOR_USER['email'])->sole();
+
+    expect($twoFactorUser->hasEnabledTwoFactorAuthentication())->toBeTrue()
+        ->and($twoFactorUser->hasRole(RoleEnum::Admin->value))->toBeTrue()
+        ->and($twoFactorUser->recoveryCodes())->toBe(RoleUserSeeder::TWO_FACTOR_USER['recovery_codes']);
+
+    expect(User::count())->toBeGreaterThan(count(RoleUserSeeder::emails()))
         ->and(Contact::count())->toBeGreaterThan(0)
         ->and(TaskDefinition::ownedBy(RoleUserSeeder::userFor(RoleEnum::Admin))->count())->toBeGreaterThan(0)
         // Files come first, so the theme and the CMS can use them

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Tenant;
+use App\Services\Authorisation\Enums\Role as RoleEnum;
 use Database\Seeders\RoleUserSeeder;
 use Database\Seeders\TenantDatabaseSeeder;
 use Illuminate\Console\Command;
@@ -80,6 +81,7 @@ class TenantsRefreshCommand extends Command
             $this->table(['Role', 'Email'], collect(RoleUserSeeder::USERS)
                 ->map(fn (array $user, string $role) => [$role, $user['email']])
                 ->values()
+                ->push([RoleEnum::Admin->value.' (two-factor login on)', RoleUserSeeder::TWO_FACTOR_USER['email']])
                 ->all());
         }
 
