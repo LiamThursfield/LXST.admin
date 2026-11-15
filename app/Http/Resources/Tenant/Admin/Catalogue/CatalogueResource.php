@@ -80,6 +80,8 @@ class CatalogueResource extends JsonResource
             'contents' => $catalogue->sections_count === null ? null : trans_choice('catalogue.catalogues.sections_count', $catalogue->sections_count)
                 .' · '.trans_choice('catalogue.catalogues.items_count', (int) $catalogue->items_count),
             'url' => route('admin.catalogue.catalogues.show', $catalogue),
+            // The hosted page, to share as a link or a QR code and to print
+            'public_url' => $catalogue->publicUrl(),
             'sections' => $this->whenLoaded('sections', fn () => $catalogue->sections
                 ->map(fn (Section $section) => $this->section($section))
                 ->values()),

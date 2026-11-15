@@ -32,6 +32,8 @@ use Illuminate\Support\Str;
  * @property-read Collection<int, Item> $items
  * @property-read int|null $sections_count When loaded with withCount()
  * @property-read int|null $items_count When loaded with withCount()
+ *
+ * @method static Builder<static> published()
  */
 class Catalogue extends Model
 {
@@ -40,6 +42,9 @@ class Catalogue extends Model
 
     /** Every price is in this currency until a tenant can choose its own */
     public const string CURRENCY = 'GBP';
+
+    /** The symbols prices are shown with, by currency */
+    protected const array SYMBOLS = ['GBP' => '£', 'EUR' => '€', 'USD' => '$'];
 
     protected $table = 'catalogue_catalogues';
 
@@ -104,6 +109,35 @@ class Catalogue extends Model
         }
 
         return $slug;
+    }
+
+    /**
+     * A price in minor units as it's shown, e.g. "£4.50"
+     */
+    public static function formatPrice(int $amount, string $currency = self::CURRENCY): string
+    {
+        $symbol = self::SYMBOLS[$currency] ?? null;
+        $number = number_format($amount / 100, 2);
+
+        return $symbol === null ? "{$number} {$currency}" : "{$symbol}{$number}";
+    }
+
+    /**
+     * Only published catalogues, in their order
+     *
+     * @param  Builder<Catalogue>  $query
+     */
+    public function scopePublished(Builder $query): void
+    {
+        $query->where('is_published', true)->orderBy('order')->orderBy('name');
+    }
+
+    /**
+     * The public page, which can be shared as a link or a QR code and printed
+     */
+    public function publicUrl(): string
+    {
+        return route('catalogue.public.show', $this->slug);
     }
 
     /**

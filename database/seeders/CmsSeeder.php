@@ -9,6 +9,7 @@ use App\Enums\Cms\TemplateFieldWidth;
 use App\Enums\Cms\TemplateType;
 use App\Enums\Crm\OrganisationUnitType;
 use App\Enums\TenantModule;
+use App\Models\Catalogue\Catalogue;
 use App\Models\Cms\Layout;
 use App\Models\Cms\Menu;
 use App\Models\Cms\Page;
@@ -106,6 +107,7 @@ class CmsSeeder extends Seeder
         ]);
 
         $crm = tenant()?->hasModule(TenantModule::Crm) ?? false;
+        $catalogue = tenant()?->hasModule(TenantModule::Catalogue) ?? false;
 
         $standard = $template('standard-page', TemplateType::Page, 'Standard page', 'A hero, rich text, features and a call to action.', [
             ['hero_title', TemplateFieldType::Text, 'Hero title', true, ['max_length' => 80]],
@@ -130,6 +132,7 @@ class CmsSeeder extends Seeder
                 ['office', TemplateFieldType::CrmOrganisationUnit, 'Office', false, ['organisation_unit_type' => OrganisationUnitType::Location->value]],
                 ['opening_hours', TemplateFieldType::CrmOpeningHours, 'Opening hours', false],
             ] : []),
+            ...($catalogue ? [['catalogue', TemplateFieldType::Catalogue, 'Catalogue', false]] : []),
         ]);
 
         $heroSection = $template('hero-section', TemplateType::Component, 'Hero Section', 'A background image with a heading, a subheading, a short intro and a link.', [
@@ -255,6 +258,8 @@ class CmsSeeder extends Seeder
         $image = File::query()->where('mime_type', 'like', 'image/%')->value('id');
         $form = Form::query()->value('id');
         $office = OrganisationUnit::query()->where('type', OrganisationUnitType::Location)->value('id');
+        // Seeded before the CMS when the tenant has the module
+        $catalogue = Catalogue::query()->published()->value('id');
 
         $page = function (string $key, string $slug, string $name, Template $template, Layout $layout, array $values, array $url = [], ?Page $parent = null) use ($image): Page {
             $page = Page::query()->create([
@@ -390,6 +395,7 @@ class CmsSeeder extends Seeder
             'years_running' => 10,
             'office' => $office,
             'opening_hours' => $office,
+            'catalogue' => $catalogue,
         ], ['published_at' => $now->addWeek()]);
         $draft = $page('coming-soon', 'coming-soon', 'Coming soon', $templates['standard'], $layouts['default'], $standard('Corporate events', ['Something new is on the way.']), ['is_enabled' => false]);
         $offer = $page('winter-offer', 'winter-offer', 'Winter offer', $templates['landing'], $layouts['default'], [

@@ -3,6 +3,7 @@
 namespace App\Services\Cms;
 
 use App\Enums\TenantModule;
+use App\Models\Catalogue\Catalogue;
 use App\Models\Cms\Menu;
 use App\Models\Cms\Page;
 use App\Models\Cms\SavedComponent;
@@ -11,8 +12,8 @@ use App\Models\Crm\OrganisationUnit;
 use App\Models\User;
 
 /**
- * The choices content fields offer (menus, pages, CRM forms, organisation units and saved
- * components), for the page and layout editors
+ * The choices content fields offer (menus, pages, CRM forms, organisation units, catalogues and
+ * saved components), for the page and layout editors
  */
 class ContentFieldOptions
 {
@@ -103,5 +104,28 @@ class ContentFieldOptions
                 ->values()
                 ->all(),
         ];
+    }
+
+    /**
+     * The catalogues catalogue fields can show, or null when the tenant doesn't have the Catalogue
+     * module (the fields are then hidden, and keep their values). Drafts are marked, as the site
+     * doesn't show them until they're published.
+     *
+     * @return array<int, array{value: int, label: string, published: bool}>|null
+     */
+    public function catalogues(): ?array
+    {
+        if (! (tenant()?->hasModule(TenantModule::Catalogue) ?? false)) {
+            return null;
+        }
+
+        return Catalogue::query()->orderBy('order')->orderBy('name')->get(['id', 'name', 'is_published'])
+            ->map(fn (Catalogue $catalogue) => [
+                'value' => $catalogue->id,
+                'label' => $catalogue->name,
+                'published' => $catalogue->is_published,
+            ])
+            ->values()
+            ->all();
     }
 }

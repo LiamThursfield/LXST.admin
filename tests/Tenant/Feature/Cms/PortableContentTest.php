@@ -3,6 +3,7 @@
 use App\Enums\Cms\TemplateFieldType;
 use App\Enums\Cms\TemplateType;
 use App\Enums\TenantModule;
+use App\Models\Catalogue\Catalogue;
 use App\Models\Cms\Menu;
 use App\Models\Cms\Page;
 use App\Models\Cms\SavedComponent;
@@ -409,6 +410,7 @@ describe('content references', function () {
         $menu = Menu::factory()->create(['slug' => 'main']);
         $form = Form::factory()->create(['slug' => 'enquiry']);
         $unit = OrganisationUnit::factory()->create(['slug' => 'leeds']);
+        $catalogue = Catalogue::factory()->create(['slug' => 'drinks']);
         $page = Page::factory()->create();
         $card = Template::factory()->ofType(TemplateType::Component)->create();
         $saved = SavedComponent::factory()->create(['slug' => 'standard', 'template_id' => $card->id]);
@@ -417,6 +419,7 @@ describe('content references', function () {
         TemplateField::factory()->for($template)->create(['type' => TemplateFieldType::CmsMenu, 'slug' => 'menu']);
         TemplateField::factory()->for($template)->create(['type' => TemplateFieldType::CrmForm, 'slug' => 'form']);
         TemplateField::factory()->for($template)->create(['type' => TemplateFieldType::CrmOrganisationUnit, 'slug' => 'unit']);
+        TemplateField::factory()->for($template)->create(['type' => TemplateFieldType::Catalogue, 'slug' => 'catalogue']);
         TemplateField::factory()->for($template)->create(['type' => TemplateFieldType::Link, 'slug' => 'link']);
         TemplateField::factory()->for($template)->usingTemplate($card)->create(['slug' => 'card']);
 
@@ -425,6 +428,7 @@ describe('content references', function () {
             'menu' => $menu->id,
             'form' => $form->id,
             'unit' => $unit->id,
+            'catalogue' => $catalogue->id,
             'link' => ['link_type' => 'page', 'page_id' => $page->id, 'url' => null, 'target' => null],
             'card' => $saved->reference(),
         ]);
@@ -432,6 +436,7 @@ describe('content references', function () {
         expect($portable['menu'])->toBe(['menu' => 'main'])
             ->and($portable['form'])->toBe(['form' => 'enquiry'])
             ->and($portable['unit'])->toBe(['organisation_unit' => 'leeds'])
+            ->and($portable['catalogue'])->toBe(['catalogue' => 'drinks'])
             ->and($portable['link']['page'])->toBe($page->url->url_full)
             ->and($portable['card'])->toBe(['saved_component' => 'standard']);
 
@@ -442,6 +447,7 @@ describe('content references', function () {
             ->and($back['menu'])->toBe($menu->id)
             ->and($back['form'])->toBe($form->id)
             ->and($back['unit'])->toBe($unit->id)
+            ->and($back['catalogue'])->toBe($catalogue->id)
             ->and($back['link']['page_id'])->toBe($page->id)
             ->and($back['card'])->toBe($saved->reference());
     });

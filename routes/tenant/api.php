@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Tenant\Api\V1\Catalogue\CatalogueController;
 use App\Http\Controllers\Tenant\Api\V1\Cms\MenuController;
 use App\Http\Controllers\Tenant\Api\V1\Cms\PageController;
 use App\Http\Controllers\Tenant\Api\V1\Cms\PageViewController;
@@ -61,6 +62,12 @@ Route::prefix('v1')
             // Where a location is and when it's open. Locations are addressed by their slug.
             Route::get('locations', [LocationController::class, 'index'])->name('locations.index');
             Route::get('locations/{location:slug}', [LocationController::class, 'show'])->name('locations.show');
+        });
+
+        // Published menus, price lists and products, addressed by their slug (#183)
+        Route::prefix('catalogue')->name('catalogue.')->middleware('tenant.module:catalogue')->group(function () {
+            Route::get('catalogues', [CatalogueController::class, 'index'])->name('catalogues.index');
+            Route::get('catalogues/{catalogue:slug}', [CatalogueController::class, 'show'])->name('catalogues.show');
         });
 
         // Request context, song requests and now playing are added here as they're built

@@ -5,6 +5,7 @@ export const templateFieldTypeGroups = [
     'structure',
     'components',
     'crm',
+    'catalogue',
 ] as const;
 
 export type TemplateFieldTypeGroup = (typeof templateFieldTypeGroups)[number];
@@ -27,6 +28,7 @@ export const templateFieldTypeMeta: Record<
     crm_form: { icon: 'i-lucide-clipboard-list', group: 'crm' },
     crm_organisation_unit: { icon: 'i-lucide-building-2', group: 'crm' },
     crm_opening_hours: { icon: 'i-lucide-clock', group: 'crm' },
+    catalogue: { icon: 'i-lucide-book-open', group: 'catalogue' },
 };
 
 /** A type the map doesn't know yet still gets an icon and a group. */

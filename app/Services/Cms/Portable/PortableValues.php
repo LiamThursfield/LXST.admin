@@ -3,6 +3,7 @@
 namespace App\Services\Cms\Portable;
 
 use App\Enums\Cms\TemplateFieldType;
+use App\Models\Catalogue\Catalogue;
 use App\Models\Cms\Menu;
 use App\Models\Cms\Page;
 use App\Models\Cms\SavedComponent;
@@ -56,6 +57,7 @@ class PortableValues
             TemplateFieldType::CmsMenu => $this->slugReference('menu', Menu::query()->whereKey($value)->value('slug')),
             TemplateFieldType::CrmForm => $this->slugReference('form', Form::query()->whereKey($value)->value('slug')),
             TemplateFieldType::CrmOrganisationUnit, TemplateFieldType::CrmOpeningHours => $this->slugReference('organisation_unit', OrganisationUnit::query()->whereKey($value)->value('slug')),
+            TemplateFieldType::Catalogue => $this->slugReference('catalogue', Catalogue::query()->whereKey($value)->value('slug')),
         };
     }
 
@@ -163,6 +165,7 @@ class PortableValues
             TemplateFieldType::CmsMenu => $this->importSlug($field, $value, 'menu', Menu::class, $missing),
             TemplateFieldType::CrmForm => $this->importSlug($field, $value, 'form', Form::class, $missing),
             TemplateFieldType::CrmOrganisationUnit, TemplateFieldType::CrmOpeningHours => $this->importSlug($field, $value, 'organisation_unit', OrganisationUnit::class, $missing),
+            TemplateFieldType::Catalogue => $this->importSlug($field, $value, 'catalogue', Catalogue::class, $missing),
         };
     }
 
@@ -275,7 +278,7 @@ class PortableValues
     }
 
     /**
-     * @param  class-string<Menu|Form|OrganisationUnit>  $model
+     * @param  class-string<Menu|Form|OrganisationUnit|Catalogue>  $model
      * @param  list<MissingReference>  $missing
      */
     protected function importSlug(TemplateField $field, mixed $value, string $kind, string $model, array &$missing): ?int

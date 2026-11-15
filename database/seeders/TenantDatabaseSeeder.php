@@ -50,11 +50,6 @@ class TenantDatabaseSeeder extends Seeder
             $this->call(CrmSeeder::class);
         }
 
-        // After the CRM, as pages can show its forms and offices
-        if ($tenant->hasModule(TenantModule::Cms)) {
-            $this->call(CmsSeeder::class);
-        }
-
         // After the CRM, as services can be limited to its locations
         if ($tenant->hasModule(TenantModule::Bookings)) {
             $this->call(BookingsSeeder::class);
@@ -63,6 +58,11 @@ class TenantDatabaseSeeder extends Seeder
         // After the bookings, as a price list can show its services, and the File Manager, for images
         if ($tenant->hasModule(TenantModule::Catalogue)) {
             $this->call(CatalogueSeeder::class);
+        }
+
+        // After the CRM and the catalogues, as pages can show their forms, offices and catalogues
+        if ($tenant->hasModule(TenantModule::Cms)) {
+            $this->call(CmsSeeder::class);
         }
 
         if ($tenant->hasModule(TenantModule::Tracker)) {

@@ -73,6 +73,7 @@ class LayoutController extends Controller
             'nestedTemplates' => $this->nestedTemplates(),
             'menuOptions' => $this->fieldOptions->menus(),
             'crmOptions' => $this->fieldOptions->crm(),
+            'catalogueOptions' => $this->fieldOptions->catalogues(),
             'pageOptions' => $this->fieldOptions->pages(),
             'savedComponentOptions' => $this->fieldOptions->savedComponents($request->user()),
         ]);
@@ -100,6 +101,7 @@ class LayoutController extends Controller
             'nestedTemplates' => $this->nestedTemplates(),
             'menuOptions' => $this->fieldOptions->menus(),
             'crmOptions' => $this->fieldOptions->crm(),
+            'catalogueOptions' => $this->fieldOptions->catalogues(),
             'pageOptions' => $this->fieldOptions->pages(),
             'savedComponentOptions' => $this->fieldOptions->savedComponents($request->user()),
         ]);
@@ -115,6 +117,7 @@ class LayoutController extends Controller
             'nestedTemplates' => $this->nestedTemplates(),
             'menuOptions' => $this->fieldOptions->menus(),
             'crmOptions' => $this->fieldOptions->crm(),
+            'catalogueOptions' => $this->fieldOptions->catalogues(),
             'pageOptions' => $this->fieldOptions->pages(),
             'savedComponentOptions' => $this->fieldOptions->savedComponents($request->user()),
         ]);
