@@ -14,9 +14,11 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
 use Spatie\Permission\Middleware\PermissionMiddleware;
+use Stancl\Tenancy\Contracts\TenantCouldNotBeIdentifiedException;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromUnwantedDomains;
 use Stancl\Tenancy\Middleware\ScopeSessions;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -104,5 +106,12 @@ return Application::configure(basePath: dirname(__DIR__))
         // even when the request doesn't ask for it (e.g. 404s, 429s and module gating)
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request): bool => $request->is('api', 'api/*') || $request->expectsJson()
+        );
+
+        // A domain that no tenant has (any *.lxst.digital name, or the server's bare IP) is a 404,
+        // not a server error, so probes for random names don't fill the error log
+        $exceptions->map(
+            TenantCouldNotBeIdentifiedException::class,
+            fn (TenantCouldNotBeIdentifiedException $exception) => new NotFoundHttpException(previous: $exception),
         );
     })->create();
