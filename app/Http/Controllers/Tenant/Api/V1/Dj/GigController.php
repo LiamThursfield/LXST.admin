@@ -8,6 +8,7 @@ use App\Models\Dj\Gig;
 use App\Services\Crm\FormSpamCheck;
 use App\Services\Dj\Api\DjApiCache;
 use App\Services\Dj\CurrentGig;
+use App\Services\Dj\Requests\RequestCaptcha;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -25,7 +26,7 @@ class GigController extends Controller
     {
         $gig = $currentGig->resolve();
 
-        return response()->json($this->withRequestForm($gig === null ? ['data' => null] : $this->details($request, $gig)));
+        return response()->json($this->withRequestForm($gig === null ? ['data' => null] : $this->details($request, $gig), $gig));
     }
 
     /**
@@ -33,7 +34,7 @@ class GigController extends Controller
      */
     public function show(Request $request, Gig $gig): JsonResponse
     {
-        return response()->json($this->withRequestForm($this->details($request, $gig)));
+        return response()->json($this->withRequestForm($this->details($request, $gig), $gig));
     }
 
     /**
@@ -50,18 +51,21 @@ class GigController extends Controller
 
     /**
      * Adds the request form's spam protection, outside the cache, as the token records when the
-     * form was loaded: render the honeypot as a hidden field, and send the token back unchanged
+     * form was loaded: render the honeypot as a hidden field, and send the token back unchanged.
+     * When the gig asks for a captcha (#74), render the provider's widget for the visitor's first
+     * request, and send its token in the captcha's token field.
      *
      * @param  array{data: array<string, mixed>|null}  $response
      * @return array{data: array<string, mixed>|null}
      */
-    protected function withRequestForm(array $response): array
+    protected function withRequestForm(array $response, ?Gig $gig): array
     {
-        if ($response['data'] !== null) {
+        if ($response['data'] !== null && $gig !== null) {
             $response['data']['requests']['spam_protection'] = [
                 'honeypot_field' => config('dj.requests.honeypot_field'),
                 'token_field' => config('dj.requests.token_field'),
                 'token' => FormSpamCheck::for('dj.requests')->issueToken(),
+                'captcha' => app(RequestCaptcha::class)->widget($gig),
             ];
         }
 

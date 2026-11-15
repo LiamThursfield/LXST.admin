@@ -2,6 +2,7 @@
 
 use App\Data\Crm\FormFieldSettings;
 use App\Enums\Crm\FormFieldType;
+use App\Enums\Crm\SpamReason;
 use App\Enums\TenantModule;
 use App\Mail\Crm\FormSubmittedMail;
 use App\Models\Crm\Contact;
@@ -9,7 +10,9 @@ use App\Models\Crm\Form;
 use App\Models\Crm\FormField;
 use App\Models\Crm\FormSubmission;
 use App\Services\Crm\FormSpamCheck;
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 
 beforeEach(function () {
@@ -82,7 +85,8 @@ describe('form definition', function () {
             ->assertJsonPath('data.marketing', ['marketing_email'])
             ->assertJsonPath('data.spam_protection.honeypot_field', 'website_url')
             ->assertJsonPath('data.spam_protection.token_field', 'form_token')
-            ->assertJsonStructure(['data' => ['spam_protection' => ['token']]]);
+            ->assertJsonStructure(['data' => ['spam_protection' => ['token']]])
+            ->assertJsonPath('data.spam_protection.captcha', null);
     });
 
     test('unknown and deleted forms return a JSON 404', function () {
@@ -147,7 +151,9 @@ describe('submitting', function () {
 
         submit(submission())->assertCreated();
 
-        expect(FormSubmission::query()->sole()->is_spam)->toBeTrue();
+        expect(FormSubmission::query()->sole())
+            ->is_spam->toBeTrue()
+            ->spam_reason->toBe(SpamReason::SpamContact);
         Mail::assertNothingQueued();
     });
 
@@ -183,8 +189,10 @@ describe('spam check', function () {
             ->assertCreated()
             ->assertJsonPath('data.message', 'Thanks!');
 
-        expect(FormSubmission::query()->sole()->is_spam)->toBeTrue()
-            ->and(FormSubmission::query()->sole()->contact_id)->toBeNull()
+        expect(FormSubmission::query()->sole())
+            ->is_spam->toBeTrue()
+            ->spam_reason->toBe(SpamReason::Honeypot)
+            ->contact_id->toBeNull()
             ->and(Contact::query()->count())->toBe(0);
 
         Mail::assertNothingQueued();
@@ -193,19 +201,99 @@ describe('spam check', function () {
     test('submitting too soon after loading the form is spam', function () {
         submit(submission(['form_token' => app(FormSpamCheck::class)->issueToken()]))->assertCreated();
 
-        expect(FormSubmission::query()->sole()->is_spam)->toBeTrue();
+        expect(FormSubmission::query()->sole()->spam_reason)->toBe(SpamReason::TooFast);
     });
 
     test('a tampered token is spam', function () {
         submit(submission(['form_token' => 'not-a-real-token']))->assertCreated();
 
-        expect(FormSubmission::query()->sole()->is_spam)->toBeTrue();
+        expect(FormSubmission::query()->sole()->spam_reason)->toBe(SpamReason::InvalidToken);
     });
 
     test('a missing token is not treated as spam, so sites that don\'t send it still work', function () {
         submit(submission(['form_token' => null]))->assertCreated();
 
+        expect(FormSubmission::query()->sole())
+            ->is_spam->toBeFalse()
+            ->spam_reason->toBeNull();
+    });
+});
+
+describe('captcha', function () {
+    beforeEach(function () {
+        $this->form->update(['captcha_enabled' => true]);
+    });
+
+    test('the form definition gives the provider and site key, never the secret key', function () {
+        setUpCaptcha();
+
+        $this->getJson(route('api.v1.crm.forms.show', 'contact-us'))
+            ->assertOk()
+            ->assertJsonPath('data.spam_protection.captcha', [
+                'provider' => 'turnstile',
+                'site_key' => 'test-site-key',
+                'token_field' => 'captcha_token',
+            ])
+            ->assertDontSee('test-secret-key');
+    });
+
+    test('a passed captcha saves the submission, checking the token with the secret key', function () {
+        setUpCaptcha('pass');
+
+        submit(submission(['captcha_token' => 'visitor-token']))->assertCreated();
+
         expect(FormSubmission::query()->sole()->is_spam)->toBeFalse();
+        Http::assertSent(fn (Request $request) => $request['secret'] === 'test-secret-key' && $request['response'] === 'visitor-token');
+    });
+
+    test('a missing or failed captcha is refused with a JSON 422, and nothing is saved', function (?string $token) {
+        setUpCaptcha('fail');
+
+        submit(submission(['captcha_token' => $token]))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['captcha_token' => __('crm.submissions.api.captcha_failed')]);
+
+        expect(FormSubmission::query()->count())->toBe(0);
+    })->with(['missing' => null, 'failed' => 'bad-token']);
+
+    test('the captcha is only checked once the answers are valid, so the token can be sent again', function () {
+        setUpCaptcha();
+
+        submit(submission(['first_name' => '', 'captcha_token' => 'visitor-token']))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['first_name'])
+            ->assertJsonMissingValidationErrors(['captcha_token']);
+
+        Http::assertNothingSent();
+    });
+
+    test('when the provider is down, the submission is kept but marked as spam', function () {
+        setUpCaptcha('down');
+
+        submit(submission(['captcha_token' => 'visitor-token']))->assertCreated();
+
+        expect(FormSubmission::query()->sole())
+            ->is_spam->toBeTrue()
+            ->spam_reason->toBe(SpamReason::CaptchaUnavailable)
+            ->contact_id->toBeNull();
+        Mail::assertNothingQueued();
+    });
+
+    test('the form\'s captcha has no effect until captcha is set up', function () {
+        $this->getJson(route('api.v1.crm.forms.show', 'contact-us'))->assertJsonPath('data.spam_protection.captcha', null);
+
+        submit(submission())->assertCreated();
+
+        expect(FormSubmission::query()->sole()->is_spam)->toBeFalse();
+    });
+
+    test('forms without captcha don\'t check one, even when it\'s set up', function () {
+        $this->form->update(['captcha_enabled' => false]);
+        setUpCaptcha();
+
+        submit(submission())->assertCreated();
+
+        Http::assertNothingSent();
     });
 });
 

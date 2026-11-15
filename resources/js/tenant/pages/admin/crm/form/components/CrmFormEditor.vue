@@ -7,6 +7,7 @@ import {
     update,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Crm/FormController';
 import type { EditorTab } from '@/components/EditorLayout.vue';
+import { edit as editIntegrations } from '@/routes/admin/site-settings/integrations';
 import BuilderFieldList from '@/tenant/components/builder/BuilderFieldList.vue';
 import type { BuilderFieldRow } from '@/tenant/components/builder/BuilderFieldList.vue';
 import BuilderFieldPanel from '@/tenant/components/builder/BuilderFieldPanel.vue';
@@ -18,13 +19,15 @@ import FormFieldEditor from './FormFieldEditor.vue';
 
 /**
  * Creates, edits or shows a CRM form. The Fields tab lists the fields compactly beside the
- * settings of the one chosen; the Details tab has the form's details, marketing consent and what
- * happens after submitting.
+ * settings of the one chosen; the Details tab has the form's details, marketing consent, spam
+ * protection and what happens after submitting.
  */
 const props = withDefaults(
     defineProps<{
         crmForm?: CrmFormData;
         fieldTypes: FormFieldTypeOption[];
+        /** Whether captcha is set up in the integrations, so a form's captcha switch takes effect. */
+        captchaConfigured: boolean;
         readonly?: boolean;
         create?: boolean;
     }>(),
@@ -55,6 +58,7 @@ const form = useForm({
     marketing_email: crmForm?.marketing_email ?? false,
     marketing_sms: crmForm?.marketing_sms ?? false,
     marketing_telephone: crmForm?.marketing_telephone ?? false,
+    captcha_enabled: crmForm?.captcha_enabled ?? false,
     submit_button_text: crmForm?.submit_button_text ?? '',
     redirect_url: crmForm?.redirect_url ?? '',
     success_message: crmForm?.success_message ?? '',
@@ -508,6 +512,29 @@ const breadcrumbs = computed(() => [
                         :disabled="readonly"
                         :label="trans(`crm.forms.marketing.${field}`)"
                     />
+                </div>
+            </UPageCard>
+
+            <UPageCard
+                variant="subtle"
+                :title="trans('crm.forms.captcha.title')"
+                :description="trans('crm.forms.captcha.description')"
+            >
+                <div class="flex flex-col gap-2">
+                    <USwitch
+                        v-model="form.captcha_enabled"
+                        :disabled="readonly"
+                        :label="trans('crm.forms.captcha.enabled')"
+                    />
+                    <p
+                        v-if="form.captcha_enabled && !captchaConfigured"
+                        class="text-warning text-sm"
+                    >
+                        {{ trans('crm.forms.captcha.not_configured') }}
+                        <TextLink :href="editIntegrations.url()">
+                            {{ trans('crm.forms.captcha.set_up') }}
+                        </TextLink>
+                    </p>
                 </div>
             </UPageCard>
 

@@ -41,6 +41,7 @@ class FormExporter
             'marketing_email' => $form->marketing_email,
             'marketing_sms' => $form->marketing_sms,
             'marketing_telephone' => $form->marketing_telephone,
+            'captcha_enabled' => $form->captcha_enabled,
             'submit_button_text' => $form->submit_button_text,
             'redirect_url' => $form->redirect_url,
             'success_message' => $form->success_message,

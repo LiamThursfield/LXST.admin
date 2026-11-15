@@ -152,6 +152,13 @@ return [
             'marketing_sms' => 'SMS',
             'marketing_telephone' => 'Telephone',
         ],
+        'captcha' => [
+            'title' => 'Spam protection',
+            'description' => 'Every form has a hidden spam check. A captcha adds a check that visitors are people, usually without a puzzle.',
+            'enabled' => 'Ask for a captcha',
+            'not_configured' => 'Captcha isn\'t set up yet, so this has no effect until it is.',
+            'set_up' => 'Set up captcha',
+        ],
         'sections' => [
             'details' => 'Details',
             'settings' => 'Settings',
@@ -233,6 +240,7 @@ return [
             'form' => 'Form',
             'contact' => 'Contact',
             'status' => 'Status',
+            'spam_reason' => 'Why it\'s spam',
         ],
         'status' => [
             'genuine' => 'Genuine',
@@ -285,6 +293,7 @@ return [
         ],
         'api' => [
             'submitted' => 'Thank you, your form has been submitted.',
+            'captcha_failed' => 'Please complete the captcha and try again.',
         ],
         'flash' => [
             'marked_spam' => 'Submission marked as spam.',

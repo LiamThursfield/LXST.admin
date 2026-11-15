@@ -4,6 +4,7 @@ namespace App\Services\Crm;
 
 use App\Data\Crm\FormSubmissionAnswer;
 use App\Data\Crm\FormSubmissionData;
+use App\Enums\Crm\SpamReason;
 use App\Mail\Crm\FormSubmittedMail;
 use App\Models\Crm\Contact;
 use App\Models\Crm\Form;
@@ -21,22 +22,24 @@ class FormSubmissionRecorder
      * Saves the submission, creating or updating the contact from the contact fields and marketing answers,
      * and emails the form's recipients unless it's spam.
      *
-     * A submission that looks automated is saved as spam without touching any contact, so bots can't
-     * create or overwrite contacts.
+     * A submission with a spam reason (e.g. it looks automated) is saved as spam without touching any
+     * contact, so bots can't create or overwrite contacts.
      *
      * @param  array<string, mixed>  $values  The validated answers, keyed by field key
      */
-    public function record(Form $form, array $values, bool $looksAutomated = false): FormSubmission
+    public function record(Form $form, array $values, ?SpamReason $spamReason = null): FormSubmission
     {
         $form->loadMissing('fields');
 
-        $submission = DB::transaction(function () use ($form, $values, $looksAutomated) {
-            $contact = $looksAutomated ? null : $this->saveContact($form, $values);
+        $submission = DB::transaction(function () use ($form, $values, $spamReason) {
+            $contact = $spamReason !== null ? null : $this->saveContact($form, $values);
+            $spamReason ??= ($contact->is_spam ?? false) ? SpamReason::SpamContact : null;
 
             return FormSubmission::create([
                 'form_id' => $form->id,
                 'contact_id' => $contact?->id,
-                'is_spam' => $looksAutomated || ($contact->is_spam ?? false),
+                'is_spam' => $spamReason !== null,
+                'spam_reason' => $spamReason,
                 'data' => new FormSubmissionData(
                     answers: array_values($form->fields->map(fn (FormField $field) => new FormSubmissionAnswer(
                         slug: $field->slug,

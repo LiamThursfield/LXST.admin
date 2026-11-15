@@ -37,6 +37,7 @@ class DjSettingsUpdateRequest extends FormRequest
             'allow_upvotes' => ['required', 'boolean'],
             'hosted_page_enabled' => ['required', 'boolean'],
             'show_pass_labels' => ['required', 'boolean'],
+            'require_captcha' => ['required', 'boolean'],
             'show_tracklist' => ['required', 'boolean'],
             'tracklist_per_page' => ['required', 'integer', 'min:1', 'max:50'],
             'tracklist_delay_minutes' => ['required', 'integer', 'min:0', 'max:60'],

@@ -5,6 +5,7 @@ namespace Database\Factories\Crm;
 use App\Data\Crm\FormSubmissionAnswer;
 use App\Data\Crm\FormSubmissionData;
 use App\Enums\Crm\FormFieldType;
+use App\Enums\Crm\SpamReason;
 use App\Models\Crm\Contact;
 use App\Models\Crm\Form;
 use App\Models\Crm\FormField;
@@ -29,6 +30,7 @@ class FormSubmissionFactory extends Factory
             'form_id' => Form::factory(),
             'contact_id' => Contact::factory(),
             'is_spam' => false,
+            'spam_reason' => null,
             'data' => new FormSubmissionData(
                 answers: [new FormSubmissionAnswer('message', 'Message', FormFieldType::Textarea, fake()->sentence())],
             ),
@@ -69,10 +71,11 @@ class FormSubmissionFactory extends Factory
         });
     }
 
-    public function spam(): static
+    public function spam(SpamReason $reason = SpamReason::MarkedByHand): static
     {
         return $this->state(fn (array $attributes) => [
             'is_spam' => true,
+            'spam_reason' => $reason,
         ]);
     }
 }

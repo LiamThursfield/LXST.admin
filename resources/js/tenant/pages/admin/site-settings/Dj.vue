@@ -18,6 +18,7 @@ const props = defineProps<{
         show_public_list: boolean;
         allow_upvotes: boolean;
         show_pass_labels: boolean;
+        require_captcha: boolean;
         show_tracklist: boolean;
         tracklist_per_page: number;
         tracklist_delay_minutes: number;
@@ -44,6 +45,7 @@ const options = [
     'show_public_list',
     'allow_upvotes',
     'show_pass_labels',
+    'require_captcha',
 ] as const;
 const limits = ['max_requests_per_visitor', 'max_pending_requests'] as const;
 
@@ -217,6 +219,13 @@ function onSubmit() {
                                     trans(
                                         `dj.request_settings.fields.${option}`,
                                     )
+                                "
+                                :description="
+                                    option === 'require_captcha'
+                                        ? trans(
+                                              'dj.request_settings.fields.require_captcha_help',
+                                          )
+                                        : undefined
                                 "
                             />
                         </UFormField>

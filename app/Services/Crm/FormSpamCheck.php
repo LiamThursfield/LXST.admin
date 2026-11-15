@@ -2,6 +2,8 @@
 
 namespace App\Services\Crm;
 
+use App\Enums\Crm\SpamReason;
+use App\Services\Captcha\Captcha;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -37,6 +39,7 @@ class FormSpamCheck
         return [
             (string) config('api.form_submissions.honeypot_field'),
             (string) config('api.form_submissions.token_field'),
+            Captcha::tokenField(),
         ];
     }
 
@@ -50,27 +53,37 @@ class FormSpamCheck
 
     /**
      * Whether the submission looks automated: the honeypot was filled in, the form was
-     * submitted too quickly after loading, or the token was tampered with. A missing token
-     * isn't treated as spam, so websites that don't send one still work.
+     * submitted too quickly after loading, or the token was tampered with
      */
     public function looksAutomated(Request $request): bool
     {
+        return $this->reason($request) !== null;
+    }
+
+    /**
+     * Why the submission looks automated, or null when it doesn't. A missing token isn't
+     * treated as spam, so websites that don't send one still work.
+     */
+    public function reason(Request $request): ?SpamReason
+    {
         if (filled($request->input((string) config("{$this->config}.honeypot_field")))) {
-            return true;
+            return SpamReason::Honeypot;
         }
 
         $token = $request->input((string) config("{$this->config}.token_field"));
 
         if (! is_string($token) || $token === '') {
-            return false;
+            return null;
         }
 
         try {
             $loadedAt = (int) Crypt::decryptString($token);
         } catch (DecryptException) {
-            return true;
+            return SpamReason::InvalidToken;
         }
 
-        return now()->getTimestamp() - $loadedAt < (int) config("{$this->config}.min_seconds");
+        return now()->getTimestamp() - $loadedAt < (int) config("{$this->config}.min_seconds")
+            ? SpamReason::TooFast
+            : null;
     }
 }

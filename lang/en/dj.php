@@ -433,6 +433,7 @@ return [
     'api' => [
         'no_gig' => 'There\'s no gig to request songs for right now.',
         'requests_closed' => 'Requests aren\'t open for this gig.',
+        'captcha_failed' => 'Please complete the captcha and try again.',
         'fields' => [
             'search' => 'Search',
             'gig' => 'Gig',
@@ -506,6 +507,8 @@ return [
             'show_public_list' => 'Show the request list publicly',
             'allow_upvotes' => 'Allow upvotes',
             'show_pass_labels' => 'Show guest pass labels on the request list',
+            'require_captcha' => 'Ask for a captcha on each visitor\'s first request',
+            'require_captcha_help' => 'Only once captcha is set up in the integration settings.',
             'show_tracklist' => 'Show the tracklist (now playing and recently played)',
             'tracklist_per_page' => 'Tracks per page of the tracklist',
             'tracklist_delay_minutes' => 'Tracklist delay (minutes)',

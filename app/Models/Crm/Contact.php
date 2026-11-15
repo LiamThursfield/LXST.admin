@@ -3,6 +3,7 @@
 namespace App\Models\Crm;
 
 use App\Enums\Bookings\MessageChannel;
+use App\Enums\Crm\SpamReason;
 use Database\Factories\Crm\ContactFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -88,7 +89,10 @@ class Contact extends Model
         // A contact's submissions follow the contact's spam status
         static::updated(function (Contact $contact) {
             if ($contact->wasChanged('is_spam')) {
-                $contact->formSubmissions()->update(['is_spam' => $contact->is_spam]);
+                $contact->formSubmissions()->update([
+                    'is_spam' => $contact->is_spam,
+                    'spam_reason' => $contact->is_spam ? SpamReason::SpamContact : null,
+                ]);
             }
         });
     }

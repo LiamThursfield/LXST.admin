@@ -25,6 +25,7 @@ class FormFactory extends Factory
             'marketing_email' => false,
             'marketing_sms' => false,
             'marketing_telephone' => false,
+            'captcha_enabled' => false,
             'submit_button_text' => null,
             'redirect_url' => null,
             'success_message' => fake()->sentence(),
@@ -40,6 +41,16 @@ class FormFactory extends Factory
             'marketing_email' => true,
             'marketing_sms' => true,
             'marketing_telephone' => true,
+        ]);
+    }
+
+    /**
+     * A form asking for a captcha, which takes effect once the tenant sets one up (#74)
+     */
+    public function withCaptcha(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'captcha_enabled' => true,
         ]);
     }
 }

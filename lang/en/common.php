@@ -37,6 +37,10 @@ return [
         ],
     ],
 
+    'captcha' => [
+        'load_failed' => 'The captcha couldn\'t load. Check your connection and refresh the page.',
+    ],
+
     'confirmation' => [
         'default' => 'Are you sure you want to perform this action?',
         'title' => 'Confirm :action',

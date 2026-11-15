@@ -49,6 +49,7 @@ class GigStoreRequest extends FormRequest
             'request_settings.show_public_list' => ['nullable', 'boolean'],
             'request_settings.allow_upvotes' => ['nullable', 'boolean'],
             'request_settings.show_pass_labels' => ['nullable', 'boolean'],
+            'request_settings.require_captcha' => ['nullable', 'boolean'],
             'request_settings.show_tracklist' => ['nullable', 'boolean'],
             'request_settings.tracklist_per_page' => ['nullable', 'integer', 'min:1', 'max:50'],
             'request_settings.tracklist_delay_minutes' => ['nullable', 'integer', 'min:0', 'max:60'],

@@ -6,8 +6,14 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/Api/V1/Dj/GigController';
 import { store as storeRequest } from '@/actions/App/Http/Controllers/Tenant/Api/V1/Dj/SongRequestController';
 import { index as searchTracks } from '@/actions/App/Http/Controllers/Tenant/Api/V1/Dj/TrackController';
+import CaptchaWidget from '@/components/CaptchaWidget.vue';
 import PublicLayout from '@/layouts/PublicLayout.vue';
-import { PublicApiError, publicApi, useGuestToken } from '@/lib/publicApi';
+import {
+    PublicApiError,
+    publicApi,
+    useCaptchaPassed,
+    useGuestToken,
+} from '@/lib/publicApi';
 import { formatDateTime } from '@/lib/timezone';
 import GigTracklist from '@/tenant/components/dj/public/GigTracklist.vue';
 import GuestPassForm from '@/tenant/components/dj/public/GuestPassForm.vue';
@@ -47,6 +53,16 @@ const guestToken = useGuestToken(() => gig.value?.requests.list_id);
 const needsPass = computed(
     () => gig.value?.requests.requires_pass === true && !guestToken.value,
 );
+
+// The captcha, when the gig asks for one, is only needed for the visitor's first request
+const captchaPassed = useCaptchaPassed(() => gig.value?.id);
+const captcha = computed(() =>
+    captchaPassed.value
+        ? null
+        : (gig.value?.requests.spam_protection.captcha ?? null),
+);
+const captchaToken = ref('');
+const captchaWidget = ref<InstanceType<typeof CaptchaWidget> | null>(null);
 
 // Choosing a song: from library search, or typed in
 const mode = ref<'library' | 'custom'>('library');
@@ -94,10 +110,12 @@ const result = ref<{ message: string; ok: boolean } | null>(null);
 const errors = ref<Record<string, string[]>>({});
 const list = ref<InstanceType<typeof PublicRequestList> | null>(null);
 
-const canSubmit = computed(() =>
-    mode.value === 'library'
-        ? chosen.value !== null
-        : form.custom_artist.trim() !== '',
+const canSubmit = computed(
+    () =>
+        (mode.value === 'library'
+            ? chosen.value !== null
+            : form.custom_artist.trim() !== '') &&
+        (!captcha.value || captchaToken.value !== ''),
 );
 
 async function submit() {
@@ -106,6 +124,7 @@ async function submit() {
     }
 
     const spam = gig.value.requests.spam_protection;
+    const sentCaptcha = captcha.value;
     submitting.value = true;
     errors.value = {};
 
@@ -126,14 +145,23 @@ async function submit() {
                     message: form.message || null,
                     [spam.honeypot_field]: form.honeypot,
                     [spam.token_field]: spam.token,
+                    ...(sentCaptcha
+                        ? { [sentCaptcha.token_field]: captchaToken.value }
+                        : {}),
                 },
             },
         );
         result.value = { message: response.data.message, ok: true };
+        captchaPassed.value = captchaPassed.value || sentCaptcha !== null;
         list.value?.load();
     } catch (exception) {
         if (exception instanceof PublicApiError && exception.body.errors) {
             errors.value = exception.body.errors;
+
+            // Asked for the captcha again, e.g. after changing network
+            if (spam.captcha && errors.value[spam.captcha.token_field]) {
+                captchaPassed.value = false;
+            }
         } else {
             result.value = {
                 message:
@@ -153,6 +181,8 @@ async function submit() {
         }
     } finally {
         submitting.value = false;
+        // Each captcha token can only be checked once
+        captchaWidget.value?.reset();
     }
 }
 
@@ -412,6 +442,17 @@ function another() {
                             autocomplete="off"
                             aria-hidden="true"
                         />
+
+                        <UFormField
+                            v-if="captcha"
+                            :error="errors[captcha.token_field]?.[0]"
+                        >
+                            <CaptchaWidget
+                                ref="captchaWidget"
+                                v-model="captchaToken"
+                                :captcha="captcha"
+                            />
+                        </UFormField>
 
                         <UButton
                             type="submit"

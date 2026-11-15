@@ -147,6 +147,7 @@ class GigController extends Controller
             'show_public_list' => $settings->show_public_list,
             'allow_upvotes' => $settings->allow_upvotes,
             'show_pass_labels' => $settings->show_pass_labels,
+            'require_captcha' => $settings->require_captcha,
             'show_tracklist' => $settings->show_tracklist,
             'tracklist_per_page' => $settings->tracklist_per_page,
             'tracklist_delay_minutes' => $settings->tracklist_delay_minutes,

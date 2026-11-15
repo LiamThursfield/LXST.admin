@@ -21,6 +21,7 @@ use Illuminate\Support\Str;
  * @property bool $marketing_email
  * @property bool $marketing_sms
  * @property bool $marketing_telephone
+ * @property bool $captcha_enabled
  * @property string|null $submit_button_text
  * @property string|null $redirect_url
  * @property string|null $success_message
@@ -61,6 +62,7 @@ class Form extends Model
         'marketing_email',
         'marketing_sms',
         'marketing_telephone',
+        'captcha_enabled',
         'submit_button_text',
         'redirect_url',
         'success_message',
@@ -78,6 +80,7 @@ class Form extends Model
             'marketing_email' => 'boolean',
             'marketing_sms' => 'boolean',
             'marketing_telephone' => 'boolean',
+            'captcha_enabled' => 'boolean',
         ];
     }
 

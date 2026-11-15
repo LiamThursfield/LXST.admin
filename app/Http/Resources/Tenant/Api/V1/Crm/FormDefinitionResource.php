@@ -4,6 +4,7 @@ namespace App\Http\Resources\Tenant\Api\V1\Crm;
 
 use App\Models\Crm\Form;
 use App\Models\Crm\FormField;
+use App\Services\Captcha\Captcha;
 use App\Services\Crm\FormSpamCheck;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -40,11 +41,14 @@ class FormDefinitionResource extends JsonResource
             'marketing' => collect(Form::MARKETING_FIELDS)
                 ->filter(fn (string $key) => $form->getAttribute($key))
                 ->values(),
-            // Render the honeypot as a hidden field, and send the token back unchanged
+            // Render the honeypot as a hidden field, and send the token back unchanged. When captcha
+            // is on (#74), render the provider's widget with the site key, and send its token in
+            // the captcha's token field.
             'spam_protection' => [
                 'honeypot_field' => config('api.form_submissions.honeypot_field'),
                 'token_field' => config('api.form_submissions.token_field'),
                 'token' => app(FormSpamCheck::class)->issueToken(),
+                'captcha' => $form->captcha_enabled ? app(Captcha::class)->widget() : null,
             ],
         ];
     }

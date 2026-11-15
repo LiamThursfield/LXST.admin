@@ -38,6 +38,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Captcha
+    |--------------------------------------------------------------------------
+    |
+    | Forms (and song requests) can also ask for a captcha (#74), set up per
+    | tenant in the integration settings. Sites render the provider's widget
+    | and send its token in `token_field`. The provider gets `timeout_seconds`
+    | to answer; if it can't, the submission is kept but marked as spam.
+    |
+    */
+
+    'captcha' => [
+        'token_field' => 'captcha_token',
+        'timeout_seconds' => (int) env('API_CAPTCHA_TIMEOUT_SECONDS', 5),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Page Views
     |--------------------------------------------------------------------------
     |

@@ -5,9 +5,15 @@ import CrmFormEditor from './components/CrmFormEditor.vue';
 defineProps<{
     form: { data: CrmFormData };
     fieldTypes: FormFieldTypeOption[];
+    captchaConfigured: boolean;
 }>();
 </script>
 
 <template>
-    <CrmFormEditor :crm-form="form.data" :field-types="fieldTypes" readonly />
+    <CrmFormEditor
+        :crm-form="form.data"
+        :field-types="fieldTypes"
+        :captcha-configured="captchaConfigured"
+        readonly
+    />
 </template>

@@ -157,6 +157,17 @@ return [
         'hour' => 'Per hour',
         'day' => 'Per day',
     ],
+    'captcha_provider' => [
+        'turnstile' => 'Cloudflare Turnstile',
+    ],
+    'spam_reason' => [
+        'honeypot' => 'The hidden spam check field was filled in',
+        'too_fast' => 'Sent too soon after the form loaded',
+        'invalid_token' => 'The form token had been tampered with',
+        'captcha_unavailable' => 'The captcha couldn\'t be checked',
+        'spam_contact' => 'Sent by a contact marked as spam',
+        'marked_by_hand' => 'Marked by hand',
+    ],
     'form_field_type' => [
         'text' => 'Text',
         'textarea' => 'Text area',

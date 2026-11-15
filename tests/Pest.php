@@ -1,7 +1,11 @@
 <?php
 
+use App\Enums\CaptchaProvider;
+use App\Models\Settings\IntegrationSettings;
 use App\Models\Tenant;
+use App\Services\Captcha\TurnstileVerifier;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Redis;
 use Tests\TenantTestCase;
 use Tests\TestCase;
@@ -100,6 +104,29 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/**
+ * Sets the tenant's captcha up with Turnstile (#74), and fakes Turnstile's answer: pass, fail, or an
+ * outage. Returns nothing; check the requests sent with Http::assertSent().
+ *
+ * @param  'pass'|'fail'|'down'  $answer
+ */
+function setUpCaptcha(string $answer = 'pass'): void
+{
+    app(IntegrationSettings::class)->fill([
+        'captcha_provider' => CaptchaProvider::Turnstile,
+        'captcha_site_key' => 'test-site-key',
+        'captcha_secret_key' => 'test-secret-key',
+    ])->save();
+
+    Http::fake([
+        TurnstileVerifier::VERIFY_URL => match ($answer) {
+            'pass' => Http::response(['success' => true]),
+            'fail' => Http::response(['success' => false, 'error-codes' => ['invalid-input-response']]),
+            'down' => Http::response('Service unavailable', 503),
+        },
+    ]);
 }
 
 /**

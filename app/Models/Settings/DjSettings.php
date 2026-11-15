@@ -44,6 +44,9 @@ class DjSettings extends Settings
     /** Whether the public request list shows the guest pass that made each request */
     public bool $show_pass_labels;
 
+    /** Whether a visitor's first request on a gig needs a captcha, once captcha is set up (#74) */
+    public bool $require_captcha;
+
     /** Whether the gig's tracklist (now playing and recently played) is public */
     public bool $show_tracklist;
 

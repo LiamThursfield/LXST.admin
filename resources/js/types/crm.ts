@@ -119,6 +119,8 @@ export type CrmFormData = {
     marketing_email: boolean;
     marketing_sms: boolean;
     marketing_telephone: boolean;
+    /** Whether visitors must pass a captcha, once captcha is set up in the integrations. */
+    captcha_enabled: boolean;
     submit_button_text: string | null;
     redirect_url: string | null;
     success_message: string | null;
@@ -138,6 +140,8 @@ export type FormSubmissionAnswerData = {
 export type FormSubmissionData = {
     id: number;
     is_spam: boolean;
+    /** Why it was marked as spam, e.g. "Marked by hand". */
+    spam_reason: string | null;
     submitted_at: string;
     form: { id: number; name: string; deleted: boolean };
     contact: {
