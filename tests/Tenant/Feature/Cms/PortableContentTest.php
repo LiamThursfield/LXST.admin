@@ -80,6 +80,7 @@ function portableForm(array $overrides = []): array
         'marketing_email' => true,
         'marketing_sms' => false,
         'marketing_telephone' => false,
+        'captcha_enabled' => true,
         'submit_button_text' => 'Send',
         'redirect_url' => null,
         'success_message' => 'Thanks',
@@ -338,6 +339,7 @@ describe('CRM forms', function () {
 
         expect($form->name)->toBe('Enquiry')
             ->and($form->marketing_email)->toBeTrue()
+            ->and($form->captcha_enabled)->toBeTrue()
             ->and($form->fields()->sole()->settings->rows)->toBe(3);
 
         checkPortable($items)->assertJsonPath('items.0.action', 'unchanged');

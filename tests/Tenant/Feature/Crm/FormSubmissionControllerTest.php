@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Crm\FormFieldType;
+use App\Enums\Crm\SpamReason;
 use App\Enums\TenantModule;
 use App\Models\Crm\Contact;
 use App\Models\Crm\Form;
@@ -122,10 +123,13 @@ describe('spam', function () {
         $submission = FormSubmission::factory()->create();
 
         $this->post(route('admin.crm.form-submissions.spam.store', $submission))->assertRedirect();
-        expect($submission->fresh()->is_spam)->toBeTrue();
+        expect($submission->fresh())->is_spam->toBeTrue()->spam_reason->toBe(SpamReason::MarkedByHand);
+
+        $this->get(route('admin.crm.form-submissions.show', $submission))
+            ->assertInertia(fn (Assert $page) => $page->where('submission.data.spam_reason', SpamReason::MarkedByHand->label()));
 
         $this->delete(route('admin.crm.form-submissions.spam.destroy', $submission))->assertRedirect();
-        expect($submission->fresh()->is_spam)->toBeFalse();
+        expect($submission->fresh())->is_spam->toBeFalse()->spam_reason->toBeNull();
     });
 
     test('marking a contact as spam (or not) updates all of their submissions', function () {
@@ -135,7 +139,7 @@ describe('spam', function () {
 
         $this->post(route('admin.crm.contacts.spam.store', $contact));
 
-        expect($contact->formSubmissions()->where('is_spam', true)->count())->toBe(2)
+        expect($contact->formSubmissions()->where('is_spam', true)->where('spam_reason', SpamReason::SpamContact)->count())->toBe(2)
             ->and($other->fresh()->is_spam)->toBeFalse();
 
         $this->delete(route('admin.crm.contacts.spam.destroy', $contact));

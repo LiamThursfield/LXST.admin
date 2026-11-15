@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant\Admin\Crm;
 
+use App\Enums\Crm\SpamReason;
 use App\Http\Controllers\Controller;
 use App\Models\Crm\FormSubmission;
 use Illuminate\Http\RedirectResponse;
@@ -16,7 +17,7 @@ class FormSubmissionSpamController extends Controller
     {
         Gate::authorize('update', $formSubmission);
 
-        $formSubmission->update(['is_spam' => true]);
+        $formSubmission->update(['is_spam' => true, 'spam_reason' => SpamReason::MarkedByHand]);
 
         return redirect()->back()->with('success', __('crm.submissions.flash.marked_spam'));
     }
@@ -25,7 +26,7 @@ class FormSubmissionSpamController extends Controller
     {
         Gate::authorize('update', $formSubmission);
 
-        $formSubmission->update(['is_spam' => false]);
+        $formSubmission->update(['is_spam' => false, 'spam_reason' => null]);
 
         return redirect()->back()->with('success', __('crm.submissions.flash.marked_not_spam'));
     }

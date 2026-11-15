@@ -22,6 +22,8 @@ class EffectiveRequestSettings extends Data
         public bool $allow_upvotes,
         /** Whether the public request list shows the guest pass that made each request */
         public bool $show_pass_labels,
+        /** Whether a visitor's first request on the gig needs a captcha, once captcha is set up */
+        public bool $require_captcha,
         /** Whether the gig's tracklist (now playing and recently played) is public */
         public bool $show_tracklist,
         public int $tracklist_per_page,

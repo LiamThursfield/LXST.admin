@@ -36,6 +36,7 @@ class DjSettingsController extends Controller
                 'allow_upvotes' => $settings->allow_upvotes,
                 'hosted_page_enabled' => $settings->hosted_page_enabled,
                 'show_pass_labels' => $settings->show_pass_labels,
+                'require_captcha' => $settings->require_captcha,
                 'show_tracklist' => $settings->show_tracklist,
                 'tracklist_per_page' => $settings->tracklist_per_page,
                 'tracklist_delay_minutes' => $settings->tracklist_delay_minutes,
@@ -58,6 +59,7 @@ class DjSettingsController extends Controller
         $settings->allow_upvotes = $request->boolean('allow_upvotes');
         $settings->hosted_page_enabled = $request->boolean('hosted_page_enabled');
         $settings->show_pass_labels = $request->boolean('show_pass_labels');
+        $settings->require_captcha = $request->boolean('require_captcha');
         $settings->show_tracklist = $request->boolean('show_tracklist');
         $settings->tracklist_per_page = $request->integer('tracklist_per_page');
         $settings->tracklist_delay_minutes = $request->integer('tracklist_delay_minutes');

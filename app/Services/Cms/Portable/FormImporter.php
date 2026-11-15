@@ -142,6 +142,7 @@ class FormImporter extends ItemImporter
         return [
             ...Arr::only($item, ['slug', 'name', 'submit_button_text', 'redirect_url', 'success_message']),
             ...array_map(fn (string $key) => $item[$key] ?? false, array_combine(Form::MARKETING_FIELDS, Form::MARKETING_FIELDS)),
+            'captcha_enabled' => $item['captcha_enabled'] ?? false,
             'fields' => is_array($fields)
                 ? array_map(fn (mixed $field) => is_array($field) ? [
                     'id' => is_string($field['slug'] ?? null) ? ($fieldIds[$field['slug']] ?? null) : null,

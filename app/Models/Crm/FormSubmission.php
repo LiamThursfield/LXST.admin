@@ -3,6 +3,7 @@
 namespace App\Models\Crm;
 
 use App\Data\Crm\FormSubmissionData;
+use App\Enums\Crm\SpamReason;
 use Database\Factories\Crm\FormSubmissionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,6 +17,7 @@ use Illuminate\Support\Carbon;
  * @property int $form_id
  * @property int|null $contact_id
  * @property bool $is_spam
+ * @property SpamReason|null $spam_reason
  * @property FormSubmissionData $data
  * @property Carbon $submitted_at
  * @property-read Form $form
@@ -37,6 +39,7 @@ class FormSubmission extends Model
         'form_id',
         'contact_id',
         'is_spam',
+        'spam_reason',
         'data',
         'submitted_at',
     ];
@@ -50,6 +53,7 @@ class FormSubmission extends Model
     {
         return [
             'is_spam' => 'boolean',
+            'spam_reason' => SpamReason::class,
             'data' => FormSubmissionData::class,
             'submitted_at' => 'datetime',
         ];

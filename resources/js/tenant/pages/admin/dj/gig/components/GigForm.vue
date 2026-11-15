@@ -75,6 +75,7 @@ const form = useForm({
         show_public_list: toChoice(overrides.show_public_list),
         allow_upvotes: toChoice(overrides.allow_upvotes),
         show_pass_labels: toChoice(overrides.show_pass_labels),
+        require_captcha: toChoice(overrides.require_captcha),
         show_tracklist: toChoice(overrides.show_tracklist),
     },
 });
@@ -112,6 +113,7 @@ const toggles = [
     'show_public_list',
     'allow_upvotes',
     'show_pass_labels',
+    'require_captcha',
     'show_tracklist',
 ] as const;
 
@@ -187,6 +189,7 @@ function onSubmit() {
             show_public_list: choice(data.request_settings.show_public_list),
             allow_upvotes: choice(data.request_settings.allow_upvotes),
             show_pass_labels: choice(data.request_settings.show_pass_labels),
+            require_captcha: choice(data.request_settings.require_captcha),
             show_tracklist: choice(data.request_settings.show_tracklist),
         },
     })).submit(props.gig ? update(props.gig.id) : store(), {
@@ -419,6 +422,13 @@ function onSubmit() {
                     v-for="toggle in toggles"
                     :key="toggle"
                     :label="trans(`dj.request_settings.fields.${toggle}`)"
+                    :help="
+                        toggle === 'require_captcha'
+                            ? trans(
+                                  'dj.request_settings.fields.require_captcha_help',
+                              )
+                            : undefined
+                    "
                     :error="form.errors[`request_settings.${toggle}`]"
                 >
                     <USelect

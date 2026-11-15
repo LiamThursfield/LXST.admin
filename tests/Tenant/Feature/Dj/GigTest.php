@@ -132,6 +132,7 @@ test('a gig is created with its times on its own clock, and only the request set
             'requests_mode' => 'open',
             'max_requests_per_visitor' => null,
             'allow_upvotes' => false,
+            'require_captcha' => true,
         ],
     ])->assertSessionHasNoErrors();
 
@@ -142,6 +143,7 @@ test('a gig is created with its times on its own clock, and only the request set
         ->and($gig->request_settings->toArray())->toMatchArray([
             'requests_mode' => 'open',
             'allow_upvotes' => false,
+            'require_captcha' => true,
             'max_requests_per_visitor' => null,
         ]);
 
@@ -256,6 +258,7 @@ test('DJ settings can be changed', function () {
         'show_public_list' => true,
         'allow_upvotes' => false,
         'show_pass_labels' => true,
+        'require_captcha' => true,
         'hosted_page_enabled' => false,
         'show_tracklist' => true,
         'tracklist_per_page' => 20,
@@ -269,6 +272,7 @@ test('DJ settings can be changed', function () {
         ->and($settings->max_pending_requests)->toBe(40)
         ->and($settings->allow_custom_requests)->toBeFalse()
         ->and($settings->show_pass_labels)->toBeTrue()
+        ->and($settings->require_captcha)->toBeTrue()
         ->and($settings->hosted_page_enabled)->toBeFalse()
         ->and($settings->show_tracklist)->toBeTrue()
         ->and($settings->tracklist_per_page)->toBe(20)

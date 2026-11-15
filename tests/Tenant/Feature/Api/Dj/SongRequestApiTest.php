@@ -16,6 +16,7 @@ use App\Models\Dj\SongList;
 use App\Models\Dj\SongListItem;
 use App\Services\Crm\FormSpamCheck;
 use App\Services\Dj\GuestPasses\GuestTokens;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Testing\TestResponse;
 
 const SONG_REQUEST_BROWSER_AGENT = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1';
@@ -207,6 +208,80 @@ test('the gig details give the request form\'s spam protection, fresh on every c
 
     expect($this->getJson(route('api.v1.dj.gigs.show', $this->gig->public_id))->json('data.requests.spam_protection.token'))
         ->not->toBe($first);
+});
+
+describe('captcha', function () {
+    beforeEach(function () {
+        $this->gig->update(['request_settings' => new GigRequestSettings(requests_mode: RequestsMode::Open, max_requests_per_visitor: 0, max_pending_requests: 0, require_captcha: true)]);
+    });
+
+    test('the gig details give the captcha widget when the gig asks for one', function () {
+        setUpCaptcha();
+
+        $this->getJson(route('api.v1.dj.gigs.show', $this->gig->public_id))
+            ->assertJsonPath('data.requests.spam_protection.captcha', [
+                'provider' => 'turnstile',
+                'site_key' => 'test-site-key',
+                'token_field' => 'captcha_token',
+            ])
+            ->assertDontSee('test-secret-key');
+
+        $this->gig->update(['request_settings' => new GigRequestSettings(require_captcha: false)]);
+
+        $this->getJson(route('api.v1.dj.gigs.show', $this->gig->public_id))
+            ->assertJsonPath('data.requests.spam_protection.captcha', null);
+    });
+
+    test('only a visitor\'s first request needs a captcha', function () {
+        setUpCaptcha();
+
+        requestSong($this, ['custom_artist' => 'Floating Points'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['captcha_token' => __('dj.api.captcha_failed')]);
+
+        requestSong($this, ['custom_artist' => 'Floating Points', 'captcha_token' => 'visitor-token'])->assertCreated();
+        requestSong($this, ['custom_artist' => 'Four Tet'])->assertCreated();
+        Http::assertSentCount(1);
+
+        // Someone else still needs one
+        requestSong($this, ['custom_artist' => 'Four Tet'], '203.0.113.99')->assertUnprocessable();
+
+        expect(SongListItem::count())->toBe(2);
+    });
+
+    test('a failed captcha is refused, and isn\'t remembered', function () {
+        setUpCaptcha('fail');
+
+        requestSong($this, ['custom_artist' => 'Floating Points', 'captcha_token' => 'bad-token'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['captcha_token']);
+        requestSong($this, ['custom_artist' => 'Floating Points'])->assertUnprocessable();
+
+        expect(SongListItem::count())->toBe(0);
+    });
+
+    test('when the provider is down, the request goes through, and the next one asks again', function () {
+        setUpCaptcha('down');
+
+        requestSong($this, ['custom_artist' => 'Floating Points', 'captcha_token' => 'visitor-token'])->assertCreated();
+        requestSong($this, ['custom_artist' => 'Four Tet'])->assertUnprocessable();
+    });
+
+    test('the gig\'s captcha has no effect until captcha is set up', function () {
+        $this->getJson(route('api.v1.dj.gigs.show', $this->gig->public_id))
+            ->assertJsonPath('data.requests.spam_protection.captcha', null);
+
+        requestSong($this, ['custom_artist' => 'Floating Points'])->assertCreated();
+    });
+
+    test('spam is still dropped without asking the provider', function () {
+        setUpCaptcha();
+
+        requestSong($this, ['custom_artist' => 'Spam', 'website_url' => 'https://spam.test'])->assertCreated();
+
+        Http::assertNothingSent();
+        expect(SongListItem::count())->toBe(0);
+    });
 });
 
 test('requests are validated, rate limited per gig, and need the DJ module', function () {

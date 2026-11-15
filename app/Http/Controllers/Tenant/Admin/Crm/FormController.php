@@ -13,6 +13,7 @@ use App\Http\Requests\Tenant\Admin\Crm\FormStoreRequest;
 use App\Http\Requests\Tenant\Admin\Crm\FormUpdateRequest;
 use App\Http\Resources\Tenant\Admin\Crm\FormResource;
 use App\Models\Crm\Form;
+use App\Services\Captcha\Captcha;
 use App\Services\Cms\Portable\FormExporter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -138,6 +139,8 @@ class FormController extends Controller
                 'isContactField' => $type->isContactField(),
                 'settingKeys' => $type->settingKeys(),
             ])->values(),
+            // A form's captcha switch only takes effect once captcha is set up in the integrations (#74)
+            'captchaConfigured' => app(Captcha::class)->isConfigured(),
         ];
     }
 }

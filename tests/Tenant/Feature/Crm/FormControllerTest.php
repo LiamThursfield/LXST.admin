@@ -80,7 +80,22 @@ describe('store', function () {
             ->and($fields[1]->settings->max_length)->toBe(500)
             ->and($fields[1]->settings->rows)->toBe(4)
             // min doesn't apply to a textarea, so it is dropped
-            ->and($fields[1]->settings->min)->toBeNull();
+            ->and($fields[1]->settings->min)->toBeNull()
+            ->and($form->captcha_enabled)->toBeFalse();
+    });
+
+    test('a form can ask for a captcha, and the builder says whether captcha is set up', function () {
+        $this->get(route('admin.crm.forms.create'))
+            ->assertInertia(fn (Assert $page) => $page->where('captchaConfigured', false));
+
+        $this->post(route('admin.crm.forms.store'), validFormData(['captcha_enabled' => true]))->assertSessionHasNoErrors();
+
+        expect(Form::query()->sole()->captcha_enabled)->toBeTrue();
+
+        setUpCaptcha();
+
+        $this->get(route('admin.crm.forms.edit', Form::query()->sole()))
+            ->assertInertia(fn (Assert $page) => $page->where('captchaConfigured', true)->where('form.data.captcha_enabled', true));
     });
 
     test('field keys must be unique within the form', function () {
@@ -103,7 +118,7 @@ describe('store', function () {
     });
 
     test('field keys used by the form itself are reserved', function () {
-        foreach (['website_url', 'form_token', 'marketing_email'] as $reserved) {
+        foreach (['website_url', 'form_token', 'captcha_token', 'marketing_email'] as $reserved) {
             $data = validFormData(['fields' => [
                 ['id' => null, 'type' => 'text', 'name' => 'Field', 'slug' => $reserved, 'is_required' => false, 'settings' => []],
             ]]);

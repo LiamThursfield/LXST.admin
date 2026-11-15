@@ -56,6 +56,7 @@ class FormSubmissionResource extends JsonResource
         return $this->appendActions($request, [
             'id' => $submission->id,
             'is_spam' => $submission->is_spam,
+            'spam_reason' => $submission->spam_reason?->label(),
             'submitted_at' => $submission->submitted_at->toIso8601String(),
             'form' => [
                 'id' => $form->id,

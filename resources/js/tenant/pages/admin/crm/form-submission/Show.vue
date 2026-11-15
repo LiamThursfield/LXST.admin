@@ -72,6 +72,14 @@ const details = computed(() => [
             : trans('crm.submissions.status.genuine'),
         color: submission.value.is_spam ? 'error' : 'success',
     } as const,
+    ...(submission.value.spam_reason
+        ? [
+              {
+                  label: trans('crm.submissions.columns.spam_reason'),
+                  value: submission.value.spam_reason,
+              },
+          ]
+        : []),
 ]);
 
 const marketing = computed(

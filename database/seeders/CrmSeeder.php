@@ -7,6 +7,7 @@ use App\Enums\Crm\FormFieldType;
 use App\Enums\Crm\LocationType;
 use App\Enums\Crm\OrganisationUnitType;
 use App\Enums\Crm\SocialMedia;
+use App\Enums\Crm\SpamReason;
 use App\Models\Crm\Address;
 use App\Models\Crm\Contact;
 use App\Models\Crm\Form;
@@ -17,7 +18,8 @@ use Illuminate\Database\Seeder;
 
 /**
  * Seeds example CRM data: a company with one location of each type and their opening hours, two
- * of them with a couple of departments, a handful of contacts (one marked as spam), an example contact form and some submissions of it.
+ * of them with a couple of departments, a handful of contacts (one marked as spam), an example contact form
+ * asking for a captcha, and some submissions of it, including spam with the reason it was caught.
  *
  * Run within a tenant, e.g. `php artisan tenants:seed --class=CrmSeeder`.
  * Safe to re-run: each kind of data is only seeded when none exists yet.
@@ -139,9 +141,12 @@ class CrmSeeder extends Seeder
         $contacts->each(
             fn (Contact $contact) => FormSubmission::factory()
                 ->answering($form, $contact)
-                ->state(['is_spam' => $contact->is_spam])
+                ->state(['is_spam' => $contact->is_spam, 'spam_reason' => $contact->is_spam ? SpamReason::SpamContact : null])
                 ->create()
         );
+
+        // A bot's submission, caught by the hidden field, which never touches a contact
+        FormSubmission::factory()->answering($form)->spam(SpamReason::Honeypot)->create();
     }
 
     protected function seedForms(): void
@@ -150,7 +155,8 @@ class CrmSeeder extends Seeder
             return;
         }
 
-        $form = Form::factory()->withMarketing()->create([
+        // Asks for a captcha (#74), which the site settings seeder sets up with test keys
+        $form = Form::factory()->withMarketing()->withCaptcha()->create([
             'name' => 'Contact us',
             'submit_button_text' => 'Send message',
             'success_message' => 'Thanks for getting in touch, we will reply soon.',

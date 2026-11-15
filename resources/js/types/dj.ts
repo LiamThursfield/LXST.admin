@@ -1,4 +1,4 @@
-import type { SelectItem } from './ui';
+import type { CaptchaWidgetData, SelectItem } from './ui';
 
 /** A DJ library, as returned by `LibraryResource`. */
 export type LibraryData = {
@@ -187,6 +187,7 @@ export type GigRequestSettingsData = {
     show_public_list?: boolean | null;
     allow_upvotes?: boolean | null;
     show_pass_labels?: boolean | null;
+    require_captcha?: boolean | null;
     show_tracklist?: boolean | null;
     tracklist_per_page?: number | null;
     tracklist_delay_minutes?: number | null;
@@ -203,6 +204,7 @@ export type RequestDefaults = {
     show_public_list: boolean;
     allow_upvotes: boolean;
     show_pass_labels: boolean;
+    require_captcha: boolean;
     show_tracklist: boolean;
     tracklist_per_page: number;
     tracklist_delay_minutes: number;
@@ -380,6 +382,8 @@ export type PublicGigData = {
             honeypot_field: string;
             token_field: string;
             token: string;
+            /** Only needed for the visitor's first request on the gig. */
+            captcha: CaptchaWidgetData | null;
         };
     };
     tracklist: {

@@ -347,7 +347,8 @@ class DjSeeder extends Seeder
             'starts_at' => $startsAt->utc(),
             'ends_at' => $startsAt->addHours(5)->utc(),
             'timezone' => $this->timezone,
-            'request_settings' => new GigRequestSettings(requests_mode: RequestsMode::Open, max_requests_per_visitor: 5, show_tracklist: true),
+            // Asks for a captcha (#74) on each visitor's first request
+            'request_settings' => new GigRequestSettings(requests_mode: RequestsMode::Open, max_requests_per_visitor: 5, require_captcha: true, show_tracklist: true),
         ]);
         $this->currentGig->pin($gig);
 

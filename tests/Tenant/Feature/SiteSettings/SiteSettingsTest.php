@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\CaptchaProvider;
 use App\Models\FileManager\File;
 use App\Models\Settings\GeneralSettings;
 use App\Models\Settings\IntegrationSettings;
@@ -164,6 +165,53 @@ describe('integration settings', function () {
     test('anything that isn\'t a container ID is rejected', function () {
         $this->put(route('admin.site-settings.integrations.update'), ['gtm_id' => 'UA-12345-1'])
             ->assertSessionHasErrors(['gtm_id' => __('site_settings.integrations.validation.gtm_id_format')]);
+    });
+
+    test('captcha can be set up, with the secret key encrypted and never sent back', function () {
+        $this->put(route('admin.site-settings.integrations.update'), [
+            'captcha_provider' => 'turnstile',
+            'captcha_site_key' => ' site-key ',
+            'captcha_secret_key' => 'secret-key',
+        ])->assertSessionHasNoErrors();
+
+        $settings = app(IntegrationSettings::class);
+
+        expect($settings->captcha_provider)->toBe(CaptchaProvider::Turnstile)
+            ->and($settings->captcha_site_key)->toBe('site-key')
+            ->and($settings->captcha_secret_key)->toBe('secret-key')
+            ->and(DB::table('settings')->where('group', 'integrations')->where('name', 'captcha_secret_key')->value('payload'))->not->toContain('secret-key');
+
+        $this->get(route('admin.site-settings.integrations.edit'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('settings.captcha_provider', 'turnstile')
+                ->where('hasCaptchaSecret', true)
+                ->missing('settings.captcha_secret_key'))
+            ->assertDontSee('secret-key');
+    });
+
+    test('a saved captcha secret key is kept when left empty, and cleared with the provider', function () {
+        setUpCaptcha();
+
+        $this->put(route('admin.site-settings.integrations.update'), ['captcha_provider' => 'turnstile', 'captcha_site_key' => 'new-site-key', 'captcha_secret_key' => ''])
+            ->assertSessionHasNoErrors();
+
+        expect(app(IntegrationSettings::class)->captcha_secret_key)->toBe('test-secret-key');
+
+        $this->put(route('admin.site-settings.integrations.update'), ['captcha_provider' => null, 'captcha_site_key' => 'new-site-key'])
+            ->assertSessionHasNoErrors();
+
+        expect(app(IntegrationSettings::class))
+            ->captcha_provider->toBeNull()
+            ->captcha_site_key->toBeNull()
+            ->captcha_secret_key->toBeNull();
+    });
+
+    test('captcha needs both keys, and a provider it knows', function () {
+        $this->put(route('admin.site-settings.integrations.update'), ['captcha_provider' => 'turnstile'])
+            ->assertSessionHasErrors(['captcha_site_key', 'captcha_secret_key']);
+
+        $this->put(route('admin.site-settings.integrations.update'), ['captcha_provider' => 'recaptcha', 'captcha_site_key' => 'a', 'captcha_secret_key' => 'b'])
+            ->assertSessionHasErrors(['captcha_provider']);
     });
 });
 

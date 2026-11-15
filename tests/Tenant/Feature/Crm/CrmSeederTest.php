@@ -2,6 +2,7 @@
 
 use App\Enums\Crm\LocationType;
 use App\Enums\Crm\OrganisationUnitType;
+use App\Enums\Crm\SpamReason;
 use App\Models\Crm\Address;
 use App\Models\Crm\Contact;
 use App\Models\Crm\Form;
@@ -19,8 +20,10 @@ it('seeds organisation units, contacts, a form and submissions, and is safe to r
         ->and(Contact::query()->count())->toBe(12)
         ->and(Form::query()->count())->toBe(1)
         ->and(Form::query()->sole()->fields()->count())->toBe(5)
-        ->and(FormSubmission::query()->count())->toBe(5)
-        ->and(FormSubmission::query()->where('is_spam', true)->count())->toBe(1)
+        ->and(Form::query()->sole()->captcha_enabled)->toBeTrue()
+        // Four genuine, one from the spam contact and one caught by the honeypot
+        ->and(FormSubmission::query()->count())->toBe(6)
+        ->and(FormSubmission::query()->where('is_spam', true)->orderBy('spam_reason')->pluck('spam_reason')->all())->toBe([SpamReason::Honeypot, SpamReason::SpamContact])
         ->and(Contact::query()->where('is_spam', true)->count())->toBe(1)
         ->and(Address::query()->count())->toBe(4 + 8);
 });

@@ -285,6 +285,13 @@ return [
         'description' => 'Connect the site to third-party services.',
         'gtm_id' => 'Google Tag Manager container ID',
         'gtm_id_help' => 'For example GTM-ABC1234. Leave empty to turn Google Tag Manager off.',
+        'captcha' => 'Captcha',
+        'captcha_help' => 'Checks that visitors are people on the forms and song requests that ask for it. Websites render the captcha with the site key.',
+        'captcha_none' => 'None',
+        'captcha_site_key' => 'Site key',
+        'captcha_secret_key' => 'Secret key',
+        'captcha_secret_saved' => 'A secret key is saved. Leave this empty to keep it.',
+        'captcha_turnstile_help' => 'Your Turnstile keys. Create a widget in the Cloudflare dashboard under Turnstile, with your website\'s domain (and this site\'s, for the hosted request page) as its hostnames, then copy its keys here.',
         'updated' => 'Integration settings saved.',
         'validation' => [
             'gtm_id_format' => 'Enter a container ID like GTM-ABC1234.',

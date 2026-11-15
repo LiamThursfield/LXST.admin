@@ -82,3 +82,36 @@ export function useGuestToken(listId: () => string | null | undefined) {
 
     return token;
 }
+
+/**
+ * Whether the visitor has passed the gig's captcha (#74), so later requests don't show it again.
+ * Kept for the browser session, like guest tokens. The API is the judge: if it asks for the captcha
+ * again (e.g. the visitor changed network), set this back to false.
+ */
+export function useCaptchaPassed(gigId: () => string | null | undefined) {
+    const memory = ref(false);
+    const key = () => `dj-captcha-passed:${gigId() ?? ''}`;
+
+    return computed<boolean>({
+        get: () => {
+            try {
+                return sessionStorage.getItem(key()) === '1' || memory.value;
+            } catch {
+                return memory.value;
+            }
+        },
+        set: (value) => {
+            memory.value = value;
+
+            try {
+                if (value) {
+                    sessionStorage.setItem(key(), '1');
+                } else {
+                    sessionStorage.removeItem(key());
+                }
+            } catch {
+                // Kept in memory only
+            }
+        },
+    });
+}

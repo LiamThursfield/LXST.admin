@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant\Admin\SiteSettings;
 
+use App\Enums\CaptchaProvider;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Admin\SiteSettings\IntegrationSettingsUpdateRequest;
 use App\Models\Settings\IntegrationSettings;
@@ -19,16 +20,21 @@ class IntegrationSettingsController extends Controller
         Gate::authorize(SettingsPermission::ViewSettings);
 
         return Inertia::render('admin/site-settings/Integrations', [
+            // The captcha secret key is never sent to the browser, only whether one is saved
             'settings' => [
                 'gtm_id' => $settings->gtm_id,
+                'captcha_provider' => $settings->captcha_provider?->value,
+                'captcha_site_key' => $settings->captcha_site_key,
             ],
+            'hasCaptchaSecret' => filled($settings->captcha_secret_key),
+            'captchaProviders' => CaptchaProvider::asSelectItems(),
             'canManage' => $request->user()?->can(SettingsPermission::ManageSettings) ?? false,
         ]);
     }
 
     public function update(IntegrationSettingsUpdateRequest $request, IntegrationSettings $settings): RedirectResponse
     {
-        $settings->gtm_id = $request->filled('gtm_id') ? $request->string('gtm_id')->toString() : null;
+        $settings->fill($request->settingsAttributes($settings));
         $settings->save();
 
         return redirect()->route('admin.site-settings.integrations.edit')

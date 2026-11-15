@@ -51,6 +51,7 @@ trait ValidatesForm
             'marketing_email' => ['boolean'],
             'marketing_sms' => ['boolean'],
             'marketing_telephone' => ['boolean'],
+            'captcha_enabled' => ['boolean'],
             'submit_button_text' => ['nullable', 'string', 'max:50'],
             'redirect_url' => ['nullable', 'url', 'max:150'],
             'success_message' => ['nullable', 'string', 'max:1024'],
