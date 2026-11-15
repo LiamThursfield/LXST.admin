@@ -11,6 +11,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    CaptchaWidget: typeof import('./resources/js/components/CaptchaWidget.vue')['default']
     CollapsibleCard: typeof import('./resources/js/components/CollapsibleCard.vue')['default']
     DeleteAccount: typeof import('./resources/js/components/settings/DeleteAccount.vue')['default']
     EditorLayout: typeof import('./resources/js/components/EditorLayout.vue')['default']

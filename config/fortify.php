@@ -159,9 +159,24 @@ return [
     */
 
     'features' => [
+        // Always registered so the sign-up routes (and their Wayfinder helpers) exist in every
+        // build; whether anyone can actually sign up is decided by 'registration_open' below
         Features::registration(),
         Features::resetPasswords(),
         Features::emailVerification(),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Open Registration
+    |--------------------------------------------------------------------------
+    |
+    | Whether people can create their own account from a site's sign-up page.
+    | Closed by default, so accounts are only made by an admin. While it is
+    | closed, the sign-up page and form respond with a 404.
+    |
+    */
+
+    'registration_open' => (bool) env('REGISTRATION_OPEN', false),
 
 ];
