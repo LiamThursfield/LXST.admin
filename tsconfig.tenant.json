@@ -12,6 +12,7 @@
         "resources/js/lib/**/*",
         "resources/js/types/**/*",
         "vite.tenant.config.ts",
+        "vite.release.ts",
         "components.tenant.d.ts",
         "auto-imports.tenant.d.ts"
     ]

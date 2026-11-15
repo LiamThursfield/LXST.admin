@@ -4,8 +4,9 @@ import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
+import { releaseCentralLinkCheck } from './vite.release';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
     cacheDir: 'node_modules/.vite-central',
     server: {
         port: 5174, // Unique port for Central
@@ -23,6 +24,8 @@ export default defineConfig({
         },
     },
     plugins: [
+        // A release build fails unless central links use the production central domain (vite.release.ts)
+        ...releaseCentralLinkCheck(mode),
         laravel({
             input: [
                 'resources/js/central/app.ts',
@@ -81,4 +84,4 @@ export default defineConfig({
             '@': path.resolve(__dirname, './resources/js'),
         },
     },
-});
+}));

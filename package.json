@@ -9,6 +9,7 @@
         "build": "pnpm build:tenant && pnpm build:central",
         "build:central": "vite build --config vite.central.config.ts",
         "build:tenant": "vite build --config vite.tenant.config.ts",
+        "build:release": "vite build --config vite.tenant.config.ts --mode release && vite build --config vite.central.config.ts --mode release",
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix",
