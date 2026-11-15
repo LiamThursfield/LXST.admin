@@ -2,8 +2,11 @@
 
 namespace App\Services\Navigation\Registrars;
 
+use App\Enums\BookingType;
 use App\Enums\TenantModule;
+use App\Models\Bookings\Service;
 use App\Models\Bookings\TimeOff;
+use App\Models\Tenant;
 use App\Services\Authorisation\Enums\BookingsPermission;
 use App\Services\Authorisation\Enums\CataloguePermission;
 use App\Services\Authorisation\Enums\CmsPermission;
@@ -85,6 +88,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
     /**
      * Register the Bookings section of the tenant Main Menu
      * Every item requires the Bookings module, so the whole section is hidden when it is switched off
+     * The day-to-day links sit at the top, and the rest are grouped so the section stays short
      *
      * @throws DuplicateMenuSectionKeyException
      * @throws MenuKeyDoesNotExistException
@@ -128,7 +132,7 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         to: 'admin.bookings.sessions.index',
                         icon: 'i-lucide-calendar-clock',
                         activePatterns: ['admin.bookings.sessions.*'],
-                    ))->gate(BookingsPermission::ViewBookings),
+                    ))->gate(fn (?Authenticatable $user) => ($user?->can(BookingsPermission::ViewBookings->value) ?? false) && $this->tenantRunsSessions()),
                     (new MenuItem(
                         key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_WAITLIST,
                         sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_WAITLIST]),
@@ -138,138 +142,176 @@ class TenantMainMenuRegistrar implements MenuRegistrar
                         icon: 'i-lucide-list-ordered',
                         activePatterns: ['admin.bookings.waitlist.*'],
                     ))->gate(BookingsPermission::ViewBookings),
-                    (new MenuItem(
-                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICES,
-                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICES]),
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_GROUP_MONEY,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_GROUP_MONEY]),
+                        label: 'navigation.bookings_money',
+                        type: MenuItemType::LINK,
+                        icon: 'i-lucide-banknote',
+                        activePatterns: [
+                            'admin.bookings.payments.*',
+                            'admin.bookings.quotes.*',
+                            'admin.bookings.invoices.*',
+                            'admin.bookings.gift-cards.*',
+                            'admin.bookings.reports.*',
+                        ],
+                        children: Collection::wrap([
+                            (new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_PAYMENTS,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_GROUP_MONEY, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_PAYMENTS]),
+                                label: 'navigation.payments',
+                                to: 'admin.bookings.payments.index',
+                            ))->gate(BookingsPermission::ViewPayments),
+                            (new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_QUOTES,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_GROUP_MONEY, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_QUOTES]),
+                                label: 'navigation.quotes',
+                                to: 'admin.bookings.quotes.index',
+                            ))->gate(BookingsPermission::ViewPayments),
+                            (new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_INVOICES,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_GROUP_MONEY, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_INVOICES]),
+                                label: 'navigation.invoices',
+                                to: 'admin.bookings.invoices.index',
+                            ))->gate(BookingsPermission::ViewPayments),
+                            (new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_GIFT_CARDS,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_GROUP_MONEY, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_GIFT_CARDS]),
+                                label: 'navigation.gift_cards',
+                                to: 'admin.bookings.gift-cards.index',
+                            ))->gate(BookingsPermission::ViewPayments),
+                            (new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_PAYMENT_REPORT,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_GROUP_MONEY, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_PAYMENT_REPORT]),
+                                label: 'navigation.payment_report',
+                                to: 'admin.bookings.reports.payments',
+                            ))->gate(BookingsPermission::ViewPayments),
+                        ]),
+                    ),
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_GROUP_SERVICES,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_GROUP_SERVICES]),
                         label: 'navigation.services',
                         type: MenuItemType::LINK,
-                        to: 'admin.bookings.services.index',
                         icon: 'i-lucide-concierge-bell',
-                        activePatterns: ['admin.bookings.services.*'],
-                    ))->gate(BookingsPermission::ViewServices),
-                    (new MenuItem(
-                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICE_CATEGORIES,
-                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICE_CATEGORIES]),
-                        label: 'navigation.service_categories',
+                        activePatterns: [
+                            'admin.bookings.services.*',
+                            'admin.bookings.service-categories.*',
+                            'admin.bookings.resources.*',
+                        ],
+                        children: Collection::wrap([
+                            (new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICES,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_GROUP_SERVICES, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICES]),
+                                label: 'navigation.all_services',
+                                to: 'admin.bookings.services.index',
+                            ))->gate(BookingsPermission::ViewServices),
+                            (new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICE_CATEGORIES,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_GROUP_SERVICES, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_SERVICE_CATEGORIES]),
+                                label: 'navigation.service_categories',
+                                to: 'admin.bookings.service-categories.index',
+                            ))->gate(BookingsPermission::ViewServices),
+                            (new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_RESOURCES,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_GROUP_SERVICES, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_RESOURCES]),
+                                label: 'navigation.resources',
+                                to: 'admin.bookings.resources.index',
+                            ))->gate(BookingsPermission::ViewResources),
+                        ]),
+                    ),
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_GROUP_TEAM,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_GROUP_TEAM]),
+                        label: 'navigation.bookings_team',
                         type: MenuItemType::LINK,
-                        to: 'admin.bookings.service-categories.index',
-                        icon: 'i-lucide-tag',
-                        activePatterns: ['admin.bookings.service-categories.*'],
-                    ))->gate(BookingsPermission::ViewServices),
-                    (new MenuItem(
-                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_STAFF,
-                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_STAFF]),
-                        label: 'navigation.staff',
-                        type: MenuItemType::LINK,
-                        to: 'admin.bookings.staff.index',
                         icon: 'i-lucide-users',
-                        activePatterns: ['admin.bookings.staff.*'],
-                    ))->gate(BookingsPermission::ViewResources),
-                    (new MenuItem(
-                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_PAYMENTS,
-                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_PAYMENTS]),
-                        label: 'navigation.payments',
-                        type: MenuItemType::LINK,
-                        to: 'admin.bookings.payments.index',
-                        icon: 'i-lucide-banknote',
-                        activePatterns: ['admin.bookings.payments.*'],
-                    ))->gate(BookingsPermission::ViewPayments),
-                    (new MenuItem(
-                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_GIFT_CARDS,
-                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_GIFT_CARDS]),
-                        label: 'navigation.gift_cards',
-                        type: MenuItemType::LINK,
-                        to: 'admin.bookings.gift-cards.index',
-                        icon: 'i-lucide-gift',
-                        activePatterns: ['admin.bookings.gift-cards.*'],
-                    ))->gate(BookingsPermission::ViewPayments),
-                    (new MenuItem(
-                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_QUOTES,
-                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_QUOTES]),
-                        label: 'navigation.quotes',
-                        type: MenuItemType::LINK,
-                        to: 'admin.bookings.quotes.index',
-                        icon: 'i-lucide-file-pen-line',
-                        activePatterns: ['admin.bookings.quotes.*'],
-                    ))->gate(BookingsPermission::ViewPayments),
-                    (new MenuItem(
-                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_INVOICES,
-                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_INVOICES]),
-                        label: 'navigation.invoices',
-                        type: MenuItemType::LINK,
-                        to: 'admin.bookings.invoices.index',
-                        icon: 'i-lucide-file-text',
-                        activePatterns: ['admin.bookings.invoices.*'],
-                    ))->gate(BookingsPermission::ViewPayments),
-                    (new MenuItem(
-                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_PAYMENT_REPORT,
-                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_PAYMENT_REPORT]),
-                        label: 'navigation.payment_report',
-                        type: MenuItemType::LINK,
-                        to: 'admin.bookings.reports.payments',
-                        icon: 'i-lucide-chart-column',
-                        activePatterns: ['admin.bookings.reports.*'],
-                    ))->gate(BookingsPermission::ViewPayments),
-                    (new MenuItem(
-                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGES,
-                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGES]),
+                        activePatterns: [
+                            'admin.bookings.staff.*',
+                            'admin.bookings.rota.*',
+                            'admin.bookings.time-off.*',
+                            'admin.bookings.staff-hours.*',
+                        ],
+                        children: Collection::wrap([
+                            (new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_STAFF,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_GROUP_TEAM, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_STAFF]),
+                                label: 'navigation.staff',
+                                to: 'admin.bookings.staff.index',
+                            ))->gate(BookingsPermission::ViewResources),
+                            (new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_ROTA,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_GROUP_TEAM, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_ROTA]),
+                                label: 'navigation.rota',
+                                to: 'admin.bookings.rota.index',
+                            ))->gate(BookingsPermission::ViewResources),
+                            (new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_TIME_OFF,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_GROUP_TEAM, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_TIME_OFF]),
+                                label: 'navigation.time_off',
+                                to: 'admin.bookings.time-off.index',
+                            ))->gate(fn (?Authenticatable $user) => $user?->can('viewAny', TimeOff::class) ?? false),
+                            (new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_STAFF_HOURS,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_GROUP_TEAM, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_STAFF_HOURS]),
+                                label: 'navigation.staff_hours',
+                                to: 'admin.bookings.staff-hours.index',
+                            ))->gate(BookingsPermission::ViewStaffReports),
+                        ]),
+                    ),
+                    new MenuItem(
+                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_GROUP_MESSAGES,
+                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_GROUP_MESSAGES]),
                         label: 'navigation.booking_messages',
                         type: MenuItemType::LINK,
-                        to: 'admin.bookings.messages.index',
                         icon: 'i-lucide-message-square-text',
-                        activePatterns: ['admin.bookings.messages.*'],
-                    ))->gate(BookingsPermission::ManageMessages),
-                    (new MenuItem(
-                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGE_LOG,
-                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGE_LOG]),
-                        label: 'navigation.message_log',
-                        type: MenuItemType::LINK,
-                        to: 'admin.bookings.message-log.index',
-                        icon: 'i-lucide-scroll-text',
-                        activePatterns: ['admin.bookings.message-log.*'],
-                    ))->gate(BookingsPermission::ViewBookings),
-                    (new MenuItem(
-                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_RESOURCES,
-                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_RESOURCES]),
-                        label: 'navigation.resources',
-                        type: MenuItemType::LINK,
-                        to: 'admin.bookings.resources.index',
-                        icon: 'i-lucide-box',
-                        activePatterns: ['admin.bookings.resources.*'],
-                    ))->gate(BookingsPermission::ViewResources),
-                    (new MenuItem(
-                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_ROTA,
-                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_ROTA]),
-                        label: 'navigation.rota',
-                        type: MenuItemType::LINK,
-                        to: 'admin.bookings.rota.index',
-                        icon: 'i-lucide-calendar-days',
-                        activePatterns: ['admin.bookings.rota.*'],
-                    ))->gate(BookingsPermission::ViewResources),
-                    (new MenuItem(
-                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_TIME_OFF,
-                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_TIME_OFF]),
-                        label: 'navigation.time_off',
-                        type: MenuItemType::LINK,
-                        to: 'admin.bookings.time-off.index',
-                        icon: 'i-lucide-palmtree',
-                        activePatterns: ['admin.bookings.time-off.*'],
-                    ))->gate(fn (?Authenticatable $user) => $user?->can('viewAny', TimeOff::class) ?? false),
-                    (new MenuItem(
-                        key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_STAFF_HOURS,
-                        sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_STAFF_HOURS]),
-                        label: 'navigation.staff_hours',
-                        type: MenuItemType::LINK,
-                        to: 'admin.bookings.staff-hours.index',
-                        icon: 'i-lucide-clock',
-                        activePatterns: ['admin.bookings.staff-hours.*'],
-                    ))->gate(BookingsPermission::ViewStaffReports),
+                        activePatterns: [
+                            'admin.bookings.messages.*',
+                            'admin.bookings.message-log.*',
+                        ],
+                        children: Collection::wrap([
+                            (new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGES,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_GROUP_MESSAGES, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGES]),
+                                label: 'navigation.automatic_messages',
+                                to: 'admin.bookings.messages.index',
+                            ))->gate(BookingsPermission::ManageMessages),
+                            (new MenuChildItem(
+                                key: TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGE_LOG,
+                                sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_GROUP_MESSAGES, TenantMenu::MENU_MAIN_SECTION_BOOKINGS_ITEM_MESSAGE_LOG]),
+                                label: 'navigation.message_log',
+                                to: 'admin.bookings.message-log.index',
+                            ))->gate(BookingsPermission::ViewBookings),
+                        ]),
+                    ),
                 ])->each(fn (MenuItem $item) => $item->module(TenantModule::Bookings)),
                 sortOrder: NavigationConfig::getSortOrderForKeyParts([$this->menuKey, $sectionKey])
             ),
             $sectionKey,
             $this->menuKey
         );
+    }
+
+    /**
+     * Returns true if the tenant takes a kind of booking that runs as timetabled sessions (classes,
+     * tickets), or already has a service of that kind, so the Timetable link never hides sessions
+     * a tenant already runs
+     */
+    protected function tenantRunsSessions(): bool
+    {
+        $tenant = tenant();
+
+        if (! $tenant instanceof Tenant) {
+            return false;
+        }
+
+        if (collect($tenant->bookingTypes())->contains(fn (BookingType $type) => $type->usesSessions())) {
+            return true;
+        }
+
+        $sessionTypes = collect(BookingType::cases())->filter(fn (BookingType $type) => $type->usesSessions());
+
+        return Service::query()->whereIn('booking_type', $sessionTypes)->exists();
     }
 
     /**
