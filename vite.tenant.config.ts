@@ -5,8 +5,9 @@ import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
+import { releaseWayfinderCommand } from './vite.release';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
     cacheDir: 'node_modules/.vite-tenant',
     server: {
         port: 5173,
@@ -36,6 +37,8 @@ export default defineConfig({
         tailwindcss(),
         wayfinder({
             formVariants: true,
+            // A release build writes the production central domain into central routes (vite.release.ts)
+            command: releaseWayfinderCommand(mode),
         }),
         vue({
             template: {
@@ -94,4 +97,4 @@ export default defineConfig({
             '@': path.resolve(__dirname, './resources/js'),
         },
     },
-});
+}));

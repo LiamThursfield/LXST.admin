@@ -9,6 +9,7 @@
         "resources/js/lib/**/*",
         "resources/js/types/**/*",
         "vite.central.config.ts",
+        "vite.release.ts",
         "components.central.d.ts",
         "auto-imports.central.d.ts"
     ]
