@@ -18,18 +18,12 @@ namespace App\Services\Navigation\Constants;
  * ├── Bookings
  * │   ├── Calendar
  * │   ├── Bookings
- * │   ├── Timetable
+ * │   ├── Timetable (only for tenants that run classes or tickets)
  * │   ├── Waitlist
- * │   ├── Payments
- * │   ├── Messages
- * │   ├── Message log
- * │   ├── Services
- * │   ├── Service categories
- * │   ├── Staff
- * │   ├── Resources
- * │   ├── Rota
- * │   ├── Time off
- * │   └── Staff hours
+ * │   ├── Money (Payments, Quotes, Invoices, Gift cards, Payment report)
+ * │   ├── Services (Services, Categories, Resources)
+ * │   ├── Team (Staff, Rota, Time off, Staff hours)
+ * │   └── Messages (Automatic messages, Message log)
  * ├── CMS
  * │   ├── Pages
  * │   ├── Layouts
@@ -76,6 +70,14 @@ class TenantMenu
     public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_SESSIONS = 'sessions';
 
     public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_WAITLIST = 'waitlist';
+
+    public const string MENU_MAIN_SECTION_BOOKINGS_GROUP_MONEY = 'money';
+
+    public const string MENU_MAIN_SECTION_BOOKINGS_GROUP_SERVICES = 'services-group';
+
+    public const string MENU_MAIN_SECTION_BOOKINGS_GROUP_TEAM = 'team';
+
+    public const string MENU_MAIN_SECTION_BOOKINGS_GROUP_MESSAGES = 'messages-group';
 
     public const string MENU_MAIN_SECTION_BOOKINGS_ITEM_PAYMENTS = 'payments';
 
