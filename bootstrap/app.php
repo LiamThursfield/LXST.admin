@@ -74,6 +74,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectUsersTo('/admin');
 
+        // Proxies (config/trustedproxy.php) only tell us the visitor's IP address and the scheme.
+        // Not the host or port: the host decides which tenant is served, and both go into links
+        // such as password resets, while proxies like Cloudflare pass those headers on unchecked.
+        $middleware->trustProxies(headers: Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_PROTO);
+
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
         // Rich text is sent as the editor's JSON, where spaces at the ends of text matter
