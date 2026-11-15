@@ -7,6 +7,7 @@ use App\Http\Controllers\Central\Admin\Settings\SecurityController;
 use App\Http\Controllers\Central\Admin\TenantController;
 use App\Http\Controllers\Central\Admin\TenantDomainController;
 use App\Http\Controllers\Central\Admin\UserController;
+use Illuminate\Auth\Middleware\RequirePassword;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -45,7 +46,10 @@ Route::name('settings.')->group(function () {
     Route::patch('/settings/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/settings/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('settings/security', [SecurityController::class, 'edit'])->name('security.edit');
+    // Two-factor login is managed here, so the page asks for your password if not confirmed recently
+    Route::get('settings/security', [SecurityController::class, 'edit'])
+        ->middleware(RequirePassword::using('central.password.confirm'))
+        ->name('security.edit');
 
     Route::put('/settings/password', [PasswordController::class, 'update'])
         ->middleware('throttle:6,1')

@@ -65,6 +65,18 @@ return [
         'submit' => 'Confirm Password',
     ],
 
+    'two_factor_challenge' => [
+        'title' => 'Two-factor login',
+        'code_description' => 'Enter the 6-digit code from your authenticator app.',
+        'recovery_description' => 'Enter one of your recovery codes. Each code only works once.',
+        'head' => 'Two-factor login',
+        'code' => 'Authentication code',
+        'recovery_code' => 'Recovery code',
+        'use_recovery_code' => 'Use a recovery code instead',
+        'use_code' => 'Use an authentication code instead',
+        'submit' => 'Continue',
+    ],
+
     'verify_email' => [
         'title' => 'Verify email',
         'description' => 'Please verify your email address by clicking on the link we just emailed to you.',

@@ -2,7 +2,26 @@
 import { Form } from '@inertiajs/vue3';
 import PasswordController from '@/actions/App/Http/Controllers/Central/Admin/Settings/PasswordController';
 import ProfileController from '@/actions/App/Http/Controllers/Central/Admin/Settings/ProfileController';
+import ConfirmedTwoFactorAuthenticationController from '@/actions/App/Http/Controllers/Central/Fortify/ConfirmedTwoFactorAuthenticationController';
+import RecoveryCodeController from '@/actions/App/Http/Controllers/Central/Fortify/RecoveryCodeController';
+import TwoFactorAuthenticationController from '@/actions/App/Http/Controllers/Central/Fortify/TwoFactorAuthenticationController';
+import TwoFactorQrCodeController from '@/actions/App/Http/Controllers/Central/Fortify/TwoFactorQrCodeController';
+import TwoFactorSecretKeyController from '@/actions/App/Http/Controllers/Central/Fortify/TwoFactorSecretKeyController';
 import SettingsSubLayout from '@/sublayouts/admin/SettingsSubLayout.vue';
+
+defineProps<{
+    twoFactorEnabled: boolean;
+}>();
+
+const twoFactorRoutes = {
+    enable: TwoFactorAuthenticationController.store,
+    confirm: ConfirmedTwoFactorAuthenticationController.store,
+    disable: TwoFactorAuthenticationController.destroy,
+    qrCode: TwoFactorQrCodeController.show,
+    secretKey: TwoFactorSecretKeyController.show,
+    recoveryCodes: RecoveryCodeController.index,
+    regenerateRecoveryCodes: RecoveryCodeController.store,
+};
 
 const { trans } = useTrans();
 
@@ -86,6 +105,16 @@ function handleSuccess() {
                         :loading="processing"
                     />
                 </Form>
+            </SettingsRow>
+
+            <SettingsRow
+                :label="trans('settings.two_factor.title')"
+                :description="trans('settings.two_factor.description')"
+            >
+                <TwoFactorAuthentication
+                    :enabled="twoFactorEnabled"
+                    :routes="twoFactorRoutes"
+                />
             </SettingsRow>
 
             <SettingsRow

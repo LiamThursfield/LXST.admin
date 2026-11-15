@@ -27,6 +27,21 @@ class RoleUserSeeder extends Seeder
     ];
 
     /**
+     * An admin with two-factor login on, to try the code-entry page. Add the secret to an
+     * authenticator app, or sign in with one of the recovery codes.
+     *
+     * @var array{email: string, password: string, first_name: string, last_name: string, secret: string, recovery_codes: list<string>}
+     */
+    public const array TWO_FACTOR_USER = [
+        'email' => 'two-factor@example.com',
+        'password' => 'TwoFactorPassword',
+        'first_name' => 'Tess',
+        'last_name' => 'Factor',
+        'secret' => 'JBSWY3DPEHPK3PXP',
+        'recovery_codes' => ['seeded-recovery-1', 'seeded-recovery-2', 'seeded-recovery-3'],
+    ];
+
+    /**
      * Run the database seeds.
      */
     public function run(): void
@@ -43,6 +58,32 @@ class RoleUserSeeder extends Seeder
             $user->forceFill(['email_verified_at' => $user->email_verified_at ?? now()])->save();
             $user->syncRoles([$role]);
         }
+
+        $this->seedTwoFactorUser();
+    }
+
+    /**
+     * The admin with two-factor login on, reset to the known secret and recovery codes
+     */
+    private function seedTwoFactorUser(): void
+    {
+        $details = self::TWO_FACTOR_USER;
+
+        $user = User::query()->updateOrCreate(
+            ['email' => $details['email']],
+            [
+                'first_name' => $details['first_name'],
+                'last_name' => $details['last_name'],
+                'password' => Hash::make($details['password']),
+            ],
+        );
+        $user->forceFill([
+            'email_verified_at' => $user->email_verified_at ?? now(),
+            'two_factor_secret' => encrypt($details['secret']),
+            'two_factor_recovery_codes' => encrypt((string) json_encode($details['recovery_codes'])),
+            'two_factor_confirmed_at' => $user->two_factor_confirmed_at ?? now(),
+        ])->save();
+        $user->syncRoles([RoleEnum::Admin->value]);
     }
 
     /**
@@ -58,6 +99,6 @@ class RoleUserSeeder extends Seeder
      */
     public static function emails(): array
     {
-        return array_values(array_column(self::USERS, 'email'));
+        return [...array_values(array_column(self::USERS, 'email')), self::TWO_FACTOR_USER['email']];
     }
 }

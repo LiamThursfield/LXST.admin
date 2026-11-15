@@ -360,7 +360,10 @@ Route::name('settings.')->group(function () {
     Route::delete('/settings/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::patch('/settings/timezone', TimezoneController::class)->name('timezone.update');
 
-    Route::get('settings/security', [SecurityController::class, 'edit'])->name('security.edit');
+    // Two-factor login is managed here, so the page asks for your password if not confirmed recently
+    Route::get('settings/security', [SecurityController::class, 'edit'])
+        ->middleware('password.confirm')
+        ->name('security.edit');
 
     Route::put('/settings/password', [PasswordController::class, 'update'])
         ->middleware('throttle:6,1')
