@@ -7,7 +7,9 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Cms/LayoutController';
 import ContentEditor from '@/tenant/components/cms/ContentEditor.vue';
 import {
+    type CatalogueOptions,
     type CrmOptions,
+    provideCatalogueOptions,
     provideCrmOptions,
     provideLinkPages,
     provideMenuOptions,
@@ -33,6 +35,7 @@ const props = withDefaults(
         menus?: Array<{ value: number; label: string }>;
         /** The CRM forms and organisation units, or null without CRM. */
         crmOptions?: CrmOptions | null;
+        catalogueOptions?: CatalogueOptions | null;
         /** The pages link fields can go to. */
         pageOptions?: MenuPageOption[];
         /** The saved components component fields can use. */
@@ -50,6 +53,7 @@ const { trans } = useTrans();
 provideNestedTemplates(toRef(props, 'nestedTemplates'));
 provideMenuOptions(toRef(() => props.menus ?? []));
 provideCrmOptions(toRef(() => props.crmOptions ?? null));
+provideCatalogueOptions(toRef(() => props.catalogueOptions ?? null));
 provideLinkPages(toRef(() => props.pageOptions ?? []));
 provideSavedComponents(
     props.savedComponentOptions,

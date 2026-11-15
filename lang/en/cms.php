@@ -412,6 +412,13 @@ return [
             'no_locations' => 'Create a location first.',
             'off' => 'CRM is switched off for this site, so this field is hidden from the site. Its value is kept.',
         ],
+        'catalogue' => [
+            'placeholder' => 'Choose a :catalogue',
+            'none' => 'Create a :catalogue first.',
+            'draft' => 'Draft',
+            'draft_help' => 'This :catalogue is a draft, so the site won\'t show it until it\'s published.',
+            'off' => 'The Catalogue module is switched off for this site, so this field is hidden from the site. Its value is kept.',
+        ],
         'repeater' => [
             'empty' => 'No items yet.',
             'add' => 'Add item',
@@ -508,6 +515,7 @@ return [
                 'menu' => 'The menu ":reference" isn\'t on this site.',
                 'form' => 'The form ":reference" isn\'t on this site.',
                 'organisation_unit' => 'The organisation unit ":reference" isn\'t on this site.',
+                'catalogue' => 'The catalogue ":reference" isn\'t on this site.',
                 'saved_component' => 'The saved component ":reference" isn\'t on this site.',
             ],
         ],
@@ -662,6 +670,7 @@ return [
                 'structure' => 'Structure',
                 'components' => 'Your components',
                 'crm' => 'CRM',
+                'catalogue' => 'Catalogue',
             ],
             'type_descriptions' => [
                 'text' => 'One line, e.g. a heading or label',
@@ -677,6 +686,7 @@ return [
                 'crm_form' => 'A CRM form to show on the page',
                 'crm_organisation_unit' => 'An office, team or location',
                 'crm_opening_hours' => 'A location\'s opening hours, and whether it\'s open now',
+                'catalogue' => 'A :catalogue to show on the page, with its prices and tags',
             ],
         ],
         'confirm_delete' => 'Delete the :name template?',

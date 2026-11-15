@@ -25,6 +25,7 @@ use App\Http\Controllers\Tenant\Admin\Bookings\StaffHoursController;
 use App\Http\Controllers\Tenant\Admin\Bookings\TimeOffController;
 use App\Http\Controllers\Tenant\Admin\Bookings\WaitlistController;
 use App\Http\Controllers\Tenant\Admin\Catalogue\CatalogueController;
+use App\Http\Controllers\Tenant\Admin\Catalogue\CatalogueQrCodeController;
 use App\Http\Controllers\Tenant\Admin\Catalogue\ItemStockController;
 use App\Http\Controllers\Tenant\Admin\Catalogue\TagController as CatalogueTagController;
 use App\Http\Controllers\Tenant\Admin\Catalogue\TagPresetController as CatalogueTagPresetController;
@@ -195,6 +196,9 @@ Route::name('catalogue.')->prefix('catalogue')->middleware(['tenant.module:catal
     // Marking an item sold out or counting its stock, without changing the rest of the catalogue
     Route::patch('catalogues/{catalogue}/items/{item}/stock', [ItemStockController::class, 'update'])
         ->name('catalogues.items.stock');
+    // QR codes for the public pages: every catalogue's, and each one's
+    Route::get('catalogues/qr-code', [CatalogueQrCodeController::class, 'index'])->name('catalogues.qr-code.index');
+    Route::get('catalogues/{catalogue}/qr-code', [CatalogueQrCodeController::class, 'show'])->name('catalogues.qr-code');
     Route::resource('catalogues', CatalogueController::class);
     Route::post('tags/presets', [CatalogueTagPresetController::class, 'store'])->name('tags.presets.store');
     Route::resource('tags', CatalogueTagController::class)->except('show');

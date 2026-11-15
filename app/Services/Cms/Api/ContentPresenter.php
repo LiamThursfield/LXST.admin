@@ -7,8 +7,10 @@ use App\Enums\Cms\PublishStatus;
 use App\Enums\Cms\TemplateFieldType;
 use App\Enums\Crm\OrganisationUnitType;
 use App\Enums\TenantModule;
+use App\Http\Resources\Tenant\Api\V1\Catalogue\CatalogueResource;
 use App\Http\Resources\Tenant\Api\V1\Crm\FormDefinitionResource;
 use App\Http\Resources\Tenant\Api\V1\Crm\LocationResource;
+use App\Models\Catalogue\Catalogue;
 use App\Models\Cms\Menu;
 use App\Models\Cms\Page;
 use App\Models\Cms\SavedComponent;
@@ -25,7 +27,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Turns stored content into what a headless site needs: nested components and repeaters
- * resolved, rich text in the asked-for format, and ids (files, menus, forms, organisation units)
+ * resolved, rich text in the asked-for format, and ids (files, menus, forms, organisation units, catalogues)
  * replaced by what they point to. Anything that's gone (or switched off) becomes null.
  */
 class ContentPresenter
@@ -98,6 +100,7 @@ class ContentPresenter
             TemplateFieldType::CrmForm => $this->form($value),
             TemplateFieldType::CrmOrganisationUnit => $this->organisationUnit($value),
             TemplateFieldType::CrmOpeningHours => $this->openingHours($value),
+            TemplateFieldType::Catalogue => $this->catalogue($value),
         };
     }
 
@@ -349,6 +352,29 @@ class ContentPresenter
         unset($details['status']);
 
         return [...$details, 'api_url' => route('api.v1.crm.locations.show', $location->slug)];
+    }
+
+    /**
+     * The catalogue and its contents, without whether it applies now: cached pages would hand every
+     * visitor the same old answer, so sites fetch a fresh one from `api_url`. Drafts are null.
+     *
+     * @return array<string, mixed>|null
+     */
+    protected function catalogue(mixed $value): ?array
+    {
+        $catalogue = (tenant()?->hasModule(TenantModule::Catalogue) ?? false) && is_numeric($value)
+            ? Catalogue::query()->where('is_published', true)->with(CatalogueResource::RELATIONS)->find((int) $value)
+            : null;
+
+        if ($catalogue === null) {
+            return null;
+        }
+
+        /** @var array<string, mixed> $details */
+        $details = (new CatalogueResource($catalogue))->resolve();
+        unset($details['applies_now']);
+
+        return $details;
     }
 
     protected function crmEnabled(): bool

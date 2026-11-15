@@ -73,6 +73,26 @@ export function useCrmOptions() {
     return inject(crmOptionsKey, ref(null));
 }
 
+export type CatalogueOptions = Array<{
+    value: number;
+    label: string;
+    published: boolean;
+}>;
+
+/** The catalogues catalogue fields can choose from, or null without the Catalogue module. */
+export const catalogueOptionsKey: InjectionKey<Ref<CatalogueOptions | null>> =
+    Symbol('cmsCatalogueOptions');
+
+export function provideCatalogueOptions(
+    options: Ref<CatalogueOptions | null>,
+): void {
+    provide(catalogueOptionsKey, options);
+}
+
+export function useCatalogueOptions() {
+    return inject(catalogueOptionsKey, ref(null));
+}
+
 /** The key a component's value uses to refer to a saved component, in place of its own values. */
 export const savedComponentKey = '_saved_component_id';
 

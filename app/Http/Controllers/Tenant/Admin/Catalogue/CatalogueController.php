@@ -54,6 +54,8 @@ class CatalogueController extends Controller
             ],
             'catalogues' => CatalogueResource::collection($query->handle($request)),
             'canCreate' => $request->user()?->can('create', Catalogue::class) ?? false,
+            // The hosted page listing every published catalogue, to share as a link or a QR code
+            'publicUrl' => route('catalogue.public.index'),
         ]);
     }
 

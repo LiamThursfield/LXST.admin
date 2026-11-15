@@ -4,8 +4,10 @@ import {
     edit,
     index,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Catalogue/CatalogueController';
+import { show as qrCode } from '@/actions/App/Http/Controllers/Tenant/Admin/Catalogue/CatalogueQrCodeController';
 import { update as updateStock } from '@/actions/App/Http/Controllers/Tenant/Admin/Catalogue/ItemStockController';
 import { catalogueItemPrice, formatCatalogueMoney } from '@/lib/catalogue';
+import CatalogueShare from '@/tenant/components/catalogue/CatalogueShare.vue';
 import CatalogueTagList from '@/tenant/components/catalogue/CatalogueTagList.vue';
 import type {
     CatalogueData,
@@ -14,8 +16,9 @@ import type {
 } from '@/types';
 
 /**
- * A catalogue as it reads, section by section. Staff who can manage stock can mark items sold out
- * and count their stock here, each change saved as it's made.
+ * A catalogue as it reads, section by section, with its public page's link and QR code. Staff who
+ * can manage stock can mark items sold out and count their stock here, each change saved as it's
+ * made.
  */
 const props = defineProps<{
     catalogue: { data: CatalogueData };
@@ -33,6 +36,9 @@ const breadcrumbs = computed(() => [
     { label: trans('catalogue.catalogues.index.title'), to: index.url() },
     { label: catalogue.value.name },
 ]);
+
+/** The public page, opened with its print dialog to print or save as a PDF. */
+const printUrl = computed(() => `${catalogue.value.public_url}?print=1`);
 
 const saving = ref<number | null>(null);
 
@@ -135,17 +141,42 @@ function saveVariationStock(
                 <p v-if="catalogue.description" class="text-muted text-sm">
                     {{ catalogue.description }}
                 </p>
-                <p class="text-muted text-sm">
-                    <UIcon
-                        name="i-lucide-calendar-clock"
-                        class="align-middle"
-                    />
+                <p class="text-muted flex items-center gap-1 text-sm">
+                    <UIcon name="i-lucide-calendar-clock" class="shrink-0" />
                     {{
                         catalogue.schedule ??
                         trans('catalogue.catalogues.always')
                     }}
                 </p>
             </div>
+
+            <USeparator />
+
+            <div class="flex flex-col gap-2">
+                <h3 class="text-highlighted font-semibold">
+                    {{ trans('catalogue.share.title') }}
+                </h3>
+                <CatalogueShare
+                    :url="catalogue.public_url"
+                    :qr-code-url="qrCode.url(catalogue.id)"
+                    :download-url="
+                        qrCode.url(catalogue.id, { query: { download: '1' } })
+                    "
+                    :print-url="printUrl"
+                >
+                    <p class="text-muted text-sm">
+                        {{
+                            trans(
+                                catalogue.is_published
+                                    ? 'catalogue.share.help'
+                                    : 'catalogue.share.draft_help',
+                            )
+                        }}
+                    </p>
+                </CatalogueShare>
+            </div>
+
+            <USeparator />
 
             <p v-if="!catalogue.sections?.length" class="text-muted text-sm">
                 {{ trans('catalogue.sections.empty') }}

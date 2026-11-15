@@ -4,7 +4,9 @@ import {
     create,
     index,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/Catalogue/CatalogueController';
+import { index as qrCode } from '@/actions/App/Http/Controllers/Tenant/Admin/Catalogue/CatalogueQrCodeController';
 import RowActions from '@/components/RowActions.vue';
+import CatalogueShare from '@/tenant/components/catalogue/CatalogueShare.vue';
 import type { CatalogueData } from '@/types';
 
 const props = defineProps<{
@@ -25,6 +27,8 @@ const props = defineProps<{
         };
     };
     canCreate: boolean;
+    /** The public page listing every published catalogue. */
+    publicUrl: string;
 }>();
 
 const { trans } = useTrans();
@@ -56,6 +60,29 @@ const { filters, hasFilters, chips, remove, clear, goToPage } = useListFilters({
         @clear-filters="clear"
         @page="goToPage"
     >
+        <template #actions>
+            <UModal
+                :title="trans('catalogue.share.all_title')"
+                :description="trans('catalogue.share.all_help')"
+            >
+                <UButton
+                    icon="i-lucide-qr-code"
+                    color="neutral"
+                    variant="outline"
+                    :label="trans('catalogue.share.button')"
+                    :ui="{ label: 'hidden sm:inline' }"
+                />
+
+                <template #body>
+                    <CatalogueShare
+                        :url="publicUrl"
+                        :qr-code-url="qrCode.url()"
+                        :download-url="qrCode.url({ query: { download: '1' } })"
+                    />
+                </template>
+            </UModal>
+        </template>
+
         <template #name-cell="{ row }">
             <Link :href="row.original.url" class="text-highlighted font-medium">
                 {{ row.original.name }}

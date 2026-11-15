@@ -85,6 +85,8 @@ export interface CatalogueData {
     /** E.g. "3 sections · 8 items". Only in the list. */
     contents: string | null;
     url: string;
+    /** The hosted page, to share as a link or a QR code and to print. */
+    public_url: string;
     sections?: CatalogueSectionData[];
     actions?: any[];
 }
@@ -96,4 +98,69 @@ export interface CatalogueServiceOption {
     /** In minor units, or null when priced on quote. */
     price: number | null;
     from: boolean;
+}
+
+/** A price as the public API gives it: minor units, and formatted. */
+export interface PublicCataloguePrice {
+    amount: number;
+    formatted: string;
+    from?: boolean;
+}
+
+export interface PublicCatalogueTag {
+    name: string;
+    kind: 'allergen' | 'dietary' | 'other';
+    icon: string | null;
+    preset: string | null;
+}
+
+export interface PublicCatalogueItem {
+    name: string;
+    description: string | null;
+    image: { url: string; alt: string | null } | null;
+    price: PublicCataloguePrice | null;
+    /** Not sold out, and in stock. */
+    available: boolean;
+    sold_out: boolean;
+    in_stock: boolean;
+    service: { name: string; duration_minutes: number | null } | null;
+    tags: PublicCatalogueTag[];
+    variations: Array<{
+        name: string;
+        price: PublicCataloguePrice;
+        in_stock: boolean;
+    }>;
+}
+
+/** A published catalogue, as the headless API and the public page show it. */
+export interface PublicCatalogue {
+    slug: string;
+    name: string;
+    description: string | null;
+    currency: string;
+    schedule: {
+        summary: string | null;
+        days: number[] | null;
+        from: string | null;
+        until: string | null;
+        starts_on: string | null;
+        ends_on: string | null;
+    };
+    applies_now: boolean;
+    url: string;
+    api_url: string;
+    sections: Array<{
+        name: string;
+        description: string | null;
+        items: PublicCatalogueItem[];
+    }>;
+}
+
+/** A published catalogue on the public list. */
+export interface PublicCatalogueSummary {
+    name: string;
+    description: string | null;
+    schedule: string | null;
+    applies_now: boolean;
+    url: string;
 }

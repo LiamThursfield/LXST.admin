@@ -236,6 +236,7 @@ return [
         'crm_form' => 'CRM form',
         'crm_organisation_unit' => 'CRM organisation unit',
         'crm_opening_hours' => 'CRM opening hours',
+        'catalogue' => 'Catalogue',
     ],
 
     'template_type' => [

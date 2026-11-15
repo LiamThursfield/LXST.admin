@@ -6,6 +6,7 @@ use App\Data\Cms\MenuItemData;
 use App\Enums\Cms\TemplateFieldType;
 use App\Enums\Crm\OrganisationUnitType;
 use App\Enums\TenantModule;
+use App\Models\Catalogue\Catalogue;
 use App\Models\Cms\SavedComponent;
 use App\Models\Cms\Template;
 use App\Models\Cms\TemplateField;
@@ -222,6 +223,10 @@ class ContentRules
             TemplateFieldType::CrmOpeningHours => $this->crmEnabled()
                 ? [$key => [$required, 'integer', Rule::exists(OrganisationUnit::class, 'id')->where('type', OrganisationUnitType::Location->value)]]
                 : [$key => ['nullable', 'integer']],
+            // A catalogue's id. Without the Catalogue module the field is hidden, so its value is kept as it is.
+            TemplateFieldType::Catalogue => $this->moduleEnabled(TenantModule::Catalogue)
+                ? [$key => [$required, 'integer', Rule::exists(Catalogue::class, 'id')]]
+                : [$key => ['nullable', 'integer']],
         };
     }
 
@@ -353,7 +358,12 @@ class ContentRules
      */
     protected function crmEnabled(): bool
     {
-        return tenant()?->hasModule(TenantModule::Crm) ?? false;
+        return $this->moduleEnabled(TenantModule::Crm);
+    }
+
+    protected function moduleEnabled(TenantModule $module): bool
+    {
+        return tenant()?->hasModule($module) ?? false;
     }
 
     /**

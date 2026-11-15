@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import type { CrmOptions } from '@/tenant/components/cms/nestedTemplates';
+import type {
+    CatalogueOptions,
+    CrmOptions,
+} from '@/tenant/components/cms/nestedTemplates';
 import type {
     MenuPageOption,
     SavedComponentOptions,
@@ -12,6 +15,7 @@ defineProps<{
     nestedTemplates: { data: TemplateData[] };
     menuOptions: Array<{ value: number; label: string }>;
     crmOptions: CrmOptions | null;
+    catalogueOptions: CatalogueOptions | null;
     pageOptions: MenuPageOption[];
     savedComponentOptions: SavedComponentOptions;
 }>();
@@ -23,6 +27,7 @@ defineProps<{
         :nested-templates="nestedTemplates.data"
         :menus="menuOptions"
         :crm-options="crmOptions"
+        :catalogue-options="catalogueOptions"
         :page-options="pageOptions"
         :saved-component-options="savedComponentOptions"
     />

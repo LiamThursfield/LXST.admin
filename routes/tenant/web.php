@@ -8,6 +8,7 @@ use App\Http\Controllers\Tenant\Public\Bookings\InvoiceController;
 use App\Http\Controllers\Tenant\Public\Bookings\PaymentController;
 use App\Http\Controllers\Tenant\Public\Bookings\QuoteController;
 use App\Http\Controllers\Tenant\Public\Bookings\SavedCardController;
+use App\Http\Controllers\Tenant\Public\Catalogue\CatalogueController;
 use App\Http\Controllers\Tenant\Public\Dj\HostedRequestController;
 use Illuminate\Support\Facades\Route;
 
@@ -57,4 +58,10 @@ Route::middleware('tenant.module:bookings')->group(function () {
     Route::post('quote/{publicId}/decline', [QuoteController::class, 'decline'])->middleware('throttle:10,1')->name('bookings.quotes.decline');
     Route::get('invoice/{publicId}', [InvoiceController::class, 'show'])->middleware('throttle:60,1')->name('bookings.invoices.show');
     Route::post('invoice/{publicId}/pay', [InvoiceController::class, 'pay'])->middleware('throttle:10,1')->name('bookings.invoices.pay');
+});
+
+// The hosted catalogue pages, for a link or a QR code, and to print or save as a PDF (#183)
+Route::name('catalogue.public.')->middleware(['tenant.module:catalogue', 'throttle:60,1'])->group(function () {
+    Route::get('catalogue', [CatalogueController::class, 'index'])->name('index');
+    Route::get('catalogue/{catalogue:slug}', [CatalogueController::class, 'show'])->name('show');
 });

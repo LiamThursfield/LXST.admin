@@ -20,6 +20,7 @@ import {
     useContentState,
 } from './contentState';
 import { opening, richTextWords, textValues } from './contentSummary';
+import CatalogueContentField from './fields/CatalogueContentField.vue';
 import ComponentContentField from './fields/ComponentContentField.vue';
 import CrmFormContentField from './fields/CrmFormContentField.vue';
 import CrmOpeningHoursContentField from './fields/CrmOpeningHoursContentField.vue';
@@ -113,6 +114,7 @@ const editors: Record<string, Component> = {
     crm_form: CrmFormContentField,
     crm_organisation_unit: CrmOrganisationUnitContentField,
     crm_opening_hours: CrmOpeningHoursContentField,
+    catalogue: CatalogueContentField,
 };
 
 /** Components and repeaters show their own fields' errors, so they get the errors and their prefix. */

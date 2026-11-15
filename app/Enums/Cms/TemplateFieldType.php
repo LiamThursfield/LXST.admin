@@ -26,6 +26,7 @@ enum TemplateFieldType: string
     case CrmForm = 'crm_form';
     case CrmOrganisationUnit = 'crm_organisation_unit';
     case CrmOpeningHours = 'crm_opening_hours';
+    case Catalogue = 'catalogue';
 
     /**
      * Whether the type's content editor exists, so it can be offered in the template builder.
@@ -43,6 +44,7 @@ enum TemplateFieldType: string
     {
         return match ($this) {
             self::CrmForm, self::CrmOrganisationUnit, self::CrmOpeningHours => TenantModule::Crm,
+            self::Catalogue => TenantModule::Catalogue,
             default => null,
         };
     }

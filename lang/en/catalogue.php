@@ -171,6 +171,34 @@ return [
         ],
     ],
 
+    'share' => [
+        'title' => 'Share and print',
+        'button' => 'Share',
+        'help' => 'Put the QR code on a table, a window or a flyer. The page always shows the :catalogue as it is now, with anything sold out marked.',
+        'draft_help' => 'Only your team can open this page until the :catalogue is published.',
+        'all_title' => 'Share every :catalogue',
+        'all_help' => 'One link and QR code for all your published :catalogues, with whichever apply now first.',
+        'link' => 'Link',
+        'copy' => 'Copy',
+        'copied' => 'Link copied.',
+        'open' => 'Open page',
+        'qr' => 'QR code',
+        'download_qr' => 'Download QR code',
+        'print' => 'Print or save as PDF',
+    ],
+
+    'public' => [
+        'index_title' => ':Catalogues',
+        'empty' => 'Nothing to show yet.',
+        'empty_catalogue' => 'Nothing in this :catalogue yet.',
+        'now' => 'Now',
+        'not_now' => 'Not available right now',
+        'all' => 'All :catalogues',
+        'print' => 'Print or save as PDF',
+        'draft' => 'This :catalogue is a draft. Only your team can see this page until it\'s published.',
+        'minutes' => ':count min',
+    ],
+
     'schedule' => [
         'every_day' => 'Every day',
         'days' => [
