@@ -1,7 +1,7 @@
 <?php
 
+use App\Http\Controllers\Central\MarketingController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,8 +14,8 @@ use Inertia\Inertia;
 
 require base_path('routes/central/fortify.php');
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canRegister' => false,
-    ]);
-})->name('home');
+// The public site (lang/en/marketing.php)
+Route::get('/', [MarketingController::class, 'home'])->name('home');
+Route::get('modules/{module}', [MarketingController::class, 'module'])
+    ->whereIn('module', MarketingController::MODULES)
+    ->name('modules.show');
