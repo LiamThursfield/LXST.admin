@@ -72,10 +72,6 @@ return [
         'save' => 'Save changes',
     ],
 
-    'footer' => [
-        'built_by' => 'Built by LXST.digital • © :year',
-    ],
-
     'list' => [
         'columns' => 'Columns',
         'sort' => 'Sort by',
@@ -124,10 +120,5 @@ return [
         'light' => 'Light',
         'dark' => 'Dark',
         'log_out' => 'Log out',
-    ],
-
-    'welcome' => [
-        'description' => 'A production-ready multi-tenant SaaS powered by Laravel, Inertia, Vue3, Nuxt UI, and Tailwind CSS.',
-        'view_on_github' => 'View on GitHub',
     ],
 ];
