@@ -52,9 +52,9 @@ A token needs at least one `mcp:*` ability to connect at all. Each tool needs on
 
 | Ability | Tools | The token's user also needs |
 | --- | --- | --- |
-| `mcp:cms:read` | `get_site_settings`, `list_layouts`, `list_field_types`, `list_templates`, `get_template`, `list_pages`, `get_page`, `list_menus`, `get_menu` | View content (pages, layouts) or view structure (templates, menus) |
+| `mcp:cms:read` | `get_site_settings`, `list_layouts`, `get_layout`, `list_field_types`, `list_templates`, `get_template`, `list_pages`, `get_page`, `list_menus`, `get_menu` | View content (pages, and listing layouts) or view structure (a layout's content, templates, menus) |
 | `mcp:cms:content` | `create_page`, `update_page` (drafts only) | Manage content |
-| `mcp:cms:structure` | `create_template`, `update_template`, `create_menu`, `update_menu` | Manage structure |
+| `mcp:cms:structure` | `create_layout`, `update_layout`, `create_template`, `update_template`, `create_menu`, `update_menu` | Manage structure |
 | `mcp:cms:publish` | `publish_page`, `unpublish_page`, and editing pages that are live | Manage content |
 | `mcp:crm:forms` | `list_forms`, `get_form`, `create_form`, `update_form` | View / manage forms |
 
@@ -62,15 +62,15 @@ A token needs at least one `mcp:*` ability to connect at all. Each tool needs on
 - A module's tools only exist when the site has that module (CMS or CRM).
 - As with every API token, it stops working when its user can no longer manage API tokens.
 
-**Recommended:** give the assistant's token `mcp:cms:read` and `mcp:cms:content`. Add `mcp:cms:structure` and `mcp:crm:forms` only while you're building the site's templates, menus and forms. Leave out `mcp:cms:publish`, so a person reviews drafts and publishes them in the admin.
+**Recommended:** give the assistant's token `mcp:cms:read` and `mcp:cms:content`. Add `mcp:cms:structure` and `mcp:crm:forms` only while you're building the site's layouts, templates, menus and forms. Leave out `mcp:cms:publish`, so a person reviews drafts and publishes them in the admin.
 
 ## What the tools can and can't do
 
 - **Same rules as the admin.** Every change runs the admin's own validation and permission checks as the token's user, and is saved the same way. Validation errors come back as a tool error listing each field's problem, and nothing is saved.
 - **Pages are drafts.** `create_page` always makes a draft, and publishing fields sent with it are ignored. `update_page` can't change a page that's live, or rename or move a draft that has live pages under it, without `mcp:cms:publish`.
-- **Templates, menus and forms go live straight away.** They have no draft state, which is why they have their own abilities.
+- **Layouts, templates, menus and forms go live straight away.** They have no draft state, which is why they have their own abilities. A layout's content shows on every page that uses it.
 - **Nothing can be deleted.** There are no delete tools. `update_template` and `update_form` refuse to drop existing fields, as that would delete their content or answers. A person can remove fields in the admin.
-- **Updates are partial.** Only what you send changes. Page content and metadata are merged field by field. A list you send (template fields, sections, menu items, form fields) replaces the whole list. Existing fields and sections are matched by `id`, or by slug or name when there's no id.
+- **Updates are partial.** Only what you send changes. Page and layout content, and page metadata, are merged field by field. A list you send (template fields, sections, menu items, form fields) replaces the whole list. Existing fields and sections are matched by `id`, or by slug or name when there's no id.
 - **Rich text can be sent as HTML.** It's sanitised to what the editor allows and stored as the editor's JSON plus HTML, like content saved in the admin.
 - Submissions, contacts, files and settings other than the public site settings aren't available.
 

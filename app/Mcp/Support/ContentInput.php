@@ -3,6 +3,7 @@
 namespace App\Mcp\Support;
 
 use App\Enums\Cms\TemplateFieldType;
+use App\Enums\Cms\TemplateType;
 use App\Models\Cms\Template;
 use App\Models\Cms\TemplateField;
 use App\Services\Cms\ContentRules;
@@ -19,6 +20,22 @@ class ContentInput
         protected RichText $richText,
         protected ContentRules $rules,
     ) {}
+
+    /**
+     * For content sent for the template with the given id, if it's of the given type (anything
+     * else is left for validation to refuse)
+     *
+     * @param  array<string, mixed>  $content  Keyed by field slug
+     * @return array<string, mixed>
+     */
+    public function forTemplate(TemplateType $type, mixed $templateId, array $content): array
+    {
+        $template = is_numeric($templateId)
+            ? Template::query()->where('type', $type)->whereKey((int) $templateId)->first()
+            : null;
+
+        return $template === null ? $content : $this->normalise($template, $content);
+    }
 
     /**
      * @param  array<string, mixed>  $content  Keyed by field slug
