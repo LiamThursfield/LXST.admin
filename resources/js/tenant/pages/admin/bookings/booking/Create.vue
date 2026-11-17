@@ -313,6 +313,7 @@ const breadcrumbs = computed(() => [
                 <div class="flex flex-col gap-2">
                     <UCheckbox
                         v-for="option in service.options"
+                        :id="`option-${option.value}`"
                         :key="option.value"
                         :model-value="form.option_ids.includes(option.value)"
                         :label="option.label"

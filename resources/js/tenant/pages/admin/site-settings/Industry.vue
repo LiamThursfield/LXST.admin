@@ -248,6 +248,7 @@ function onSubmit() {
                         <div class="flex flex-wrap gap-x-6 gap-y-3">
                             <UCheckbox
                                 v-for="type in bookingTypes"
+                                :id="`booking-type-${type.value}`"
                                 :key="type.value"
                                 :label="type.label"
                                 :disabled="!canManage"

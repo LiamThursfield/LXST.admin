@@ -226,6 +226,7 @@ function submit() {
                 <div class="flex flex-wrap gap-4">
                     <UCheckbox
                         v-for="type in resourceTypes"
+                        :id="`resource-type-${type.value}`"
                         :key="type.value"
                         :model-value="neededTypes.includes(String(type.value))"
                         :label="type.label"

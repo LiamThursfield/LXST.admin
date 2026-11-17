@@ -153,6 +153,7 @@ function onSubmit() {
                 <div class="flex flex-wrap gap-6">
                     <UCheckbox
                         v-for="module in modules"
+                        :id="`module-${module.value}`"
                         :key="module.value"
                         :label="module.label"
                         :model-value="
