@@ -80,17 +80,31 @@ Or individually:
 - `pnpm run build:central`
 - `pnpm run build:tenant`
 
+### Release builds
+
+`public/build-central` and `public/build-tenant` are committed, and production serves them as they are. Central routes are tied to the central domain, so their URLs have that domain built in. A plain `pnpm run build` uses your local `APP_URL`, which breaks the central admin in production.
+
+Build the assets you commit with:
+```bash
+pnpm run build:release
+```
+
+It takes the domain from `PRODUCTION_APP_URL` in `.env` (e.g. `https://admin.example.com`), and fails if the central build doesn't link to it.
+
+The `release build` GitHub workflow makes the same check on every PR and push to `main`, and so does the deploy script. Both fail when the committed central build doesn't link to the production host, or still links to `//localhost/`. CI reads the host from the `PRODUCTION_APP_URL` Actions variable:
+```bash
+gh variable set PRODUCTION_APP_URL --body https://admin.example.com
+```
+
 ## Deploying
 
 ### After every deploy
 
 Run these on each environment once the new code is in place, in this order:
 
-1. Install dependencies and build the assets:
+1. Install dependencies. The assets are already built and committed (see [Release builds](#release-builds)), so don't build them on the server:
    ```bash
    composer install --no-dev --optimize-autoloader
-   pnpm install --frozen-lockfile
-   pnpm run build
    ```
 2. Migrate the central database:
    ```bash

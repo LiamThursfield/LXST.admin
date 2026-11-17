@@ -1,0 +1,47 @@
+name: release build
+
+# The committed public/build-central is what production serves, and central routes have the
+# central domain baked in at build time. This fails when that build doesn't link to the
+# production host (or still links to localhost), the same check the Ploi deploy script makes,
+# so a plain `pnpm build` is caught here rather than at deploy.
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  central-links:
+    runs-on: ubuntu-latest
+    env:
+      PRODUCTION_APP_URL: ${{ vars.PRODUCTION_APP_URL }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check the committed central build links to the production host
+        run: |
+          if [ -z "$PRODUCTION_APP_URL" ]; then
+            echo "::error::Set the PRODUCTION_APP_URL Actions variable (e.g. https://admin.example.com) so CI can check the committed central build."
+            exit 1
+          fi
+
+          host="$(echo "$PRODUCTION_APP_URL" | sed -E 's#^[a-z]+://##; s#[/:].*$##')"
+
+          if ! git grep -qF "//${host}/" -- public/build-central; then
+            echo "::error::The committed central build doesn't link to ${host}. Commit a build from pnpm build:release."
+            exit 1
+          fi
+
+          if git grep -qF "//localhost/" -- public/build-central; then
+            echo "::error::The committed central build still links to //localhost/. Commit a build from pnpm build:release."
+            git grep -lF "//localhost/" -- public/build-central
+            exit 1
+          fi
+
+          echo "The committed central build links to ${host}."
