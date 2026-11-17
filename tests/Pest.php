@@ -5,6 +5,7 @@ use App\Models\Settings\IntegrationSettings;
 use App\Models\Tenant;
 use App\Services\Captcha\TurnstileVerifier;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Redis;
 use Tests\TenantTestCase;
@@ -53,13 +54,16 @@ pest()->extend(TestCase::class)
     ->afterEach(function (): void {
         // Tenants created by a test (e.g. for the tenants:* commands) get their own databases. The
         // tenant rows are rolled back, but the databases aren't, so drop them while the rows still
-        // exist. Some tests fake tenant creation, so only drop databases that were created.
+        // exist. Some tests fake tenant creation, so only drop databases that were created. Their
+        // storage folders (made when tenancy is initialised) would also pile up, so delete them too.
         Tenant::query()->get()->each(function (Tenant $tenant): void {
             $database = $tenant->database();
 
             if ($database->manager()->databaseExists($database->getName())) {
                 $database->manager()->deleteDatabase($tenant);
             }
+
+            File::deleteDirectory(base_path('storage/'.config('tenancy.filesystem.suffix_base').$tenant->getTenantKey()));
         });
     })
     ->in('Feature', 'Unit');
