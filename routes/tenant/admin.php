@@ -83,6 +83,7 @@ use App\Http\Controllers\Tenant\Admin\SiteSettings\GeneralSettingsController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\IndustrySettingsController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\IntegrationSettingsController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\MailSettingsController;
+use App\Http\Controllers\Tenant\Admin\SiteSettings\McpActivityController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\MessagingSettingsController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\PaymentSettingsController;
 use App\Http\Controllers\Tenant\Admin\SiteSettings\ThemeSettingsController;
@@ -309,6 +310,8 @@ Route::name('site-settings.dj.')->prefix('site-settings/dj')->middleware(['tenan
 });
 
 // API tokens don't change the site's content, so they're outside the group below, which refreshes the API's cache
+// What AI assistants did with the site's tokens through the MCP server (docs/api/mcp.md)
+Route::get('site-settings/api-tokens/activity', [McpActivityController::class, 'index'])->name('site-settings.api-tokens.activity');
 Route::resource('site-settings/api-tokens', ApiTokenController::class)
     ->only(['index', 'store', 'destroy'])
     ->names('site-settings.api-tokens')

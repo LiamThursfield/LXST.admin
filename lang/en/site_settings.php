@@ -303,6 +303,7 @@ return [
         'title' => 'API tokens',
         'description' => 'Tokens let trusted tools, like the Rekordbox CLI, use this site\'s API. Each token acts as the person who created it, and stops working if they can no longer manage API tokens.',
         'create' => 'Create token',
+        'mcp_activity' => 'MCP activity',
         'search' => 'Search tokens...',
         'empty' => 'No API tokens yet.',
         'never' => 'Never',
@@ -323,6 +324,7 @@ return [
             'abilities_help' => 'What the token can do. Give it only what it needs.',
             'expires_on' => 'Expires on',
             'expires_on_help' => 'The last day the token works. Leave empty for a token that never expires.',
+            'expires_on_mcp_help' => 'Suggested for tokens an AI assistant uses, so a forgotten one stops working. Clear it for a token that never expires.',
         ],
         'created' => [
             'title' => 'Copy your new token',
@@ -338,6 +340,7 @@ return [
         'api' => [
             'unauthenticated' => 'A valid API token is required.',
             'missing_ability' => 'This API token doesn\'t have the :ability ability.',
+            'missing_mcp_ability' => 'This API token doesn\'t have any MCP abilities.',
         ],
     ],
 ];

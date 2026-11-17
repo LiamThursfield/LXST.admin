@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Tenant\Admin\Crm;
 
 use App\Enums\Crm\FormFieldType;
 use App\Enums\TenantModule;
-use App\Http\Controllers\Concerns\SyncsBuilderFields;
 use App\Http\Controllers\Controller;
 use App\Http\Queries\Tenant\Admin\Crm\FormIndexQuery;
 use App\Http\Requests\Tenant\Admin\Crm\FormExportRequest;
@@ -15,17 +14,15 @@ use App\Http\Resources\Tenant\Admin\Crm\FormResource;
 use App\Models\Crm\Form;
 use App\Services\Captcha\Captcha;
 use App\Services\Cms\Portable\FormExporter;
+use App\Services\Crm\FormWriter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class FormController extends Controller
 {
-    use SyncsBuilderFields;
-
     public function index(FormIndexRequest $request, FormIndexQuery $query): Response
     {
         return Inertia::render('admin/crm/form/Index', [
@@ -69,13 +66,9 @@ class FormController extends Controller
         return Inertia::render('admin/crm/form/Create', $this->formOptions());
     }
 
-    public function store(FormStoreRequest $request): RedirectResponse
+    public function store(FormStoreRequest $request, FormWriter $writer): RedirectResponse
     {
-        DB::transaction(function () use ($request) {
-            $form = Form::create($request->formAttributes());
-
-            $this->syncBuilderFields($form->fields(), $request->fieldsAttributes());
-        });
+        $writer->create($request);
 
         return redirect()->route('admin.crm.forms.index')
             ->with('success', __('crm.forms.flash.created'));
@@ -101,13 +94,9 @@ class FormController extends Controller
         ]);
     }
 
-    public function update(FormUpdateRequest $request, Form $form): RedirectResponse
+    public function update(FormUpdateRequest $request, Form $form, FormWriter $writer): RedirectResponse
     {
-        DB::transaction(function () use ($request, $form) {
-            $form->update($request->formAttributes());
-
-            $this->syncBuilderFields($form->fields(), $request->fieldsAttributes());
-        });
+        $writer->update($form, $request);
 
         return redirect()->route('admin.crm.forms.index')
             ->with('success', __('crm.forms.flash.updated'));

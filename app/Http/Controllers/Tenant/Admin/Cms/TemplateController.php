@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Tenant\Admin\Cms;
 use App\Enums\Cms\TemplateFieldType;
 use App\Enums\Cms\TemplateType;
 use App\Enums\Crm\OrganisationUnitType;
-use App\Http\Controllers\Concerns\SyncsBuilderFields;
-use App\Http\Controllers\Concerns\SyncsBuilderSections;
 use App\Http\Controllers\Controller;
 use App\Http\Queries\Tenant\Admin\Cms\TemplateIndexQuery;
 use App\Http\Requests\Tenant\Admin\Cms\TemplateCreateRequest;
@@ -17,9 +15,9 @@ use App\Http\Requests\Tenant\Admin\Cms\TemplateUpdateRequest;
 use App\Http\Resources\Tenant\Admin\Cms\TemplateResource;
 use App\Models\Cms\Template;
 use App\Services\Cms\Portable\TemplateExporter;
+use App\Services\Cms\TemplateWriter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -27,9 +25,6 @@ use Inertia\Response;
 
 class TemplateController extends Controller
 {
-    use SyncsBuilderFields;
-    use SyncsBuilderSections;
-
     public function index(TemplateIndexRequest $request, TemplateIndexQuery $query): Response
     {
         return Inertia::render('admin/cms/template/Index', [
@@ -74,13 +69,9 @@ class TemplateController extends Controller
         ]);
     }
 
-    public function store(TemplateStoreRequest $request): RedirectResponse
+    public function store(TemplateStoreRequest $request, TemplateWriter $writer): RedirectResponse
     {
-        DB::transaction(function () use ($request) {
-            $template = Template::create($request->templateAttributes());
-
-            $this->syncTemplateFields($template, $request);
-        });
+        $writer->create($request);
 
         return redirect()->route('admin.cms.templates.index')
             ->with('success', __('cms.templates.flash.created'));
@@ -107,13 +98,9 @@ class TemplateController extends Controller
         ]);
     }
 
-    public function update(TemplateUpdateRequest $request, Template $template): RedirectResponse
+    public function update(TemplateUpdateRequest $request, Template $template, TemplateWriter $writer): RedirectResponse
     {
-        DB::transaction(function () use ($request, $template) {
-            $template->update($request->templateAttributes());
-
-            $this->syncTemplateFields($template, $request);
-        });
+        $writer->update($template, $request);
 
         return redirect()->route('admin.cms.templates.index')
             ->with('success', __('cms.templates.flash.updated'));
@@ -132,16 +119,6 @@ class TemplateController extends Controller
         $template->delete();
 
         return redirect()->back()->with('success', __('cms.templates.flash.deleted'));
-    }
-
-    /**
-     * Saves the sections first, so the fields can be placed in them
-     */
-    protected function syncTemplateFields(Template $template, TemplateStoreRequest|TemplateUpdateRequest $request): void
-    {
-        $sectionIds = $this->syncBuilderSections($template->sections(), $request->sectionsAttributes());
-
-        $this->syncBuilderFields($template->fields(), $request->fieldsAttributes($sectionIds));
     }
 
     /**

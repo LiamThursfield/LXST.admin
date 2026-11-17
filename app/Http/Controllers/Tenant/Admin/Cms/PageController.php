@@ -17,7 +17,7 @@ use App\Models\Cms\Page;
 use App\Models\Cms\Template;
 use App\Models\Cms\Url;
 use App\Services\Cms\ContentFieldOptions;
-use App\Services\Cms\PageUrls;
+use App\Services\Cms\PageWriter;
 use App\Services\Cms\Portable\SiteExporter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -32,7 +32,6 @@ use Inertia\Response;
 class PageController extends Controller
 {
     public function __construct(
-        protected PageUrls $urls,
         protected ContentFieldOptions $fieldOptions,
     ) {}
 
@@ -82,15 +81,9 @@ class PageController extends Controller
         ]);
     }
 
-    public function store(PageStoreRequest $request): RedirectResponse
+    public function store(PageStoreRequest $request, PageWriter $writer): RedirectResponse
     {
-        DB::transaction(function () use ($request) {
-            $page = Page::create($request->pageAttributes());
-
-            $this->urls->sync($page, $request->publishingAttributes());
-            $page->metadata()->create($request->metadataAttributes());
-            $page->syncContent($request->contentValues());
-        });
+        $writer->create($request);
 
         return redirect()->route('admin.cms.pages.index')
             ->with('success', __('cms.pages.flash.created'));
@@ -116,16 +109,9 @@ class PageController extends Controller
         ]);
     }
 
-    public function update(PageUpdateRequest $request, Page $page): RedirectResponse
+    public function update(PageUpdateRequest $request, Page $page, PageWriter $writer): RedirectResponse
     {
-        DB::transaction(function () use ($request, $page) {
-            $page->update($request->pageAttributes());
-
-            // Rebuilds the children's URLs too, if the slug or parent changed
-            $this->urls->sync($page, $request->publishingAttributes());
-            $page->metadata()->updateOrCreate([], $request->metadataAttributes());
-            $page->syncContent($request->contentValues());
-        });
+        $writer->update($page, $request);
 
         return redirect()->route('admin.cms.pages.index')
             ->with('success', __('cms.pages.flash.updated'));

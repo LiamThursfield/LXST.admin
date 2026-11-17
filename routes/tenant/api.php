@@ -20,7 +20,9 @@ use App\Http\Controllers\Tenant\Api\V1\Dj\SongRequestController;
 use App\Http\Controllers\Tenant\Api\V1\Dj\TrackController;
 use App\Http\Controllers\Tenant\Api\V1\PingController;
 use App\Http\Controllers\Tenant\Api\V1\SiteController;
+use App\Mcp\Servers\TenantContentServer;
 use Illuminate\Support\Facades\Route;
+use Laravel\Mcp\Facades\Mcp;
 
 /*
 |--------------------------------------------------------------------------
@@ -110,3 +112,12 @@ Route::prefix('v1')
             });
         });
     });
+
+/*
+| The MCP server, for an AI assistant to manage the site's content (docs/api/mcp.md). Only a tenant
+| API token with an `mcp:*` ability gets in, rate limited per token; each tool checks its own ability.
+| Registered here rather than in routes/ai.php, which laravel/mcp loads outside the tenant routes.
+*/
+Mcp::web('mcp', TenantContentServer::class)
+    ->middleware(['auth.tenant-token.mcp', 'throttle:tenant-api-token'])
+    ->name('mcp');

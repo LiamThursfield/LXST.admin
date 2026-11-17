@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use App\Http\Middleware\AuthenticateGuestPass;
+use App\Http\Middleware\AuthenticateMcpToken;
 use App\Http\Middleware\AuthenticateTenantToken;
 use App\Http\Middleware\BumpsContentVersion;
 use App\Http\Middleware\EnsureTenantHasModule;
@@ -96,6 +97,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant.module' => EnsureTenantHasModule::class,
             'content.changed' => BumpsContentVersion::class,
             'auth.tenant-token' => AuthenticateTenantToken::class,
+            'auth.tenant-token.mcp' => AuthenticateMcpToken::class,
             'dj.guest-pass' => AuthenticateGuestPass::class,
         ]);
     })

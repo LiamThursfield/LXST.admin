@@ -41,6 +41,8 @@ class ApiTokenController extends Controller
             'tokens' => ApiTokenResource::collection($query->handle($request)),
             'abilities' => ApiTokenAbility::asSelectItems(),
             'canCreate' => $request->user()?->can('create', ApiToken::class) ?? false,
+            // Pre-filled when an MCP ability is ticked, on the user's clock; it can be cleared
+            'suggestedMcpExpiry' => ($request->user()?->localNow() ?? now())->addDays((int) config('api.mcp.suggested_expiry_days'))->toDateString(),
         ]);
     }
 

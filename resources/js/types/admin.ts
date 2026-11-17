@@ -22,6 +22,24 @@ export type ApiTokenData = {
     actions?: any[];
 };
 
+/** One MCP tool call, as returned by `McpAuditLogResource`. */
+export type McpAuditLogData = {
+    id: number;
+    /** The token's name, noting when it's been revoked. */
+    token: string;
+    user: string | null;
+    tool: string;
+    ability: string;
+    /** e.g. "page #12" */
+    target: string | null;
+    outcome: { value: string; label: string };
+    message: string | null;
+    arguments: Record<string, unknown>;
+    changes: Record<string, { before: unknown; after: unknown }> | null;
+    ip_address: string | null;
+    created_at: string;
+};
+
 /** A newly created API token, flashed once with its plain text. */
 export type NewApiToken = {
     name: string;

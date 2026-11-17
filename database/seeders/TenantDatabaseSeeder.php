@@ -63,6 +63,8 @@ class TenantDatabaseSeeder extends Seeder
         // After the CRM and the catalogues, as pages can show their forms, offices and catalogues
         if ($tenant->hasModule(TenantModule::Cms)) {
             $this->call(CmsSeeder::class);
+            // A token for trying the MCP server, for the admin, with some activity to show
+            $this->callWith(McpSeeder::class, ['user' => RoleUserSeeder::userFor(RoleEnum::Admin)]);
         }
 
         if ($tenant->hasModule(TenantModule::Tracker)) {

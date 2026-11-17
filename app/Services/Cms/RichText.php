@@ -76,16 +76,38 @@ class RichText
      */
     public function toHtml(array $document): string
     {
-        $html = (new Editor([
+        $html = $this->editor()->setContent($document)->getHTML();
+
+        return $this->sanitizer()->sanitize($html);
+    }
+
+    /**
+     * A document from HTML, e.g. sent by the MCP server's tools, sanitised first so only what the
+     * editor produces is kept. Check the result with problems() like any other document.
+     *
+     * @return array<string, mixed>
+     */
+    public function fromHtml(string $html): array
+    {
+        /** @var array<string, mixed> $document */
+        $document = $this->editor()->setContent($this->sanitizer()->sanitize($html))->getDocument();
+
+        return $document;
+    }
+
+    /**
+     * An editor with the nodes and marks the admin's editor has
+     */
+    protected function editor(): Editor
+    {
+        return new Editor([
             'extensions' => [
                 new StarterKit(['codeBlock' => false, 'code' => false]),
                 new Underline,
                 new Link(['HTMLAttributes' => ['rel' => 'noopener noreferrer nofollow']]),
                 new Image,
             ],
-        ]))->setContent($document)->getHTML();
-
-        return $this->sanitizer()->sanitize($html);
+        ]);
     }
 
     /**
