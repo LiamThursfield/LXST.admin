@@ -41,3 +41,26 @@ export type TenantIndustryOption = {
     description: string;
     suggested_modules: string[];
 };
+
+/** What the central dashboard shows, from the central `DashboardQuery`. */
+export type CentralDashboardData = {
+    stats: { active: number; disabled: number; new: number; new_days: number };
+    queue: { pending: number; failed: number };
+    /** Active tenants with something to fix, then the disabled ones */
+    attention: Array<{
+        id: string;
+        name: string;
+        /** Keys of `dashboard.issues` */
+        issues: Array<'stripe' | 'no_fee' | 'no_own_domain' | 'disabled'>;
+        disabled_at: string | null;
+    }>;
+    recent: Array<{
+        id: string;
+        name: string;
+        industry: string;
+        is_disabled: boolean;
+        created_at: string;
+    }>;
+    modules: Array<{ value: string; label: string; count: number }>;
+    industries: Array<{ value: string; label: string; count: number }>;
+};
