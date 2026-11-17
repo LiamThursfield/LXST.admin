@@ -63,6 +63,7 @@ declare module 'vue' {
     RichTextContentField: typeof import('./resources/js/tenant/components/cms/fields/RichTextContentField.vue')['default']
     RowActions: typeof import('./resources/js/components/RowActions.vue')['default']
     SelectContentField: typeof import('./resources/js/tenant/components/cms/fields/SelectContentField.vue')['default']
+    SelectOptionsEditor: typeof import('./resources/js/tenant/components/builder/SelectOptionsEditor.vue')['default']
     SettingsPage: typeof import('./resources/js/components/settings/SettingsPage.vue')['default']
     SettingsRow: typeof import('./resources/js/components/settings/SettingsRow.vue')['default']
     SubmitOnEnter: typeof import('./resources/js/components/SubmitOnEnter.vue')['default']
