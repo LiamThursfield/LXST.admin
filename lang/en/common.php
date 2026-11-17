@@ -35,6 +35,16 @@ return [
             'search' => 'Search field types',
             'none' => 'No field types match your search.',
         ],
+        'options' => [
+            'title' => 'Options',
+            'empty' => 'No options yet.',
+            'label' => 'Label',
+            'value' => 'Value',
+            'add' => 'Add option',
+            'remove' => 'Remove option',
+            'default' => 'Default',
+            'default_none' => 'No default',
+        ],
     ],
 
     'captcha' => [

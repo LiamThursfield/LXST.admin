@@ -2,6 +2,7 @@
 
 namespace Database\Factories\Crm;
 
+use App\Data\Crm\FormFieldSettings;
 use App\Enums\Crm\FormFieldType;
 use App\Models\Crm\Form;
 use App\Models\Crm\FormField;
@@ -44,6 +45,28 @@ class FormFieldFactory extends Factory
             'type' => $type,
             'name' => $type->label(),
             'slug' => Str::slug($type->value, '_'),
+        ]);
+    }
+
+    /**
+     * A select field with the given options (as label => value), and optionally one chosen to begin with
+     *
+     * @param  array<string, string>  $options
+     */
+    public function select(array $options = ['Sales' => 'sales', 'Support' => 'support', 'Something else' => 'other'], ?string $default = null): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => FormFieldType::Select,
+            'name' => 'Enquiry type',
+            'slug' => 'enquiry_type',
+            'settings' => new FormFieldSettings(
+                options: array_map(
+                    fn (string $label, string $value) => ['label' => $label, 'value' => $value],
+                    array_keys($options),
+                    array_values($options),
+                ),
+                default: $default,
+            ),
         ]);
     }
 

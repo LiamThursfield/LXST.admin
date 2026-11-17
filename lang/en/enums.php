@@ -174,6 +174,7 @@ return [
         'number' => 'Number',
         'email' => 'Email',
         'hidden' => 'Hidden',
+        'select' => 'Select',
         'crm_email' => 'Contact: email',
         'crm_title' => 'Contact: title',
         'crm_first_name' => 'Contact: first name',
@@ -260,6 +261,19 @@ return [
     'api_token_ability' => [
         'dj:sync' => 'DJ library sync',
         'dj:now-playing' => 'DJ now playing',
+        'mcp:cms:read' => 'MCP: read CMS content',
+        'mcp:cms:content' => 'MCP: edit draft pages',
+        'mcp:cms:structure' => 'MCP: edit templates and menus (live)',
+        'mcp:cms:publish' => 'MCP: publish pages',
+        'mcp:crm:forms' => 'MCP: read and edit CRM forms (live)',
+    ],
+
+    'mcp_outcome' => [
+        'success' => 'Done',
+        'denied' => 'Refused',
+        'invalid' => 'Invalid',
+        'rate_limited' => 'Rate limited',
+        'error' => 'Error',
     ],
 
     'library_source' => [

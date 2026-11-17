@@ -19,5 +19,37 @@ class FormFieldSettings extends Data
         public int|float|null $min = null,
         /** The largest allowed value (number) */
         public int|float|null $max = null,
+        /**
+         * The choices, in order. Values are stable strings the site submits (select)
+         *
+         * @var list<array{label: string, value: string}>|null
+         */
+        public ?array $options = null,
+        /** The option chosen to begin with (select) */
+        public ?string $default = null,
     ) {}
+
+    /**
+     * The label of the option with this value, or null when there's no such option
+     */
+    public function optionLabel(mixed $value): ?string
+    {
+        foreach ($this->options ?? [] as $option) {
+            if ($option['value'] === $value) {
+                return $option['label'];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * The options' values, in order
+     *
+     * @return list<string>
+     */
+    public function optionValues(): array
+    {
+        return array_column($this->options ?? [], 'value');
+    }
 }

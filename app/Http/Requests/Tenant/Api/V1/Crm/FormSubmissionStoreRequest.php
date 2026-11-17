@@ -6,6 +6,8 @@ use App\Enums\Crm\FormFieldType;
 use App\Models\Crm\Form;
 use App\Models\Crm\FormField;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\In;
 
 /**
  * A public submission of a CRM form. The rules are built from the form's fields.
@@ -61,7 +63,7 @@ class FormSubmissionStoreRequest extends FormRequest
     /**
      * The validation rules for one field's answer, based on its type and settings
      *
-     * @return list<string>
+     * @return list<string|In>
      */
     protected function fieldRules(FormField $field): array
     {
@@ -77,6 +79,8 @@ class FormSubmissionStoreRequest extends FormRequest
             ])),
             FormFieldType::Email, FormFieldType::ContactEmail => ['email', 'max:255'],
             FormFieldType::Hidden => ['string', 'max:1000'],
+            // Only one of the options' values, never a label or anything else
+            FormFieldType::Select => ['string', Rule::in($settings?->optionValues() ?? [])],
             FormFieldType::ContactTelephone => ['string', 'max:20'],
             FormFieldType::ContactTitle => ['string', 'max:50'],
             FormFieldType::ContactFirstName, FormFieldType::ContactLastName => ['string', 'max:255'],

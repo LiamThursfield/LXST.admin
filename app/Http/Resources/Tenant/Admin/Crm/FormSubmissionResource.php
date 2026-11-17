@@ -75,6 +75,7 @@ class FormSubmissionResource extends JsonResource
                 'type' => $answer->type->value,
                 'type_label' => $answer->type->label(),
                 'value' => $answer->value,
+                'option_label' => $answer->option_label,
             ])->values(),
             'marketing' => (object) $submission->data->marketing,
         ]);

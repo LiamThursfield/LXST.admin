@@ -31,15 +31,7 @@ class AuthenticateTenantToken
     public function handle(Request $request, Closure $next, string $ability): Response
     {
         $ability = ApiTokenAbility::from($ability);
-
-        $user = Auth::guard('sanctum')->user();
-        $token = $user instanceof User ? $user->currentAccessToken() : null;
-
-        abort_unless(
-            $user instanceof User && $token instanceof ApiToken && $user->can(SettingsPermission::ManageApiTokens),
-            Response::HTTP_UNAUTHORIZED,
-            __('site_settings.api_tokens.api.unauthenticated'),
-        );
+        $token = $this->authenticatedToken();
 
         abort_unless(
             $token->can($ability->value),
@@ -50,5 +42,24 @@ class AuthenticateTenantToken
         Auth::shouldUse('sanctum');
 
         return $next($request);
+    }
+
+    /**
+     * The request's bearer token, if it's a tenant API token (not Sanctum's stand-in for a session)
+     * whose user can still manage API tokens. Sanctum has already refused expired tokens, and
+     * revoked ones are deleted. Aborts with a 401 otherwise.
+     */
+    protected function authenticatedToken(): ApiToken
+    {
+        $user = Auth::guard('sanctum')->user();
+        $token = $user instanceof User ? $user->currentAccessToken() : null;
+
+        abort_unless(
+            $user instanceof User && $token instanceof ApiToken && $user->can(SettingsPermission::ManageApiTokens),
+            Response::HTTP_UNAUTHORIZED,
+            __('site_settings.api_tokens.api.unauthenticated'),
+        );
+
+        return $token;
     }
 }

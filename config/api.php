@@ -82,4 +82,26 @@ return [
         'rate_limit_per_minute' => (int) env('API_TOKENS_PER_MINUTE', 120),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | MCP Server
+    |--------------------------------------------------------------------------
+    |
+    | The MCP server (`/api/mcp`) lets an AI assistant manage the site's content
+    | with a tenant API token that has `mcp:*` abilities. Every request counts
+    | towards the token's rate limit above; tools that change something have
+    | their own, stricter limit per token. Every tool call is audit logged, and
+    | log entries are pruned after `audit_retention_days`.
+    |
+    | A new token with an MCP ability suggests an expiry `suggested_expiry_days`
+    | ahead, which can be cleared.
+    |
+    */
+
+    'mcp' => [
+        'writes_per_minute' => (int) env('API_MCP_WRITES_PER_MINUTE', 30),
+        'audit_retention_days' => (int) env('API_MCP_AUDIT_RETENTION_DAYS', 180),
+        'suggested_expiry_days' => 90,
+    ],
+
 ];

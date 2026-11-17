@@ -128,7 +128,7 @@ const marketing = computed(
                         <template
                             v-if="answer.value !== null && answer.value !== ''"
                         >
-                            {{ answer.value }}
+                            {{ answer.option_label ?? answer.value }}
                         </template>
                         <span v-else class="text-muted">
                             {{ trans('crm.submissions.show.no_answer') }}

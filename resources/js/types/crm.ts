@@ -1,4 +1,4 @@
-import type { SelectItem } from '@/types/ui';
+import type { SelectFieldSettings, SelectItem } from '@/types/ui';
 
 export type OrganisationUnitType = 'company' | 'location' | 'department';
 
@@ -92,7 +92,11 @@ export type ContactData = {
     actions?: any[];
 };
 
-export type FormFieldSettingKey = 'max_length' | 'rows' | 'min' | 'max';
+/** The settings entered as a number. */
+export type FormFieldNumberSettingKey = 'max_length' | 'rows' | 'min' | 'max';
+
+export type FormFieldSettingKey =
+    FormFieldNumberSettingKey | 'options' | 'default';
 
 export type FormFieldTypeOption = {
     value: string;
@@ -108,7 +112,8 @@ export type FormFieldData = {
     name: string;
     slug: string;
     is_required: boolean;
-    settings: Partial<Record<FormFieldSettingKey, number | null>>;
+    settings: Partial<Record<FormFieldNumberSettingKey, number | null>> &
+        SelectFieldSettings;
 };
 
 export type CrmFormData = {
@@ -135,6 +140,8 @@ export type FormSubmissionAnswerData = {
     type: string;
     type_label: string;
     value: string | number | null;
+    /** The chosen option's label when it was submitted (select). */
+    option_label: string | null;
 };
 
 export type FormSubmissionData = {

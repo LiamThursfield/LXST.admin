@@ -6,6 +6,7 @@ import {
     index,
     store,
 } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/ApiTokenController';
+import { index as mcpActivity } from '@/actions/App/Http/Controllers/Tenant/Admin/SiteSettings/McpActivityController';
 import RowActions from '@/components/RowActions.vue';
 import { formatDateTime, userTimezone } from '@/lib/timezone';
 import SiteSettingsSubLayout from '@/sublayouts/admin/SiteSettingsSubLayout.vue';
@@ -30,6 +31,8 @@ const props = defineProps<{
     };
     abilities: Array<{ label: string; value: string }>;
     canCreate: boolean;
+    /** The expiry suggested for a token with an MCP ability (Y-m-d). */
+    suggestedMcpExpiry: string;
 }>();
 
 const { trans } = useTrans();
@@ -59,9 +62,22 @@ const form = useForm({
     expires_on: '',
 });
 
+// Ticking an MCP ability suggests an expiry, unless one's been chosen or cleared (it stays optional)
+const expiryTouched = ref(false);
+const hasMcpAbility = computed(() =>
+    form.abilities.some((ability) => ability.startsWith('mcp:')),
+);
+
+watch(hasMcpAbility, (hasMcp) => {
+    if (hasMcp && !expiryTouched.value && !form.expires_on) {
+        form.expires_on = props.suggestedMcpExpiry;
+    }
+});
+
 function openCreate() {
     form.reset();
     form.clearErrors();
+    expiryTouched.value = false;
     createOpen.value = true;
 }
 
@@ -113,8 +129,17 @@ async function copyNewToken() {
             :title="trans('site_settings.api_tokens.title')"
             :description="trans('site_settings.api_tokens.description')"
         >
-            <template v-if="canCreate" #actions>
+            <template #actions>
                 <UButton
+                    as="Link"
+                    :href="mcpActivity.url()"
+                    color="neutral"
+                    variant="outline"
+                    icon="i-lucide-scroll-text"
+                    :label="trans('site_settings.api_tokens.mcp_activity')"
+                />
+                <UButton
+                    v-if="canCreate"
                     icon="i-lucide-plus"
                     :label="trans('site_settings.api_tokens.create')"
                     @click="openCreate"
@@ -302,7 +327,9 @@ async function copyNewToken() {
                         "
                         :help="
                             trans(
-                                'site_settings.api_tokens.fields.expires_on_help',
+                                hasMcpAbility
+                                    ? 'site_settings.api_tokens.fields.expires_on_mcp_help'
+                                    : 'site_settings.api_tokens.fields.expires_on_help',
                             )
                         "
                         :error="form.errors.expires_on"
@@ -311,6 +338,7 @@ async function copyNewToken() {
                             v-model="form.expires_on"
                             type="date"
                             class="w-full"
+                            @update:model-value="expiryTouched = true"
                         />
                     </UFormField>
                 </form>

@@ -106,7 +106,8 @@ class EmailPreviews
                         slug: $field->slug,
                         label: $field->name,
                         type: $field->type,
-                        value: $this->sampleValue($field->type),
+                        value: $this->sampleValue($field),
+                        option_label: $field->settings?->optionLabel($this->sampleValue($field)),
                     ))
                     ->all()),
             ),
@@ -119,9 +120,9 @@ class EmailPreviews
         return $submission;
     }
 
-    protected function sampleValue(FormFieldType $type): string|int
+    protected function sampleValue(FormField $field): string|int
     {
-        return match ($type) {
+        return match ($field->type) {
             FormFieldType::Email, FormFieldType::ContactEmail => 'sam@example.com',
             FormFieldType::Number => 42,
             FormFieldType::ContactTitle => 'Dr',
@@ -129,6 +130,7 @@ class EmailPreviews
             FormFieldType::ContactLastName => 'Sample',
             FormFieldType::ContactTelephone => '01234 567890',
             FormFieldType::Textarea => (string) __('site_settings.email_previews.sample.long_answer'),
+            FormFieldType::Select => $field->settings->default ?? $field->settings?->optionValues()[0] ?? (string) __('site_settings.email_previews.sample.answer'),
             default => (string) __('site_settings.email_previews.sample.answer'),
         };
     }

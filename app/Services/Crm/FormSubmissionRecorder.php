@@ -46,6 +46,7 @@ class FormSubmissionRecorder
                         label: $field->name,
                         type: $field->type,
                         value: $this->answerValue($values[$field->slug] ?? null),
+                        option_label: $field->settings?->optionLabel($values[$field->slug] ?? null),
                     ))->all()),
                     marketing: $this->marketingAnswers($form, $values),
                 ),

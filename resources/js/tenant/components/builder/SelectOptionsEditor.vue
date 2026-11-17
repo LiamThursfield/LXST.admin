@@ -1,40 +1,50 @@
 <script setup lang="ts">
 import { VueDraggable } from 'vue-draggable-plus';
-import type { TemplateFieldData, TemplateFieldOption } from '@/types';
+import type { SelectFieldOption, SelectFieldSettings } from '@/types';
 
 /**
- * A select field's options, which can be reordered, and its default. A new option's value is filled
- * in from its label until it's edited. A saved option's value isn't, as content is stored by value.
+ * A builder select field's options, which can be reordered, and its default (CMS templates, CRM
+ * forms). A new option's value is filled in from its label until it's edited. A saved option's
+ * value isn't, as what's stored is the value.
  */
 const props = withDefaults(
     defineProps<{
         /** Where its server errors are, e.g. `fields.0` or `sections.1.fields.2`. */
         errorPrefix: string;
+        /** What the options' labels and values are used for, shown under the list. */
+        optionsHelp?: string;
+        /** What the default does, shown under it. */
+        defaultHelp?: string;
         errors?: Record<string, string | undefined>;
         readonly?: boolean;
     }>(),
     {
+        optionsHelp: undefined,
+        defaultHelp: undefined,
         errors: () => ({}),
         readonly: false,
     },
 );
 
-const field = defineModel<TemplateFieldData>({ required: true });
+/** The field's settings, whose `options` and `default` are edited here. */
+const settings = defineModel<SelectFieldSettings>('settings', {
+    required: true,
+});
 
 const { trans } = useTrans();
 
 const options = computed({
-    get: () => field.value.settings.options ?? [],
-    set: (list: TemplateFieldOption[]) => {
-        field.value.settings.options = list;
+    get: () => settings.value.options ?? [],
+    set: (list: SelectFieldOption[]) => {
+        settings.value.options = list;
     },
 });
 
 /** Keys for the list, kept apart from the options so they aren't sent. */
-const keys = new WeakMap<TemplateFieldOption, number>();
+const keys = new WeakMap<SelectFieldOption, number>();
 let nextKey = 0;
 
-function keyFor(option: TemplateFieldOption): number {
+function keyFor(option: SelectFieldOption): number {
     if (!keys.has(option)) {
         keys.set(option, nextKey++);
     }
@@ -43,7 +53,7 @@ function keyFor(option: TemplateFieldOption): number {
 }
 
 /** The options whose value still follows their label. */
-const followingLabel = new WeakSet<TemplateFieldOption>();
+const followingLabel = new WeakSet<SelectFieldOption>();
 
 function valueFrom(label: string): string {
     return label
@@ -59,15 +69,15 @@ function add() {
 }
 
 /** Keeps the default on the same option when its value changes. */
-function setValue(option: TemplateFieldOption, value: string) {
-    if (field.value.settings.default === option.value) {
-        field.value.settings.default = value || null;
+function setValue(option: SelectFieldOption, value: string) {
+    if (settings.value.default === option.value) {
+        settings.value.default = value || null;
     }
 
     option.value = value;
 }
 
-function onLabelInput(option: TemplateFieldOption, label: string) {
+function onLabelInput(option: SelectFieldOption, label: string) {
     option.label = label;
 
     if (followingLabel.has(option)) {
@@ -75,14 +85,14 @@ function onLabelInput(option: TemplateFieldOption, label: string) {
     }
 }
 
-function onValueInput(option: TemplateFieldOption, value: string) {
+function onValueInput(option: SelectFieldOption, value: string) {
     followingLabel.delete(option);
     setValue(option, value);
 }
 
-function remove(option: TemplateFieldOption) {
-    if (field.value.settings.default === option.value) {
-        field.value.settings.default = null;
+function remove(option: SelectFieldOption) {
+    if (settings.value.default === option.value) {
+        settings.value.default = null;
     }
 
     options.value = options.value.filter((item) => item !== option);
@@ -92,7 +102,7 @@ function remove(option: TemplateFieldOption) {
 const noDefault = ':none';
 
 const defaultItems = computed(() => [
-    { label: trans('cms.templates.builder.default_none'), value: noDefault },
+    { label: trans('common.builder.options.default_none'), value: noDefault },
     ...options.value
         .filter((option) => option.value)
         .map((option) => ({
@@ -102,9 +112,9 @@ const defaultItems = computed(() => [
 ]);
 
 const defaultValue = computed({
-    get: () => field.value.settings.default ?? noDefault,
+    get: () => settings.value.default ?? noDefault,
     set: (value: string) => {
-        field.value.settings.default = value === noDefault ? null : value;
+        settings.value.default = value === noDefault ? null : value;
     },
 });
 
@@ -116,18 +126,14 @@ function error(key: string): string | undefined {
 <template>
     <div class="flex flex-col gap-4">
         <UFormField
-            :label="trans('cms.templates.builder.options')"
-            :help="
-                readonly
-                    ? undefined
-                    : trans('cms.templates.builder.options_help')
-            "
+            :label="trans('common.builder.options.title')"
+            :help="readonly ? undefined : optionsHelp"
             :error="error('options')"
             required
         >
             <div class="flex flex-col gap-3">
                 <p v-if="!options.length" class="text-muted text-sm">
-                    {{ trans('cms.templates.builder.options_empty') }}
+                    {{ trans('common.builder.options.empty') }}
                 </p>
 
                 <VueDraggable
@@ -149,9 +155,7 @@ function error(key: string): string | undefined {
                             color="neutral"
                             variant="ghost"
                             icon="i-lucide-grip-vertical"
-                            :aria-label="
-                                trans('cms.templates.builder.option_drag')
-                            "
+                            :aria-label="trans('common.builder.drag')"
                         />
                         <UFormField
                             class="min-w-0 flex-1"
@@ -161,10 +165,10 @@ function error(key: string): string | undefined {
                                 :model-value="option.label"
                                 :disabled="readonly"
                                 :placeholder="
-                                    trans('cms.templates.builder.option_label')
+                                    trans('common.builder.options.label')
                                 "
                                 :aria-label="
-                                    trans('cms.templates.builder.option_label')
+                                    trans('common.builder.options.label')
                                 "
                                 class="w-full"
                                 @update:model-value="
@@ -180,10 +184,10 @@ function error(key: string): string | undefined {
                                 :model-value="option.value"
                                 :disabled="readonly"
                                 :placeholder="
-                                    trans('cms.templates.builder.option_value')
+                                    trans('common.builder.options.value')
                                 "
                                 :aria-label="
-                                    trans('cms.templates.builder.option_value')
+                                    trans('common.builder.options.value')
                                 "
                                 class="w-full font-mono"
                                 @update:model-value="
@@ -196,9 +200,7 @@ function error(key: string): string | undefined {
                             color="neutral"
                             variant="ghost"
                             icon="i-lucide-x"
-                            :aria-label="
-                                trans('cms.templates.builder.option_remove')
-                            "
+                            :aria-label="trans('common.builder.options.remove')"
                             @click="remove(option)"
                         />
                     </div>
@@ -209,7 +211,7 @@ function error(key: string): string | undefined {
                         color="neutral"
                         variant="subtle"
                         icon="i-lucide-plus"
-                        :label="trans('cms.templates.builder.option_add')"
+                        :label="trans('common.builder.options.add')"
                         @click="add"
                     />
                 </div>
@@ -217,12 +219,8 @@ function error(key: string): string | undefined {
         </UFormField>
 
         <UFormField
-            :label="trans('cms.templates.builder.default')"
-            :help="
-                readonly
-                    ? undefined
-                    : trans('cms.templates.builder.default_help')
-            "
+            :label="trans('common.builder.options.default')"
+            :help="readonly ? undefined : defaultHelp"
             :error="error('default')"
         >
             <USelect

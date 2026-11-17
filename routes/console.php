@@ -15,3 +15,6 @@ Schedule::command('tracker:evaluate-occurrences')->hourlyAt(15)->withoutOverlapp
 
 // Bookings: reminders, follow-ups and review requests that have come due. Each is only ever sent once.
 Schedule::command('bookings:send-scheduled-messages')->everyFifteenMinutes()->withoutOverlapping();
+
+// MCP audit log entries past their retention period
+Schedule::command('api:prune-mcp-audit-logs')->dailyAt('03:30')->withoutOverlapping();

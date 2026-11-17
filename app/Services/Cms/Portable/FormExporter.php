@@ -68,6 +68,7 @@ class FormExporter
             FormFieldType::Text => ['max_length' => $settings?->max_length],
             FormFieldType::Textarea => ['max_length' => $settings?->max_length, 'rows' => $settings?->rows],
             FormFieldType::Number => ['min' => $settings?->min, 'max' => $settings?->max],
+            FormFieldType::Select => ['options' => $settings?->options, 'default' => $settings?->default],
             FormFieldType::Email,
             FormFieldType::Hidden,
             FormFieldType::ContactEmail,

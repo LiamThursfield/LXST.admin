@@ -167,6 +167,14 @@ class CrmSeeder extends Seeder
             [FormFieldType::ContactLastName, 'Last name', 'last_name', true, null],
             [FormFieldType::ContactEmail, 'Email', 'email', true, null],
             [FormFieldType::ContactTelephone, 'Phone', 'phone', false, null],
+            [FormFieldType::Select, 'Enquiry type', 'enquiry_type', true, new FormFieldSettings(
+                options: [
+                    ['label' => 'A new project', 'value' => 'new-project'],
+                    ['label' => 'Support with an existing site', 'value' => 'support'],
+                    ['label' => 'Something else', 'value' => 'other'],
+                ],
+                default: 'new-project',
+            )],
             [FormFieldType::Textarea, 'Message', 'message', true, new FormFieldSettings(max_length: 2000, rows: 5)],
         ];
 

@@ -52,10 +52,11 @@ class FormSubmissionFactory extends Factory
                     : match ($field->type) {
                         FormFieldType::Number => fake()->numberBetween(1, 10),
                         FormFieldType::Email => fake()->safeEmail(),
+                        FormFieldType::Select => fake()->randomElement($field->settings?->optionValues() ?: [null]),
                         default => fake()->sentence(),
                     };
 
-                return new FormSubmissionAnswer($field->slug, $field->name, $field->type, $value);
+                return new FormSubmissionAnswer($field->slug, $field->name, $field->type, $value, $field->settings?->optionLabel($value));
             })->all();
 
             $marketing = collect(['marketing_email', 'marketing_sms', 'marketing_telephone'])
