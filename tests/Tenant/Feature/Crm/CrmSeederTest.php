@@ -19,7 +19,9 @@ it('seeds organisation units, contacts, a form and submissions, and is safe to r
     expect(OrganisationUnit::query()->count())->toBe(9)
         ->and(Contact::query()->count())->toBe(12)
         ->and(Form::query()->count())->toBe(1)
-        ->and(Form::query()->sole()->fields()->count())->toBe(5)
+        // Including an enquiry type select, answered with one of its options
+        ->and(Form::query()->sole()->fields()->count())->toBe(6)
+        ->and(FormSubmission::query()->get()->every(fn (FormSubmission $submission) => collect($submission->data->answers)->firstWhere('slug', 'enquiry_type')?->option_label !== null))->toBeTrue()
         ->and(Form::query()->sole()->captcha_enabled)->toBeTrue()
         // Four genuine, one from the spam contact and one caught by the honeypot
         ->and(FormSubmission::query()->count())->toBe(6)

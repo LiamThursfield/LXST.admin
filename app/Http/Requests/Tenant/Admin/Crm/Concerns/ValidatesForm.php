@@ -76,6 +76,11 @@ trait ValidatesForm
             'fields.*.settings.rows' => ['nullable', 'integer', 'min:1', 'max:50'],
             'fields.*.settings.min' => ['nullable', 'numeric'],
             'fields.*.settings.max' => ['nullable', 'numeric', $this->maxNotBelowMinRule()],
+            'fields.*.settings.options' => ['required_if:fields.*.type,'.FormFieldType::Select->value, 'nullable', 'array', 'list', 'max:100', $this->optionValuesUniqueRule()],
+            'fields.*.settings.options.*' => ['array'],
+            'fields.*.settings.options.*.label' => ['required', 'string', 'max:120'],
+            'fields.*.settings.options.*.value' => ['required', 'string', 'max:120', 'alpha_dash'],
+            'fields.*.settings.default' => ['nullable', 'string', $this->defaultIsAnOptionRule()],
         ];
     }
 
@@ -87,6 +92,7 @@ trait ValidatesForm
         return [
             'fields.*.slug.distinct' => __('crm.forms.validation.duplicate_field_slug'),
             'fields.*.slug.not_in' => __('crm.forms.validation.reserved_field_slug'),
+            'fields.*.settings.options.required_if' => __('crm.forms.validation.options_required'),
         ];
     }
 
@@ -100,7 +106,7 @@ trait ValidatesForm
     {
         $attributes = [];
 
-        foreach (['name', 'slug', 'type', 'settings.max_length', 'settings.rows', 'settings.min', 'settings.max'] as $key) {
+        foreach (['name', 'slug', 'type', 'settings.max_length', 'settings.rows', 'settings.min', 'settings.max', 'settings.options', 'settings.default'] as $key) {
             $attributes["fields.*.{$key}"] = __('crm.forms.builder.'.str_replace('settings.', '', $key));
         }
 
@@ -117,6 +123,34 @@ trait ValidatesForm
 
             if (is_numeric($value) && is_numeric($min) && $value < $min) {
                 $fail(__('crm.forms.validation.max_below_min'));
+            }
+        };
+    }
+
+    /**
+     * Sites submit an option's value, so each must mean one thing
+     */
+    protected function optionValuesUniqueRule(): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail): void {
+            $values = array_column(array_filter((array) $value, 'is_array'), 'value');
+
+            if (count($values) !== count(array_unique($values))) {
+                $fail(__('crm.forms.validation.duplicate_option_value'));
+            }
+        };
+    }
+
+    /**
+     * A select field's default must be one of its options
+     */
+    protected function defaultIsAnOptionRule(): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail): void {
+            $options = (array) $this->input(Str::replaceLast('.default', '.options', $attribute));
+
+            if (! in_array($value, array_column(array_filter($options, 'is_array'), 'value'), true)) {
+                $fail(__('crm.forms.validation.default_not_an_option'));
             }
         };
     }
@@ -180,6 +214,14 @@ trait ValidatesForm
                 array_intersect_key($settings, array_flip($type->settingKeys())),
                 fn (mixed $value) => $value !== null && $value !== '',
             );
+
+            // Only what an option is, without anything else the builder sent
+            if (is_array($settings['options'] ?? null)) {
+                $settings['options'] = array_map(
+                    fn (array $option) => ['label' => (string) $option['label'], 'value' => (string) $option['value']],
+                    array_values($settings['options']),
+                );
+            }
 
             return [
                 'id' => isset($field['id']) ? (int) $field['id'] : null,

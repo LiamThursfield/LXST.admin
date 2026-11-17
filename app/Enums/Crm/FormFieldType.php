@@ -17,6 +17,7 @@ enum FormFieldType: string
     case Number = 'number';
     case Email = 'email';
     case Hidden = 'hidden';
+    case Select = 'select';
 
     case ContactEmail = 'crm_email';
     case ContactTitle = 'crm_title';
@@ -58,6 +59,7 @@ enum FormFieldType: string
             self::Text => ['max_length'],
             self::Textarea => ['max_length', 'rows'],
             self::Number => ['min', 'max'],
+            self::Select => ['options', 'default'],
             default => [],
         };
     }

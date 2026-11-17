@@ -174,6 +174,7 @@ return [
         'number' => 'Number',
         'email' => 'Email',
         'hidden' => 'Hidden',
+        'select' => 'Select',
         'crm_email' => 'Contact: email',
         'crm_title' => 'Contact: title',
         'crm_first_name' => 'Contact: first name',

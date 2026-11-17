@@ -45,7 +45,7 @@ class FormSubmittedMail extends Mailable
                 'answers' => collect($this->submission->data->answers)
                     ->map(fn (FormSubmissionAnswer $answer) => [
                         'label' => $answer->label,
-                        'value' => $answer->value === null || $answer->value === '' ? __('crm.submissions.show.no_answer') : (string) $answer->value,
+                        'value' => $answer->value === null || $answer->value === '' ? __('crm.submissions.show.no_answer') : (string) $answer->displayValue(),
                     ])
                     ->all(),
             ],
