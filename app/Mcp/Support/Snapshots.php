@@ -3,6 +3,7 @@
 namespace App\Mcp\Support;
 
 use App\Data\Cms\MenuItemData;
+use App\Models\Cms\Layout;
 use App\Models\Cms\Menu;
 use App\Models\Cms\Metadata;
 use App\Models\Cms\Page;
@@ -69,6 +70,39 @@ class Snapshots
             'expired_at' => $snapshot['expired_at'],
             'metadata' => $snapshot['metadata'],
             'content' => $snapshot['content'],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function layout(Layout $layout): array
+    {
+        $layout->loadMissing('template');
+
+        return [
+            'id' => $layout->id,
+            'name' => $layout->name,
+            'slug' => $layout->slug,
+            'template_id' => $layout->template_id,
+            'template' => $layout->template->slug,
+            'pages_count' => $layout->pages()->count(),
+            'content' => $layout->contentValues(),
+        ];
+    }
+
+    /**
+     * The layout as the admin's layout form would send it
+     *
+     * @return array<string, mixed>
+     */
+    public static function layoutInput(Layout $layout): array
+    {
+        return [
+            'template_id' => $layout->template_id,
+            'name' => $layout->name,
+            'slug' => $layout->slug,
+            'content' => $layout->contentValues(),
         ];
     }
 

@@ -11,7 +11,6 @@ use App\Mcp\Support\Snapshots;
 use App\Mcp\Support\ToolCall;
 use App\Mcp\Support\ToolRefused;
 use App\Models\Cms\Page;
-use App\Models\Cms\Template;
 use App\Models\User;
 use App\Services\Cms\PageWriter;
 
@@ -30,11 +29,7 @@ trait SavesPages
      */
     protected function contentInput(mixed $templateId, array $content): array
     {
-        $template = is_numeric($templateId)
-            ? Template::query()->where('type', TemplateType::Page)->whereKey((int) $templateId)->first()
-            : null;
-
-        return $template === null ? $content : app(ContentInput::class)->normalise($template, $content);
+        return app(ContentInput::class)->forTemplate(TemplateType::Page, $templateId, $content);
     }
 
     protected function refuseUnlessDraft(Page $page): void

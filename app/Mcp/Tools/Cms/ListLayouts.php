@@ -19,7 +19,7 @@ class ListLayouts extends McpTool
 {
     protected string $name = 'list_layouts';
 
-    protected string $description = 'The site\'s layouts. Every page has one (its layout_id), which holds content shared by the pages using it.';
+    protected string $description = 'The site\'s layouts. Every page has one (its layout_id), which holds content shared by the pages using it. Use get_layout for a layout\'s content.';
 
     public function ability(): ApiTokenAbility
     {

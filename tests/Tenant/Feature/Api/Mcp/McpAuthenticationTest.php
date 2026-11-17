@@ -71,7 +71,7 @@ test('a token only sees the tools for its abilities', function () {
     $readOnly = mcpToken($this->user, [ApiTokenAbility::McpCmsRead]);
 
     expect(mcpToolNames($this, $readOnly))->toBe([
-        'get_menu', 'get_page', 'get_site_settings', 'get_template', 'list_field_types',
+        'get_layout', 'get_menu', 'get_page', 'get_site_settings', 'get_template', 'list_field_types',
         'list_layouts', 'list_menus', 'list_pages', 'list_templates',
     ]);
 
@@ -79,7 +79,7 @@ test('a token only sees the tools for its abilities', function () {
 
     expect(mcpToolNames($this, $forms))->toBe(['create_form', 'get_form', 'list_forms', 'update_form']);
 
-    expect(mcpToolNames($this, mcpToken($this->user)))->toHaveCount(21);
+    expect(mcpToolNames($this, mcpToken($this->user)))->toHaveCount(24);
 });
 
 test('a module\'s tools are only there when the site has the module', function () {

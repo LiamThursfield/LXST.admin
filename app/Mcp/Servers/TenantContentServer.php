@@ -2,9 +2,11 @@
 
 namespace App\Mcp\Servers;
 
+use App\Mcp\Tools\Cms\CreateLayout;
 use App\Mcp\Tools\Cms\CreateMenu;
 use App\Mcp\Tools\Cms\CreatePage;
 use App\Mcp\Tools\Cms\CreateTemplate;
+use App\Mcp\Tools\Cms\GetLayout;
 use App\Mcp\Tools\Cms\GetMenu;
 use App\Mcp\Tools\Cms\GetPage;
 use App\Mcp\Tools\Cms\GetSiteSettings;
@@ -16,6 +18,7 @@ use App\Mcp\Tools\Cms\ListPages;
 use App\Mcp\Tools\Cms\ListTemplates;
 use App\Mcp\Tools\Cms\PublishPage;
 use App\Mcp\Tools\Cms\UnpublishPage;
+use App\Mcp\Tools\Cms\UpdateLayout;
 use App\Mcp\Tools\Cms\UpdateMenu;
 use App\Mcp\Tools\Cms\UpdatePage;
 use App\Mcp\Tools\Cms\UpdateTemplate;
@@ -40,9 +43,9 @@ use Laravel\Mcp\Server\Attributes\Version;
     Manages one website's content in LXST.admin, a headless CMS: its templates, pages, menus and CRM forms. Websites read it through the site's public API.
 
     - Templates define fields. Pages use a page template, and their content is keyed by its field slugs. Read a template with get_template, and list_field_types for the shape of each field's value.
-    - Every page has a layout (list_layouts) and a URL: its parent's URL plus its slug. A top-level page with no slug is the home page.
+    - Every page has a layout (list_layouts; create_layout makes one from a layout template) and a URL: its parent's URL plus its slug. A top-level page with no slug is the home page.
     - Pages are created as drafts. Publishing is for a person in the admin, unless this token can use publish_page. Live pages can only be edited with that ability too.
-    - Templates, menus and forms have no drafts: changes to them go live straight away, so check before changing ones in use.
+    - Layouts, templates, menus and forms have no drafts: changes to them go live straight away, so check before changing ones in use.
     - Nothing can be deleted through this server, and fields can't be removed from templates or forms.
     - Updates only change what you send. Validation errors list each field's problem; fix them and try again.
     - Every call is logged for the site's owners to review.
@@ -60,6 +63,9 @@ class TenantContentServer extends Server
     protected array $tools = [
         GetSiteSettings::class,
         ListLayouts::class,
+        GetLayout::class,
+        CreateLayout::class,
+        UpdateLayout::class,
         ListFieldTypes::class,
         ListTemplates::class,
         GetTemplate::class,

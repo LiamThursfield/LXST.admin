@@ -14,6 +14,7 @@ use App\Http\Resources\Tenant\Admin\Cms\TemplateResource;
 use App\Models\Cms\Layout;
 use App\Models\Cms\Template;
 use App\Services\Cms\ContentFieldOptions;
+use App\Services\Cms\LayoutWriter;
 use App\Services\Cms\Portable\SiteExporter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -79,13 +80,9 @@ class LayoutController extends Controller
         ]);
     }
 
-    public function store(LayoutStoreRequest $request): RedirectResponse
+    public function store(LayoutStoreRequest $request, LayoutWriter $writer): RedirectResponse
     {
-        DB::transaction(function () use ($request) {
-            $layout = Layout::create($request->layoutAttributes());
-
-            $layout->syncContent($request->contentValues());
-        });
+        $writer->create($request);
 
         return redirect()->route('admin.cms.layouts.index')
             ->with('success', __('cms.layouts.flash.created'));
@@ -123,14 +120,9 @@ class LayoutController extends Controller
         ]);
     }
 
-    public function update(LayoutUpdateRequest $request, Layout $layout): RedirectResponse
+    public function update(LayoutUpdateRequest $request, Layout $layout, LayoutWriter $writer): RedirectResponse
     {
-        DB::transaction(function () use ($request, $layout) {
-            $layout->update($request->layoutAttributes());
-
-            // Content for fields that aren't in the (possibly changed) template is removed
-            $layout->syncContent($request->contentValues());
-        });
+        $writer->update($layout, $request);
 
         return redirect()->route('admin.cms.layouts.index')
             ->with('success', __('cms.layouts.flash.updated'));
