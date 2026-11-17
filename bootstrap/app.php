@@ -89,7 +89,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             HandleAppearance::class,
             HandleInertiaRequests::class,
-            AddLinkHeadersForPreloadedAssets::class,
+            // Cap the Link header: big pages preload 30+ chunks, and the full header
+            // outgrows nginx's default 4k FastCGI header buffer, which answers 502
+            AddLinkHeadersForPreloadedAssets::using(10),
         ]);
 
         $middleware->alias([
