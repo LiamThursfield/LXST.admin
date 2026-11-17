@@ -1,3 +1,5 @@
+import type { SelectFieldOption } from '@/types/ui';
+
 /** A redirect's status (see backend `RedirectStatus`). */
 export type RedirectStatus = 'active' | 'scheduled' | 'expired' | 'disabled';
 
@@ -42,10 +44,7 @@ export type TemplateFieldNumberSettingKey = Exclude<
 >;
 
 /** One of a select field's choices. The site receives the value. */
-export type TemplateFieldOption = {
-    label: string;
-    value: string;
-};
+export type TemplateFieldOption = SelectFieldOption;
 
 /** A component or repeater template a field can nest (see `TemplateController::builderOptions()`). */
 export type NestedTemplateOption = {

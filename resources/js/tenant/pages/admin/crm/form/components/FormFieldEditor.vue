@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import SelectOptionsEditor from '@/tenant/components/builder/SelectOptionsEditor.vue';
 import type {
     FormFieldData,
+    FormFieldNumberSettingKey,
     FormFieldSettingKey,
     FormFieldTypeOption,
 } from '@/types';
@@ -32,8 +34,16 @@ const fieldType = computed(() =>
     props.fieldTypes.find((type) => type.value === field.value.type),
 );
 
-const settingKeys = computed<FormFieldSettingKey[]>(
+const typeSettingKeys = computed<FormFieldSettingKey[]>(
     () => fieldType.value?.settingKeys ?? [],
+);
+
+/** The settings entered as a number, e.g. max length. */
+const settingKeys = computed(() =>
+    typeSettingKeys.value.filter(
+        (key): key is FormFieldNumberSettingKey =>
+            !['options', 'default'].includes(key),
+    ),
 );
 
 function error(key: string): string | undefined {
@@ -119,9 +129,19 @@ function error(key: string): string | undefined {
                 }}
             </h3>
 
-            <p v-if="!settingKeys.length" class="text-muted text-sm">
+            <p v-if="!typeSettingKeys.length" class="text-muted text-sm">
                 {{ trans('crm.forms.builder.no_type_settings') }}
             </p>
+
+            <SelectOptionsEditor
+                v-else-if="typeSettingKeys.includes('options')"
+                v-model:settings="field.settings"
+                :error-prefix="errorPrefix"
+                :options-help="trans('crm.forms.builder.options_help')"
+                :default-help="trans('crm.forms.builder.default_help')"
+                :errors="errors"
+                :readonly="readonly"
+            />
 
             <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <UFormField

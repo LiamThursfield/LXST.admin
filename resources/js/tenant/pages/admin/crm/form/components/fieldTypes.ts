@@ -5,6 +5,7 @@ export const formFieldTypeIcons: Record<string, string> = {
     number: 'i-lucide-hash',
     email: 'i-lucide-at-sign',
     hidden: 'i-lucide-eye-off',
+    select: 'i-lucide-square-chevron-down',
     crm_email: 'i-lucide-mail',
     crm_title: 'i-lucide-badge',
     crm_first_name: 'i-lucide-user',

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import { create } from '@/actions/App/Http/Controllers/Tenant/Admin/Cms/TemplateController';
+import SelectOptionsEditor from '@/tenant/components/builder/SelectOptionsEditor.vue';
 import type {
     NestedTemplateOption,
     SelectItem,
@@ -10,7 +11,6 @@ import type {
     TemplateFieldTypeOption,
     TemplateFieldWidth,
 } from '@/types';
-import SelectOptionsEditor from './SelectOptionsEditor.vue';
 
 /**
  * The chosen field's settings in the template builder's panel: its name, slug, type, width, help
@@ -225,8 +225,10 @@ const width = computed({
 
             <SelectOptionsEditor
                 v-else-if="typeSettingKeys.includes('options')"
-                v-model="field"
+                v-model:settings="field.settings"
                 :error-prefix="errorPrefix"
+                :options-help="trans('cms.templates.builder.options_help')"
+                :default-help="trans('cms.templates.builder.default_help')"
                 :errors="errors"
                 :readonly="readonly"
             />

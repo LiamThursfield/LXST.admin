@@ -188,6 +188,10 @@ return [
             'rows' => 'Rows',
             'min' => 'Minimum',
             'max' => 'Maximum',
+            'options' => 'Options',
+            'options_help' => 'The label is what visitors see. The value is what the website submits and the answer is stored as, so keep it the same once the form is live.',
+            'default' => 'Default',
+            'default_help' => 'The option chosen when the form first shows. Leave it blank to make visitors choose.',
             'type_groups' => [
                 'standard' => 'Standard fields',
                 'contact' => 'Contact details',
@@ -198,6 +202,7 @@ return [
                 'number' => 'A number, with an optional minimum and maximum',
                 'email' => 'An email address that isn\'t the contact\'s own',
                 'hidden' => 'A value the website fills in, not shown to visitors',
+                'select' => 'A dropdown of your own options, e.g. the type of enquiry',
                 'crm_email' => 'The contact\'s email address',
                 'crm_title' => 'The contact\'s title, e.g. Ms or Dr',
                 'crm_first_name' => 'The contact\'s first name',
@@ -225,6 +230,9 @@ return [
             'reserved_field_slug' => 'This key is used by the form itself, so choose another.',
             'duplicate_contact_field' => 'Only one ":type" field can be added.',
             'max_below_min' => 'The maximum cannot be below the minimum.',
+            'options_required' => 'Add at least one option.',
+            'duplicate_option_value' => 'Each option needs its own value.',
+            'default_not_an_option' => 'The default must be one of the options.',
         ],
         'confirm_delete' => 'Are you sure you want to delete form :name?',
         'flash' => [

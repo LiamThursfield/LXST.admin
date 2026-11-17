@@ -16,5 +16,15 @@ class FormSubmissionAnswer extends Data
         public string $label,
         public FormFieldType $type,
         public string|int|float|null $value,
+        /** The chosen option's label when it was submitted, as the value is a key the site sends (select) */
+        public ?string $option_label = null,
     ) {}
+
+    /**
+     * The answer as people should read it: the chosen option's label, otherwise the value
+     */
+    public function displayValue(): string|int|float|null
+    {
+        return $this->option_label ?? $this->value;
+    }
 }

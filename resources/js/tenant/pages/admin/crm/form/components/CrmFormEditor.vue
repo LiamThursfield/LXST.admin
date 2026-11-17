@@ -46,7 +46,12 @@ type BuilderField = FormFieldData & { uid: number };
 let nextUid = 0;
 
 function toBuilderField(field: FormFieldData): BuilderField {
-    return { ...field, settings: { ...field.settings }, uid: nextUid++ };
+    // A deep copy, so editing a select's options doesn't change the saved form's
+    return {
+        ...field,
+        settings: JSON.parse(JSON.stringify(field.settings)),
+        uid: nextUid++,
+    };
 }
 
 const crmForm = props.crmForm;

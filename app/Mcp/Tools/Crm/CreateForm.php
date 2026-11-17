@@ -51,7 +51,9 @@ class CreateForm extends McpTool
     {
         $types = implode(', ', array_map(fn (FormFieldType $type) => $type->value, FormFieldType::cases()));
 
-        return 'Fields as objects: {"type", "name", "slug" (optional, made from the name), "is_required", "settings": {"max_length", "rows", "min", "max"}}. Types: '.$types.'. The crm_* types fill in the contact\'s details and can each be used once.';
+        return 'Fields as objects: {"type", "name", "slug" (optional, made from the name), "is_required", "settings": {"max_length", "rows", "min", "max", "options", "default"}}. Types: '.$types.'. '
+            .'Settings by type: text max_length; textarea max_length, rows; number min, max; select options (required, a list of {"label", "value"} where each value is unique and alpha-dash, e.g. {"label": "Web design", "value": "web-design"}) and default (optional, one of the option values). '
+            .'A select answer must be one of its option values. The crm_* types fill in the contact\'s details and can each be used once.';
     }
 
     public function ability(): ApiTokenAbility
