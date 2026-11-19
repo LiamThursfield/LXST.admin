@@ -34,7 +34,6 @@ return [
     'create' => [
         'title' => 'Create Tenant',
         'submit' => 'Create Tenant',
-        'provisioning' => 'Creating the tenant\'s database can take a moment.',
     ],
 
     'edit' => [
@@ -72,6 +71,19 @@ return [
     'status' => [
         'active' => 'Active',
         'disabled' => 'Disabled',
+    ],
+
+    'setup' => [
+        'setting_up_title' => 'Setting up :name',
+        'setting_up_description' => 'Creating its database and getting it ready. This usually takes under a minute, and carries on if you leave this page.',
+        'setting_up_with_admin' => 'Once it\'s ready, :email will be emailed a link to set their password.',
+        'stalled' => 'This is taking longer than usual. Check that the queue worker is running.',
+        'failed_title' => 'Setting up :name failed',
+        'failed_description' => 'Its half-made database has been removed. Try again, or delete the tenant.',
+        'retry' => 'Try again',
+        'ready' => ':name is ready.',
+        'unknown_error' => 'Something went wrong while setting it up.',
+        'no_domain_for_invite' => 'The first admin can\'t be invited, as the tenant has no full domain to send them to.',
     ],
 
     'show' => [
@@ -124,8 +136,9 @@ return [
     ],
 
     'flash' => [
-        'created' => 'Tenant :name created.',
-        'created_and_invited' => 'Tenant :name created, and :email has been invited.',
+        'created' => 'Tenant :name created. It\'s being set up now.',
+        'retrying' => 'Setting up :name again.',
+        'retry_not_failed' => ':name\'s setup hasn\'t failed, so there\'s nothing to try again.',
         'create_failed' => 'The tenant couldn\'t be created: :message',
         'updated' => 'Tenant :name updated.',
         'disabled' => 'Tenant :name disabled.',
@@ -144,4 +157,7 @@ return [
 
     // Shown by a disabled tenant's site, admin and API
     'disabled_message' => 'This site is currently unavailable.',
+
+    // Shown by a tenant's site, admin and API while it's being set up
+    'setting_up_message' => 'This site is being set up. Try again in a minute.',
 ];

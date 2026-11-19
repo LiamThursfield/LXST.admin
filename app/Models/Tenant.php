@@ -4,9 +4,11 @@ namespace App\Models;
 
 use App\Enums\BookingType;
 use App\Enums\TenantModule;
+use App\Enums\TenantSetupStatus;
 use App\Services\Industry\IndustryProfile;
 use App\Services\Industry\IndustryProfiles;
 use Database\Factories\TenantFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\AsEnumCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Carbon;
@@ -22,6 +24,9 @@ use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
  * @property string $industry The primary industry, a key of config('industries.profiles')
  * @property array{terms?: array<string, array{singular: string, plural: string}>, booking_types?: list<string>, customer_fields?: list<string>}|null $industry_overrides
  * @property Carbon|null $disabled_at
+ * @property TenantSetupStatus $setup_status
+ * @property string|null $setup_error Why setting it up failed
+ * @property array{first_name: string, last_name: string, email: string}|null $setup_admin The first admin to invite once it's set up (kept in `data`)
  */
 class Tenant extends BaseTenant implements TenantWithDatabase
 {
@@ -37,6 +42,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
      */
     protected $attributes = [
         'industry' => 'other',
+        'setup_status' => 'ready',
     ];
 
     /**
@@ -50,6 +56,8 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'industry',
             'industry_overrides',
             'disabled_at',
+            'setup_status',
+            'setup_error',
             'stripe_account_id',
             'stripe_charges_enabled',
             'stripe_details_submitted',
@@ -67,6 +75,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'modules' => AsEnumCollection::of(TenantModule::class),
             'industry_overrides' => 'array',
             'disabled_at' => 'datetime',
+            'setup_status' => TenantSetupStatus::class,
             'stripe_charges_enabled' => 'boolean',
             'stripe_details_submitted' => 'boolean',
             'platform_fee_percent' => 'decimal:2',
@@ -151,5 +160,24 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     public function isDisabled(): bool
     {
         return $this->disabled_at !== null;
+    }
+
+    /**
+     * Whether the tenant's database has been set up, so its site, admin and API can answer
+     */
+    public function isReady(): bool
+    {
+        return $this->setup_status === TenantSetupStatus::Ready;
+    }
+
+    /**
+     * Only tenants that have been set up, for anything that runs across every tenant
+     *
+     * @param  Builder<Tenant>  $query
+     * @return Builder<Tenant>
+     */
+    public function scopeReady(Builder $query): Builder
+    {
+        return $query->where('setup_status', TenantSetupStatus::Ready);
     }
 }

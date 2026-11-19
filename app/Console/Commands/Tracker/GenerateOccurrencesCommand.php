@@ -36,7 +36,7 @@ class GenerateOccurrencesCommand extends Command
         if ($tenantId) {
             $this->generateForTenant(Tenant::findOrFail($tenantId), $generator, $daysAhead);
         } else {
-            Tenant::all()->each(function ($tenant) use ($generator, $daysAhead): void {
+            Tenant::query()->ready()->get()->each(function ($tenant) use ($generator, $daysAhead): void {
                 /** @var Tenant $tenant - required for phpstan */
                 $this->generateForTenant($tenant, $generator, $daysAhead);
             });

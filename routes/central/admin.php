@@ -29,6 +29,7 @@ Route::get('tenants/{tenant}/edit', [TenantController::class, 'edit'])->name('te
 Route::put('tenants/{tenant}', [TenantController::class, 'update'])->name('tenants.update');
 Route::post('tenants/{tenant}/disable', [TenantController::class, 'disable'])->name('tenants.disable');
 Route::post('tenants/{tenant}/enable', [TenantController::class, 'enable'])->name('tenants.enable');
+Route::post('tenants/{tenant}/retry-setup', [TenantController::class, 'retrySetup'])->name('tenants.retry-setup');
 Route::delete('tenants/{tenant}', [TenantController::class, 'destroy'])->name('tenants.destroy');
 
 // A tenant's domains, managed from its page

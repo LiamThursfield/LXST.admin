@@ -125,7 +125,18 @@ const { filters, hasFilters, chips, remove, clear, goToPage } = useListFilters({
                     {{ row.original.name }}
                 </Link>
                 <UBadge
-                    v-if="row.original.is_disabled"
+                    v-if="row.original.setup_status.value !== 'ready'"
+                    :color="
+                        row.original.setup_status.value === 'failed'
+                            ? 'error'
+                            : 'info'
+                    "
+                    variant="subtle"
+                >
+                    {{ row.original.setup_status.label }}
+                </UBadge>
+                <UBadge
+                    v-else-if="row.original.is_disabled"
                     color="warning"
                     variant="subtle"
                 >

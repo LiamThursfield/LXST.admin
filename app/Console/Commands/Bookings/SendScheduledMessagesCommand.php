@@ -33,7 +33,7 @@ class SendScheduledMessagesCommand extends Command
 
         $tenants = is_string($tenantId) && $tenantId !== ''
             ? Tenant::query()->whereKey($tenantId)->get()
-            : Tenant::all();
+            : Tenant::query()->ready()->get();
 
         foreach ($tenants as $tenant) {
             /** @var Tenant $tenant */

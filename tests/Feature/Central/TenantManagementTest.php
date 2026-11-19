@@ -1,17 +1,22 @@
 <?php
 
 use App\Enums\TenantModule;
+use App\Enums\TenantSetupStatus;
+use App\Jobs\ProvisionTenant;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Services\Authorisation\Enums\Role;
+use App\Services\Central\TenantDatabase;
 use App\Services\Central\TenantProvisioner;
 use App\Services\Cms\Api\ContentVersion;
 use Illuminate\Mail\Transport\ArrayTransport;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
 use Inertia\Testing\AssertableInertia as Assert;
 use Stancl\Tenancy\Events\TenantCreated;
 use Stancl\Tenancy\Events\TenantDeleted;
+use Stancl\Tenancy\Jobs\CreateDatabase;
 
 beforeEach(function () {
     $this->actingAs(User::factory()->create());
@@ -41,6 +46,31 @@ describe('creating', function () {
             );
     });
 
+    test('a tenant is saved with its domain, then set up in the background', function () {
+        Queue::fake();
+
+        $this->post(route('central.admin.tenants.store'), tenantInput([
+            'admin_first_name' => 'Ada',
+            'admin_last_name' => 'Lovelace',
+            'admin_email' => 'ada@example.com',
+        ]))->assertSessionHas('success', __('tenants.flash.created', ['name' => 'acme']));
+
+        $tenant = Tenant::query()->with('domains')->sole();
+
+        expect($tenant->setup_status)->toBe(TenantSetupStatus::SettingUp)
+            ->and($tenant->setup_admin)->toEqual(['first_name' => 'Ada', 'last_name' => 'Lovelace', 'email' => 'ada@example.com'])
+            ->and($tenant->domains->pluck('domain')->all())->toBe(['acme.test'])
+            ->and(app(TenantDatabase::class)->exists($tenant))->toBeFalse();
+
+        Queue::assertPushed(ProvisionTenant::class, fn (ProvisionTenant $job) => $job->tenant->is($tenant));
+
+        $this->get(route('central.admin.tenants.show', $tenant))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('tenant.data.setup_status.value', 'setting_up')
+                ->where('tenant.data.setup_admin_email', 'ada@example.com')
+            );
+    });
+
     test('a tenant is provisioned with its database, domain, modules and first admin, who is invited on the tenant\'s domain', function () {
         $response = $this->post(route('central.admin.tenants.store'), tenantInput([
             'domain' => ' Acme.TEST ',
@@ -51,10 +81,11 @@ describe('creating', function () {
 
         $tenant = Tenant::query()->with('domains')->sole();
 
-        $response->assertRedirect(route('central.admin.tenants.show', $tenant))
-            ->assertSessionHas('success', __('tenants.flash.created_and_invited', ['name' => 'acme', 'email' => 'ada@example.com']));
+        $response->assertRedirect(route('central.admin.tenants.show', $tenant));
 
         expect($tenant->name)->toBe('acme')
+            ->and($tenant->setup_status)->toBe(TenantSetupStatus::Ready)
+            ->and($tenant->setup_admin)->toBeNull()
             ->and($tenant->modules->all())->toBe([TenantModule::Cms, TenantModule::Crm])
             ->and($tenant->domains->pluck('domain')->all())->toBe(['acme.test'])
             ->and($tenant->database()->manager()->databaseExists($tenant->database()->getName()))->toBeTrue();
@@ -158,14 +189,78 @@ describe('creating', function () {
             ->assertSessionHasInput('name', 'acme');
     });
 
-    test('a failed provision removes the half-made tenant', function () {
-        Event::fake([TenantCreated::class, TenantDeleted::class]);
-        Tenant::created(fn () => throw new RuntimeException('Migrating failed.'));
+});
 
-        expect(fn () => app(TenantProvisioner::class)->provision('acme', 'acme.test', collect()))
-            ->toThrow(RuntimeException::class, 'Migrating failed.');
+describe('setting up', function () {
+    test('a failed setup removes the half-made database and keeps why, and the admin to invite', function () {
+        $admin = ['first_name' => 'Ada', 'last_name' => 'Lovelace', 'email' => 'ada@example.com'];
+        $tenant = Tenant::factory()->settingUp($admin)->create(['name' => 'acme']);
+
+        // The database is made, then migrating it fails
+        $this->partialMock(TenantDatabase::class)
+            ->shouldReceive('create')
+            ->andReturnUsing(function (Tenant $tenant) {
+                app()->call([new CreateDatabase($tenant), 'handle']);
+
+                throw new RuntimeException('Migrating failed.');
+            });
+
+        expect(fn () => ProvisionTenant::dispatch($tenant))->toThrow(RuntimeException::class, 'Migrating failed.');
+
+        $tenant->refresh();
+
+        expect($tenant->setup_status)->toBe(TenantSetupStatus::Failed)
+            ->and($tenant->setup_error)->toBe('Migrating failed.')
+            ->and($tenant->setup_admin)->toEqual($admin)
+            ->and(app(TenantDatabase::class)->exists($tenant))->toBeFalse();
+
+        $this->get(route('central.admin.tenants.show', $tenant))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('tenant.data.setup_status.value', 'failed')
+                ->where('tenant.data.setup_error', 'Migrating failed.')
+            );
+    });
+
+    test('a failed setup can be tried again', function () {
+        Queue::fake();
+        $tenant = Tenant::factory()->setupFailed()->create();
+
+        $this->post(route('central.admin.tenants.retry-setup', $tenant))
+            ->assertSessionHas('success', __('tenants.flash.retrying', ['name' => $tenant->name]));
+
+        expect($tenant->refresh()->setup_status)->toBe(TenantSetupStatus::SettingUp)
+            ->and($tenant->setup_error)->toBeNull();
+
+        Queue::assertPushed(ProvisionTenant::class, fn (ProvisionTenant $job) => $job->tenant->is($tenant));
+    });
+
+    test('only a failed setup can be tried again', function () {
+        Queue::fake();
+        $tenant = Tenant::factory()->settingUp()->create();
+
+        $this->post(route('central.admin.tenants.retry-setup', $tenant))
+            ->assertSessionHas('error', __('tenants.flash.retry_not_failed', ['name' => $tenant->name]));
+
+        Queue::assertNothingPushed();
+    });
+
+    test('a tenant whose setup failed can be deleted without disabling it first', function () {
+        $tenant = Tenant::factory()->setupFailed()->create(['name' => 'acme']);
+
+        $this->delete(route('central.admin.tenants.destroy', $tenant), ['confirm_name' => 'acme'])
+            ->assertRedirect(route('central.admin.tenants.index'));
 
         expect(Tenant::query()->count())->toBe(0);
+    });
+
+    test('tasks run across every tenant skip those that aren\'t set up', function () {
+        $ready = Tenant::factory()->create();
+        Tenant::factory()->settingUp()->create();
+        Tenant::factory()->setupFailed()->create();
+
+        expect(Tenant::query()->ready()->pluck('id')->all())->toBe([$ready->id]);
+
+        $this->artisan('permissions:sync')->assertSuccessful();
     });
 });
 
