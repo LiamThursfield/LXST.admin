@@ -282,6 +282,12 @@ return [
         'cli_sync' => 'Rekordbox CLI sync',
     ],
 
+    'tenant_setup_status' => [
+        'setting_up' => 'Setting up',
+        'ready' => 'Ready',
+        'failed' => 'Setup failed',
+    ],
+
     'import_status' => [
         'pending' => 'Waiting',
         'processing' => 'Importing',

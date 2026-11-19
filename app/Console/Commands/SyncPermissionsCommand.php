@@ -34,7 +34,7 @@ class SyncPermissionsCommand extends Command
             $tenant = Tenant::findOrFail($tenantId);
             $this->syncForTenant($tenant);
         } else {
-            Tenant::all()->each(function ($tenant) {
+            Tenant::query()->ready()->get()->each(function ($tenant) {
                 /** @var Tenant $tenant - required for phpstan */
                 $this->syncForTenant($tenant);
             });

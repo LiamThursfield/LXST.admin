@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Central\Admin;
 
 use App\Enums\TenantModule;
+use App\Enums\TenantSetupStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Queries\Central\Admin\TenantIndexQuery;
 use App\Http\Requests\Central\Admin\TenantDestroyRequest;
@@ -62,8 +63,8 @@ class TenantController extends Controller
     }
 
     /**
-     * Creating the tenant's database runs straight away, so a failure (e.g. the database server
-     * refusing) is shown on the form rather than leaving a half-made tenant behind
+     * Saves the tenant and its domain, then sets its database up in the background
+     * (ProvisionTenant). Its page shows how that's going.
      */
     public function store(TenantStoreRequest $request, TenantProvisioner $provisioner): RedirectResponse
     {
@@ -82,9 +83,21 @@ class TenantController extends Controller
         }
 
         return redirect()->route('central.admin.tenants.show', $tenant)
-            ->with('success', $request->admin() === null
-                ? __('tenants.flash.created', ['name' => $tenant->name])
-                : __('tenants.flash.created_and_invited', ['name' => $tenant->name, 'email' => $request->admin()['email']]));
+            ->with('success', __('tenants.flash.created', ['name' => $tenant->name]));
+    }
+
+    /**
+     * Tries setting up a tenant whose setup failed again
+     */
+    public function retrySetup(Tenant $tenant, TenantProvisioner $provisioner): RedirectResponse
+    {
+        if ($tenant->setup_status !== TenantSetupStatus::Failed) {
+            return back()->with('error', __('tenants.flash.retry_not_failed', ['name' => $tenant->name]));
+        }
+
+        $provisioner->retry($tenant);
+
+        return back()->with('success', __('tenants.flash.retrying', ['name' => $tenant->name]));
     }
 
     public function show(Tenant $tenant): Response
@@ -157,7 +170,8 @@ class TenantController extends Controller
     }
 
     /**
-     * Deletes a disabled tenant, along with its domains and database (the tenancy pipeline)
+     * Deletes a disabled tenant, or one whose setup failed, along with its domains and database
+     * (the tenancy pipeline)
      */
     public function destroy(TenantDestroyRequest $request, Tenant $tenant): RedirectResponse
     {

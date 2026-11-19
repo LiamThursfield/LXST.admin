@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Jobs\SeedRolesAndPermissions;
+use App\Models\Tenant;
+use App\Services\Central\TenantDatabase;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
@@ -50,18 +51,13 @@ class TenancyServiceProvider extends ServiceProvider
             // Tenant events
             Events\CreatingTenant::class => [],
             Events\TenantCreated::class => [
-                JobPipeline::make([
-                    Jobs\CreateDatabase::class,
-                    Jobs\MigrateDatabase::class,
-                    SeedRolesAndPermissions::class,
-                    // Jobs\SeedDatabase::class,
-                    // Jobs\CreateStorageSymlinks::class,
-
-                    // Your own jobs to prepare the tenant.
-                    // Provision API keys, create S3 buckets, anything you want!
-                ])->send(function (Events\TenantCreated $event) {
-                    return $event->tenant;
-                })->shouldBeQueued(false),
+                // Creates, migrates and seeds its database straight away, unless it's being set
+                // up in the background (a tenant made from the central admin, see ProvisionTenant)
+                function (Events\TenantCreated $event): void {
+                    if ($event->tenant instanceof Tenant && $event->tenant->isReady()) {
+                        app(TenantDatabase::class)->create($event->tenant);
+                    }
+                },
 
                 // Listeners\CreateTenantStorage::class,
             ],
@@ -80,11 +76,12 @@ class TenancyServiceProvider extends ServiceProvider
                 // Listeners\DeleteTenantStorage::class,
             ],
             Events\TenantDeleted::class => [
-                JobPipeline::make([
-                    Jobs\DeleteDatabase::class,
-                ])->send(function (Events\TenantDeleted $event) {
-                    return $event->tenant;
-                })->shouldBeQueued(false),
+                // A tenant whose setup failed has no database to delete
+                function (Events\TenantDeleted $event): void {
+                    if ($event->tenant instanceof Tenant) {
+                        app(TenantDatabase::class)->delete($event->tenant);
+                    }
+                },
 
                 // ResourceSyncing\Listeners\DeleteAllTenantMappings::class,
             ],

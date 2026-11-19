@@ -6,6 +6,8 @@ export type TenantDomainData = {
 };
 
 /** A tenant, as returned by the central `TenantResource`. */
+export type TenantSetupStatus = 'setting_up' | 'ready' | 'failed';
+
 export type TenantData = {
     id: string;
     name: string;
@@ -17,6 +19,13 @@ export type TenantData = {
     platform_fee_percent: string | null;
     platform_fee_fixed: string | null;
     stripe_connected: boolean;
+    /** Where setting up its database has got to; only a ready tenant's site answers. */
+    setup_status: { value: TenantSetupStatus; label: string };
+    setup_error: string | null;
+    /** Still setting up after a few minutes, which usually means no queue worker is running. */
+    setup_stalled: boolean;
+    /** Who's invited as its first admin once it's set up. */
+    setup_admin_email: string | null;
     is_disabled: boolean;
     disabled_at: string | null;
     created_at: string | null;

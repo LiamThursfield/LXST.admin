@@ -2,13 +2,15 @@
 
 namespace App\Http\Requests\Central\Admin;
 
+use App\Enums\TenantSetupStatus;
 use App\Models\Tenant;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 /**
- * Deleting a tenant removes its database for good, so it must be disabled first, and its name typed
+ * Deleting a tenant removes its database for good, so it must be disabled first (unless its setup
+ * failed, so it has none), and its name typed
  */
 class TenantDestroyRequest extends FormRequest
 {
@@ -50,7 +52,9 @@ class TenantDestroyRequest extends FormRequest
     {
         return [
             function (Validator $validator) {
-                if (! $this->tenant()->isDisabled()) {
+                $tenant = $this->tenant();
+
+                if (! $tenant->isDisabled() && $tenant->setup_status !== TenantSetupStatus::Failed) {
                     $validator->errors()->add('tenant', __('tenants.validation.disable_first'));
                 }
             },

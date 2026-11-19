@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Central\Admin;
 
 use App\Enums\TenantModule;
+use App\Enums\TenantSetupStatus;
 use App\Http\Resources\Traits\HasActions;
 use App\Models\Tenant;
 use App\Services\Central\TenantUrls;
@@ -66,6 +67,12 @@ class TenantResource extends JsonResource
             'platform_fee_percent' => $tenant->getAttribute('platform_fee_percent') === null ? null : (string) $tenant->getAttribute('platform_fee_percent'),
             'platform_fee_fixed' => $tenant->getAttribute('platform_fee_fixed') === null ? null : number_format((int) $tenant->getAttribute('platform_fee_fixed') / 100, 2, '.', ''),
             'stripe_connected' => $tenant->canTakePayments(),
+            'setup_status' => $tenant->setup_status->toSelectItem(),
+            'setup_error' => $tenant->setup_error,
+            // Still setting up after a few minutes, which usually means no queue worker is running
+            'setup_stalled' => $tenant->setup_status === TenantSetupStatus::SettingUp
+                && $tenant->updated_at->lt(now()->subMinutes(5)),
+            'setup_admin_email' => $tenant->setup_admin['email'] ?? null,
             'is_disabled' => $tenant->isDisabled(),
             'disabled_at' => $tenant->disabled_at?->toIso8601String(),
             'created_at' => $tenant->created_at->toIso8601String(),

@@ -34,7 +34,7 @@ class EvaluateOccurrencesCommand extends Command
         if ($tenantId) {
             $this->evaluateForTenant(Tenant::findOrFail($tenantId), $evaluator);
         } else {
-            Tenant::all()->each(function ($tenant) use ($evaluator): void {
+            Tenant::query()->ready()->get()->each(function ($tenant) use ($evaluator): void {
                 /** @var Tenant $tenant - required for phpstan */
                 $this->evaluateForTenant($tenant, $evaluator);
             });
